@@ -379,7 +379,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(sim.errs.length === 0, 'Défi : 40 parties simulées, carnet exact malgré ×2, ÷2, miroir, +7… ' + sim.errs.join(', '));
     check(sim.ops.split(' ').length >= 5, 'Défi : sauts variés observés (' + sim.ops + ')');
     // victoire + score + record
-    await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless'); N.ask(N.state.choices[0]); N.nextTurn(); N.guess(N.state.secret); });
+    await page.evaluate(() => { localStorage.removeItem('numeroEnFuiteRecords'); const N = window.__numero; N.startChallenge('endless'); N.ask(N.state.choices[0]); N.nextTurn(); N.guess(N.state.secret); });
     check((await page.textContent('#next')).includes('score'), 'Défi trouvé : bouton « Voir mon score »');
     await page.click('#next');
     st = await S(page);
