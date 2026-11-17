@@ -13,23 +13,33 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 | `app/build.gradle` | compileSdk/targetSdk 35, minSdk 23 (Android 6+) |
 | `gradlew`, `gradle/wrapper/` | Gradle Wrapper 8.11.1 : compilation reproductible |
 | `.github/workflows/build-apk.yml` | Tests + compilation + vérification automatique de l'APK |
-| `tests/game.test.cjs` | ~4 200 vérifications automatiques du jeu |
+| `tests/game.test.cjs` | ~4 230 vérifications automatiques du jeu |
 | `LICENCE-POLICE.txt` | Licence libre (SIL OFL 1.1) de la police Baloo Bhaijaan 2 |
 | `web/Numero_en_Fuite_V7.html` | Version navigateur autonome |
 | `web/PWA/` | Version web installable (à héberger en HTTPS) |
 
 ## Nouveautés V7
 
-- **Deux façons de capturer** : touche un numéro, puis 🎯 *Capture précise* (+5 / −1) ou 🕸️ *Filet magique*
+- **Deux façons de capturer** : touche un numéro, puis 🎯 *Capture précise* (+10 / −1) ou 🕸️ *Filet magique*
   (+2, ou −1 par numéro si le filet est vide : −2 au niveau Petit, −3 ailleurs) sur 2 numéros voisins au niveau Petit (1–9)
   et 3 aux autres niveaux, toujours dans les limites du niveau.
   Une seule capture par tour, animations différentes (cible / filet).
 - **Mon carnet 📓** : questions, réponses, calculs, déplacements, numéros éliminés et numéros encore possibles,
-  recalculés à chaque déplacement. Aide *Automatique* (Petit), *Sur demande* (Moyen, Grand) ou *Désactivée* (Réglages).
+  recalculés à chaque déplacement. Aide *Désactivée* par défaut, ou *Automatique* / *Sur demande* (Réglages).
 - **Détective vivant** : réfléchit, cherche avec sa loupe, vise, marche ou saute quand le numéro bouge, danse quand
   on gagne, grimace quand on rate ; expressions joyeuse, surprise, inquiète, curieuse, fière ; bulles amusantes FR/EN/AR.
 - **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
   à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
+
+## V7.2
+
+- Plus d'aide automatique par défaut (pas de numéros en vert, jamais « il ne reste qu'un numéro ») : le filet suffit.
+  L'aide reste activable dans Réglages › Aide du carnet.
+- Pour encourager les questions : avantages / inconvénients affichés pour Indice, Calcul et Deviner, et
+  **+1 bonus déduction** quand on attrape le numéro juste après avoir posé une question (précise +11, filet +3).
+- Capture précise réussie : **+10** (puis un nouveau numéro se cache). Le chrono du numéro ne démarre qu'à l'ouverture de « Deviner ».
+- Effets : une loupe vient grossir le numéro au moment de la capture, grosse loupe sur le numéro attrapé,
+  logo « 9? » qui réfléchit pendant un calcul et fête les captures.
 
 ## Correctifs V7.1
 
