@@ -11,19 +11,19 @@ permissions:
 
 jobs:
   apk:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       HAS_RELEASE_KEY: ${{ secrets.NEF_KEYSTORE_BASE64 != '' }}
     steps:
       - name: Récupérer le code source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # ---------- 1. Tests automatiques du jeu (navigateur Chromium sans écran) ----------
       - name: Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Tester le jeu (1 à 4 joueurs, 3 niveaux, 3 langues, sauvegarde)
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.49.1
@@ -39,14 +39,27 @@ jobs:
 
       # ---------- 2. Compilation Android officielle (Gradle + SDK Google) ----------
       - name: Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - name: SDK Android
-        uses: android-actions/setup-android@v3
-      - name: Installer la plateforme Android 35
-        run: sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
+      - name: SDK Android officiel (Google) — plateforme 35
+        run: |
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/android-sdk}}"
+          SDKM="$SDK/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKM" ]; then
+            echo "Installation des command-line tools Android depuis dl.google.com"
+            mkdir -p "$SDK/cmdline-tools"
+            curl -fsSL -o /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+            unzip -q /tmp/cmdline-tools.zip -d "$SDK/cmdline-tools"
+            rm -rf "$SDK/cmdline-tools/latest"
+            mv "$SDK/cmdline-tools/cmdline-tools" "$SDK/cmdline-tools/latest"
+          fi
+          yes | "$SDKM" --sdk_root="$SDK" --licenses > /dev/null || true
+          "$SDKM" --sdk_root="$SDK" --install 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
+          echo "sdk.dir=$SDK" > local.properties
       - name: Cache Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Compiler l'APK debug
