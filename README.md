@@ -13,7 +13,7 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 | `app/build.gradle` | compileSdk/targetSdk 35, minSdk 23 (Android 6+) |
 | `gradlew`, `gradle/wrapper/` | Gradle Wrapper 8.11.1 : compilation reproductible |
 | `.github/workflows/build-apk.yml` | Tests + compilation + vérification automatique de l'APK |
-| `tests/game.test.cjs` | ~4 230 vérifications automatiques du jeu |
+| `tests/game.test.cjs` | ~4 270 vérifications automatiques du jeu |
 | `LICENCE-POLICE.txt` | Licence libre (SIL OFL 1.1) de la police Baloo Bhaijaan 2 |
 | `web/Numero_en_Fuite_V7.html` | Version navigateur autonome |
 | `web/PWA/` | Version web installable (à héberger en HTTPS) |
@@ -30,6 +30,17 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
   on gagne, grimace quand on rate ; expressions joyeuse, surprise, inquiète, curieuse, fière ; bulles amusantes FR/EN/AR.
 - **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
   à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
+
+## V7.5
+
+- **Le numéro bouge toujours** (jamais « resté sur place ») : ±1 au niveau Petit, ±1 ou ±2 ailleurs.
+- **Deux chronos visibles dès le début du tour** : 🕐 chrono global du tour (aide + choix du numéro :
+  Petit 75 s, Moyen 70 s, Grand 90 s) et 💬 chrono de réponse pour la question (25 / 20 / 20 s) ou 🧮 le calcul
+  (30 / 30 / 45 s). Réponse trop lente : plus d'aide ce tour. Chrono global écoulé : tour perdu. ⏸ met tout en pause.
+- **🏆 Défi solo** (bouton sur l'accueil) : numéros de 1 à 100, pavé numérique, sauts « fous » annoncés
+  (+7, −7, +9, +11, −13, ×2, ÷2, miroir). Deux variantes : *Contre la montre* (3 minutes) ou *Sans limite de temps*.
+  Score : 1000 − 25 par tour − 10 par aide − 20 par erreur (+2 par seconde restante), record enregistré.
+  Le carnet reste exact même avec ces sauts.
 
 ## V7.4
 

@@ -29,7 +29,7 @@ const EXPECTED_FN = `function(N){const s=N.state,max=N.maxN(),h=s.history;let fr
   else if(e.type==='math'&&e.correct){if((p>e.math.threshold)!==e.answer){ok=false;break}}
   else if(e.type==='wrong'){if(p===e.n){ok=false;break}}
   else if(e.type==='netMiss'){if(e.nums.includes(p)){ok=false;break}}
-  p=((p-1+e.shift)%max+max)%max+1}
+  const W=n=>((n-1)%max+max)%max+1;const m=e.shift;p=typeof m==='number'?W(p+m):m.op==='+'?W(p+m.k):m.op==='×'?W(p*m.k):m.op==='÷'?Math.ceil(p/m.k):max+1-p}
  if(ok)res.add(p)}return [...res].sort((a,b)=>a-b)}`;
 const notebookOK = page => page.evaluate(src => { const f = eval('(' + src + ')'), N = window.__numero, exp = f(N), got = [...N.state.candidates].sort((a, b) => a - b); return { ok: exp.join() === got.join() && got.includes(N.state.secret), exp: exp.join(), got: got.join() }; }, EXPECTED_FN);
 
@@ -114,7 +114,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       }
       let r = await S(page);
       const shift = r.last.shift;
-      check(r.phase === 'result' && Math.abs(shift) <= RANGE[level], `${label} t${turn} : déplacement annoncé ${shift} dans ±${RANGE[level]}`);
+      check(r.phase === 'result' && Math.abs(shift) <= RANGE[level] && shift !== 0, `${label} t${turn} : déplacement annoncé ${shift} dans ±${RANGE[level]}, jamais 0`);
       check(((secretBefore - 1 + shift + max * 10) % max) + 1 === r.secret, `${label} t${turn} : déplacement appliqué correctement (bouclage)`);
       check(await page.isVisible('#next'), `${label} t${turn} : bouton « Choisir mon numéro » visible`);
       const nb0 = await notebookOK(page);
@@ -220,7 +220,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
           const r = Math.random();
           if (r < .4) N.ask(s.choices[0]);
           else if (r < .7) { N.mathAnswer(Math.random() < .7 ? s.math.result : s.math.options[0]); }
-          if (N.state.phase === 'result') { const sh = N.state.last.shift; if (Math.abs(sh) > RANGE[level]) errors.push('déplacement trop grand ' + sh); N.nextTurn(); }
+          if (N.state.phase === 'result') { const sh = N.state.last.shift; if (Math.abs(sh) > RANGE[level] || sh === 0) errors.push('déplacement invalide ' + sh); N.nextTurn(); }
           if (N.state.phase !== 'choose') errors.push('phase inattendue après aide');{const e=EXP(N);if(e.join()!==[...N.state.candidates].sort((a,b)=>a-b).join())errors.push('carnet faux après aide '+level)}
           const c = N.state.candidates; const pickN = c[Math.floor(Math.random() * c.length)]; if (Math.random() < .5) N.guess(Math.random() < .3 ? 1 + Math.floor(Math.random() * max) : pickN); else N.netCapture(1 + Math.floor(Math.random() * max)); if (N.state.last && N.state.last.type === 'netMiss' && N.state.last.nums.length !== N.netSize()) errors.push('taille de filet');
           if (N.state.phase !== 'result') errors.push('tentative refusée');
@@ -283,59 +283,121 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
-  // 3b) Chronos adaptés à l'âge : calcul + choix du numéro, pause
+  // 3b) Chronos : global (tour) + réponse, visibles dès le début du tour ; pause ; calculs
   {
     const before = failed;
     const { ctx, page } = await fresh(browser);
+    const kinds = () => page.$$eval('[data-tk]', els => els.map(e => e.dataset.tk).join());
+    const txt = k => page.textContent(`[data-tk="${k}"] b`);
     const ages = await page.$$eval('.level .age', els => els.map(e => e.textContent));
     check(ages.length === 3 && ages[0].includes('5') && ages[2].includes('11'), 'Âges affichés sur les niveaux : ' + ages.join(' / '));
-    for (const [level, mathS, turnS] of [['junior', 30, 40], ['malin', 30, 35], ['expert', 45, 30]]) {
+    for (const [level, ans, mathS, glob] of [['junior', 25, 30, 75], ['malin', 20, 30, 70], ['expert', 20, 45, 90]]) {
       await page.evaluate(lv => { const N = window.__numero; N.state.players = 2; N.state.level = lv; N.state.timerMode = 'normal'; N.start(); }, level);
       await page.click('#handoffGo');
-      await page.waitForTimeout(700);
-      check(!(await page.$('#timer')) && (await S(page)).turnElapsed === 0, `${level} : pas de chrono pendant qu’on lit les questions`);
-      await page.click('[data-tab="guess"]');
-      check(await page.getAttribute('#timer', 'data-kind') === 'turn' && (await page.textContent('#timerText')).includes(String(turnS)), `${level} : le chrono « choisis ton numéro » (${turnS} s) démarre en ouvrant Deviner`);
+      check(await kinds() === 'global,answer' && (await txt('global')).includes(String(glob)) && (await txt('answer')).includes(String(ans)), `${level} : dès le début du tour, chrono global ${glob} s + chrono de réponse ${ans} s`);
       await page.waitForTimeout(1200);
-      const te = (await S(page)).turnElapsed;
-      check(te >= 800 && te <= 2000, `${level} : le chrono du tour avance (${te} ms)`);
-      await page.click('#pause'); const p0 = (await S(page)).turnElapsed; await page.waitForTimeout(800);
-      check((await S(page)).turnElapsed === p0, `${level} : PAUSE arrête le chrono`);
+      let st = await S(page);
+      check(st.turnElapsed >= 800 && st.answerElapsed >= 800, `${level} : les deux chronos avancent`);
+      await page.click('#pause'); const p0 = await S(page); await page.waitForTimeout(800); const p1 = await S(page);
+      check(p1.turnElapsed === p0.turnElapsed && p1.answerElapsed === p0.answerElapsed, `${level} : PAUSE arrête les chronos`);
       await page.click('#resumeGame');
       await page.click('[data-tab="math"]');
-      check(await page.getAttribute('#timer', 'data-kind') === 'math' && (await page.textContent('#timerText')).includes(String(mathS)), `${level} : chrono calcul ${mathS} s`);
+      check(await kinds() === 'global,math' && (await txt('math')).includes(String(mathS)), `${level} : calcul → chrono global + chrono calcul ${mathS} s`);
       check(await page.isDisabled('[data-tab="question"]'), `${level} : pendant le calcul, pas d’indice en plus`);
       const st0 = await S(page);
       await page.evaluate(() => { const s = window.__numero.state; s.mathElapsed += window.__numero.mathLeft() - 150; });
       await page.waitForTimeout(700);
-      let st = await S(page);
+      st = await S(page);
       check(st.phase === 'result' && st.last.timeout === true && st.stars[0] === st0.stars[0] && st.scores[0] === st0.scores[0], `${level} : calcul hors temps → pas d’étoile, pas de pénalité`);
+      check(!(await page.$('[data-tk]')), `${level} : chronos arrêtés pendant l’écran de résultat`);
+      const g1 = st.turnElapsed; await page.waitForTimeout(500);
+      check((await S(page)).turnElapsed === g1, `${level} : le chrono global ne tourne pas pendant le résultat`);
       await page.click('#next');
       st = await S(page);
-      check(st.phase === 'choose' && st.tab === 'guess' && st.turnElapsed < 1000 && await page.getAttribute('#timer', 'data-kind') === 'turn', `${level} : après le calcul, nouveau chrono pour choisir un numéro`);
-      // Le joueur ne choisit pas : temps écoulé
+      check(st.phase === 'choose' && st.tab === 'guess' && await kinds() === 'global' && st.turnElapsed >= g1, `${level} : après le calcul, le chrono global continue (réponse + choix du numéro)`);
       await page.evaluate(() => { const s = window.__numero.state; s.turnElapsed += window.__numero.turnLeft() - 150; });
       await page.waitForTimeout(700);
       st = await S(page);
-      check(st.phase === 'result' && st.last.type === 'timeout' && st.scores.join() === st0.scores.join(), `${level} : pas de choix à temps → tour perdu (0 point)`);
-      check(/TARD|⏱/.test(await page.textContent('.result-title')), `${level} : message « Trop tard ! »`);
+      check(st.phase === 'result' && st.last.type === 'timeout' && st.scores.join() === st0.scores.join(), `${level} : chrono global écoulé → tour perdu (0 point)`);
       await page.click('#next');
       st = await S(page);
       check(st.turn === st0.turn + 1 && st.modal === 'handoff', `${level} : le tour passe au joueur suivant`);
+      // Chrono de réponse écoulé pendant la question
+      await page.click('#handoffGo');
+      await page.evaluate(() => { const s = window.__numero.state; s.answerElapsed += window.__numero.answerLeft() - 150; });
+      await page.waitForTimeout(700);
+      st = await S(page);
+      check(st.phase === 'choose' && st.helpUsed && st.tab === 'guess' && (await page.textContent('.pick-hint')).includes('⏱'), `${level} : temps de réponse écoulé → plus d’aide, il faut choisir un numéro`);
       // Difficulté des calculs
       const ok = await page.evaluate(lv => { const N = window.__numero, out = []; for (let i = 0; i < 300; i++) { N.state.level = lv; N.state.screen = 'game'; N.state.phase = 'choose'; N.start(); const m = N.state.math; const txt = m.text; const val = Function('return ' + txt.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-'))(); if (val !== m.result || m.options.length !== (lv === 'expert' ? 6 : 3) || new Set(m.options).size !== m.options.length || m.options.some(o => o < 0) || !m.options.includes(m.result)) out.push(txt); if (lv === 'malin' && /^\d \+ \d$|^1\d \+ \d$/.test(txt)) out.push('trop facile ' + txt); if (lv === 'expert' && (txt.match(/[+−×÷]/g) || []).length < 2) out.push('pas assez mélangé ' + txt); } return out; }, level);
       check(ok.length === 0, `${level} : 300 calculs justes et adaptés ${ok.slice(0, 3).join(', ')}`);
     }
     await page.evaluate(() => { const N = window.__numero; N.state.level = 'junior'; N.state.players = 1; N.state.inGame = false; N.state.screen = 'home'; N.state.modal = null; N.render(); });
     await page.click('#openSettings'); await page.click('[data-timer="long"]'); await page.click('#closeSettings');
-    await page.click('#start'); await page.click('[data-tab="guess"]');
-    check((await page.textContent('#timerText')).includes('60'), 'Réglage « Plus de temps » : 60 s pour choisir (Petit)');
+    await page.click('#start');
+    check((await txt('global')).includes('113') && (await txt('answer')).includes('38'), 'Réglage « Plus de temps » : ×1,5 (Petit : 113 s / 38 s)');
     await page.evaluate(() => { const N = window.__numero; N.state.screen = 'home'; N.render(); });
     await page.click('#openSettings'); await page.click('[data-timer="off"]'); await page.click('#closeSettings');
     await page.click('#start'); await page.waitForTimeout(400);
-    check(!(await page.isVisible('#timer')), 'Réglage « Sans chrono » : aucun compte à rebours');
+    check(!(await page.$('[data-tk]')), 'Réglage « Sans chrono » : aucun compte à rebours');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (chronos) ' + page.errors.join(' | '));
-    console.log(`${failed === before ? '✓' : '✗'} Chronos (calcul + choix du numéro), pause, difficulté des calculs`);
+    console.log(`${failed === before ? '✓' : '✗'} Chronos global + réponse (visibles dès le début), pause, difficulté des calculs`);
+    await ctx.close();
+  }
+
+  // 3e) Défi solo (1–100, sauts fous, contre la montre ou sans limite)
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser);
+    await page.evaluate(() => { window.__numero.state.reduceMotion = true; });
+    await page.click('[data-players="3"]'); await page.click('[data-level="malin"]');
+    await page.click('#openChallenge');
+    check(await page.isVisible('#chTimed') && await page.isVisible('#chEndless'), 'Défi : choix « contre la montre » ou « sans limite »');
+    await page.click('#chEndless');
+    let st = await S(page);
+    check(st.mode === 'challenge' && st.players === 1 && st.limit === 0 && st.secret >= 1 && st.secret <= 100 && st.candidates.length === 100, 'Défi : solo, numéros 1 à 100, sans limite de tours');
+    check(await page.isVisible('[data-tk="chUp"]') && !(await page.$('[data-tk="global"]')), 'Défi sans limite : temps écoulé affiché, pas de compte à rebours');
+    // pavé numérique
+    await page.click('[data-tab="guess"]');
+    for (const k of ['4', '7']) await page.click(`[data-key="${k}"]`);
+    st = await S(page);
+    check(st.sel === 47 && (await page.textContent('.kp-display')).includes('47') && (await page.textContent('#capNet')).includes('46·47·48'), 'Pavé numérique : 47 tapé, filet 46·47·48');
+    await page.click('[data-key="del"]'); await page.click('[data-key="clr"]');
+    for (const k of ['1', '0', '0']) await page.click(`[data-key="${k}"]`);
+    check((await S(page)).sel === 100 && (await page.textContent('#capNet')).includes('98·99·100'), 'Pavé : 100, filet sans dépasser 100 (98·99·100)');
+    // sauts fous + carnet exact sur de nombreux tours
+    const sim = await page.evaluate(src => { const EXP = eval('(' + src + ')'), N = window.__numero, errs = [], ops = new Set();
+      for (let game = 0; game < 40; game++) { N.startChallenge('endless');
+        for (let i = 0; i < 25 && N.state.screen === 'game'; i++) { const s = N.state;
+          if (Math.random() < .5) N.ask(s.choices[0]); if (N.state.phase === 'result') { const m = N.state.last.shift; if (typeof m !== 'object') errs.push('mouvement simple en défi'); else ops.add(m.op === '+' ? (m.k > 0 ? '+' : '−') : m.op); N.nextTurn(); }
+          const e1 = EXP(N); if (e1.join() !== [...N.state.candidates].sort((a, b) => a - b).join()) errs.push('carnet faux (aide)');
+          const c = N.state.candidates; const n = c[Math.floor(Math.random() * c.length)];
+          if (Math.random() < .5) N.guess(Math.random() < .2 ? n : 1 + Math.floor(Math.random() * 100)); else N.netCapture(1 + Math.floor(Math.random() * 100));
+          if (N.state.screen === 'game' && N.state.phase === 'result' && !['found', 'netHit'].includes(N.state.last.type)) { const e2 = EXP(N); if (e2.join() !== [...N.state.candidates].sort((a, b) => a - b).join()) errs.push('carnet faux (capture)'); }
+          N.nextTurn(); } }
+      return { errs: [...new Set(errs)], ops: [...ops].sort().join(' ') }; }, EXPECTED_FN);
+    check(sim.errs.length === 0, 'Défi : 40 parties simulées, carnet exact malgré ×2, ÷2, miroir, +7… ' + sim.errs.join(', '));
+    check(sim.ops.split(' ').length >= 5, 'Défi : sauts variés observés (' + sim.ops + ')');
+    // victoire + score + record
+    await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless'); N.ask(N.state.choices[0]); N.nextTurn(); N.guess(N.state.secret); });
+    check((await page.textContent('#next')).includes('score'), 'Défi trouvé : bouton « Voir mon score »');
+    await page.click('#next');
+    st = await S(page);
+    check(st.screen === 'end' && st.chWon && st.chFinal === 990 && await page.isVisible('.ch-score') && await page.isVisible('.ch-new'), `Défi réussi au 1er tour avec 1 aide : score 990, nouveau record (${st.chFinal})`);
+    check((await page.evaluate(() => window.__numero.records())).endless === 990, 'Record enregistré');
+    // contre la montre : échec quand le temps est écoulé
+    await page.click('#again');
+    await page.evaluate(() => { const N = window.__numero; N.startChallenge('timed'); });
+    check(await page.isVisible('[data-tk="challenge"]') && (await page.textContent('[data-tk="challenge"] b')).includes('3:00'), 'Contre la montre : 3:00 affiché');
+    await page.evaluate(() => { window.__numero.state.chElapsed = 180000 - 150; });
+    await page.waitForTimeout(700);
+    st = await S(page);
+    check(st.screen === 'end' && st.chWon === false && st.chFinal === 0 && (await page.textContent('.intro')).includes(String(st.chSecret)), 'Contre la montre : temps écoulé → défi perdu, le numéro est révélé');
+    await page.click('#menu');
+    st = await S(page);
+    check(st.screen === 'home' && st.mode === 'normal' && st.players === 3 && st.level === 'malin', 'Retour à l’accueil : niveau et nombre de joueurs d’avant rétablis');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (défi) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} Défi solo : 1–100, pavé, sauts fous, carnet exact, score, record, contre la montre`);
     await ctx.close();
   }
 
