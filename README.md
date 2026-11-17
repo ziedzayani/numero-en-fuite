@@ -1,4 +1,4 @@
-# Le Numéro en fuite — V6
+# Le Numéro en fuite — V7
 
 Jeu familial de logique et de calcul mental (1 à 4 joueurs sur un seul téléphone).
 Application Android native (WebView) qui fonctionne **entièrement hors ligne**, **sans aucune permission**.
@@ -13,10 +13,22 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 | `app/build.gradle` | compileSdk/targetSdk 35, minSdk 23 (Android 6+) |
 | `gradlew`, `gradle/wrapper/` | Gradle Wrapper 8.11.1 : compilation reproductible |
 | `.github/workflows/build-apk.yml` | Tests + compilation + vérification automatique de l'APK |
-| `tests/game.test.cjs` | ~2 850 vérifications automatiques du jeu |
+| `tests/game.test.cjs` | ~3 950 vérifications automatiques du jeu |
 | `LICENCE-POLICE.txt` | Licence libre (SIL OFL 1.1) de la police Baloo Bhaijaan 2 |
-| `web/Numero_en_Fuite_V6.html` | Version navigateur autonome |
+| `web/Numero_en_Fuite_V7.html` | Version navigateur autonome |
 | `web/PWA/` | Version web installable (à héberger en HTTPS) |
+
+## Nouveautés V7
+
+- **Deux façons de capturer** : touche un numéro, puis 🎯 *Capture précise* (+5 / −1) ou 🕸️ *Filet magique*
+  (+2 / −1) sur 2 numéros voisins au niveau Petit (1–9) et 3 aux autres niveaux, toujours dans les limites du niveau.
+  Une seule capture par tour, animations différentes (cible / filet).
+- **Mon carnet 📓** : questions, réponses, calculs, déplacements, numéros éliminés et numéros encore possibles,
+  recalculés à chaque déplacement. Aide *Automatique* (Petit), *Sur demande* (Moyen, Grand) ou *Désactivée* (Réglages).
+- **Détective vivant** : réfléchit, cherche avec sa loupe, vise, marche ou saute quand le numéro bouge, danse quand
+  on gagne, grimace quand on rate ; expressions joyeuse, surprise, inquiète, curieuse, fière ; bulles amusantes FR/EN/AR.
+- **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
+  à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
 
 ## Nouveautés V6
 
@@ -41,9 +53,9 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
    et colle le contenu du fichier du même nom.
 2. Onglet **Actions** → **Construire APK Android** → **Run workflow** (ou il démarre seul après l'envoi).
 3. Après environ 10 minutes (coche verte), l'APK est publié automatiquement dans **Releases** :
-   `https://github.com/<ton-compte>/<ton-dépôt>/releases/tag/apk-latest` → touche `NumeroEnFuite-V6-debug.apk`
+   `https://github.com/<ton-compte>/<ton-dépôt>/releases/tag/apk-latest` → touche `NumeroEnFuite-V7-debug.apk`
    (lien utilisable directement depuis le téléphone, sans compte ni décompression).
-4. Il est aussi disponible dans l'artefact **NumeroEnFuite-V6-APK-debug** de l'exécution (Actions).
+4. Il est aussi disponible dans l'artefact **NumeroEnFuite-V7-APK-debug** de l'exécution (Actions).
 
 Le workflow : lance les tests du jeu, compile avec Gradle et le SDK Android officiel, puis vérifie la signature
 (`apksigner`), le manifeste (`aapt2`), l'alignement (`zipalign`) et la présence du jeu dans l'APK.
@@ -76,7 +88,7 @@ base64 -w0 numero.jks > numero.jks.b64     # sur macOS : base64 -i numero.jks
 
 Dans le dépôt GitHub : *Settings › Secrets and variables › Actions*, crée `NEF_KEYSTORE_BASE64` (contenu du .b64),
 `NEF_KEYSTORE_PASSWORD`, `NEF_KEY_ALIAS` (`numero`) et `NEF_KEY_PASSWORD`. Le workflow produira alors aussi
-l'artefact **NumeroEnFuite-V6-APK-release**. Garde `numero.jks` et ses mots de passe en lieu sûr : ne les mets jamais dans le dépôt.
+l'artefact **NumeroEnFuite-V7-APK-release**. Garde `numero.jks` et ses mots de passe en lieu sûr : ne les mets jamais dans le dépôt.
 
 ## Lancer les tests sur ton ordinateur
 

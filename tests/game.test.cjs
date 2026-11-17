@@ -21,6 +21,17 @@ function check(cond, msg) {
   else { failed++; failures.push(msg); if (failures.length < 40) console.log('  ✗ ' + msg); }
 }
 const S = page => page.evaluate(() => JSON.parse(JSON.stringify(window.__numero.state)));
+/* Recalcule, indépendamment du jeu, l'ensemble exact des positions possibles à partir de l'historique :
+   on essaie chaque position de départ et on rejoue questions, réponses, éliminations et déplacements. */
+const EXPECTED_FN = `function(N){const s=N.state,max=N.maxN(),h=s.history;let from=0;for(let i=h.length-1;i>=0;i--)if(h[i].type==='found'||h[i].type==='netHit'){from=i+1;break}
+ const res=new Set();for(let s0=1;s0<=max;s0++){let p=s0,ok=true;for(const e of h.slice(from)){
+  if(e.type==='question'){if(!!N.qbyid(e.qid).test(p)!==e.answer){ok=false;break}}
+  else if(e.type==='math'&&e.correct){if((p>e.math.threshold)!==e.answer){ok=false;break}}
+  else if(e.type==='wrong'){if(p===e.n){ok=false;break}}
+  else if(e.type==='netMiss'){if(e.nums.includes(p)){ok=false;break}}
+  p=((p-1+e.shift)%max+max)%max+1}
+ if(ok)res.add(p)}return [...res].sort((a,b)=>a-b)}`;
+const notebookOK = page => page.evaluate(src => { const f = eval('(' + src + ')'), N = window.__numero, exp = f(N), got = [...N.state.candidates].sort((a, b) => a - b); return { ok: exp.join() === got.join() && got.includes(N.state.secret), exp: exp.join(), got: got.join() }; }, EXPECTED_FN);
 
 async function fresh(browser, viewport = { width: 360, height: 740 }) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
@@ -48,6 +59,7 @@ async function shot(page, name) {
 async function playFullGame(browser, players, level, lang = 'fr') {
   const label = `${players}J/${level}/${lang}`;
   const { ctx, page } = await fresh(browser);
+  await page.evaluate(() => { window.__numero.state.reduceMotion = true; });
   if (lang !== 'fr') { await page.click('#openSettings'); await page.click(`[data-language="${lang}"]`); await page.click('#closeSettings'); }
   await page.click(`[data-players="${players}"]`);
   await page.click(`[data-level="${level}"]`);
@@ -95,6 +107,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       check(r.phase === 'result' && Math.abs(shift) <= RANGE[level], `${label} t${turn} : déplacement annoncé ${shift} dans ±${RANGE[level]}`);
       check(((secretBefore - 1 + shift + max * 10) % max) + 1 === r.secret, `${label} t${turn} : déplacement appliqué correctement (bouclage)`);
       check(await page.isVisible('#next'), `${label} t${turn} : bouton « Choisir mon numéro » visible`);
+      const nb0 = await notebookOK(page);
+      check(nb0.ok, `${label} t${turn} : carnet exact après indice/calcul et déplacement (attendu ${nb0.exp} / carnet ${nb0.got})`);
       await page.click('#next');
       r = await S(page);
       check(r.phase === 'choose' && r.turn === turn && r.helpUsed && r.tab === 'guess', `${label} t${turn} : APRÈS L'AIDE, le même joueur doit tenter un numéro`);
@@ -106,16 +120,29 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     }
     st = await S(page);
     check(st.candidates.includes(st.secret), `${label} t${turn} : le secret reste parmi les pistes possibles`);
-    // Alterne bonnes et mauvaises tentatives
+    // Alterne capture précise / filet magique, réussies ou ratées
     const wantRight = turn % 4 === 1 || turn % 4 === 2;
-    const n = wantRight ? st.secret : (st.secret % max) + 1;
+    const mode = turn % 2 === 0 ? 'precise' : 'net';
+    const n = await page.evaluate(({ right, mode }) => { const N = window.__numero, s = N.state, max = N.maxN();
+      if (right) return s.secret;
+      for (let k = 1; k <= max; k++) { const c = ((s.secret - 1 + k * 3) % max) + 1; if (mode === 'precise' ? c !== s.secret : !N.netRange(c).includes(s.secret)) return c; } return null; }, { right: wantRight, mode });
     if (st.tab !== 'guess') await page.click('[data-tab="guess"]');
+    check(await page.isDisabled('#capPrecise') && await page.isDisabled('#capNet'), `${label} t${turn} : les 2 boutons de capture attendent un numéro`);
     await page.click(`[data-guess="${n}"]`);
+    const inNet = await page.$$eval('.numtile.in-net', els => els.map(e => Number(e.textContent)));
+    const expNet = await page.evaluate(n => window.__numero.netRange(n), n);
+    check(inNet.join() === expNet.join() && expNet.length === (level === 'junior' ? 2 : 3) && expNet.every(v => v >= 1 && v <= max), `${label} t${turn} : filet de ${expNet.length} numéros dans les limites (${expNet.join('·')})`);
+    await page.click(mode === 'precise' ? '#capPrecise' : '#capNet');
+    await page.waitForFunction(() => window.__numero.state.phase === 'result', null, { timeout: 3000 });
     guessCount++;
     const g = await S(page);
     const delta = g.scores[player] - st.scores[player];
-    check(delta === (wantRight ? 3 : -1), `${label} t${turn} : points ${wantRight ? '+3' : '−1'} (obtenu ${delta})`);
+    const expDelta = wantRight ? (mode === 'precise' ? 5 : 2) : -1;
+    check(delta === expDelta, `${label} t${turn} : ${mode} ${wantRight ? 'réussie' : 'ratée'} → ${expDelta > 0 ? '+' : ''}${expDelta} (obtenu ${delta})`);
+    check(g.last.type === (mode === 'precise' ? (wantRight ? 'found' : 'wrong') : (wantRight ? 'netHit' : 'netMiss')), `${label} t${turn} : type de capture enregistré`);
     if (wantRight) finds++;
+    const nb = await notebookOK(page);
+    check(nb.ok, `${label} t${turn} : carnet exact après la capture (attendu ${nb.exp} / carnet ${nb.got})`);
     check(g.secret >= 1 && g.secret <= max, `${label} t${turn} : secret toujours valide`);
     await page.click('#next');
   }
@@ -164,7 +191,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   {
     const before = failed;
     const { ctx, page } = await fresh(browser);
-    const res = await page.evaluate(({ MAX, RANGE }) => {
+    const res = await page.evaluate(({ MAX, RANGE, SRC }) => {
+      const EXP = eval('(' + SRC + ')');
       const N = window.__numero, errors = []; let informative = 0, total = 0;
       for (const level of ['junior', 'malin', 'expert']) for (let rep = 0; rep < 150; rep++) {
         const st = N.state; st.players = 1 + (rep % 4); st.level = level; N.start(); if (N.state.modal) N.state.modal = null;
@@ -173,21 +201,22 @@ async function playFullGame(browser, players, level, lang = 'fr') {
           if (!s.candidates.includes(s.secret)) errors.push('secret hors pistes ' + level);
           const qs = s.choices.map(N.qbyid);
           if (qs.some(q => !q)) errors.push('question introuvable');
-          for (const q of qs) { total++; if (s.candidates.some(n => q.test(n)) && s.candidates.some(n => !q.test(n))) informative++; }
+          if (s.candidates.length > 1) for (const q of qs) { total++; if (s.candidates.some(n => q.test(n)) && s.candidates.some(n => !q.test(n))) informative++; }
           if (/\{\w+\}/.test(qs.map(q => q.text).join())) errors.push('question non remplie');
           const r = Math.random();
           if (r < .4) N.ask(s.choices[0]);
           else if (r < .7) { N.mathAnswer(Math.random() < .7 ? s.math.result : s.math.options[0]); }
           if (N.state.phase === 'result') { const sh = N.state.last.shift; if (Math.abs(sh) > RANGE[level]) errors.push('déplacement trop grand ' + sh); N.nextTurn(); }
-          if (N.state.phase !== 'choose') errors.push('phase inattendue après aide');
-          const c = N.state.candidates; N.guess(c[Math.floor(Math.random() * c.length)]);
+          if (N.state.phase !== 'choose') errors.push('phase inattendue après aide');{const e=EXP(N);if(e.join()!==[...N.state.candidates].sort((a,b)=>a-b).join())errors.push('carnet faux après aide '+level)}
+          const c = N.state.candidates; const pickN = c[Math.floor(Math.random() * c.length)]; if (Math.random() < .5) N.guess(Math.random() < .3 ? 1 + Math.floor(Math.random() * max) : pickN); else N.netCapture(1 + Math.floor(Math.random() * max)); if (N.state.last && N.state.last.type === 'netMiss' && N.state.last.nums.length !== N.netSize()) errors.push('taille de filet');
           if (N.state.phase !== 'result') errors.push('tentative refusée');
+          {const e=EXP(N);if(e.join()!==[...N.state.candidates].sort((a,b)=>a-b).join())errors.push('carnet faux après capture '+level)}
           N.nextTurn(); if (N.state.modal) N.state.modal = null;
         }
       }
       return { errors: [...new Set(errors)], informative, total };
-    }, { MAX, RANGE });
-    check(res.errors.length === 0, 'Simulation de 450 parties sans incohérence : ' + res.errors.join(', '));
+    }, { MAX, RANGE, SRC: EXPECTED_FN });
+    check(res.errors.length === 0, 'Simulation de 450 parties (carnet vérifié à chaque étape) sans incohérence : ' + res.errors.join(', '));
     check(res.informative / res.total > 0.9, `Questions utiles (qui départagent les pistes) : ${Math.round(100 * res.informative / res.total)} %`);
     console.log(`${failed === before ? '✓' : '✗'} Simulation logique (450 parties) — questions utiles : ${Math.round(100 * res.informative / res.total)} %`);
     await ctx.close();
@@ -291,6 +320,69 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
+  // 3c) Captures animées, détective vivant, aide du carnet, animations réduites
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser);
+    await page.evaluate(() => { const N = window.__numero; N.state.players = 1; N.state.level = 'junior'; N.start(); });
+    const cls = () => page.getAttribute('.turn-card .detective-scene', 'class');
+    check(/think/.test(await cls()) && /expr-curious/.test(await cls()), 'Détective : réfléchit (onglet Indice), expression curieuse');
+    check((await page.textContent('.bubble .quip')).length > 3, 'Bulle de dialogue affichée : « ' + (await page.textContent('.bubble .quip')).trim() + ' »');
+    await page.click('[data-tab="guess"]');
+    check(await page.$$eval('.numtile.possible', e => e.length) === 9, 'Petit : aide automatique du carnet (numéros possibles affichés sans demander)');
+    check(!(await page.$('#hints')), 'Petit : pas besoin du bouton Pistes');
+    // bord : filet sur 9 → 8·9 ; sur 1 → 1·2
+    await page.click('[data-guess="9"]');
+    check((await page.$$eval('.numtile.in-net', els => els.map(e => e.textContent))).join() === '8,9', 'Filet (Petit) sur 9 → 8·9 (2 numéros, sans dépasser 9)');
+    await page.click('[data-guess="1"]');
+    check((await page.$$eval('.numtile.in-net', els => els.map(e => e.textContent))).join() === '1,2', 'Filet (Petit) sur 1 → 1·2');
+    check(/aim/.test(await cls()), 'Détective : vise quand un numéro est choisi');
+    const sec = (await S(page)).secret;
+    await page.click(`[data-guess="${sec}"]`);
+    await page.click('#capPrecise');
+    check(await page.$$eval('.numtile.hit-precise', e => e.length) === 1 && (await S(page)).phase === 'choose', 'Animation de capture précise (cible) avant le résultat');
+    await page.click('#capNet', { force: true });
+    await page.waitForTimeout(1000);
+    let st = await S(page);
+    check(st.phase === 'result' && st.last.type === 'found' && st.scores[0] === 5, 'Une seule capture par tour : capture précise réussie +5 (le 2e bouton est ignoré)');
+    check(/caught/.test(await cls()) && /expr-proud/.test(await cls()) && await page.$('.turn-card .confetti'), 'Détective : danse et fierté + confettis quand on gagne');
+    check(await page.isVisible('.chip .delta.up'), 'Badge « +5 » sur le score');
+    await page.click('#next');
+    // filet raté, animé
+    const miss = await page.evaluate(() => { const N = window.__numero; for (let n = 1; n <= 9; n++) if (!N.netRange(n).includes(N.state.secret)) return n; });
+    await page.click('[data-tab="guess"]'); await page.click(`[data-guess="${miss}"]`); await page.click('#capNet');
+    check(await page.$$eval('.numtile.hit-net', e => e.length) === 2, 'Animation du filet sur les 2 numéros');
+    await page.waitForTimeout(1000);
+    st = await S(page);
+    check(st.last.type === 'netMiss' && st.scores[0] === 4 && /grimace/.test(await cls()) && /expr-grimace/.test(await cls()), 'Filet vide −1 : grimace du détective');
+    await page.click('#next');
+    await page.click('[data-tab="math"]');
+    check(/search/.test(await cls()), 'Détective : cherche avec sa loupe (calcul)');
+    // Moyen : aide sur demande ; désactivée
+    await page.evaluate(() => { const N = window.__numero; N.state.level = 'malin'; N.state.helpMode = null; N.start(); });
+    await page.click('[data-tab="guess"]');
+    check(await page.$$eval('.numtile.possible', e => e.length) === 0 && await page.$('#hints'), 'Moyen : aide sur demande (bouton Pistes)');
+    await page.click('#openNotebook');
+    check(await page.isVisible('.nb-grid') && (await page.textContent('.nb-count')).includes('15'), 'Mon carnet : grille des possibles + compteur');
+    await page.click('#closeModal');
+    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'settings'; N.state.settingsFrom = 'game'; N.render(); });
+    await page.click('[data-help="off"]'); await page.click('#closeSettings');
+    await page.click('[data-tab="guess"]');
+    check(!(await page.$('#hints')), 'Aide désactivée : pas de pistes');
+    await page.click('#openNotebook');
+    check(!(await page.$('.nb-grid')) && await page.isVisible('.modal .history-items'), 'Aide désactivée : le carnet garde l’historique mais ne déduit rien');
+    await page.click('#closeModal');
+    // animations réduites
+    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'settings'; N.render(); });
+    await page.click('#motionToggle');
+    check(await page.evaluate(() => document.body.classList.contains('reduce-motion')), 'Option « Réduire les animations »');
+    const an = await page.evaluate(() => getComputedStyle(document.querySelector('.detector-pupil')).animationName);
+    check(an === 'none', 'Animations coupées quand l’option est active');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (captures/détective/carnet) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} Captures animées, détective vivant, aide du carnet, animations réduites`);
+    await ctx.close();
+  }
+
   // 4) Rendu sur petits écrans + captures
   for (const vp of [{ width: 320, height: 568, tag: '320' }, { width: 360, height: 740, tag: '360' }]) {
     const before = failed;
@@ -309,7 +401,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const st = await S(page);
     await page.click(`[data-math="${st.math.result}"]`); await page.waitForTimeout(400); await shot(page, pre + '05_calcul_reussi');
     await page.click('#next'); await page.click('#hints'); await noOverflow(page, `Grille 1-30 ${vp.tag}px`); await shot(page, pre + '06_grille_grand');
-    if (vp.tag === '360') { const inner = await page.$eval('.turn-body', el => el.scrollHeight - el.clientHeight); check(inner <= 2, `Grille 1-30 entièrement visible sans défiler (${inner}px)`); }
+    if (vp.tag === '360') { await page.click('[data-guess="12"]'); await page.waitForTimeout(200); await shot(page, pre + '06b_filet'); const inner = await page.$eval('.turn-body', el => el.scrollHeight - el.clientHeight); check(inner <= 2, `Grille 1-30 + boutons de capture visibles sans défiler (${inner}px)`); }
     const t = await page.$eval('[data-guess="30"]', el => el.getBoundingClientRect());
     check(t.width >= 44 && t.height >= (vp.tag === '360' ? 44 : 36), `Cases numéros 1-30 assez grandes (${Math.round(t.width)}×${Math.round(t.height)} px)`);
     await page.evaluate(() => { const N = window.__numero; for (let i = 0; i < 30 && N.state.screen === 'game'; i++) { N.state.modal = null; N.guess(N.state.secret); N.nextTurn(); } });

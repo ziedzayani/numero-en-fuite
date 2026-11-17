@@ -80,13 +80,13 @@ jobs:
           unzip -l "$APK" | grep -q "assets/index.html"
           echo "Le jeu est bien embarqué dans l'APK."
           mkdir -p livraison
-          cp "$APK" livraison/NumeroEnFuite-V6-debug.apk
-          (cd livraison && sha256sum NumeroEnFuite-V6-debug.apk > NumeroEnFuite-V6-debug.apk.sha256)
+          cp "$APK" livraison/NumeroEnFuite-V7-debug.apk
+          (cd livraison && sha256sum NumeroEnFuite-V7-debug.apk > NumeroEnFuite-V7-debug.apk.sha256)
 
       - name: Télécharger l'APK debug
         uses: actions/upload-artifact@v4
         with:
-          name: NumeroEnFuite-V6-APK-debug
+          name: NumeroEnFuite-V7-APK-debug
           path: livraison/
 
       - name: Publier l'APK dans « Releases » (téléchargement direct depuis le téléphone)
@@ -96,9 +96,9 @@ jobs:
         run: |
           TAG=apk-latest
           gh release delete "$TAG" --yes --cleanup-tag || true
-          gh release create "$TAG" livraison/NumeroEnFuite-V6-debug.apk livraison/NumeroEnFuite-V6-debug.apk.sha256 \
+          gh release create "$TAG" livraison/NumeroEnFuite-V7-debug.apk livraison/NumeroEnFuite-V7-debug.apk.sha256 \
             --target "$GITHUB_SHA" --prerelease \
-            --title "Le Numéro en fuite V6 — APK de test" \
+            --title "Le Numéro en fuite V7 — APK de test" \
             --notes "APK debug compilé automatiquement (Gradle + SDK Android officiel), vérifié par apksigner et aapt2. Commit : $GITHUB_SHA. Désinstallez d'abord toute ancienne version du jeu."
 
       # ---------- 4. (Facultatif) APK release signé avec VOTRE clé ----------
@@ -117,11 +117,11 @@ jobs:
           ./gradlew --no-daemon assembleRelease
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk
           mkdir -p livraison-release
-          cp app/build/outputs/apk/release/app-release.apk livraison-release/NumeroEnFuite-V6-release.apk
+          cp app/build/outputs/apk/release/app-release.apk livraison-release/NumeroEnFuite-V7-release.apk
           rm -f "$RUNNER_TEMP/release.jks"
       - name: Télécharger l'APK release
         if: env.HAS_RELEASE_KEY == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: NumeroEnFuite-V6-APK-release
+          name: NumeroEnFuite-V7-APK-release
           path: livraison-release/
