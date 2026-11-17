@@ -10,8 +10,8 @@ const { chromium } = require('playwright');
 const FILE = path.resolve(process.argv[2] || path.join(__dirname, '..', 'app', 'src', 'main', 'assets', 'index.html'));
 const SHOTS = process.argv[3] ? path.resolve(process.argv[3]) : null;
 const URL = 'file://' + FILE;
-const MAX = { junior: 9, malin: 15, expert: 30 };
-const RANGE = { junior: 1, malin: 2, expert: 2 };
+const MAX = { junior: 9, malin: 15, expert: 30, genius: 50 };
+const RANGE = { junior: 1, malin: 2, expert: 2, genius: 5 };
 const LIMIT = [0, 12, 16, 18, 20];
 
 let passed = 0, failed = 0;
@@ -105,7 +105,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
         await page.click('[data-tab="math"]');
         const answerRight = turn % 2 === 0;
         const opt = answerRight ? st.math.result : st.math.options.find(o => o !== st.math.result);
-        const nOpt = level === 'expert' ? 6 : 3; check(st.math.options.includes(st.math.result) && new Set(st.math.options).size === nOpt && await page.$$eval('[data-math]', e => e.length) === nOpt, `${label} t${turn} : calcul avec ${nOpt} réponses dont la bonne`);
+        const nOpt = ['expert', 'genius'].includes(level) ? 6 : 3; check(st.math.options.includes(st.math.result) && new Set(st.math.options).size === nOpt && await page.$$eval('[data-math]', e => e.length) === nOpt, `${label} t${turn} : calcul avec ${nOpt} réponses dont la bonne`);
         await page.click(`[data-math="${opt}"]`);
         mathCount++;
         const after = await S(page);
@@ -114,8 +114,9 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       }
       let r = await S(page);
       const shift = r.last.shift;
-      check(r.phase === 'result' && Math.abs(shift) <= RANGE[level] && shift !== 0, `${label} t${turn} : déplacement annoncé ${shift} dans ±${RANGE[level]}, jamais 0`);
-      check(((secretBefore - 1 + shift + max * 10) % max) + 1 === r.secret, `${label} t${turn} : déplacement appliqué correctement (bouclage)`);
+      const okMove = level === 'genius' ? (typeof shift === 'object' && shift !== null) : (Math.abs(shift) <= RANGE[level] && shift !== 0);
+      check(r.phase === 'result' && okMove, `${label} t${turn} : déplacement annoncé ${JSON.stringify(shift)}, jamais 0`);
+      check(await page.evaluate(({ b, sh }) => window.__numero.moveFn(sh)(b), { b: secretBefore, sh: shift }) === r.secret, `${label} t${turn} : déplacement appliqué correctement (bouclage)`);
       check(await page.isVisible('#next'), `${label} t${turn} : bouton « Choisir mon numéro » visible`);
       const nb0 = await notebookOK(page);
       check(nb0.ok, `${label} t${turn} : carnet exact après indice/calcul et déplacement (attendu ${nb0.exp} / carnet ${nb0.got})`);
@@ -138,8 +139,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       for (let k = 1; k <= max; k++) { const c = ((s.secret - 1 + k * 3) % max) + 1; if (mode === 'precise' ? c !== s.secret : !N.netRange(c).includes(s.secret)) return c; } return null; }, { right: wantRight, mode });
     if (st.tab !== 'guess') await page.click('[data-tab="guess"]');
     check(await page.isDisabled('#capPrecise') && await page.isDisabled('#capNet'), `${label} t${turn} : les 2 boutons de capture attendent un numéro`);
-    await page.click(`[data-guess="${n}"]`);
-    const inNet = await page.$$eval('.numtile.in-net', els => els.map(e => Number(e.textContent)));
+    if (max > 30) { await page.click('[data-key="clr"]'); for (const ch of String(n)) await page.click(`[data-key="${ch}"]`); } else await page.click(`[data-guess="${n}"]`);
+    const inNet = max > 30 ? await page.evaluate(n => window.__numero.netRange(n), n) : await page.$$eval('.numtile.in-net', els => els.map(e => Number(e.textContent)));
     const expNet = await page.evaluate(n => window.__numero.netRange(n), n);
     check(inNet.join() === expNet.join() && expNet.length === (level === 'junior' ? 2 : 3) && expNet.every(v => v >= 1 && v <= max), `${label} t${turn} : filet de ${expNet.length} numéros dans les limites (${expNet.join('·')})`);
     await page.click(mode === 'precise' ? '#capPrecise' : '#capNet');
@@ -190,7 +191,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   }
 
   // 1) Parties complètes : 1 à 4 joueurs × 3 niveaux
-  for (const players of [1, 2, 3, 4]) for (const level of ['junior', 'malin', 'expert']) {
+  for (const players of [1, 2, 3, 4]) for (const level of ['junior', 'malin', 'expert', ...(players % 2 ? ['genius'] : [])]) {
     const before = failed;
     await playFullGame(browser, players, level);
     console.log(`${failed === before ? '✓' : '✗'} Partie complète ${players} joueur(s), niveau ${level}`);
@@ -208,7 +209,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const res = await page.evaluate(({ MAX, RANGE, SRC }) => {
       const EXP = eval('(' + SRC + ')');
       const N = window.__numero, errors = []; let informative = 0, total = 0;
-      for (const level of ['junior', 'malin', 'expert']) for (let rep = 0; rep < 150; rep++) {
+      for (const level of ['junior', 'malin', 'expert', 'genius']) for (let rep = 0; rep < 120; rep++) {
         const st = N.state; st.players = 1 + (rep % 4); st.level = level; N.start(); if (N.state.modal) N.state.modal = null;
         for (let i = 0; i < 40 && N.state.screen === 'game'; i++) {
           const s = N.state, max = MAX[level];
@@ -220,7 +221,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
           const r = Math.random();
           if (r < .4) N.ask(s.choices[0]);
           else if (r < .7) { N.mathAnswer(Math.random() < .7 ? s.math.result : s.math.options[0]); }
-          if (N.state.phase === 'result') { const sh = N.state.last.shift; if (Math.abs(sh) > RANGE[level] || sh === 0) errors.push('déplacement invalide ' + sh); N.nextTurn(); }
+          if (N.state.phase === 'result') { const sh = N.state.last.shift; if (level === 'genius' ? typeof sh !== 'object' : (Math.abs(sh) > RANGE[level] || sh === 0)) errors.push('déplacement invalide ' + JSON.stringify(sh)); N.nextTurn(); }
           if (N.state.phase !== 'choose') errors.push('phase inattendue après aide');{const e=EXP(N);if(e.join()!==[...N.state.candidates].sort((a,b)=>a-b).join())errors.push('carnet faux après aide '+level)}
           const c = N.state.candidates; const pickN = c[Math.floor(Math.random() * c.length)]; if (Math.random() < .5) N.guess(Math.random() < .3 ? 1 + Math.floor(Math.random() * max) : pickN); else N.netCapture(1 + Math.floor(Math.random() * max)); if (N.state.last && N.state.last.type === 'netMiss' && N.state.last.nums.length !== N.netSize()) errors.push('taille de filet');
           if (N.state.phase !== 'result') errors.push('tentative refusée');
@@ -290,7 +291,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const kinds = () => page.$$eval('[data-tk]', els => els.map(e => e.dataset.tk).join());
     const txt = k => page.textContent(`[data-tk="${k}"] b`);
     const ages = await page.$$eval('.level .age', els => els.map(e => e.textContent));
-    check(ages.length === 3 && ages[0].includes('5') && ages[2].includes('11'), 'Âges affichés sur les niveaux : ' + ages.join(' / '));
+    check(ages.length === 4 && ages[0].includes('5') && ages[2].includes('11') && ages[3].includes('13'), 'Âges affichés sur les 4 niveaux : ' + ages.join(' / '));
     for (const [level, ans, mathS, glob] of [['junior', 25, 30, 75], ['malin', 20, 30, 70], ['expert', 20, 45, 90]]) {
       await page.evaluate(lv => { const N = window.__numero; N.state.players = 2; N.state.level = lv; N.state.timerMode = 'normal'; N.start(); }, level);
       await page.click('#handoffGo');
@@ -369,7 +370,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const sim = await page.evaluate(src => { const EXP = eval('(' + src + ')'), N = window.__numero, errs = [], ops = new Set();
       for (let game = 0; game < 40; game++) { N.startChallenge('endless');
         for (let i = 0; i < 25 && N.state.screen === 'game'; i++) { const s = N.state;
-          if (Math.random() < .5) N.ask(s.choices[0]); if (N.state.phase === 'result') { const m = N.state.last.shift; if (typeof m !== 'object') errs.push('mouvement simple en défi'); else ops.add(m.op === '+' ? (m.k > 0 ? '+' : '−') : m.op); N.nextTurn(); }
+          const rr = Math.random(); if (rr < .35) N.ask(s.choices[0]); else if (rr < .7) N.mathAnswer(Math.random() < .6 ? s.math.result : s.math.options[0]); if (N.state.phase === 'result') { const m = N.state.last.shift; if (N.state.last.frozen ? m !== 0 : typeof m !== 'object') errs.push('mouvement incohérent en défi'); else if (!N.state.last.frozen) ops.add(m.op === '+' ? (m.k > 0 ? '+' : '−') : m.op); N.nextTurn(); }
           const e1 = EXP(N); if (e1.join() !== [...N.state.candidates].sort((a, b) => a - b).join()) errs.push('carnet faux (aide)');
           const c = N.state.candidates; const n = c[Math.floor(Math.random() * c.length)];
           if (Math.random() < .5) N.guess(Math.random() < .2 ? n : 1 + Math.floor(Math.random() * 100)); else N.netCapture(1 + Math.floor(Math.random() * 100));
@@ -378,6 +379,28 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       return { errs: [...new Set(errs)], ops: [...ops].sort().join(' ') }; }, EXPECTED_FN);
     check(sim.errs.length === 0, 'Défi : 40 parties simulées, carnet exact malgré ×2, ÷2, miroir, +7… ' + sim.errs.join(', '));
     check(sim.ops.split(' ').length >= 5, 'Défi : sauts variés observés (' + sim.ops + ')');
+    // Calcul juste en défi : gel, +30, combo, +15 s ; faux : −10 et saut
+    const mres = await page.evaluate(() => { const N = window.__numero; N.startChallenge('timed'); const s = N.state; s.chElapsed = 60000;
+      const sec0 = s.secret, sc0 = N.chScore(); N.mathAnswer(s.math.result); const a = { frozen: s.last.frozen, shift: s.last.shift, same: s.secret === sec0, bonus: s.last.chBonus, d: N.chScore() - sc0, time: s.chElapsed };
+      N.nextTurn(); N.guess(s.secret % 100 + 1 === s.secret ? 1 : (s.secret % 100) + 1); N.nextTurn();
+      const sc1 = N.chScore(), sec1 = s.secret; N.mathAnswer(s.math.result); const b = { bonus: s.last.chBonus, streak: s.last.streak, same: s.secret === sec1, d: N.chScore() - sc1 };
+      N.nextTurn(); N.guess(s.secret % 100 + 1); N.nextTurn();
+      const sc2 = N.chScore(); N.mathAnswer(s.math.options.find(o => o !== s.math.result)); const c = { frozen: s.last.frozen, moved: typeof s.last.shift === 'object', d: N.chScore() - sc2, streak: s.chStreak };
+      return { a, b, c }; });
+    check(mres.a.frozen && mres.a.same && mres.a.shift === 0 && mres.a.bonus === 30 && mres.a.d === 30 && mres.a.time === 45000, 'Défi : calcul juste → numéro gelé 🧊, +30 points, +15 s au chrono');
+    check(mres.b.bonus === 40 && mres.b.streak === 2 && mres.b.same && mres.b.d === 40, 'Défi : 2e calcul juste d’affilée → combo +40');
+    check(!mres.c.frozen && mres.c.moved && mres.c.d === -10 && mres.c.streak === 0, 'Défi : calcul faux → −10 et saut fou, combo remis à zéro');
+    await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless'); N.ask(N.state.choices[0]); N.nextTurn(); N.mathAnswer; });
+    await page.click('#next').catch(() => {});
+    await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless'); });
+    await page.click('[data-tab="math"]');
+    check((await page.textContent('.mathbox .tradeoff')).includes('🧊'), 'Défi : avantages du calcul affichés (gel, +30)');
+    await page.click(`[data-math="${(await S(page)).math.result}"]`);
+    check(await page.isVisible('.ch-bonus') && await page.isVisible('.move-line.frozen'), 'Défi : résultat « 🧊 +30 points » et « Gelé »');
+    const netWin = await page.evaluate(() => { localStorage.removeItem('numeroEnFuiteRecords'); const N = window.__numero; N.startChallenge('endless'); N.netCapture(N.state.secret); N.nextTurn(); return N.state.chFinal; });
+    check(netWin === 950, `Défi gagné au filet : −50 (score ${netWin})`);
+    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'home'; N.render(); });
+    await page.click('#openChallenge');
     // victoire + score + record
     await page.evaluate(() => { localStorage.removeItem('numeroEnFuiteRecords'); const N = window.__numero; N.startChallenge('endless'); N.ask(N.state.choices[0]); N.nextTurn(); N.guess(N.state.secret); });
     check((await page.textContent('#next')).includes('score'), 'Défi trouvé : bouton « Voir mon score »');

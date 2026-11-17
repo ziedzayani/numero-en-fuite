@@ -13,7 +13,7 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 | `app/build.gradle` | compileSdk/targetSdk 35, minSdk 23 (Android 6+) |
 | `gradlew`, `gradle/wrapper/` | Gradle Wrapper 8.11.1 : compilation reproductible |
 | `.github/workflows/build-apk.yml` | Tests + compilation + vérification automatique de l'APK |
-| `tests/game.test.cjs` | ~4 270 vérifications automatiques du jeu |
+| `tests/game.test.cjs` | ~4 800 vérifications automatiques du jeu |
 | `LICENCE-POLICE.txt` | Licence libre (SIL OFL 1.1) de la police Baloo Bhaijaan 2 |
 | `web/Numero_en_Fuite_V7.html` | Version navigateur autonome |
 | `web/PWA/` | Version web installable (à héberger en HTTPS) |
@@ -30,6 +30,14 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
   on gagne, grimace quand on rate ; expressions joyeuse, surprise, inquiète, curieuse, fière ; bulles amusantes FR/EN/AR.
 - **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
   à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
+
+## V7.6
+
+- **Nouveau niveau 🦉 Génie** (13 ans et +) : numéros de 1 à 50 (pavé numérique), sauts annoncés ±3, ±5, ×2 ou miroir,
+  calculs mélangés à 6 choix, chrono global 100 s.
+- **Défi : le calcul devient rentable** — calcul juste : le numéro est **gelé 🧊** (pas de saut), **+30 points**
+  (+10 par bonne réponse d'affilée), **+15 s** en contre la montre, et un indice. Calcul faux : −10 et saut fou.
+  Captures en défi : ratée −20 (−40 au filet), victoire au filet −50.
 
 ## V7.5
 
