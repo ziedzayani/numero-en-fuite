@@ -68,7 +68,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   if (players > 1) {
     check(await page.isVisible('#name0'), `${label} : saisie des prénoms`);
     for (let i = 0; i < players; i++) await page.fill('#name' + i, i === 1 ? '' : NAMES[i]);
-    await page.click('#namesGo');
+    await page.click('#namesGo'); await page.waitForFunction(() => window.__numero.state.screen === 'game');
   }
   let st = await S(page);
   const max = MAX[level];
@@ -84,7 +84,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   for (let turn = 0; turn < st.limit; turn++) {
     st = await S(page);
     if (players > 1) {
-      check(st.modal === 'handoff', `${label} t${turn} : écran « passe le téléphone » affiché`);
+      if (turn === 0) check(!st.modal, `${label} : après les prénoms, la partie démarre tout de suite (pas d’écran sombre)`);
+      else check(st.modal === 'handoff', `${label} t${turn} : écran « passe le téléphone » affiché`);
       if (st.modal === 'handoff') await page.click('#handoffGo');
     }
     st = await S(page);
@@ -242,7 +243,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const before = failed;
     const { ctx, page } = await fresh(browser);
     await page.click('[data-players="2"]'); await page.click('[data-level="malin"]'); await page.click('#start');
-    await page.click('#namesGo'); await page.click('#handoffGo');
+    await page.click('#namesGo'); await page.waitForFunction(() => window.__numero.state.screen === 'game');
     let st = await S(page);
     await page.click(`[data-question="${st.choices[0]}"]`);
     const mid = await S(page);
@@ -527,6 +528,12 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       if (w === 360 && h === 640) await shot(page, `00_accueil_${lang}_360x640`);
       await ctx.close();
     }
+    for (const [w, h] of [[360, 700], [412, 760]]) {
+      const { ctx, page } = await fresh(browser, { width: w, height: h });
+      const worst = await page.evaluate(() => { let m = 0; for (const lv of ['junior', 'malin', 'expert', 'genius']) for (let k = 0; k < 15; k++) { const N = window.__numero; N.state.players = 2; N.state.names = ['Assya', 'Zied', '', '']; N.state.level = lv; N.start(); N.state.modal = null; N.render(); const el = document.querySelector('.turn-body'); m = Math.max(m, el.scrollHeight - el.clientHeight); } return m; });
+      check(worst <= 2, `Onglet Indice ${w}×${h} (4 niveaux, 60 tirages) : rien à faire défiler (${worst}px)`);
+      await ctx.close();
+    }
     const { ctx, page } = await fresh(browser);
     await page.tap('#openSettings'); await page.waitForTimeout(500);
     const flashCheck = async label => { await page.waitForTimeout(60); const r = await page.evaluate(() => ({ cls: document.getElementById('app').classList.contains('screen-enter'), anim: [...document.querySelectorAll('#app > *')].some(el => el.getAnimations().some(a => a.animationName === 'screenIn')) })); check(!r.cls && !r.anim, `Réglages « ${label} » : pas de clignotement de l’écran`); };
@@ -547,10 +554,10 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     // prénoms avec caractères spéciaux
     await page.tap('[data-players="2"]'); await page.tap('#start');
     await page.fill('#name0', `<b>Al'i</b>`); await page.fill('#name1', 'Inès');
-    await page.tap('#namesGo');
-    const t0 = await page.textContent('.modal h2');
-    check(t0.includes(`<b>Al'i</b>`), 'Prénom avec caractères spéciaux affiché tel quel (sécurité)');
-    await page.tap('#handoffGo'); await page.tap('[data-tab="question"]'); await page.tap('[data-question]');
+    await page.tap('#namesGo'); await page.waitForFunction(() => window.__numero.state.screen === 'game');
+    const t0 = await page.textContent('.bubble b');
+    check(t0.includes(`<b>Al'i</b>`) && !(await page.$('.modal-back')), 'Prénom avec caractères spéciaux affiché tel quel, partie lancée en un seul appui');
+    await page.tap('[data-tab="question"]'); await page.tap('[data-question]');
     await page.tap('#openNotebook');
     check((await page.textContent('.modal .history-items')).includes(`<b>Al'i</b>`), 'Prénom correct dans le carnet');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (accueil/réglages/prénoms) ' + page.errors.join(' | '));
@@ -566,9 +573,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await noOverflow(page, `Accueil ${vp.tag}px`); await shot(page, pre + '01_accueil');
     const tile = await page.$eval('[data-players="1"]', el => el.getBoundingClientRect().height);
     check(tile >= 44, `Boutons tactiles ≥ 44 px (${Math.round(tile)} px)`);
-    await page.click('[data-players="3"]'); await page.click('[data-level="expert"]'); await page.click('#start'); await page.waitForTimeout(300); await shot(page, pre + '01b_prenoms'); await page.click('#namesGo'); await page.waitForTimeout(450);
-    await shot(page, pre + '02_passe_le_telephone');
-    await page.click('#handoffGo');
+    await page.click('[data-players="3"]'); await page.click('[data-level="expert"]'); await page.click('#start'); await page.waitForTimeout(300); await shot(page, pre + '01b_prenoms'); await page.click('#namesGo'); await page.waitForFunction(() => window.__numero.state.screen === 'game'); await page.waitForTimeout(450);
     await noOverflow(page, `Partie ${vp.tag}px`); await shot(page, pre + '03_questions');
     const pageScroll = await page.evaluate(() => document.scrollingElement.scrollHeight - window.innerHeight);
     check(pageScroll <= 1, `Partie ${vp.tag}px : tout tient sur l’écran, pas de défilement (${pageScroll}px)`);

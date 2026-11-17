@@ -31,6 +31,12 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 - **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
   à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
 
+## V7.7
+
+- Onglet Indice sans défilement : onglets toujours visibles, explications compactes, bouton 🔀 à côté.
+- Prénoms : « C'est parti » lance directement la partie (plus d'écran sombre ni de 2e appui).
+- Miroir expliqué avec un exemple : « 1 ↔ 50, 2 ↔ 49… (le 10 devient 41) » ; ×2 : « le 7 devient 14 ».
+
 ## V7.6
 
 - **Nouveau niveau 🦉 Génie** (13 ans et +) : numéros de 1 à 50 (pavé numérique), sauts annoncés ±3, ±5, ×2 ou miroir,
