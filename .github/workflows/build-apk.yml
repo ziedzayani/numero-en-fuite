@@ -7,7 +7,7 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write   # nécessaire pour publier l'APK dans « Releases »
 
 jobs:
   apk:
@@ -88,6 +88,18 @@ jobs:
         with:
           name: NumeroEnFuite-V6-APK-debug
           path: livraison/
+
+      - name: Publier l'APK dans « Releases » (téléchargement direct depuis le téléphone)
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=apk-latest
+          gh release delete "$TAG" --yes --cleanup-tag || true
+          gh release create "$TAG" livraison/NumeroEnFuite-V6-debug.apk livraison/NumeroEnFuite-V6-debug.apk.sha256 \
+            --target "$GITHUB_SHA" --prerelease \
+            --title "Le Numéro en fuite V6 — APK de test" \
+            --notes "APK debug compilé automatiquement (Gradle + SDK Android officiel), vérifié par apksigner et aapt2. Commit : $GITHUB_SHA. Désinstallez d'abord toute ancienne version du jeu."
 
       # ---------- 4. (Facultatif) APK release signé avec VOTRE clé ----------
       # Ne s'exécute que si les secrets NEF_KEYSTORE_BASE64, NEF_KEYSTORE_PASSWORD,

@@ -35,8 +35,10 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
    S'il manque, sur GitHub : *Add file › Create new file*, nomme-le `.github/workflows/build-apk.yml`
    et colle le contenu du fichier du même nom.
 2. Onglet **Actions** → **Construire APK Android** → **Run workflow** (ou il démarre seul après l'envoi).
-3. Après environ 5 minutes (coche verte), ouvre l'exécution et télécharge l'artefact **NumeroEnFuite-V6-APK-debug**.
-4. Décompresse-le : tu obtiens `NumeroEnFuite-V6-debug.apk`.
+3. Après environ 10 minutes (coche verte), l'APK est publié automatiquement dans **Releases** :
+   `https://github.com/<ton-compte>/<ton-dépôt>/releases/tag/apk-latest` → touche `NumeroEnFuite-V6-debug.apk`
+   (lien utilisable directement depuis le téléphone, sans compte ni décompression).
+4. Il est aussi disponible dans l'artefact **NumeroEnFuite-V6-APK-debug** de l'exécution (Actions).
 
 Le workflow : lance les tests du jeu, compile avec Gradle et le SDK Android officiel, puis vérifie la signature
 (`apksigner`), le manifeste (`aapt2`), l'alignement (`zipalign`) et la présence du jeu dans l'APK.
