@@ -43,6 +43,7 @@ async function fresh(browser, viewport = { width: 360, height: 740 }) {
   await page.goto(URL);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
+  await page.evaluate(() => { window.__numero.state.replayAsk = false; });
   return { ctx, page };
 }
 
@@ -543,6 +544,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       ['[data-timer="long"]', st => st.timerMode === 'long', 'Plus de temps'], ['[data-timer="off"]', st => st.timerMode === 'off', 'Sans chrono'], ['[data-timer="normal"]', st => st.timerMode === 'normal', 'Chrono normal'],
       ['[data-help="off"]', st => st.helpMode === 'off', 'Aide désactivée'], ['[data-help="auto"]', st => st.helpMode === 'auto', 'Aide auto'], ['[data-help="ask"]', st => st.helpMode === 'ask', 'Aide sur demande'],
       ['#motionToggle', st => st.reduceMotion === true, 'Animations réduites'], ['#motionToggle', st => st.reduceMotion === false, 'Animations normales'],
+      ['#replayToggle', st => st.replayAsk === true, 'Film du parcours activé'], ['#replayToggle', st => st.replayAsk === false, 'Film du parcours désactivé'],
     ];
     for (const [sel, ok, label] of taps) {
       await page.locator(sel).scrollIntoViewIfNeeded(); await page.tap(sel);
@@ -562,6 +564,71 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check((await page.textContent('.modal .history-items')).includes(`<b>Al'i</b>`), 'Prénom correct dans le carnet');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (accueil/réglages/prénoms) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} Accueil sans défilement, réglages au toucher sans clignotement, prénoms`);
+    await ctx.close();
+  }
+
+  // 3f) Film du parcours du numéro
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser);
+    const chk = await page.evaluate(() => { const N = window.__numero, errs = []; let hunts = 0, steps = 0;
+      const verify = () => { const h = N.state.lastHunt; if (!h) { errs.push('pas de parcours'); return; } hunts++; steps += h.steps.length;
+        if (!h.steps.length) { if (h.start !== h.end.n) errs.push('départ ≠ capture sans saut'); return; }
+        if (h.steps[0].from !== h.start) errs.push('1er saut ne part pas du départ');
+        for (let k = 1; k < h.steps.length; k++) if (h.steps[k].from !== h.steps[k - 1].to) errs.push('saut discontinu');
+        if (h.steps[h.steps.length - 1].to !== h.end.n) errs.push('dernière position ≠ numéro attrapé');
+        if (h.steps.some(st => !st.ev)) errs.push('saut sans événement');
+        for (const st of h.steps) if (!st.frozen && N.moveFn(st.shift)(st.from) !== st.to) errs.push('saut mal calculé'); };
+      for (const lv of ['junior', 'malin', 'expert', 'genius', 'challenge']) for (let gm = 0; gm < 40; gm++) {
+        if (lv === 'challenge') N.startChallenge('endless'); else { N.state.players = 1 + gm % 3; N.state.level = lv; N.start(); }
+        for (let i = 0; i < 30 && N.state.screen === 'game'; i++) { const s = N.state; s.modal = null; const r = Math.random();
+          if (r < .3) N.ask(s.choices[0]); else if (r < .55) N.mathAnswer(Math.random() < .6 ? s.math.result : s.math.options[0]);
+          if (N.state.phase === 'result') N.nextTurn(); N.state.modal = null;
+          const c = N.state.candidates, pickn = c[Math.floor(Math.random() * c.length)];
+          if (Math.random() < .5) N.guess(Math.random() < .35 ? N.state.secret : pickn); else N.netCapture(Math.random() < .3 ? N.state.secret : pickn);
+          if (N.state.last && ['found', 'netHit'].includes(N.state.last.type)) verify();
+          N.nextTurn(); } }
+      return { errs: [...new Set(errs)], hunts, steps }; });
+    check(chk.errs.length === 0 && chk.hunts > 100, `Parcours exact et continu sur ${chk.hunts} captures (${chk.steps} sauts), 4 niveaux + défi ${chk.errs.join(', ')}`);
+    await page.evaluate(() => { const N = window.__numero; N.state.replayAsk = true; N.state.players = 1; N.state.level = 'malin'; N.state.reduceMotion = false; N.start(); });
+    await page.click('[data-question]'); await page.click('#next');
+    const sec = (await S(page)).secret;
+    await page.click(`[data-guess="${sec}"]`); await page.click('#capPrecise');
+    await page.waitForTimeout(900);
+    check(!(await S(page)).modal, 'La fenêtre attend la fin de l’animation de capture');
+    await page.waitForTimeout(1700);
+    check((await S(page)).modal === 'replayAsk' && await page.isVisible('#rpYes'), 'Après la capture : popup « Revoir l’évasion du numéro ? »');
+    await page.click('#rpNo');
+    check(!(await S(page)).modal && await page.isVisible('#openReplay'), 'Non merci : fermé, bouton « Revoir son parcours » disponible');
+    await page.click('#openReplay');
+    const h = (await S(page)).lastHunt;
+    const frames = 2 + h.steps.length;
+    check(await page.isVisible('.modal.replay') && (await page.textContent('.rp-num')).trim() === String(h.start) && (await page.textContent('.rp-step')).includes(`/ ${frames}`), `Film : départ sur le ${h.start}, ${frames} étapes`);
+    await page.click('#rpPlay');
+    const seq = [];
+    for (let k = 1; k < frames; k++) { await page.click('#rpNext'); seq.push(Number((await page.textContent('.rp-num')).trim())); }
+    const want = [...h.steps.map(st => st.to), h.end.n];
+    check(seq.join() === want.join(), `Film : chaque étape montre la bonne position (${[h.start, ...seq].join(' → ')})`);
+    check(await page.isVisible('.rp-stage.win') && (await page.textContent('.rp-cap')).includes(String(h.end.n)), 'Film : la dernière étape montre la capture');
+    check(await page.$$eval('.rp-track span.trail, .rp-track span.cur', e => e.length) >= 1, 'Film : traces du parcours sur la grille');
+    await page.click('#rpRestart'); await page.waitForTimeout(1900);
+    check((await S(page)).rpIdx >= 1, 'Film : lecture automatique');
+    await page.click('#rpClose');
+    check(!(await S(page)).modal, 'Film : fermeture');
+    await page.click('#next');
+    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'ar'; N.state.reduceMotion = true; N.guess(N.state.secret); });
+    await page.waitForTimeout(300);
+    check((await S(page)).modal === 'replayAsk', 'Popup aussi en arabe');
+    await page.click('#rpNever');
+    check((await S(page)).replayAsk === false, '« Ne plus demander » enregistré');
+    await page.click('#next');
+    await page.evaluate(() => { const N = window.__numero; N.guess(N.state.secret); });
+    await page.waitForTimeout(400);
+    check(!(await S(page)).modal, 'Plus de popup après « Ne plus demander » (le bouton reste dans le résultat)');
+    await page.click('#openReplay');
+    check(await page.isVisible('.modal.replay'), 'Film disponible en arabe');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (film) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} Film du parcours : exact, popup, lecture pas à pas, arabe`);
     await ctx.close();
   }
 
