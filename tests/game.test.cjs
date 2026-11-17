@@ -393,9 +393,9 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click('#closeModal');
     // Encourager les questions : avantages/inconvénients + bonus +1
     await page.evaluate(() => { const N = window.__numero; N.state.level = 'malin'; N.state.helpMode = null; N.state.players = 1; N.start(); });
-    check(await page.isVisible('.proscons .pro') && await page.isVisible('.proscons .con') && await page.isVisible('[data-tab="question"] .tab-badge'), 'Question : avantages, inconvénients et badge +1 visibles');
+    check(await page.isVisible('.tradeoff .up') && await page.isVisible('.tradeoff .down') && !(await page.$('.tab-badge')), 'Question : avantage / inconvénient sur une ligne discrète');
     await page.click('[data-tab="math"]');
-    check(await page.isVisible('.mathbox .proscons') && await page.getAttribute('.gbar .brand-icon', 'class').then(c => /thinking/.test(c)) && await page.isVisible('.logo-bubble'), 'Calcul : avantages/inconvénients, et le logo « 9? » réfléchit');
+    check(await page.isVisible('.mathbox .tradeoff') && await page.getAttribute('.gbar .brand-icon', 'class').then(c => /thinking/.test(c)) && await page.isVisible('.logo-bubble'), 'Calcul : avantages/inconvénients, et le logo « 9? » réfléchit');
     await page.evaluate(() => { const N = window.__numero; N.start(); });
     await page.click('[data-question]'); await page.click('#next');
     let sc0 = (await S(page)).scores[0];
