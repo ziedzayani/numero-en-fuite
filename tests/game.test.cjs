@@ -163,6 +163,9 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   const endText = await page.textContent('#app');
   check(!/\{\w+\}/.test(endText), `${label} : aucun texte non traduit sur l'écran final`);
   check(await page.isVisible('#again') && await page.isVisible('#menu'), `${label} : boutons Rejouer / Accueil`);
+  const shown = await page.$$eval('.finalscore .value', els => els.map(e => parseInt(e.textContent)));
+  const totals = st.scores.map((v, i) => v + st.stars[i]).sort((a, b) => b - a);
+  check(shown.join() === totals.join(), `${label} : classement final = points + étoiles (${shown.join(', ')})`);
   const unique = new Set(seenQuestions).size;
   check(unique >= Math.min(seenQuestions.length, 12) * 0.7, `${label} : questions variées (${unique} différentes sur ${seenQuestions.length})`);
   check(page.errors.length === 0, `${label} : aucune erreur JavaScript ${page.errors.join(' | ')}`);

@@ -31,6 +31,13 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 - **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
   à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
 
+## V7.4
+
+- Badge du niveau en haut à gauche (ex. 🧠 1–15) à la place du logo « 9? ».
+- Onglet 💡 Indice ; avantages et inconvénients expliqués en 3 lignes courtes (« Attrape-le juste après : +10 +1 bonus »).
+- Les étoiles ⭐ (gagnées avec les calculs) valent **+1 point chacune à la fin de la partie** ; le classement final
+  affiche « points + étoiles ».
+
 ## V7.2
 
 - Plus d'aide automatique par défaut (pas de numéros en vert, jamais « il ne reste qu'un numéro ») : le filet suffit.
