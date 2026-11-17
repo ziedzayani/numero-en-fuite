@@ -64,8 +64,18 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   await page.click(`[data-players="${players}"]`);
   await page.click(`[data-level="${level}"]`);
   await page.click('#start');
+  const NAMES = ['Léa', 'Omar', 'Zoé & Co', 'Nour'];
+  if (players > 1) {
+    check(await page.isVisible('#name0'), `${label} : saisie des prénoms`);
+    for (let i = 0; i < players; i++) await page.fill('#name' + i, i === 1 ? '' : NAMES[i]);
+    await page.click('#namesGo');
+  }
   let st = await S(page);
   const max = MAX[level];
+  if (players > 1) {
+    const chips = await page.$$eval('.chip .cname', els => els.map(e => e.textContent.trim()));
+    check(chips[0] === 'Léa' && /2/.test(chips[1]) && (players < 3 || chips[2] === 'Zoé & Co'), `${label} : prénoms affichés (${chips.join(' / ')})`);
+  }
   check(st.screen === 'game' && st.limit === LIMIT[players], `${label} : partie lancée avec ${LIMIT[players]} tours`);
   check(st.secret >= 1 && st.secret <= max, `${label} : numéro secret dans 1..${max}`);
   const seenQuestions = [];
@@ -95,7 +105,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
         await page.click('[data-tab="math"]');
         const answerRight = turn % 2 === 0;
         const opt = answerRight ? st.math.result : st.math.options.find(o => o !== st.math.result);
-        check(st.math.options.includes(st.math.result) && new Set(st.math.options).size === 3, `${label} t${turn} : calcul avec 3 réponses dont la bonne`);
+        const nOpt = level === 'expert' ? 6 : 3; check(st.math.options.includes(st.math.result) && new Set(st.math.options).size === nOpt && await page.$$eval('[data-math]', e => e.length) === nOpt, `${label} t${turn} : calcul avec ${nOpt} réponses dont la bonne`);
         await page.click(`[data-math="${opt}"]`);
         mathCount++;
         const after = await S(page);
@@ -137,12 +147,13 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     guessCount++;
     const g = await S(page);
     const delta = g.scores[player] - st.scores[player];
-    const expDelta = wantRight ? (mode === 'precise' ? 5 : 2) : -1;
+    const expDelta = wantRight ? (mode === 'precise' ? 5 : 2) : (mode === 'precise' ? -1 : -(level === 'junior' ? 2 : 3));
     check(delta === expDelta, `${label} t${turn} : ${mode} ${wantRight ? 'réussie' : 'ratée'} → ${expDelta > 0 ? '+' : ''}${expDelta} (obtenu ${delta})`);
     check(g.last.type === (mode === 'precise' ? (wantRight ? 'found' : 'wrong') : (wantRight ? 'netHit' : 'netMiss')), `${label} t${turn} : type de capture enregistré`);
     if (wantRight) finds++;
     const nb = await notebookOK(page);
     check(nb.ok, `${label} t${turn} : carnet exact après la capture (attendu ${nb.exp} / carnet ${nb.got})`);
+    if (turn + 1 < st.limit) { const D = await page.evaluate(l => window.__numero.dictionaries[l], lang); const want = players === 1 ? D.nextTurn : D.nextPlayer; check((await page.textContent('#next')).includes(want), `${label} t${turn} : bouton « ${want} »`); }
     check(g.secret >= 1 && g.secret <= max, `${label} t${turn} : secret toujours valide`);
     await page.click('#next');
   }
@@ -227,7 +238,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const before = failed;
     const { ctx, page } = await fresh(browser);
     await page.click('[data-players="2"]'); await page.click('[data-level="malin"]'); await page.click('#start');
-    await page.click('#handoffGo');
+    await page.click('#namesGo'); await page.click('#handoffGo');
     let st = await S(page);
     await page.click(`[data-question="${st.choices[0]}"]`);
     const mid = await S(page);
@@ -253,13 +264,15 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click('#resumeGame');
     check((await S(page)).screen === 'game' && !(await S(page)).modal, 'Pause → Reprendre : on revient dans la partie');
     await page.click('#openNotebook'); check(await page.isVisible('.modal .history-items'), 'Carnet d’indices dans une fenêtre'); await page.click('#closeModal');
-    await page.click('#pause'); await page.click('#quitYes');
-    check((await S(page)).screen === 'home' && await page.isVisible('#resume'), 'Quitter : retour à l’accueil avec « Reprendre la partie »');
-    await page.click('#resume');
+    await page.click('#pause'); await page.click('#askQuit');
+    check((await S(page)).modal === 'quit', 'Quitter : confirmation demandée');
+    await page.click('#quitNo');
+    check((await S(page)).modal === 'pause' && (await S(page)).screen === 'game', 'Quitter → Non : retour au menu Pause');
+    await page.click('#askQuit'); await page.click('#quitYes');
     now = await S(page);
-    check(now.screen === 'game' && now.turn === mid.turn, 'Reprise de la partie depuis l’accueil');
-    await page.evaluate(() => window.__numero.back());
-    await page.click('#quitYes');
+    check(now.screen === 'home' && !now.inGame && !(await page.$('#resume')), 'Quitter : la partie est terminée (pas de « Reprendre »)');
+    await page.click('[data-level="junior"]');
+    check(!(await page.$('#resume')), 'Changer de niveau après avoir quitté : aucune ancienne partie proposée');
     handled = await page.evaluate(() => window.__numero.back());
     check(handled === false, 'Retour sur l’accueil : l’application peut se fermer');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (langue/sauvegarde) ' + page.errors.join(' | '));
@@ -273,7 +286,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const { ctx, page } = await fresh(browser);
     const ages = await page.$$eval('.level .age', els => els.map(e => e.textContent));
     check(ages.length === 3 && ages[0].includes('5') && ages[2].includes('11'), 'Âges affichés sur les niveaux : ' + ages.join(' / '));
-    for (const [level, mathS, turnS] of [['junior', 30, 40], ['malin', 30, 35], ['expert', 25, 30]]) {
+    for (const [level, mathS, turnS] of [['junior', 30, 40], ['malin', 30, 35], ['expert', 45, 30]]) {
       await page.evaluate(lv => { const N = window.__numero; N.state.players = 2; N.state.level = lv; N.state.timerMode = 'normal'; N.start(); }, level);
       await page.click('#handoffGo');
       check(await page.getAttribute('#timer', 'data-kind') === 'turn' && (await page.textContent('#timerText')).includes(String(turnS)), `${level} : chrono « choisis ton numéro » ${turnS} s dès le début du tour`);
@@ -304,7 +317,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       st = await S(page);
       check(st.turn === st0.turn + 1 && st.modal === 'handoff', `${level} : le tour passe au joueur suivant`);
       // Difficulté des calculs
-      const ok = await page.evaluate(lv => { const N = window.__numero, out = []; for (let i = 0; i < 300; i++) { N.state.level = lv; N.state.screen = 'game'; N.state.phase = 'choose'; N.start(); const m = N.state.math; const txt = m.text; const val = Function('return ' + txt.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-'))(); if (val !== m.result || m.options.length !== 3 || new Set(m.options).size !== 3 || m.options.some(o => o < 0) || !m.options.includes(m.result)) out.push(txt); if (lv === 'malin' && /^\d \+ \d$|^1\d \+ \d$/.test(txt)) out.push('trop facile ' + txt); } return out; }, level);
+      const ok = await page.evaluate(lv => { const N = window.__numero, out = []; for (let i = 0; i < 300; i++) { N.state.level = lv; N.state.screen = 'game'; N.state.phase = 'choose'; N.start(); const m = N.state.math; const txt = m.text; const val = Function('return ' + txt.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-'))(); if (val !== m.result || m.options.length !== (lv === 'expert' ? 6 : 3) || new Set(m.options).size !== m.options.length || m.options.some(o => o < 0) || !m.options.includes(m.result)) out.push(txt); if (lv === 'malin' && /^\d \+ \d$|^1\d \+ \d$/.test(txt)) out.push('trop facile ' + txt); if (lv === 'expert' && (txt.match(/[+−×÷]/g) || []).length < 2) out.push('pas assez mélangé ' + txt); } return out; }, level);
       check(ok.length === 0, `${level} : 300 calculs justes et adaptés ${ok.slice(0, 3).join(', ')}`);
     }
     await page.evaluate(() => { const N = window.__numero; N.state.level = 'junior'; N.state.players = 1; N.state.inGame = false; N.state.screen = 'home'; N.state.modal = null; N.render(); });
@@ -354,7 +367,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(await page.$$eval('.numtile.hit-net', e => e.length) === 2, 'Animation du filet sur les 2 numéros');
     await page.waitForTimeout(1000);
     st = await S(page);
-    check(st.last.type === 'netMiss' && st.scores[0] === 4 && /grimace/.test(await cls()) && /expr-grimace/.test(await cls()), 'Filet vide −1 : grimace du détective');
+    check(st.last.type === 'netMiss' && st.scores[0] === 3 && /grimace/.test(await cls()) && /expr-grimace/.test(await cls()), 'Filet vide (2 numéros) −2 : grimace du détective');
     await page.click('#next');
     await page.click('[data-tab="math"]');
     check(/search/.test(await cls()), 'Détective : cherche avec sa loupe (calcul)');
@@ -383,6 +396,49 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
+  // 3d) Accueil sans défilement, réglages au doigt sans clignotement, prénoms spéciaux
+  {
+    const before = failed;
+    for (const [w, h] of [[360, 640], [360, 740], [412, 800]]) for (const lang of ['fr', 'ar']) {
+      const { ctx, page } = await fresh(browser, { width: w, height: h });
+      if (lang === 'ar') { await page.evaluate(() => { window.__numero.state.lang = 'ar'; window.__numero.render(); }); }
+      await page.waitForTimeout(450);
+      const sc = await page.evaluate(() => document.scrollingElement.scrollHeight - window.innerHeight);
+      check(sc <= 1, `Accueil ${w}×${h} (${lang}) : tout tient sans défiler (${sc}px)`);
+      if (w === 360 && h === 640) await shot(page, `00_accueil_${lang}_360x640`);
+      await ctx.close();
+    }
+    const { ctx, page } = await fresh(browser);
+    await page.tap('#openSettings'); await page.waitForTimeout(500);
+    const flashCheck = async label => { await page.waitForTimeout(60); const r = await page.evaluate(() => ({ cls: document.getElementById('app').classList.contains('screen-enter'), anim: [...document.querySelectorAll('#app > *')].some(el => el.getAnimations().some(a => a.animationName === 'screenIn')) })); check(!r.cls && !r.anim, `Réglages « ${label} » : pas de clignotement de l’écran`); };
+    const taps = [
+      ['[data-language="en"]', st => st.lang === 'en', 'English'], ['[data-language="ar"]', st => st.lang === 'ar', 'العربية'], ['[data-language="fr"]', st => st.lang === 'fr', 'Français'],
+      ['#soundToggle', st => st.sound === false, 'Son coupé'], ['#soundToggle', st => st.sound === true, 'Son activé'],
+      ['[data-timer="long"]', st => st.timerMode === 'long', 'Plus de temps'], ['[data-timer="off"]', st => st.timerMode === 'off', 'Sans chrono'], ['[data-timer="normal"]', st => st.timerMode === 'normal', 'Chrono normal'],
+      ['[data-help="off"]', st => st.helpMode === 'off', 'Aide désactivée'], ['[data-help="auto"]', st => st.helpMode === 'auto', 'Aide auto'], ['[data-help="ask"]', st => st.helpMode === 'ask', 'Aide sur demande'],
+      ['#motionToggle', st => st.reduceMotion === true, 'Animations réduites'], ['#motionToggle', st => st.reduceMotion === false, 'Animations normales'],
+    ];
+    for (const [sel, ok, label] of taps) {
+      await page.locator(sel).scrollIntoViewIfNeeded(); await page.tap(sel);
+      check(ok(await S(page)), `Réglages : le bouton « ${label} » fonctionne au toucher`);
+      await flashCheck(label);
+    }
+    await page.tap('#closeSettingsBottom');
+    check((await S(page)).screen === 'home', 'Réglages : bouton Retour');
+    // prénoms avec caractères spéciaux
+    await page.tap('[data-players="2"]'); await page.tap('#start');
+    await page.fill('#name0', `<b>Al'i</b>`); await page.fill('#name1', 'Inès');
+    await page.tap('#namesGo');
+    const t0 = await page.textContent('.modal h2');
+    check(t0.includes(`<b>Al'i</b>`), 'Prénom avec caractères spéciaux affiché tel quel (sécurité)');
+    await page.tap('#handoffGo'); await page.tap('[data-tab="question"]'); await page.tap('[data-question]');
+    await page.tap('#openNotebook');
+    check((await page.textContent('.modal .history-items')).includes(`<b>Al'i</b>`), 'Prénom correct dans le carnet');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (accueil/réglages/prénoms) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} Accueil sans défilement, réglages au toucher sans clignotement, prénoms`);
+    await ctx.close();
+  }
+
   // 4) Rendu sur petits écrans + captures
   for (const vp of [{ width: 320, height: 568, tag: '320' }, { width: 360, height: 740, tag: '360' }]) {
     const before = failed;
@@ -391,7 +447,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await noOverflow(page, `Accueil ${vp.tag}px`); await shot(page, pre + '01_accueil');
     const tile = await page.$eval('[data-players="1"]', el => el.getBoundingClientRect().height);
     check(tile >= 44, `Boutons tactiles ≥ 44 px (${Math.round(tile)} px)`);
-    await page.click('[data-players="3"]'); await page.click('[data-level="expert"]'); await page.click('#start'); await page.waitForTimeout(450);
+    await page.click('[data-players="3"]'); await page.click('[data-level="expert"]'); await page.click('#start'); await page.waitForTimeout(300); await shot(page, pre + '01b_prenoms'); await page.click('#namesGo'); await page.waitForTimeout(450);
     await shot(page, pre + '02_passe_le_telephone');
     await page.click('#handoffGo');
     await noOverflow(page, `Partie ${vp.tag}px`); await shot(page, pre + '03_questions');

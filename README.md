@@ -13,7 +13,7 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 | `app/build.gradle` | compileSdk/targetSdk 35, minSdk 23 (Android 6+) |
 | `gradlew`, `gradle/wrapper/` | Gradle Wrapper 8.11.1 : compilation reproductible |
 | `.github/workflows/build-apk.yml` | Tests + compilation + vérification automatique de l'APK |
-| `tests/game.test.cjs` | ~3 950 vérifications automatiques du jeu |
+| `tests/game.test.cjs` | ~4 200 vérifications automatiques du jeu |
 | `LICENCE-POLICE.txt` | Licence libre (SIL OFL 1.1) de la police Baloo Bhaijaan 2 |
 | `web/Numero_en_Fuite_V7.html` | Version navigateur autonome |
 | `web/PWA/` | Version web installable (à héberger en HTTPS) |
@@ -21,7 +21,8 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 ## Nouveautés V7
 
 - **Deux façons de capturer** : touche un numéro, puis 🎯 *Capture précise* (+5 / −1) ou 🕸️ *Filet magique*
-  (+2 / −1) sur 2 numéros voisins au niveau Petit (1–9) et 3 aux autres niveaux, toujours dans les limites du niveau.
+  (+2, ou −1 par numéro si le filet est vide : −2 au niveau Petit, −3 ailleurs) sur 2 numéros voisins au niveau Petit (1–9)
+  et 3 aux autres niveaux, toujours dans les limites du niveau.
   Une seule capture par tour, animations différentes (cible / filet).
 - **Mon carnet 📓** : questions, réponses, calculs, déplacements, numéros éliminés et numéros encore possibles,
   recalculés à chaque déplacement. Aide *Automatique* (Petit), *Sur demande* (Moyen, Grand) ou *Désactivée* (Réglages).
@@ -29,6 +30,13 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
   on gagne, grimace quand on rate ; expressions joyeuse, surprise, inquiète, curieuse, fière ; bulles amusantes FR/EN/AR.
 - **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
   à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
+
+## Correctifs V7.1
+
+- Plus de clignotement de l'écran à chaque appui (Réglages et partie).
+- Niveau Grand : calculs mélangés avec priorités (ex. 7 × 6 − 36 ÷ 4, (3 + 5) × 7 − 9), 6 propositions, 45 s.
+- Prénoms des joueurs en multijoueur ; « Tour suivant » en solo.
+- Quitter une partie la termine (confirmation demandée) ; l'accueil tient sur un seul écran.
 
 ## Nouveautés V6
 
