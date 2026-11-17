@@ -13,7 +13,7 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 | `app/build.gradle` | compileSdk/targetSdk 35, minSdk 23 (Android 6+) |
 | `gradlew`, `gradle/wrapper/` | Gradle Wrapper 8.11.1 : compilation reproductible |
 | `.github/workflows/build-apk.yml` | Tests + compilation + vérification automatique de l'APK |
-| `tests/game.test.cjs` | ~2 840 vérifications automatiques du jeu |
+| `tests/game.test.cjs` | ~2 850 vérifications automatiques du jeu |
 | `LICENCE-POLICE.txt` | Licence libre (SIL OFL 1.1) de la police Baloo Bhaijaan 2 |
 | `web/Numero_en_Fuite_V6.html` | Version navigateur autonome |
 | `web/PWA/` | Version web installable (à héberger en HTTPS) |
@@ -21,9 +21,14 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 ## Nouveautés V6
 
 - Nouveau design « ciel bleu », police arrondie Baloo Bhaijaan 2 intégrée (lisible en français, anglais et arabe, sans Internet).
-- **Chrono des calculs adapté à l'âge** : Petit (5–7 ans) 30 s, Moyen (8–10 ans) 25 s, Grand (11 ans et +) 20 s.
-  Réglages : *Normal*, *Plus de temps* (×1,5) ou *Sans chrono*. Le chrono démarre à l'ouverture du calcul, se met en pause
-  pendant les fenêtres et quand l'appli passe en arrière-plan. Temps écoulé : pas d'étoile, pas de pénalité, le joueur garde son tour.
+- **Écran de jeu sur une seule page** (sans défilement) : barre compacte (tour, progression, carnet 📒, pause ⏸),
+  scores, détective + bulle, onglets Indice / Calcul / Deviner.
+- **Chronos adaptés à l'âge** — Petit (5–7 ans) : 30 s par calcul, 40 s pour choisir un numéro ; Moyen (8–10 ans) : 30 s / 35 s ;
+  Grand (11 ans et +) : 25 s / 30 s. Calcul hors temps : pas d'étoile, le joueur garde son tour. Numéro non choisi à temps :
+  tour perdu (0 point). Réglages : *Normal*, *Plus de temps* (×1,5), *Sans chrono*. Le bouton ⏸ (et le bouton Retour)
+  met tout en pause ; l'appli se met aussi en pause quand on la quitte.
+- **Calculs selon l'âge** — Petit : + et − jusqu'à 10 ; Moyen : additions/soustractions à retenue (ex. 47 + 28, 63 − 27),
+  tables de 3 à 9 ; Grand : 23 × 7, 96 ÷ 8, 6 × 7 − 15, 238 + 57.
 - Écran « Passe le téléphone » entre les joueurs, bouton « Reprendre la partie », fenêtres de confirmation intégrées.
 - Bouton Retour Android géré, affichage correct sur Android 15 (barres système), sons (désactivables).
 

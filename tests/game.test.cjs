@@ -109,7 +109,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     // Alterne bonnes et mauvaises tentatives
     const wantRight = turn % 4 === 1 || turn % 4 === 2;
     const n = wantRight ? st.secret : (st.secret % max) + 1;
-    if (st.tab !== 'guess') await page.click('#jumpguess');
+    if (st.tab !== 'guess') await page.click('[data-tab="guess"]');
     await page.click(`[data-guess="${n}"]`);
     guessCount++;
     const g = await S(page);
@@ -202,11 +202,13 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     let st = await S(page);
     await page.click(`[data-question="${st.choices[0]}"]`);
     const mid = await S(page);
-    await page.click('#openSettings');
+    await page.click('#pause'); await page.click('#pauseSettings');
     await page.click('[data-language="ar"]');
     check(await page.evaluate(() => document.documentElement.dir) === 'rtl', 'Arabe : affichage de droite à gauche');
     await shot(page, '07_reglages_arabe');
     await page.click('#closeSettings'); await page.waitForTimeout(450);
+    check((await S(page)).modal === 'pause', 'Retour des réglages : la partie reste en pause');
+    await page.click('#resumeGame');
     let now = await S(page);
     check(now.screen === 'game' && now.phase === 'result' && now.turn === mid.turn && now.secret === mid.secret, 'Changement de langue sans interrompre la partie');
     await shot(page, '08_resultat_arabe');
@@ -218,10 +220,11 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check((await S(page)).tab === 'guess', 'Après rechargement : le joueur doit toujours tenter un numéro');
     // Bouton Retour Android
     let handled = await page.evaluate(() => window.__numero.back());
-    check(handled && (await S(page)).modal === 'quit', 'Retour en partie : demande de confirmation (fenêtre du jeu, pas de boîte native)');
-    await page.click('#quitNo');
-    check((await S(page)).screen === 'game', 'Confirmation « Non » : on reste dans la partie');
-    await page.click('#quit'); await page.click('#quitYes');
+    check(handled && (await S(page)).modal === 'pause', 'Retour en partie : met le jeu en pause (fenêtre du jeu, pas de boîte native)');
+    await page.click('#resumeGame');
+    check((await S(page)).screen === 'game' && !(await S(page)).modal, 'Pause → Reprendre : on revient dans la partie');
+    await page.click('#openNotebook'); check(await page.isVisible('.modal .history-items'), 'Carnet d’indices dans une fenêtre'); await page.click('#closeModal');
+    await page.click('#pause'); await page.click('#quitYes');
     check((await S(page)).screen === 'home' && await page.isVisible('#resume'), 'Quitter : retour à l’accueil avec « Reprendre la partie »');
     await page.click('#resume');
     now = await S(page);
@@ -235,49 +238,56 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
-  // 3b) Chrono des calculs adapté à l'âge
+  // 3b) Chronos adaptés à l'âge : calcul + choix du numéro, pause
   {
     const before = failed;
     const { ctx, page } = await fresh(browser);
     const ages = await page.$$eval('.level .age', els => els.map(e => e.textContent));
     check(ages.length === 3 && ages[0].includes('5') && ages[2].includes('11'), 'Âges affichés sur les niveaux : ' + ages.join(' / '));
-    for (const [level, secs] of [['junior', 30], ['malin', 25], ['expert', 20]]) {
-      await page.evaluate(lv => { const N = window.__numero; N.state.players = 1; N.state.level = lv; N.state.timerMode = 'normal'; N.start(); }, level);
-      check(!(await page.isVisible('#mathTimer')), `${level} : le chrono n'est pas lancé avant d'ouvrir le calcul`);
+    for (const [level, mathS, turnS] of [['junior', 30, 40], ['malin', 30, 35], ['expert', 25, 30]]) {
+      await page.evaluate(lv => { const N = window.__numero; N.state.players = 2; N.state.level = lv; N.state.timerMode = 'normal'; N.start(); }, level);
+      await page.click('#handoffGo');
+      check(await page.getAttribute('#timer', 'data-kind') === 'turn' && (await page.textContent('#timerText')).includes(String(turnS)), `${level} : chrono « choisis ton numéro » ${turnS} s dès le début du tour`);
+      await page.waitForTimeout(1200);
+      const te = (await S(page)).turnElapsed;
+      check(te >= 800 && te <= 2000, `${level} : le chrono du tour avance (${te} ms)`);
+      await page.click('#pause'); const p0 = (await S(page)).turnElapsed; await page.waitForTimeout(800);
+      check((await S(page)).turnElapsed === p0, `${level} : PAUSE arrête le chrono`);
+      await page.click('#resumeGame');
       await page.click('[data-tab="math"]');
-      const txt = await page.textContent('#mathTimerText');
-      check(txt.includes(String(secs)), `${level} : ${secs} s pour répondre (affiché « ${txt.trim()} »)`);
-      await page.waitForTimeout(1300);
-      const el = await page.evaluate(() => window.__numero.state.mathElapsed);
-      check(el >= 900 && el <= 2000, `${level} : le chrono avance (${el} ms)`);
-      // Pause pendant la fenêtre « Quitter ? »
-      await page.click('#quit'); const p0 = await page.evaluate(() => window.__numero.state.mathElapsed);
-      await page.waitForTimeout(800); const p1 = await page.evaluate(() => window.__numero.state.mathElapsed);
-      check(p1 === p0, `${level} : chrono en pause pendant la confirmation`);
-      await page.click('#quitNo');
+      check(await page.getAttribute('#timer', 'data-kind') === 'math' && (await page.textContent('#timerText')).includes(String(mathS)), `${level} : chrono calcul ${mathS} s`);
+      check(await page.isDisabled('[data-tab="question"]'), `${level} : pendant le calcul, pas d’indice en plus`);
       const st0 = await S(page);
-      await page.evaluate(() => { const s = window.__numero.state; s.mathElapsed = 1e9 - 1e9 + (window.__numero.mathLeft() + s.mathElapsed) - 150; });
+      await page.evaluate(() => { const s = window.__numero.state; s.mathElapsed += window.__numero.mathLeft() - 150; });
       await page.waitForTimeout(700);
-      const st = await S(page);
-      check(st.phase === 'result' && st.last.type === 'math' && st.last.timeout === true, `${level} : temps écoulé → résultat « Temps écoulé »`);
-      check(st.stars[0] === st0.stars[0] && st.scores[0] === st0.scores[0], `${level} : temps écoulé = pas d'étoile, pas de pénalité`);
-      check(/TEMPS|⏱/.test(await page.textContent('.result-title')), `${level} : titre « Temps écoulé » affiché`);
+      let st = await S(page);
+      check(st.phase === 'result' && st.last.timeout === true && st.stars[0] === st0.stars[0] && st.scores[0] === st0.scores[0], `${level} : calcul hors temps → pas d’étoile, pas de pénalité`);
       await page.click('#next');
-      const after = await S(page);
-      check(after.phase === 'choose' && after.tab === 'guess' && after.turn === st0.turn, `${level} : après le chrono, le joueur doit encore tenter un numéro`);
+      st = await S(page);
+      check(st.phase === 'choose' && st.tab === 'guess' && st.turnElapsed < 1000 && await page.getAttribute('#timer', 'data-kind') === 'turn', `${level} : après le calcul, nouveau chrono pour choisir un numéro`);
+      // Le joueur ne choisit pas : temps écoulé
+      await page.evaluate(() => { const s = window.__numero.state; s.turnElapsed += window.__numero.turnLeft() - 150; });
+      await page.waitForTimeout(700);
+      st = await S(page);
+      check(st.phase === 'result' && st.last.type === 'timeout' && st.scores.join() === st0.scores.join(), `${level} : pas de choix à temps → tour perdu (0 point)`);
+      check(/TARD|⏱/.test(await page.textContent('.result-title')), `${level} : message « Trop tard ! »`);
+      await page.click('#next');
+      st = await S(page);
+      check(st.turn === st0.turn + 1 && st.modal === 'handoff', `${level} : le tour passe au joueur suivant`);
+      // Difficulté des calculs
+      const ok = await page.evaluate(lv => { const N = window.__numero, out = []; for (let i = 0; i < 300; i++) { N.state.level = lv; N.state.screen = 'game'; N.state.phase = 'choose'; N.start(); const m = N.state.math; const txt = m.text; const val = Function('return ' + txt.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-'))(); if (val !== m.result || m.options.length !== 3 || new Set(m.options).size !== 3 || m.options.some(o => o < 0) || !m.options.includes(m.result)) out.push(txt); if (lv === 'malin' && /^\d \+ \d$|^1\d \+ \d$/.test(txt)) out.push('trop facile ' + txt); } return out; }, level);
+      check(ok.length === 0, `${level} : 300 calculs justes et adaptés ${ok.slice(0, 3).join(', ')}`);
     }
-    // Réglages : plus de temps / sans chrono
-    await page.evaluate(() => { const N = window.__numero; N.state.level = 'junior'; N.state.screen = 'home'; N.render(); });
+    await page.evaluate(() => { const N = window.__numero; N.state.level = 'junior'; N.state.players = 1; N.state.inGame = false; N.state.screen = 'home'; N.state.modal = null; N.render(); });
     await page.click('#openSettings'); await page.click('[data-timer="long"]'); await page.click('#closeSettings');
-    await page.click('#start'); await page.click('[data-tab="math"]');
-    check((await page.textContent('#mathTimerText')).includes('45'), 'Réglage « Plus de temps » : 45 s au niveau Petit');
+    await page.click('#start');
+    check((await page.textContent('#timerText')).includes('60'), 'Réglage « Plus de temps » : 60 s pour choisir (Petit)');
     await page.evaluate(() => { const N = window.__numero; N.state.screen = 'home'; N.render(); });
     await page.click('#openSettings'); await page.click('[data-timer="off"]'); await page.click('#closeSettings');
-    await page.click('#start'); await page.click('[data-tab="math"]');
-    await page.waitForTimeout(400);
-    check(!(await page.isVisible('#mathTimer')) && (await S(page)).phase === 'choose', 'Réglage « Sans chrono » : aucun compte à rebours');
-    check(page.errors.length === 0, 'Aucune erreur JavaScript (chrono) ' + page.errors.join(' | '));
-    console.log(`${failed === before ? '✓' : '✗'} Chrono des calculs (30/25/20 s, plus de temps, sans chrono, pause)`);
+    await page.click('#start'); await page.waitForTimeout(400);
+    check(!(await page.isVisible('#timer')), 'Réglage « Sans chrono » : aucun compte à rebours');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (chronos) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} Chronos (calcul + choix du numéro), pause, difficulté des calculs`);
     await ctx.close();
   }
 
@@ -293,12 +303,15 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await shot(page, pre + '02_passe_le_telephone');
     await page.click('#handoffGo');
     await noOverflow(page, `Partie ${vp.tag}px`); await shot(page, pre + '03_questions');
+    const pageScroll = await page.evaluate(() => document.scrollingElement.scrollHeight - window.innerHeight);
+    check(pageScroll <= 1, `Partie ${vp.tag}px : tout tient sur l’écran, pas de défilement (${pageScroll}px)`);
     await page.click('[data-tab="math"]'); await page.waitForTimeout(1500); await shot(page, pre + '04_calcul');
     const st = await S(page);
     await page.click(`[data-math="${st.math.result}"]`); await page.waitForTimeout(400); await shot(page, pre + '05_calcul_reussi');
     await page.click('#next'); await page.click('#hints'); await noOverflow(page, `Grille 1-30 ${vp.tag}px`); await shot(page, pre + '06_grille_grand');
+    if (vp.tag === '360') { const inner = await page.$eval('.turn-body', el => el.scrollHeight - el.clientHeight); check(inner <= 2, `Grille 1-30 entièrement visible sans défiler (${inner}px)`); }
     const t = await page.$eval('[data-guess="30"]', el => el.getBoundingClientRect());
-    check(t.width >= 44 && t.height >= 44, `Cases numéros 1-30 assez grandes (${Math.round(t.width)}×${Math.round(t.height)} px)`);
+    check(t.width >= 44 && t.height >= (vp.tag === '360' ? 44 : 36), `Cases numéros 1-30 assez grandes (${Math.round(t.width)}×${Math.round(t.height)} px)`);
     await page.evaluate(() => { const N = window.__numero; for (let i = 0; i < 30 && N.state.screen === 'game'; i++) { N.state.modal = null; N.guess(N.state.secret); N.nextTurn(); } });
     await page.waitForTimeout(300);
     await noOverflow(page, `Victoire ${vp.tag}px`); await shot(page, pre + '09_victoire');
