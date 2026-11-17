@@ -1,0 +1,10 @@
+LE NUMÉRO EN FUITE – VERSION 6
+
+1) Le plus simple : ouvrez directement le fichier Numero_en_Fuite_V6.html dans Chrome Android ou un navigateur récent. Le jeu se lance hors ligne.
+2) PWA installable : publiez le contenu du dossier PWA sur un hébergement HTTPS, visitez index.html puis utilisez « Ajouter à l’écran d’accueil » ou « Installer l’application ». Une PWA ne peut pas être installée depuis un simple fichier local.
+3) Projet Android Studio : ouvrez le projet Android et compilez l’APK avec le SDK Android. Aucun APK compilé n’est fourni ni certifié.
+
+LANGUES : français, anglais, arabe (Réglages).
+NIVEAUX : Petit 1-9, Moyen 1-15, Grand 1-30.
+RÈGLE : après un indice ou un calcul, le joueur garde la main et doit tenter un nombre.
+JEU : 1 à 4 personnes, sur un téléphone, sans réseau ni publicités.

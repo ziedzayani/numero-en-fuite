@@ -1,0 +1,53 @@
+plugins { id 'com.android.application' }
+
+// Signature « release » facultative : uniquement si les variables d'environnement
+// existent (secrets GitHub). Sinon, seul l'APK debug (signé avec la clé de debug
+// standard générée par le SDK Android) est produit.
+def releaseStore = System.getenv('NEF_KEYSTORE_FILE')
+def hasReleaseKey = releaseStore != null && new File(releaseStore).exists()
+
+android {
+    namespace 'com.atelier.numeroenfuite'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.atelier.numeroenfuite'
+        minSdk 23
+        targetSdk 35
+        versionCode 6
+        versionName '6.0'
+    }
+
+    signingConfigs {
+        if (hasReleaseKey) {
+            release {
+                storeFile file(releaseStore)
+                storePassword System.getenv('NEF_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('NEF_KEY_ALIAS')
+                keyPassword System.getenv('NEF_KEY_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-debug'
+        }
+        release {
+            minifyEnabled false
+            if (hasReleaseKey) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+    }
+}

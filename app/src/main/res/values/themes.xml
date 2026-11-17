@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="nef_blue">#FF2A5CF5</color>
+    <style name="Theme.NumeroEnFuite" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <!-- Fond bleu dès le lancement : pas d'écran blanc avant l'affichage du jeu. -->
+        <item name="android:windowBackground">@color/nef_blue</item>
+        <item name="android:colorPrimary">@color/nef_blue</item>
+        <item name="android:colorPrimaryDark">@color/nef_blue</item>
+        <item name="android:statusBarColor">@color/nef_blue</item>
+        <item name="android:navigationBarColor">@color/nef_blue</item>
+    </style>
+</resources>
