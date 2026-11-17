@@ -611,8 +611,11 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(seq.join() === want.join(), `Film : chaque étape montre la bonne position (${[h.start, ...seq].join(' → ')})`);
     check(await page.isVisible('.rp-stage.win') && (await page.textContent('.rp-cap')).includes(String(h.end.n)), 'Film : la dernière étape montre la capture');
     check(await page.$$eval('.rp-track span.trail, .rp-track span.cur', e => e.length) >= 1, 'Film : traces du parcours sur la grille');
-    await page.click('#rpRestart'); await page.waitForTimeout(1900);
-    check((await S(page)).rpIdx >= 1, 'Film : lecture automatique');
+    await page.click('#rpRestart'); await page.waitForTimeout(3500);
+    check((await S(page)).rpIdx === 0, 'Film : chaque étape reste affichée (pas d’enchaînement avant 5 s)');
+    check(await page.isVisible('.rp-bar'), 'Film : barre de temps de l’étape');
+    await page.waitForTimeout(2000);
+    check((await S(page)).rpIdx === 1, 'Film : lecture automatique, étape suivante après 5 s');
     await page.click('#rpClose');
     check(!(await S(page)).modal, 'Film : fermeture');
     await page.click('#next');

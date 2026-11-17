@@ -31,6 +31,11 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 - **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
   à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
 
+## V7.9
+
+- Film du parcours plus lent : **5 secondes par étape**, avec une barre de temps. Animation en 2 temps :
+  l'ancien numéro reste affiché, puis il s'envole (avec des traces de pas) et le nouveau numéro atterrit à sa place.
+
 ## V7.8
 
 - **🎬 Film du parcours** : après chaque capture, une fenêtre propose « Revoir l’évasion du numéro ? ».

@@ -14,8 +14,8 @@ android {
         applicationId 'com.atelier.numeroenfuite'
         minSdk 23
         targetSdk 35
-        versionCode 16
-        versionName '7.8'
+        versionCode 17
+        versionName '7.9'
     }
 
     signingConfigs {
