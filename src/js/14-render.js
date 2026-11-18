@@ -284,6 +284,8 @@ function bind() {
   );
   click('openTutorial', openTutorial);
   click('rulesTutorial', openTutorial);
+  click('inviteTutorial', openTutorial);
+  click('tutRestart', openTutorial);
   click('tutNext', tutNext);
   click('tutAsk', tutNext);
   click('tutPrecise', () => tutCapture('precise'));
@@ -300,6 +302,7 @@ function bind() {
   });
   app.querySelectorAll('[data-tutpick]').forEach(b =>
     b.addEventListener('click', () => {
+      if (g.tut.step === TUT_STEPS.indexOf('loop')) return tutLoopPick(Number(b.dataset.tutpick));
       g.tut.sel = Number(b.dataset.tutpick);
       g.tut.miss = null;
       sfx('tap');

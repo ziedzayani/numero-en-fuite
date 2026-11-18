@@ -51,7 +51,8 @@ function guess(n) {
   render();
 }
 /* ---- Filet magique : LEVELS[niveau].netSize numéros voisins (2 au niveau Petit, 3 ailleurs). ---- */
-const netSize = () => (LEVELS[g.level] || LEVELS.expert).netSize;
+// En défi, le filet couvre toujours 3 numéros : « Facile » ne doit pas rendre la capture plus étroite.
+const netSize = () => (g.mode === 'challenge' ? 3 : (LEVELS[g.level] || LEVELS.expert).netSize);
 /** Numéros couverts par le filet autour de n, sans sortir de 1…max. */
 function netRange(n) {
   const k = netSize(),

@@ -600,3 +600,97 @@ button.tut-cell {
 .reduce-motion .tut-cell.arrived {
   animation: none;
 }
+
+/* V8.4.1 : tutoriel — boucle 9 → 1, carnet qui se décale, fenêtre du premier lancement */
+.tut-cell.shifted {
+  animation: tut-shift 0.8s ease-out 0.5s both;
+}
+@keyframes tut-shift {
+  0% {
+    transform: translateX(-60%);
+    background: #e4ecff;
+  }
+  100% {
+    transform: none;
+  }
+}
+.tut-loop {
+  position: relative;
+  padding-bottom: 26px;
+}
+.tut-loop .loop-arrow {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 0;
+  width: 90%;
+  height: 30px;
+  overflow: visible;
+}
+.tut-loop .loop-arrow path {
+  fill: none;
+  stroke: var(--purple);
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  animation: tut-loop-draw 0.8s ease-out 1.4s forwards;
+}
+@keyframes tut-loop-draw {
+  to {
+    opacity: 1;
+  }
+}
+.tut-cell.loop-a {
+  animation: tut-loop-a 2.8s ease-in-out both;
+}
+.tut-cell.loop-b {
+  animation: tut-loop-b 2.8s ease-in-out both;
+}
+@keyframes tut-loop-a {
+  0%,
+  35% {
+    background: #ffef95;
+    box-shadow: 0 0 0 3px #f2b705 inset;
+  }
+  45%,
+  100% {
+    background: #fff;
+    box-shadow: none;
+  }
+}
+@keyframes tut-loop-b {
+  0%,
+  35% {
+    background: #fff;
+  }
+  45%,
+  60% {
+    background: #ffef95;
+    box-shadow: 0 0 0 3px #f2b705 inset;
+  }
+  100% {
+    background: #fff;
+    box-shadow: none;
+  }
+}
+.tut-cell.wrong {
+  background: #ffd9e3;
+  border-color: #e0567f;
+}
+.tut-loop-msg {
+  min-height: 2.6em;
+  font-weight: 700;
+  text-align: center;
+}
+.ch-old {
+  opacity: 0.75;
+  font-style: italic;
+}
+.reduce-motion .tut-cell.shifted,
+.reduce-motion .tut-cell.loop-a,
+.reduce-motion .tut-cell.loop-b,
+.reduce-motion .tut-loop .loop-arrow path {
+  animation: none;
+  opacity: 1;
+}

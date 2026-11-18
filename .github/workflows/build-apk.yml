@@ -21,6 +21,9 @@ jobs:
     env:
       HAS_RELEASE_KEY: ${{ secrets.NEF_KEYSTORE_BASE64 != '' }}
       APK_NAME: NumeroEnFuite.apk
+      # Empreinte SHA-256 du certificat permanent (information publique). Avec la clé des secrets,
+      # la CI refuse de publier un APK signé par une autre clé : les mises à jour restent possibles.
+      EXPECTED_CERT_SHA256: '7675162db885ba8fc9f22d297d629e417c564be715b7775122fca5a56ab3c822'
     steps:
       - name: Récupérer le code source
         uses: actions/checkout@v5
@@ -122,7 +125,12 @@ jobs:
           test -s "$APK"
           echo "== Taille ==";      ls -lh "$APK"
           echo "== Alignement =="; "$BT/zipalign" -c -v 4 "$APK" | tail -1
-          echo "== Signature ==";   "$BT/apksigner" verify --verbose --print-certs "$APK"
+          echo "== Signature ==";   "$BT/apksigner" verify --verbose --print-certs "$APK" | tee /tmp/certs.txt
+          CERT="$(grep -m1 'certificate SHA-256 digest' /tmp/certs.txt | awk '{print $NF}')"
+          echo "CERT_SHA256=$CERT" >> "$GITHUB_ENV"
+          if [ "$HAS_RELEASE_KEY" = "true" ] && [ "$CERT" != "$EXPECTED_CERT_SHA256" ]; then
+            echo "::error::Certificat $CERT différent de la clé permanente attendue : APK non publié."; exit 1
+          fi
           BADGING="$("$BT/aapt2" dump badging "$APK")"
           echo "$BADGING" | grep -E "package:|sdkVersion|targetSdkVersion|uses-permission|launchable-activity|application-label"
           if echo "$BADGING" | grep -q "application-debuggable"; then echo "::error::APK débogable"; exit 1; fi
@@ -155,4 +163,4 @@ jobs:
           gh release create "$TAG" "livraison/$APK_NAME" "livraison/$APK_NAME.sha256" \
             --target "$GITHUB_SHA" --prerelease \
             --title "Le Numéro en fuite $VERSION" \
-            --notes "APK release compilé automatiquement (Gradle + SDK Android officiel), vérifié par apksigner et aapt2. $NOTE Commit : $GITHUB_SHA."
+            --notes "APK release compilé automatiquement (Gradle + SDK Android officiel), vérifié par apksigner et aapt2. $NOTE Certificat SHA-256 : $CERT_SHA256. Commit : $GITHUB_SHA."

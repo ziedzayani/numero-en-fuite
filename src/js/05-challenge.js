@@ -121,7 +121,8 @@ function start(skipHandoff = false) {
     starter,
     playerHelp,
     showInfo,
-    chDiffPref
+    chDiffPref,
+    tutSeen
   } = g;
   g = initial();
   g.players = players;
@@ -134,6 +135,7 @@ function start(skipHandoff = false) {
   g.replayAsk = replayAsk;
   g.rpAuto = rpAuto;
   g.showInfo = !!showInfo;
+  g.tutSeen = !!tutSeen;
   g.chDiffPref = chDiffPref in CHALLENGE_DIFFS ? chDiffPref : 'medium';
   g.gameMode = gameMode === 'score' ? 'score' : 'race';
   g.starter = players > 1 ? (starter || 0) % players : 0;

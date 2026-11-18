@@ -3,7 +3,7 @@
  */
 
 function back() {
-  if (['rules', 'names', 'challenge', 'tutorial'].includes(g.modal) && g.screen === 'home') {
+  if (['rules', 'names', 'challenge', 'tutorial', 'tutInvite'].includes(g.modal) && g.screen === 'home') {
     g.modal = null;
     g.tut = null;
     render();
@@ -45,6 +45,11 @@ function back() {
   return false;
 }
 load();
+// Tout premier lancement : on PROPOSE le tutoriel (une seule fois, jamais imposé).
+if (!g.tutSeen && g.screen === 'home' && !g.modal) {
+  g.tutSeen = true;
+  g.modal = 'tutInvite';
+}
 if (g.screen === 'game' && g.phase === 'choose' && (!g.math || !g.choices.length)) prepareTurn();
 render();
 /**
@@ -83,6 +88,7 @@ window.__numero = {
   startChallenge,
   openTutorial,
   tutCapture,
+  tutLoopPick,
   finishChallenge,
   chScore,
   pressKey,

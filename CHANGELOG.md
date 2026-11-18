@@ -1,5 +1,32 @@
 # Historique des versions
 
+## V8.5
+
+Suite à l'audit de la V8.4.
+
+**Signature et mises à jour**
+- Clé de signature permanente préparée (empreinte SHA-256 `76:75:16:2D:…:C8:22`). Une fois ajoutée aux secrets
+  GitHub, toutes les versions suivantes s'installent par-dessus la précédente, sans perte de données.
+- La CI **refuse de publier** un APK signé avec une autre clé que celle attendue, et l'empreinte du certificat
+  figure dans les notes de chaque publication.
+- Les clés des V8.3 et V8.4 étaient temporaires et détruites après compilation : une **dernière** désinstallation
+  est inévitable pour passer à la clé permanente.
+
+**Accessibilité et pédagogie**
+- **Plus aucune tranche d'âge** sur les niveaux (FR/EN/AR) : chaque carte indique le type de sauts
+  (de 1, de 1 ou 2, spéciaux) ; « Choisis ton niveau, à tout âge » et une phrase dans les règles.
+- Tutoriel : nouvelle étape **« la boucle »** (8 → 9 → 1 avec une flèche ; le joueur touche la case d'arrivée),
+  cases du carnet qui glissent lors du décalage, bouton **« Rejouer ce tutoriel »**.
+- Tutoriel **proposé au premier lancement**, une seule fois, jamais imposé (« Plus tard »).
+- Mini-carnet centré sur les **indices** (questions, calculs justes), sans les captures ratées.
+
+**Défi**
+- Difficulté renommée **« Calculs et indices »** ; le **filet couvre 3 numéros dans les 3 difficultés**.
+- Barème affiché **par variante** : le bonus de temps n'apparaît plus pour « Sans limite ».
+- Les records V8.3 (ancien barème) sont affichés pour mémoire au lieu de sembler disparus.
+
+Non retenu : filet à +5 (choix déjà fait de le garder à +4).
+
 ## V8.4
 
 Suite à l'audit de la V8.3.

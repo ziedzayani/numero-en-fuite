@@ -80,7 +80,10 @@ Android n'accepte une mise à jour que si elle est signée avec la **même clé*
 Sans clé permanente, la CI signe chaque APK avec une clé temporaire : il faut alors désinstaller le jeu
 avant chaque mise à jour (la partie sauvegardée et les records sont perdus).
 
-Pour des mises à jour qui s'installent par-dessus, crée une fois ta clé :
+Une clé permanente a été générée pour le projet (empreinte SHA-256
+`76:75:16:2D:B8:85:BA:8F:C9:F2:2D:29:7D:62:9E:41:7C:56:4B:E7:15:B7:77:51:22:FC:A5:A5:6A:B3:C8:22`) ; cette empreinte
+est inscrite dans le workflow (`EXPECTED_CERT_SHA256`) : avec les secrets en place, la CI refuse de publier un APK
+signé par une autre clé. Pour utiliser une autre clé, la créer ainsi puis mettre à jour cette empreinte :
 
 ```bash
 keytool -genkeypair -v -keystore numero.jks -storetype PKCS12 -alias numero -keyalg RSA -keysize 4096 -validity 10000

@@ -32,14 +32,14 @@ function settingsButton(compact = false) {
 /** Accueil : nombre de joueurs, niveau, Jouer, défi, règles. */
 function home() {
   return `<header class="top">${brand()}${settingsButton()}</header><section class="hero hero-row"><div class="hero-mascot">${mascot()}</div><h1>${t('hero1')}<br><span>${t('hero2')}</span></h1></section><section class="panel start-panel"><div class="label">👥 ${t('players')}</div><div class="selector">${[1, 2, 3, 4].map(n => `<button class="seg ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}"><b>${n}</b><small>${n === 1 ? t('onePlayer') : t('multiplayer')}</small></button>`).join('')}</div><div class="label">✨ ${t('levels')}</div><div class="difficulty">${[
-    ['junior', '🐣', 'levelJunior', 'levJuniorSub', '1–9', 'ageJunior'],
-    ['malin', '🧠', 'levelMalin', 'levMalinSub', '1–15', 'ageMalin'],
-    ['expert', '🚀', 'levelExpert', 'levExpertSub', '1–30', 'ageExpert'],
-    ['genius', '🦉', 'levelGenius', 'levGeniusSub', '1–50', 'ageGenius']
+    ['junior', '🐣', 'levelJunior', 'levJuniorSub', '1–9', 'jumpsJunior'],
+    ['malin', '🧠', 'levelMalin', 'levMalinSub', '1–15', 'jumpsMalin'],
+    ['expert', '🚀', 'levelExpert', 'levExpertSub', '1–30', 'jumpsExpert'],
+    ['genius', '🦉', 'levelGenius', 'levGeniusSub', '1–50', 'jumpsGenius']
   ]
     .map(
-      ([id, emoji, k, sub, range, age]) =>
-        `<button class="level ${g.level === id ? 'is-selected' : ''}" data-level="${id}" aria-pressed="${g.level === id}"><span class="level-emoji">${emoji}</span><strong>${t(k)}</strong><span class="level-range" dir="ltr">${range}</span><small class="lvl-sub">${t(sub)}</small><span class="age">${t(age)}</span></button>`
+      ([id, emoji, k, sub, range, jumps]) =>
+        `<button class="level ${g.level === id ? 'is-selected' : ''}" data-level="${id}" aria-pressed="${g.level === id}"><span class="level-emoji">${emoji}</span><strong>${t(k)}</strong><span class="level-range" dir="ltr">${range}</span><small class="lvl-sub">${t(sub)}</small><span class="lvl-jumps">${t(jumps)}</span></button>`
     )
     .join(
       ''
@@ -96,7 +96,7 @@ function lens(n) {
   return `<div class="found-lens" aria-hidden="true"><span class="lens-glass"><b>${n}</b></span><i class="lens-handle"></i></div>`;
 }
 /**
- * Mini-carnet sous les questions : les 3 derniers indices sur le numéro EN COURS
+ * Mini-carnet sous les questions : les 3 derniers indices (questions, calculs justes) sur le numéro EN COURS
  * (depuis la dernière capture), ou une astuce en début de chasse. Masqué sur les écrans bas (CSS).
  */
 function miniNotebook() {
@@ -104,7 +104,12 @@ function miniNotebook() {
   g.history.forEach((e, i) => {
     if (e.type === 'found' || e.type === 'netHit') from = i + 1;
   });
-  const recent = g.history.slice(from).slice(-3).reverse();
+  // seulement les INDICES (questions, calculs justes) : ce qui fait vraiment avancer la déduction
+  const recent = g.history
+    .slice(from)
+    .filter(e => e.type === 'question' || (e.type === 'math' && e.correct))
+    .slice(-3)
+    .reverse();
   return `<div class="mini-notebook">${
     recent.length
       ? `<b>📓 ${t('miniNotebook')}</b>${recent.map(e => `<p>${historyText(e)}</p>`).join('')}`
@@ -331,5 +336,5 @@ function endSolo() {
 function endChallenge() {
   const r = records(),
     best = r[chRecordKey()] || 0;
-  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t('chFormula')}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }

@@ -43,7 +43,8 @@ async function fresh(browser, viewport = { width: 360, height: 740 }) {
   await page.goto(URL);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.evaluate(() => { window.__numero.state.replayAsk = false; });
+  // premier lancement : la proposition de tutoriel est testée à part (section V8.4)
+  await page.evaluate(() => { const N = window.__numero; N.state.replayAsk = false; if (N.state.modal === 'tutInvite') { N.state.modal = null; N.render(); } });
   return { ctx, page };
 }
 
@@ -300,8 +301,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const { ctx, page } = await fresh(browser);
     const kinds = () => page.$$eval('[data-tk]', els => els.map(e => e.dataset.tk).join());
     const txt = k => page.textContent(`[data-tk="${k}"] b`);
-    const ages = await page.$$eval('.level .age', els => els.map(e => e.textContent));
-    check(ages.length === 4 && ages[0].includes('5') && ages[2].includes('11') && ages[3].includes('13'), 'Âges affichés sur les 4 niveaux : ' + ages.join(' / '));
+    const jumps = await page.$$eval('.level .lvl-jumps', els => els.map(e => e.textContent));
+    check(jumps.length === 4 && jumps[0].includes('1') && jumps[3].includes('spéciaux'), 'Type de sauts affiché sur les 4 niveaux (pas d’âge) : ' + jumps.join(' / '));
     for (const [level, ans, mathS, glob] of [['junior', 25, 30, 75], ['malin', 20, 30, 70], ['expert', 20, 45, 90]]) {
       await page.evaluate(lv => { const N = window.__numero; N.state.players = 2; N.state.level = lv; N.state.timerMode = 'normal'; N.start(); }, level);
       await page.click('#handoffGo');
@@ -794,7 +795,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       let txt = '';
       for (let i = 0; i < 4; i++) { txt += await page.textContent('.modal'); await page.click(i === 1 ? '#tutAsk' : '#tutNext'); }
       txt += await page.textContent('.modal');
-      check(!/\btut[A-Z0-9]/.test(txt) && (await S(page)).tut.step === 4, `Tutoriel (${lang}) : 5 étapes traduites, arrivée à la capture`);
+      check(!/\btut[A-Z0-9]/.test(txt) && (await S(page)).tut.step === 4, `Tutoriel (${lang}) : étapes traduites jusqu’à la boucle 9 → 1`);
       await page.click('#tutClose');
     }
     await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.render(); });
@@ -807,14 +808,23 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const moved = await page.$$eval('.tut-cell', cs => cs.map(c => (c.classList.contains('out') ? 'x' : '') + (c.classList.contains('secret') ? '*' : '')).join(','));
     check(moved === 'x,,,,*,,x,x,x' && await page.isVisible('.tut-body .blind-jump'), 'Tutoriel : le numéro s’enfuit (+1, 4 → 5) et le carnet se décale (2 à 6) ' + moved);
     await page.click('#tutNext');
+    check(await page.isDisabled('#tutNext') && await page.isVisible('.tut-loop .loop-arrow') && (await page.textContent('.tut-body')).includes('après 9, on revient à 1'), 'Tutoriel : étape « boucle » (8 → 9 → 1), flèche, « Suivant » bloqué');
+    await page.click('[data-tutpick="9"]');
+    check(await page.isDisabled('#tutNext') && await page.isVisible('.tut-cell.wrong'), 'Tutoriel : mauvaise case (9) → explication, on réessaie');
+    await page.click('[data-tutpick="1"]');
+    check(!(await page.isDisabled('#tutNext')) && (await S(page)).tut.loopOk, 'Tutoriel : 9 + 1 → 1 trouvé, on peut continuer');
+    await page.click('#tutNext');
     check(await page.isDisabled('#tutPrecise') && await page.isDisabled('#tutNet'), 'Tutoriel : boutons de capture inactifs tant qu’aucun numéro n’est touché');
     await page.click('[data-tutpick="8"]'); await page.click('#tutPrecise');
     tu = await S(page);
-    check(tu.tut.step === 4 && (await page.textContent('.tut-body')).includes('5'), 'Tutoriel : capture ratée expliquée, on peut réessayer');
+    check(tu.tut.step === 5 && (await page.textContent('.tut-body')).includes('5'), 'Tutoriel : capture ratée expliquée, on peut réessayer');
     await page.click('[data-tutpick="4"]');
     check((await page.textContent('#tutNet')).includes('4·5'), 'Tutoriel : filet 4·5 (2 voisins au niveau Petit)');
     await page.click('#tutNet');
-    check((await S(page)).tut.step === 5 && (await page.textContent('.modal')).includes('+4'), 'Tutoriel : filet réussi, +4, conclusion');
+    check((await S(page)).tut.step === 6 && (await page.textContent('.modal')).includes('+4') && await page.isVisible('#tutRestart'), 'Tutoriel : filet réussi, +4, conclusion et « Rejouer ce tutoriel »');
+    await page.click('#tutRestart');
+    check((await S(page)).tut.step === 0, 'Tutoriel : « Rejouer » recommence au début');
+    await page.evaluate(() => { const N = window.__numero; N.state.tut.step = 6; N.render(); });
     await page.click('#tutPlay');
     check((await S(page)).modal === 'names', 'Tutoriel : « Jouer » ouvre la préparation de la partie');
     await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.render(); });
@@ -833,7 +843,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(jump.ok && jump.cls.includes(expCls) && jump.tokens === '?', `Saut à l’aveugle « ${jump.op} » animé (${expCls}) sans révéler la position`);
     await page.evaluate(() => { const N = window.__numero; N.nextTurn(); N.guess(N.state.secret === 1 ? 2 : 1); N.nextTurn(); N.state.modal = null; N.render(); });
     const mini = await page.textContent('.mini-notebook');
-    check(mini.includes('Derniers indices') && (mini.match(/Joueur/g) || []).length === 2, 'Mini-carnet : les 2 derniers événements de la chasse en cours');
+    check(mini.includes('Derniers indices') && (mini.match(/Joueur/g) || []).length === 1 && !mini.includes('Raté'), 'Mini-carnet : seulement les indices (la question), pas la capture ratée');
     // sous-totaux du classement (mode Points)
     await page.evaluate(() => { const N = window.__numero; N.state.players = 2; N.state.gameMode = 'score'; N.state.level = 'junior'; N.start(true); const s = N.state; s.scores = [12, 7]; s.stars = [3, 0]; s.screen = 'end'; s.modal = null; N.render(); });
     const sub = await page.$$eval('.finalscore > div:nth-child(2) small', e => e.map(x => x.textContent));
@@ -841,7 +851,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const dupIds = await page.evaluate(() => {
       const N = window.__numero, out = [];
       const scan = tag => { const seen = {}; document.querySelectorAll('[id]').forEach(e => { if (seen[e.id]) out.push(tag + ':' + e.id); seen[e.id] = 1; }); };
-      for (const m of [null, 'rules', 'challenge', 'names', 'tutorial']) { N.state.screen = 'home'; N.state.mode = 'normal'; N.state.modal = m; if (m === 'tutorial') N.state.tut = { step: 4, sel: 3, miss: null }; N.render(); scan('home/' + m); }
+      for (const m of [null, 'rules', 'challenge', 'names', 'tutorial', 'tutInvite']) { N.state.screen = 'home'; N.state.mode = 'normal'; N.state.modal = m; if (m === 'tutorial') N.state.tut = { step: 4, sel: 3, miss: null }; N.render(); scan('home/' + m); }
       N.state.players = 2; N.start(true); for (const m of [null, 'pause', 'notebook', 'quit', 'handoff']) { N.state.modal = m; N.render(); scan('game/' + m); }
       N.state.screen = 'settings'; N.state.modal = null; N.render(); scan('settings');
       return out;
@@ -849,6 +859,46 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(dupIds.length === 0, 'Aucun identifiant HTML en double (accueil, fenêtres, partie, réglages) ' + dupIds.join(', '));
     check(page.errors.length === 0, 'Aucune erreur JavaScript (V8.4) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} V8.4 : défi anti-abus, chrono figé, difficultés, sauts, version, tutoriel, mini-carnet`);
+    await ctx.close();
+  }
+
+  // 3h) V8.5 : niveaux sans âge, proposition du tutoriel au premier lancement, défi plus clair
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser, { width: 360, height: 640 });
+    for (const lang of ['fr', 'en', 'ar']) {
+      await page.evaluate(l => { const N = window.__numero; N.state.lang = l; N.state.modal = null; N.state.screen = 'home'; N.render(); }, lang);
+      const lv = await page.$$eval('.level', e => e.map(x => x.textContent).join(' | '));
+      check(!/\d+\s*(ans|an)\b|Ages?\s|سنة|سنوات/.test(lv) && (await page.$$('.level .lvl-jumps')).length === 4, `Niveaux (${lang}) : aucune tranche d’âge, type de sauts affiché`);
+      check(await page.evaluate(() => document.scrollingElement.scrollHeight - innerHeight) <= 0, `Accueil 360×640 (${lang}) sans défilement`);
+    }
+    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.render(); });
+    await page.click('#openRules');
+    check((await page.textContent('.modal')).includes('ne dépendent pas de l’âge'), 'Règles : « les niveaux ne dépendent pas de l’âge »');
+    await page.click('#closeModal');
+    // premier lancement : tutoriel proposé une seule fois, jamais imposé
+    await page.evaluate(() => { localStorage.clear(); const N = window.__numero; Object.assign(N.state, { tutSeen: false, modal: null, screen: 'home', mode: 'normal' }); N.render(); }); await page.reload(); // (l'état est resauvegardé à la fermeture de la page : on simule un tout premier lancement)
+    check((await S(page)).modal === 'tutInvite' && await page.isVisible('#inviteTutorial'), 'Premier lancement : le tutoriel est proposé');
+    await page.click('#closeModal');
+    await page.reload();
+    check((await S(page)).modal === null, 'Proposition du tutoriel : une seule fois (« Plus tard » respecté)');
+    await page.evaluate(() => { localStorage.clear(); const N = window.__numero; Object.assign(N.state, { tutSeen: false, modal: null, screen: 'home', mode: 'normal' }); N.render(); }); await page.reload(); // (l'état est resauvegardé à la fermeture de la page : on simule un tout premier lancement)
+    await page.click('#inviteTutorial');
+    check((await S(page)).modal === 'tutorial', 'Proposition acceptée → tutoriel');
+    check(await page.evaluate(() => window.__numero.back()) && (await S(page)).modal === null, 'Bouton Retour : ferme le tutoriel ouvert depuis la proposition');
+    // défi : filet de 3 dans toutes les difficultés, barème propre à chaque variante, anciens records conservés
+    const nets = await page.evaluate(() => { const N = window.__numero; return ['easy', 'medium', 'hard'].map(d => { N.startChallenge('endless', d); return N.netSize(); }).join(); });
+    check(nets === '3,3,3', 'Défi : le filet couvre 3 numéros dans les 3 difficultés (' + nets + ')');
+    await page.evaluate(() => { localStorage.setItem('numeroEnFuiteRecords', JSON.stringify({ timed: 1205, endless: 990 })); const N = window.__numero; N.state.mode = 'normal'; N.state.screen = 'home'; N.state.modal = 'challenge'; N.render(); });
+    const chTxt = await page.textContent('.modal');
+    check(chTxt.includes('Calculs et indices') && /Filet\s:\s3 numéros/.test(chTxt), 'Défi : « Calculs et indices », filet annoncé');
+    check(/Anciens records.*1205.*990/.test(chTxt), 'Défi : anciens records V8.3 affichés pour mémoire');
+    const fl = await page.$$eval('.modal .sub.small', e => e.map(x => x.textContent));
+    check(fl.some(x => x.startsWith('⏱') && x.includes('seconde restante')) && fl.some(x => x.startsWith('♾️') && !x.includes('seconde restante') && x.includes('Pas de bonus de temps')), 'Défi : barème propre à chaque variante (bonus temps seulement contre la montre)');
+    await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless', 'medium'); N.guess(N.state.secret); N.nextTurn(); });
+    check(!(await page.textContent('.screen, #app')).includes('seconde restante'), 'Fin d’un défi sans limite : pas de bonus de temps annoncé');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (V8.5) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V8.5 : niveaux sans âge, tutoriel au premier lancement, défi plus clair`);
     await ctx.close();
   }
 
