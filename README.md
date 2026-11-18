@@ -19,6 +19,7 @@ Dernière version, compilée et vérifiée automatiquement :
 | `src/` | **Sources du jeu** (à modifier) : `js/` logique et écrans, `styles/` CSS, `i18n/` traductions, `assets/fonts/` police |
 | `tools/build.mjs` | Assemble `src/` en un seul fichier HTML autonome (hors ligne) |
 | `tools/lint.mjs` | Analyse statique ESLint du script assemblé |
+| `tools/layout-audit.cjs` | Audit de mise en page : aucun défilement, aucun bouton collé (3 tailles × 3 langues) |
 | `app/src/main/assets/index.html` | Jeu **généré** embarqué dans l'APK (ne pas modifier à la main) |
 | `app/src/main/java/.../MainActivity.java` | Conteneur Android (WebView sécurisée, bouton Retour, Android 15) |
 | `app/src/main/AndroidManifest.xml` | Manifeste (aucune permission, RTL, portrait) |
@@ -41,6 +42,7 @@ npm run build                   # régénère index.html, la version web et la P
 npm run check                   # fichiers générés à jour + ESLint + format (comme la CI)
 npx playwright install chromium # une seule fois
 npm test                        # tests complets (~10 min)
+npm run audit:layout            # aucun défilement / bouton collé sur 3 tailles de téléphone
 ```
 
 `npm run format` remet le code au format standard (Prettier). Ne jamais modifier les fichiers générés :

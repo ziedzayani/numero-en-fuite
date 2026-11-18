@@ -530,14 +530,26 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.evaluate(() => { const N = window.__numero; N.state.players = 3; N.state.gameMode = 'race'; N.state.starter = 0; N.state.level = 'junior'; N.start(true); });
     await page.click('[data-tab="guess"]'); await page.click('[data-guess="5"]');
     check(await page.isVisible('#capNet') && await page.$$eval('.numtile.in-net', e => e.length) === 2 && (await page.textContent('#capNet .nets-left')) === '●●●', 'Mode Course : filet disponible 3 fois (●●●)');
-    const raceNet = await page.evaluate(() => { const N = window.__numero; const s0 = N.state.scores[0]; N.netCapture(N.state.secret); const r = [N.state.last.type, N.state.scores[0] - s0, N.netsLeft(0)]; N.nextTurn(); return [...r, N.state.screen, N.state.raceWinner]; });
-    check(raceNet.join() === 'netHit,4,2,end,0', 'Mode Course : un filet réussi attrape le numéro et fait gagner (' + raceNet.join(' ') + ')');
+    const raceNet = await page.evaluate(() => { const N = window.__numero; const s0 = N.state.scores[0], sec0 = N.state.secret; N.netCapture(N.state.secret); const r = [N.state.last.type, N.state.scores[0] - s0, N.netsLeft(0)]; N.nextTurn(); return [...r, N.state.screen, N.state.placed.map(x => x.player).join('')]; });
+    check(raceNet.join() === 'netHit,4,2,game,0', 'Mode Course : un filet réussi place le joueur 1 sur le podium, la partie continue pour les autres (' + raceNet.join(' ') + ')');
     await page.evaluate(() => { const N = window.__numero; N.state.players = 3; N.state.gameMode = 'race'; N.state.starter = 0; N.state.level = 'junior'; N.start(true); });
-    await page.evaluate(() => { const N = window.__numero; N.guess(N.state.secret % 9 + 1); N.nextTurn(); N.state.modal = null; N.guess(N.state.secret); });
-    check((await page.textContent('#next')).includes('gagnant'), 'Mode Course : bouton « Voir le gagnant »');
+    await page.evaluate(() => { const N = window.__numero; N.guess(N.state.secret % 9 + 1); N.nextTurn(); N.state.modal = null; N.state.oldSecret = N.state.secret; N.guess(N.state.secret); });
+    check(await page.isVisible('.podium-note') && (await page.textContent('.podium-note')).includes('place 1') && (await page.textContent('#next')).includes('Continuer'), 'Mode Course : capture → « Joueur 2 monte sur le podium : place 1 », bouton « Continuer »');
+    check(await page.evaluate(() => window.__numero.state.candidates.length === 9), 'Mode Course : un nouveau numéro est tiré pour les autres (carnet remis à 1–9)');
     await page.click('#next');
     st = await S(page);
-    check(st.screen === 'end' && st.raceWinner === 1 && (await page.textContent('.hero h1')).includes('Joueur 2') && await page.isVisible('.race-winner'), 'Mode Course : le joueur 2 attrape le numéro → il gagne, la partie s’arrête');
+    check(st.screen === 'game' && (st.turn + st.starter) % 3 === 2 && st.placed.length === 1, 'Mode Course : le joueur 3 joue quand même son tour');
+    // J3 rate, J1 rate, J2 est sauté (déjà placé), J3 attrape → fin : J2 1er, J3 2e, J1 3e
+    await page.evaluate(() => { const N = window.__numero, miss = () => { N.state.modal = null; N.guess(N.state.secret % 9 + 1); N.nextTurn(); };
+      miss(); miss(); N.state.modal = null; N.state.playersSeen = [(N.state.turn + N.state.starter) % 3]; N.guess(N.state.secret); N.nextTurn(); });
+    st = await S(page);
+    const pod = await page.$$eval('.finalscore', e => e.map(x => x.textContent.replace(/\s+/g, ' ').trim()));
+    check(st.playersSeen[0] === 2, 'Mode Course : le joueur déjà sur le podium ne rejoue plus (joueur 3 après joueur 1)');
+    check(st.screen === 'end' && st.raceWinner === 1 && (await page.textContent('.hero h1')).includes('Joueur 2') && pod.length === 3 && /^🥇\s*Joueur 2/.test(pod[0]) && /^🥈\s*Joueur 3/.test(pod[1]) && /^🥉\s*Joueur 1/.test(pod[2]), 'Mode Course : podium complet — 🥇 J2, 🥈 J3, 🥉 J1 (' + pod.join(' / ') + ')');
+    // ex aequo : deux captures dans le même tour de table
+    const tie = await page.evaluate(() => { const N = window.__numero; N.state.players = 2; N.state.gameMode = 'race'; N.state.starter = 0; N.start(true); N.state.modal = null; N.guess(N.state.secret); N.nextTurn(); N.state.modal = null; N.guess(N.state.secret); N.nextTurn(); N.state.modal = null; N.render(); return [N.state.screen, N.state.placed.length].join(); });
+    check(tie === 'end,2' && (await page.textContent('.hero h1')).includes('ex aequo'), 'Mode Course : deux captures dans le même tour → victoire ex aequo');
+    await page.evaluate(() => { const N = window.__numero; N.state.players = 3; N.state.gameMode = 'race'; N.state.starter = 0; N.state.level = 'junior'; N.start(true); N.state.modal = null; N.guess(N.state.secret % 9 + 1); N.nextTurn(); N.state.modal = null; N.guess(N.state.secret); N.nextTurn(); N.state.modal = null; for (let i = 0; i < 40 && N.state.screen === 'game'; i++) { N.guess(N.state.secret % 9 + 1); N.nextTurn(); N.state.modal = null; } N.render(); });
     check((await page.textContent('.panel .sub')).includes('Joueur 2'), 'Rejouer : le joueur suivant commencera (Joueur 2)');
     await page.click('#again');
     st = await S(page);
@@ -554,6 +566,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.evaluate(() => { const N = window.__numero; N.state.screen = 'settings'; N.render(); });
     await page.click('#motionToggle');
     check(await page.evaluate(() => document.body.classList.contains('reduce-motion')), 'Option « Réduire les animations »');
+    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'home'; N.state.modal = null; N.render(); }); // (réglages compacts : le détective est sur l'accueil)
     const an = await page.evaluate(() => getComputedStyle(document.querySelector('.detector-pupil')).animationName);
     check(an === 'none', 'Animations coupées quand l’option est active');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (captures/détective/aide/modes) ' + page.errors.join(' | '));
@@ -594,7 +607,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       check(ok(await S(page)), `Réglages : le bouton « ${label} » fonctionne au toucher`);
       await flashCheck(label);
     }
-    await page.tap('#closeSettingsBottom');
+    await page.tap('#closeSettings');
     check((await S(page)).screen === 'home', 'Réglages : bouton Retour');
     // prénoms avec caractères spéciaux
     await page.tap('[data-players="2"]'); await page.tap('#start');

@@ -939,3 +939,294 @@ button.tut-cell {
   display: block;
   line-height: 1.2;
 }
+
+/* V8.8.1 : chasse au défilement et aux boutons collés (audit 360 × 735, FR/EN/AR) */
+/* Boutons empilés : toujours au moins 10 px d'écart */
+.bigbtn + .bigbtn,
+.bigbtn + .end-row,
+.end-row + .bigbtn,
+.modal-actions > * + *,
+.capture-row + .bigbtn,
+.tut-body + .bigbtn {
+  margin-top: 10px;
+}
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modal-actions > * + * {
+  margin-top: 0;
+}
+/* Grilles de choix : 8 px minimum */
+.levels,
+.questions,
+.rp-modes,
+.rp-controls {
+  gap: 8px !important;
+}
+/* Sections repliables (règles, barème) */
+.help-fold {
+  margin: 8px 0;
+  text-align: start;
+}
+.help-fold summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #503dc1;
+  padding: 4px 0;
+}
+/* En-tête des écrans de fin : détective à côté du titre */
+.end-hero {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 6px;
+  padding: 2px 0 0;
+  text-align: start;
+}
+.end-hero .hero-mascot {
+  grid-row: 1 / span 2;
+  width: 96px;
+  height: 96px;
+  margin: 0;
+}
+.end-hero .detective-scene {
+  transform: scale(0.6);
+  transform-origin: center;
+}
+.end-hero h1 {
+  margin: 0;
+  font-size: clamp(24px, 7.4vw, 34px);
+  text-align: start;
+}
+.end-hero .intro {
+  margin: 2px 0 0;
+  text-align: start;
+  font-size: 14px;
+}
+body.scr-end .panel {
+  margin-top: 6px;
+}
+.career-card .solo-stars span {
+  font-size: 36px;
+}
+.career-card .solo-score {
+  font-size: 42px;
+}
+/* Réglages compacts */
+.compact-settings .settings-title {
+  margin: 0 0 6px;
+  font-size: 26px;
+  text-align: center;
+  color: var(--ink);
+  text-shadow: none;
+}
+.compact-settings .panel-title {
+  margin: 8px 0 4px;
+  font-size: 15px;
+}
+.compact-settings .lang-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.compact-settings .lang-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 0;
+  padding: 6px 4px;
+  margin: 0;
+  font-size: 14px;
+}
+.compact-settings .lang-choice .flag {
+  font-size: 20px;
+}
+.compact-settings .choice-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.compact-settings .choice-row .mini-btn {
+  margin: 0;
+  min-height: 40px;
+}
+.compact-settings .sub.small {
+  margin: 4px 0 0;
+}
+.timer-details {
+  margin: 4px 0 6px;
+  font-size: 13px;
+}
+.timer-details summary {
+  cursor: pointer;
+  color: #503dc1;
+  font-weight: 700;
+}
+.compact-settings .toggle-row {
+  margin: 8px 0 0;
+  padding: 7px 10px;
+  min-height: 0;
+}
+.compact-settings .tr-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: start;
+  min-width: 0;
+}
+.compact-settings .tr-text small {
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--ink2);
+}
+.compact-settings #closeSettingsBottom {
+  margin-top: 12px;
+}
+.compact-settings .app-version {
+  color: var(--ink2);
+  margin-top: 6px;
+}
+.difficulty,
+.rp-mode,
+.rp-ctrl {
+  gap: 8px !important;
+}
+.timer-details {
+  margin-top: 8px;
+}
+/* fenêtre « Qui joue ? » à 4 joueurs */
+.modal .names {
+  gap: 6px;
+}
+.modal .name-row input {
+  min-height: 38px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+/* écrans de fin plus compacts */
+.career-card .solo-stars span {
+  font-size: 30px;
+}
+.career-card .label {
+  margin-top: 2px;
+}
+.career-card .solo-score {
+  font-size: 38px;
+}
+.career-card .xp-gain {
+  margin: 6px 0 2px;
+  padding: 5px 10px;
+}
+.career-card .rank-line small {
+  display: none;
+}
+.career-card .xp-bar {
+  margin: 4px 0 6px;
+}
+.career-card .next-goal {
+  margin: 4px 0 8px;
+  padding: 6px 10px;
+}
+.career-card .found-lens {
+  transform: scale(0.75);
+  margin: -12px 0;
+}
+body.scr-end .finalscore {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.end-hero .hero-mascot {
+  grid-column: 1;
+  position: relative;
+  overflow: visible;
+}
+.end-hero h1,
+.end-hero .intro {
+  grid-column: 2;
+  min-width: 0;
+}
+.end-row {
+  align-items: stretch;
+}
+.end-row .bigbtn {
+  margin: 0 !important;
+  min-height: 52px;
+}
+.compact-settings .tr-text strong {
+  font-size: 15px;
+  line-height: 1.2;
+}
+.end-hero {
+  grid-template-columns: 118px 1fr;
+}
+.end-hero .hero-mascot {
+  width: 118px;
+  height: 92px;
+}
+.end-hero .detective-scene {
+  transform: scale(0.56);
+}
+.end-hero .detective-scene {
+  transform: translateX(-14px) scale(0.56);
+}
+[dir='rtl'] .end-hero .detective-scene {
+  transform: translateX(14px) scale(0.56);
+}
+body.scr-end .end-hero {
+  margin-bottom: 0;
+}
+body.scr-end .panel {
+  padding-top: 10px;
+  padding-bottom: 12px;
+}
+body.scr-end .finalscore {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+/* V8.8 : podium de la Course */
+.podium-note {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: #ffef95;
+  font-weight: 800;
+}
+.podium-note small {
+  display: block;
+  margin-top: 3px;
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--ink2);
+}
+.podium-medal {
+  margin-inline-end: 2px;
+}
+.career-card .solo-reveal small {
+  display: block;
+  margin-top: 0;
+  line-height: 1.25;
+}
+.career-card .found-lens {
+  margin: -16px 0 -14px;
+}
+/* fenêtre « Qui joue ? » : cartes de mode plus compactes */
+.modal .mode-pick button {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.modal .mode-pick small {
+  font-size: 11.5px;
+  line-height: 1.25;
+}
+.modal .mode-pick {
+  margin-bottom: 8px;
+}
+.modal .mode-card small {
+  line-height: 1.2;
+}

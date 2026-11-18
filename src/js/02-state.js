@@ -67,6 +67,7 @@ const initial = () => ({
   names: ['', '', '', ''],
   gameMode: 'race',
   chDiffPref: 'medium',
+  placed: [], // Course : podium [{ player, round, turn }]
   starter: 0,
   playerHelp: [false, false, false, false],
   mode: 'normal',
@@ -225,6 +226,7 @@ function load() {
       g.modal = null;
     if (g.hunt && !Array.isArray(g.hunt.steps)) g.hunt = null;
     g.tut = null; // le tutoriel n'est jamais repris
+    if (!Array.isArray(g.placed)) g.placed = [];
     if (!['normal', 'challenge'].includes(g.mode)) g.mode = 'normal';
     if (g.mode === 'challenge' && !['timed', 'endless'].includes(g.chKind)) g.chKind = 'endless';
     if (!(g.chDiff in CHALLENGE_DIFFS)) g.chDiff = 'hard'; // parties de défi sauvegardées avant la V8.4

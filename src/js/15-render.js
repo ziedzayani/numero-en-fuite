@@ -348,7 +348,6 @@ function bind() {
     render();
   };
   click('closeSettings', close);
-  click('closeSettingsBottom', close);
   click('next', nextTurn);
   click('history', () => {
     g.showHistory = !g.showHistory;

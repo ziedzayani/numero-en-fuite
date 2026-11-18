@@ -1,6 +1,6 @@
 {
   "name": "numero-en-fuite",
-  "version": "8.8.0",
+  "version": "8.9.0",
   "private": true,
   "description": "Le Numéro en fuite — jeu familial hors ligne (HTML/JS) embarqué dans une WebView Android.",
   "license": "UNLICENSED",
@@ -13,7 +13,8 @@
     "check": "node tools/build.mjs --check && node tools/lint.mjs && prettier --check \"src/**/*.{js,css}\" tools",
     "format": "prettier --write \"src/**/*.{js,css}\" tools",
     "lint": "node tools/lint.mjs",
-    "test": "node tests/game.test.cjs app/src/main/assets/index.html test-screenshots"
+    "test": "node tests/game.test.cjs app/src/main/assets/index.html test-screenshots",
+    "audit:layout": "node tools/layout-audit.cjs"
   },
   "devDependencies": {
     "eslint": "9.14.0",

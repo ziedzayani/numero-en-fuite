@@ -5201,6 +5201,297 @@ button.tut-cell {
   line-height: 1.2;
 }
 
+/* V8.8.1 : chasse au défilement et aux boutons collés (audit 360 × 735, FR/EN/AR) */
+/* Boutons empilés : toujours au moins 10 px d'écart */
+.bigbtn + .bigbtn,
+.bigbtn + .end-row,
+.end-row + .bigbtn,
+.modal-actions > * + *,
+.capture-row + .bigbtn,
+.tut-body + .bigbtn {
+  margin-top: 10px;
+}
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modal-actions > * + * {
+  margin-top: 0;
+}
+/* Grilles de choix : 8 px minimum */
+.levels,
+.questions,
+.rp-modes,
+.rp-controls {
+  gap: 8px !important;
+}
+/* Sections repliables (règles, barème) */
+.help-fold {
+  margin: 8px 0;
+  text-align: start;
+}
+.help-fold summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #503dc1;
+  padding: 4px 0;
+}
+/* En-tête des écrans de fin : détective à côté du titre */
+.end-hero {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 6px;
+  padding: 2px 0 0;
+  text-align: start;
+}
+.end-hero .hero-mascot {
+  grid-row: 1 / span 2;
+  width: 96px;
+  height: 96px;
+  margin: 0;
+}
+.end-hero .detective-scene {
+  transform: scale(0.6);
+  transform-origin: center;
+}
+.end-hero h1 {
+  margin: 0;
+  font-size: clamp(24px, 7.4vw, 34px);
+  text-align: start;
+}
+.end-hero .intro {
+  margin: 2px 0 0;
+  text-align: start;
+  font-size: 14px;
+}
+body.scr-end .panel {
+  margin-top: 6px;
+}
+.career-card .solo-stars span {
+  font-size: 36px;
+}
+.career-card .solo-score {
+  font-size: 42px;
+}
+/* Réglages compacts */
+.compact-settings .settings-title {
+  margin: 0 0 6px;
+  font-size: 26px;
+  text-align: center;
+  color: var(--ink);
+  text-shadow: none;
+}
+.compact-settings .panel-title {
+  margin: 8px 0 4px;
+  font-size: 15px;
+}
+.compact-settings .lang-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.compact-settings .lang-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 0;
+  padding: 6px 4px;
+  margin: 0;
+  font-size: 14px;
+}
+.compact-settings .lang-choice .flag {
+  font-size: 20px;
+}
+.compact-settings .choice-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.compact-settings .choice-row .mini-btn {
+  margin: 0;
+  min-height: 40px;
+}
+.compact-settings .sub.small {
+  margin: 4px 0 0;
+}
+.timer-details {
+  margin: 4px 0 6px;
+  font-size: 13px;
+}
+.timer-details summary {
+  cursor: pointer;
+  color: #503dc1;
+  font-weight: 700;
+}
+.compact-settings .toggle-row {
+  margin: 8px 0 0;
+  padding: 7px 10px;
+  min-height: 0;
+}
+.compact-settings .tr-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: start;
+  min-width: 0;
+}
+.compact-settings .tr-text small {
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--ink2);
+}
+.compact-settings #closeSettingsBottom {
+  margin-top: 12px;
+}
+.compact-settings .app-version {
+  color: var(--ink2);
+  margin-top: 6px;
+}
+.difficulty,
+.rp-mode,
+.rp-ctrl {
+  gap: 8px !important;
+}
+.timer-details {
+  margin-top: 8px;
+}
+/* fenêtre « Qui joue ? » à 4 joueurs */
+.modal .names {
+  gap: 6px;
+}
+.modal .name-row input {
+  min-height: 38px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+/* écrans de fin plus compacts */
+.career-card .solo-stars span {
+  font-size: 30px;
+}
+.career-card .label {
+  margin-top: 2px;
+}
+.career-card .solo-score {
+  font-size: 38px;
+}
+.career-card .xp-gain {
+  margin: 6px 0 2px;
+  padding: 5px 10px;
+}
+.career-card .rank-line small {
+  display: none;
+}
+.career-card .xp-bar {
+  margin: 4px 0 6px;
+}
+.career-card .next-goal {
+  margin: 4px 0 8px;
+  padding: 6px 10px;
+}
+.career-card .found-lens {
+  transform: scale(0.75);
+  margin: -12px 0;
+}
+body.scr-end .finalscore {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.end-hero .hero-mascot {
+  grid-column: 1;
+  position: relative;
+  overflow: visible;
+}
+.end-hero h1,
+.end-hero .intro {
+  grid-column: 2;
+  min-width: 0;
+}
+.end-row {
+  align-items: stretch;
+}
+.end-row .bigbtn {
+  margin: 0 !important;
+  min-height: 52px;
+}
+.compact-settings .tr-text strong {
+  font-size: 15px;
+  line-height: 1.2;
+}
+.end-hero {
+  grid-template-columns: 118px 1fr;
+}
+.end-hero .hero-mascot {
+  width: 118px;
+  height: 92px;
+}
+.end-hero .detective-scene {
+  transform: scale(0.56);
+}
+.end-hero .detective-scene {
+  transform: translateX(-14px) scale(0.56);
+}
+[dir='rtl'] .end-hero .detective-scene {
+  transform: translateX(14px) scale(0.56);
+}
+body.scr-end .end-hero {
+  margin-bottom: 0;
+}
+body.scr-end .panel {
+  padding-top: 10px;
+  padding-bottom: 12px;
+}
+body.scr-end .finalscore {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+/* V8.8 : podium de la Course */
+.podium-note {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: #ffef95;
+  font-weight: 800;
+}
+.podium-note small {
+  display: block;
+  margin-top: 3px;
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--ink2);
+}
+.podium-medal {
+  margin-inline-end: 2px;
+}
+.career-card .solo-reveal small {
+  display: block;
+  margin-top: 0;
+  line-height: 1.25;
+}
+.career-card .found-lens {
+  margin: -16px 0 -14px;
+}
+/* fenêtre « Qui joue ? » : cartes de mode plus compactes */
+.modal .mode-pick button {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.modal .mode-pick small {
+  font-size: 11.5px;
+  line-height: 1.25;
+}
+.modal .mode-pick {
+  margin-bottom: 8px;
+}
+.modal .mode-card small {
+  line-height: 1.2;
+}
+
 </style>
 </head>
 <body><main id="app" aria-live="polite"></main>
@@ -5286,7 +5577,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "8.8";
+const APP_VERSION = "8.9";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -5332,6 +5623,7 @@ const dictionaries = {
   "chFinal": "Score : {score}",
   "chFormulaEndless": "Score : 1000 − 45 par tour en plus, −5 par question, ±10 par calcul (juste / faux), −20 par capture ratée (−40 au filet, −50 si on gagne au filet). Pas de bonus de temps.",
   "chFormulaTimed": "Score : 1000 − 45 par tour en plus, −5 par question, ±10 par calcul (juste / faux), −20 par capture ratée (−40 au filet, −50 si on gagne au filet), +2 par seconde restante. Rater exprès ne rapporte jamais.",
+  "chFormulaTitle": "Comment est calculé le score ?",
   "chMathBonus": "🧊 +{p} points",
   "chMathGood": "{equation} = <b>{result}</b>. Le numéro est gelé et tu gagnes un indice !",
   "chMissNet": "raté : −40 · trouvé : −50",
@@ -5434,11 +5726,11 @@ const dictionaries = {
   "miss": "RATÉ !",
   "missDesc": "Tu as choisi <b>{n}</b>, mais ce n’était pas le bon numéro. <b>−1 point</b>.",
   "modeRace": "Course",
-  "modeRaceSub": "Le premier qui l’attrape gagne. Filet 3 fois. Personne ne l’a eu ? Les points départagent.",
+  "modeRaceSub": "Le 1er qui l’attrape gagne, les autres jouent pour le podium. Personne ? Les points départagent.",
   "modeScore": "Points",
   "modeScoreSub": "{n} tours. Capture +10, filet +4 (3 filets chacun). Le meilleur score gagne.",
   "modeTitle": "Mode de jeu",
-  "motionHint": "Pour les téléphones lents ou si les mouvements gênent.",
+  "motionHint": "Si les mouvements gênent ou le téléphone est lent.",
   "motionReduce": "Réduire les animations",
   "motionTitle": "Animations",
   "moved": "Le numéro s’échappe !",
@@ -5497,6 +5789,9 @@ const dictionaries = {
   "player": "Joueur {n}",
   "playerTurn": "Au tour de {player}",
   "players": "Combien de joueurs ?",
+  "podiumCaught": "a attrapé un numéro au tour {turn}",
+  "podiumNotCaught": "pas attrapé · {n} points",
+  "podiumTitle": "Podium",
   "pointsHint": "Trouvé +3 · Raté −1",
   "possibleDesc": "En vert : les numéros compatibles avec tous les indices.",
   "proGuess": "⚡ Sans aide : il ne bouge pas avant, mais tu n’as aucun indice.",
@@ -5535,12 +5830,14 @@ const dictionaries = {
   "quit": "Quitter la partie et revenir à l’accueil ?",
   "quitText": "La partie sera terminée.",
   "quitTitle": "Quitter la partie ?",
+  "raceContinue": "Continuer ▶",
+  "raceNewNumber": "Un nouveau numéro se cache : les autres finissent le tour et continuent la chasse.",
   "raceNobody": "Personne ne l’a attrapé…",
   "raceNobodyDesc": "Départage aux points et aux ⭐.",
-  "raceSeeWin": "Voir le gagnant",
-  "raceWin": "{player} a attrapé le numéro !",
-  "raceWinDesc": "Victoire en {turns} tour(s).",
-  "raceWinnerTag": "A attrapé le numéro",
+  "racePlace": "{medal} {player} monte sur le podium : place {n} !",
+  "raceWin": "{player} gagne la course !",
+  "raceWinDesc": "Numéro attrapé au tour {turns}.",
+  "raceWinTie": "{players} gagnent ex aequo !",
   "rank1": "Apprenti détective",
   "rank2": "Chercheur d’indices",
   "rank3": "Pisteur",
@@ -5575,7 +5872,7 @@ const dictionaries = {
   "rpNo": "Non merci",
   "rpPrev": "Précédent",
   "rpSetting": "Film du parcours",
-  "rpSettingHint": "Après chaque capture, propose de revoir comment le numéro s’est échappé.",
+  "rpSettingHint": "Revoir le parcours du numéro après une capture.",
   "rpSettingLabel": "Proposer le film",
   "rpStart": "Au début, le numéro se cachait sur le <b>{n}</b>.",
   "rpStep": "Étape {i} / {n}",
@@ -5586,6 +5883,7 @@ const dictionaries = {
   "rule2": "Après l’aide, le numéro bouge de quelques cases, mais <b>tu gardes ton tour</b>.",
   "rule3": "Pour finir ton tour, choisis ta capture : 🎯 <b>précise</b> (+10 / −1) ou 🕸️ <b>filet magique</b> sur 2 ou 3 numéros voisins (+4, ou −1 par numéro si le filet est vide), 3 fois par partie.",
   "ruleExample": "Le numéro bouge toujours : de 1 case au niveau Petit, de 1 ou 2 cases aux niveaux Moyen et Grand, à gauche ou à droite. Après le maximum, on revient à 1. Niveau Génie : il saute de ±3 ou ±5, double (×2) ou passe dans le miroir (1 ↔ 50, 2 ↔ 49…).",
+  "ruleMovesTitle": "Comment bouge le numéro ?",
   "rulesTitle": "Comment jouer ?",
   "score": "points",
   "scoreDetail": "Détail du score",
@@ -5636,6 +5934,7 @@ const dictionaries = {
   "timeUp": "TEMPS ÉCOULÉ !",
   "timeoutLog": "{player} · temps écoulé · {shift}",
   "timerAnswer": "Réponse",
+  "timerDetails": "Durées des chronos",
   "timerGlobal": "Tour",
   "timerHint": "Chrono global du tour : Petit 75 s, Moyen 70 s, Grand 90 s, Génie 100 s. Chrono de réponse : question 25 / 20 / 20 / 20 s, calcul 30 / 30 / 45 / 45 s. Le bouton ⏸ met tout en pause.",
   "timerLabel": "Temps restant",
@@ -5731,6 +6030,7 @@ const dictionaries = {
   "chFinal": "Score: {score}",
   "chFormulaEndless": "Score: 1000 − 45 per extra turn, −5 per question, ±10 per sum (right / wrong), −20 per missed capture (−40 with the net, −50 if you win with the net). No time bonus.",
   "chFormulaTimed": "Score: 1000 − 45 per extra turn, −5 per question, ±10 per sum (right / wrong), −20 per missed capture (−40 with the net, −50 if you win with the net), +2 per second left. Missing on purpose never pays.",
+  "chFormulaTitle": "How is the score calculated?",
   "chMathBonus": "🧊 +{p} points",
   "chMathGood": "{equation} = <b>{result}</b>. The number is frozen and you get a hint!",
   "chMissNet": "miss: −40 · catch: −50",
@@ -5833,11 +6133,11 @@ const dictionaries = {
   "miss": "NOT QUITE!",
   "missDesc": "You picked <b>{n}</b>, but it wasn’t right. <b>−1 point</b>.",
   "modeRace": "Race",
-  "modeRaceSub": "First to catch it wins. Net 3 times. Nobody caught it? Points decide.",
+  "modeRaceSub": "First to catch it wins, the others play for the podium. Nobody? Points decide.",
   "modeScore": "Points",
   "modeScoreSub": "{n} turns. Catch +10, net +4 (3 nets each). Best score wins.",
   "modeTitle": "Game mode",
-  "motionHint": "For slower phones, or if motion is uncomfortable.",
+  "motionHint": "If motion bothers you or the phone is slow.",
   "motionReduce": "Reduce animations",
   "motionTitle": "Animations",
   "moved": "The number is escaping!",
@@ -5896,6 +6196,9 @@ const dictionaries = {
   "player": "Player {n}",
   "playerTurn": "{player}’s turn",
   "players": "How many players?",
+  "podiumCaught": "caught a number on turn {turn}",
+  "podiumNotCaught": "not caught · {n} points",
+  "podiumTitle": "Podium",
   "pointsHint": "Right +3 · Wrong −1",
   "possibleDesc": "Green numbers still match all the clues.",
   "proGuess": "⚡ No help: it won’t move first, but you have no clue.",
@@ -5934,12 +6237,14 @@ const dictionaries = {
   "quit": "Leave this game and return home?",
   "quitText": "The game will be over.",
   "quitTitle": "Leave the game?",
+  "raceContinue": "Continue ▶",
+  "raceNewNumber": "A new number hides: the others finish the round and keep hunting.",
   "raceNobody": "Nobody caught it…",
   "raceNobodyDesc": "Points and ⭐ decide.",
-  "raceSeeWin": "See the winner",
-  "raceWin": "{player} caught the number!",
-  "raceWinDesc": "Won in {turns} turn(s).",
-  "raceWinnerTag": "Caught the number",
+  "racePlace": "{medal} {player} is on the podium: place {n}!",
+  "raceWin": "{player} wins the race!",
+  "raceWinDesc": "Number caught on turn {turns}.",
+  "raceWinTie": "{players} win together!",
   "rank1": "Apprentice detective",
   "rank2": "Clue seeker",
   "rank3": "Tracker",
@@ -5974,7 +6279,7 @@ const dictionaries = {
   "rpNo": "No thanks",
   "rpPrev": "Back",
   "rpSetting": "Route replay",
-  "rpSettingHint": "After each capture, offer to replay how the number escaped.",
+  "rpSettingHint": "Replay the number’s path after a capture.",
   "rpSettingLabel": "Offer the replay",
   "rpStart": "At the start, the number was hiding on <b>{n}</b>.",
   "rpStep": "Step {i} / {n}",
@@ -5985,6 +6290,7 @@ const dictionaries = {
   "rule2": "After the hint, the number moves a few places, but <b>you keep your turn</b>.",
   "rule3": "To end your turn, pick a capture: 🎯 <b>precise</b> (+10 / −1) or 🕸️ <b>magic net</b> on 2 or 3 neighbouring numbers (+4, or −1 per number if the net is empty), 3 times per game.",
   "ruleExample": "The number always moves: 1 step on Little, 1 or 2 steps on Medium and Big, left or right. After the maximum, it wraps to 1. Genius level: it jumps ±3 or ±5, doubles (×2) or goes through the mirror (1 ↔ 50, 2 ↔ 49…).",
+  "ruleMovesTitle": "How does the number move?",
   "rulesTitle": "How to play",
   "score": "points",
   "scoreDetail": "Score details",
@@ -6035,6 +6341,7 @@ const dictionaries = {
   "timeUp": "TIME’S UP!",
   "timeoutLog": "{player} · time’s up · {shift}",
   "timerAnswer": "Answer",
+  "timerDetails": "Timer lengths",
   "timerGlobal": "Turn",
   "timerHint": "Global turn timer: Little 75 s, Medium 70 s, Big 90 s, Genius 100 s. Answer timer: question 25 / 20 / 20 / 20 s, maths 30 / 30 / 45 / 45 s. The ⏸ button pauses everything.",
   "timerLabel": "Time left",
@@ -6130,6 +6437,7 @@ const dictionaries = {
   "chFinal": "النتيجة: {score}",
   "chFormulaEndless": "النتيجة: 1000 − 45 لكل دور إضافي، −5 لكل سؤال، ±10 لكل حساب (صحيح / خاطئ)، −20 لكل محاولة خاطئة (−40 بالشبكة، −50 إذا فزت بالشبكة). بدون مكافأة وقت.",
   "chFormulaTimed": "النتيجة: 1000 − 45 لكل دور إضافي، −5 لكل سؤال، ±10 لكل حساب (صحيح / خاطئ)، −20 لكل محاولة خاطئة (−40 بالشبكة، −50 إذا فزت بالشبكة)، +2 لكل ثانية متبقية. الخطأ عمدًا لا يربح أبدًا.",
+  "chFormulaTitle": "كيف تُحسب النتيجة؟",
   "chMathBonus": "🧊 +{p} نقطة",
   "chMathGood": "{equation} = <b>{result}</b>. تجمّد الرقم وحصلت على تلميح!",
   "chMissNet": "خطأ: −40 · نجاح: −50",
@@ -6232,11 +6540,11 @@ const dictionaries = {
   "miss": "لم تصب!",
   "missDesc": "اخترت <b>{n}</b>، لكنه ليس الرقم الصحيح. <b>−1 نقطة</b>.",
   "modeRace": "سباق",
-  "modeRaceSub": "أول من يمسكه يفوز. الشبكة 3 مرات. لم يمسكه أحد؟ النقاط تحسم.",
+  "modeRaceSub": "الأول يفوز، والآخرون يلعبون من أجل المنصة. لا أحد؟ النقاط تحسم.",
   "modeScore": "نقاط",
   "modeScoreSub": "{n} دورًا. الإمساك +10، الشبكة +4 (3 شباك لكل لاعب). أعلى نتيجة تفوز.",
   "modeTitle": "طريقة اللعب",
-  "motionHint": "للهواتف البطيئة أو إذا كانت الحركة مزعجة.",
+  "motionHint": "إذا كانت الحركة مزعجة أو الهاتف بطيئًا.",
   "motionReduce": "تقليل الحركات",
   "motionTitle": "الحركات",
   "moved": "الرقم يهرب!",
@@ -6295,6 +6603,9 @@ const dictionaries = {
   "player": "اللاعب {n}",
   "playerTurn": "دور {player}",
   "players": "كم عدد اللاعبين؟",
+  "podiumCaught": "أمسك رقمًا في الدور {turn}",
+  "podiumNotCaught": "لم يمسك · {n} نقطة",
+  "podiumTitle": "منصة التتويج",
   "pointsHint": "صحيح +3 · خطأ −1",
   "possibleDesc": "الأرقام الخضراء تتوافق مع جميع الأدلة.",
   "proGuess": "⚡ بدون مساعدة: لا يتحرك قبلها، لكن لا تلميح لديك.",
@@ -6333,12 +6644,14 @@ const dictionaries = {
   "quit": "هل تريد إنهاء هذه اللعبة والعودة إلى الرئيسية؟",
   "quitText": "ستنتهي اللعبة.",
   "quitTitle": "هل تريد الخروج من اللعبة؟",
+  "raceContinue": "متابعة ◀",
+  "raceNewNumber": "رقم جديد يختبئ: يكمل الآخرون الدور ويواصلون المطاردة.",
   "raceNobody": "لم يمسكه أحد…",
   "raceNobodyDesc": "النقاط و⭐ تحسم النتيجة.",
-  "raceSeeWin": "عرض الفائز",
-  "raceWin": "{player} أمسك الرقم!",
-  "raceWinDesc": "فوز في {turns} دور.",
-  "raceWinnerTag": "أمسك الرقم",
+  "racePlace": "{medal} {player} على منصة التتويج: المركز {n}!",
+  "raceWin": "{player} يفوز بالسباق!",
+  "raceWinDesc": "أُمسك الرقم في الدور {turns}.",
+  "raceWinTie": "{players} يفوزون معًا!",
   "rank1": "محقق متدرب",
   "rank2": "باحث عن الأدلة",
   "rank3": "متعقّب",
@@ -6373,7 +6686,7 @@ const dictionaries = {
   "rpNo": "لا، شكرًا",
   "rpPrev": "السابق",
   "rpSetting": "فيلم المسار",
-  "rpSettingHint": "بعد كل إمساك، اقترح مشاهدة كيف هرب الرقم.",
+  "rpSettingHint": "إعادة مشاهدة مسار الرقم بعد الإمساك به.",
   "rpSettingLabel": "اقتراح الفيلم",
   "rpStart": "في البداية، كان الرقم مختبئًا عند <b>{n}</b>.",
   "rpStep": "المرحلة {i} / {n}",
@@ -6384,6 +6697,7 @@ const dictionaries = {
   "rule2": "بعد التلميح يتحرك الرقم، لكن <b>يبقى الدور لك</b>.",
   "rule3": "لإنهاء دورك اختر طريقة الإمساك: 🎯 <b>دقيق</b> (+10 / −1) أو 🕸️ <b>الشبكة السحرية</b> على رقمين أو 3 أرقام متجاورة (+4، أو −1 عن كل رقم إذا كانت الشبكة فارغة)، 3 مرات في اللعبة.",
   "ruleExample": "الرقم يتحرك دائمًا: خانة واحدة في المستوى الصغير، وخانة أو خانتين في المستويين المتوسط والكبير، يمينًا أو يسارًا. وبعد الرقم الأخير نعود إلى 1. مستوى العبقري: يقفز ±3 أو ±5، أو يتضاعف (×2)، أو يمر في المرآة (1 ↔ 50، 2 ↔ 49…).",
+  "ruleMovesTitle": "كيف يتحرك الرقم؟",
   "rulesTitle": "طريقة اللعب",
   "score": "نقاط",
   "scoreDetail": "تفاصيل النتيجة",
@@ -6434,6 +6748,7 @@ const dictionaries = {
   "timeUp": "انتهى الوقت!",
   "timeoutLog": "{player} · انتهى الوقت · {shift}",
   "timerAnswer": "الإجابة",
+  "timerDetails": "مدد المؤقّتات",
   "timerGlobal": "الدور",
   "timerHint": "المؤقّت العام للدور: صغير 75 ث، متوسط 70 ث، كبير 90 ث، عبقري 100 ث. مؤقّت الإجابة: السؤال 25 / 20 / 20 / 20 ث، الحساب 30 / 30 / 45 / 45 ث. زر ⏸ يوقف كل شيء مؤقتًا.",
   "timerLabel": "الوقت المتبقي",
@@ -6566,6 +6881,7 @@ const initial = () => ({
   names: ['', '', '', ''],
   gameMode: 'race',
   chDiffPref: 'medium',
+  placed: [], // Course : podium [{ player, round, turn }]
   starter: 0,
   playerHelp: [false, false, false, false],
   mode: 'normal',
@@ -6724,6 +7040,7 @@ function load() {
       g.modal = null;
     if (g.hunt && !Array.isArray(g.hunt.steps)) g.hunt = null;
     g.tut = null; // le tutoriel n'est jamais repris
+    if (!Array.isArray(g.placed)) g.placed = [];
     if (!['normal', 'challenge'].includes(g.mode)) g.mode = 'normal';
     if (g.mode === 'challenge' && !['timed', 'endless'].includes(g.chKind)) g.chKind = 'endless';
     if (!(g.chDiff in CHALLENGE_DIFFS)) g.chDiff = 'hard'; // parties de défi sauvegardées avant la V8.4
@@ -7785,6 +8102,28 @@ function mathAnswer(ans) {
   g.showHints = false;
   render();
 }
+/*
+ * Mode Course à plusieurs : un podium plutôt qu'une fin brutale.
+ * Celui qui attrape le numéro prend une place ; un nouveau numéro est tiré pour les autres,
+ * qui finissent le tour (une capture dans le MÊME tour = même place, ex aequo), puis continuent
+ * la chasse pour les places suivantes. Personne n'est privé de son tour.
+ */
+/** Tour de table en cours (0, 1, 2…) : chaque joueur joue une fois par tour de table. */
+const raceRound = () => Math.floor(g.turn / g.players);
+/** Le joueur i est-il déjà sur le podium ? */
+const isPlaced = i => (g.placed || []).some(p => p.player === i);
+/** Place obtenue par une capture faite pendant le tour de table r (les captures d'un même tour sont ex aequo). */
+const placeFor = r => 1 + (g.placed || []).filter(p => p.round < r).length;
+/** Fin de la course : premier(s) du podium vainqueur(s). */
+function finishRace() {
+  const first = g.placed[0];
+  g.raceWinner = first ? first.player : null;
+  g.raceTurns = first ? first.turn : g.turn;
+  g.screen = 'end';
+  g.inGame = false;
+  g.modal = null;
+  sfx('win');
+}
 /** Bouton « Continuer » : après une aide on reste dans le tour, sinon victoire / fin / joueur suivant. */
 function nextTurn() {
   if (g.phase !== 'result') return;
@@ -7803,14 +8142,8 @@ function nextTurn() {
     return;
   }
   if (isRace() && g.players > 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
-    g.raceWinner = g.last.player;
-    g.raceTurns = g.turn + 1;
-    g.screen = 'end';
-    g.inGame = false;
-    g.modal = null;
-    sfx('win');
-    render();
-    return;
+    // Course : le joueur monte sur le podium (un nouveau numéro a déjà été tiré pour les autres).
+    g.placed.push({ player: g.last.player, round: raceRound(), turn: g.turn + 1 });
   }
   if (g.mode !== 'challenge' && g.players === 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
     g.soloWon = true;
@@ -7836,7 +8169,20 @@ function nextTurn() {
     render();
     return;
   }
+  const turnBefore = g.turn;
   g.turn++;
+  if (isRace() && g.players > 1 && g.placed.length) {
+    // les joueurs déjà sur le podium ne jouent plus
+    while (g.turn < g.limit && isPlaced(active())) g.turn++;
+    const roundEnded = Math.floor(g.turn / g.players) > Math.floor(turnBefore / g.players),
+      left = colors.slice(0, g.players).filter((_, i) => !isPlaced(i));
+    // fin : tout le monde est placé, ou un tour complet est fini et il reste au plus un chercheur
+    if (!left.length || (roundEnded && left.length <= 1) || g.turn >= g.limit) {
+      finishRace();
+      render();
+      return;
+    }
+  }
   if (g.limit && g.turn >= g.limit) {
     g.raceWinner = null;
     g.soloWon = false;
@@ -7904,7 +8250,7 @@ function confetti() {
 /** Pastilles des joueurs : score, étoiles, joueur actif. */
 function scoreboard() {
   if (g.mode === 'challenge') return '';
-  return `<div class="chips" style="grid-template-columns:repeat(${g.players},minmax(0,1fr))">${g.scores.map((s, i) => `<div class="chip ${active() === i ? 'current' : ''} ${g.phase === 'result' && g.last && g.last.player === i && ['found', 'netHit', 'wrong', 'netMiss'].includes(g.last.type) ? 'bump' : ''}"><span class="cname"><i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}</span><span class="cscore"><b>${s}</b> <small>⭐${g.stars[i]}</small></span>${scoreDelta(i)}</div>`).join('')}</div>`;
+  return `<div class="chips" style="grid-template-columns:repeat(${g.players},minmax(0,1fr))">${g.scores.map((s, i) => `<div class="chip ${active() === i ? 'current' : ''} ${g.phase === 'result' && g.last && g.last.player === i && ['found', 'netHit', 'wrong', 'netMiss'].includes(g.last.type) ? 'bump' : ''}"><span class="cname">${isRace() && isPlaced(i) ? `<b class="podium-medal">${['🥇', '🥈', '🥉', '🎖️'][placeFor(g.placed.find(p => p.player === i).round) - 1]}</b>` : ''}<i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}</span><span class="cscore"><b>${s}</b> <small>⭐${g.stars[i]}</small></span>${scoreDelta(i)}</div>`).join('')}</div>`;
 }
 /** Gain / perte du dernier coup (+10, +4, −1…) affiché sur la pastille. */
 function scoreDelta(i) {
@@ -7973,18 +8319,20 @@ function office() {
 }
 /** Réglages : langue, chronos, son, mouvements réduits, film. */
 function settings() {
-  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="hero settings-hero"><div class="hero-mascot small-mascot">${mascot()}</div><h1>⚙️ ${t('settings')}</h1></section><section class="panel settings-panel"><div class="panel-title">🌍 ${t('language')}</div><p class="sub">${t('languageHint')}</p><div class="lang-list">${[
+  // Écran compact (sans défilement sur 360 × 735) : une seule carte, une ligne par réglage.
+  const toggle = (id, on, icon, label, hint) =>
+    `<button class="toggle-row" id="${id}" role="switch" aria-checked="${on}"><span class="flag">${icon}</span><span class="tr-text"><strong>${label}</strong><small>${hint}</small></span><span class="switch ${on ? 'on' : ''}"></span></button>`;
+  const langs = [
     ['fr', '🇫🇷', 'Français'],
     ['en', '🇬🇧', 'English'],
     ['ar', '🇸🇦', 'العربية']
   ]
     .map(
       ([code, flag, label]) =>
-        `<button class="lang-choice ${g.lang === code ? 'is-selected' : ''}" data-language="${code}" lang="${code}" dir="${code === 'ar' ? 'rtl' : 'ltr'}" aria-pressed="${g.lang === code}"><span class="flag">${flag}</span><strong>${label}</strong><span class="checkmark">${g.lang === code ? '✓' : ''}</span></button>`
+        `<button class="lang-choice ${g.lang === code ? 'is-selected' : ''}" data-language="${code}" lang="${code}" dir="${code === 'ar' ? 'rtl' : 'ltr'}" aria-pressed="${g.lang === code}"><span class="flag">${flag}</span><strong>${label}</strong></button>`
     )
-    .join(
-      ''
-    )}</div><div class="banner" style="margin-top:16px">💡 ${t('settingsTip')}</div></section><section class="panel settings-panel"><div class="panel-title">🔊 ${t('sound')}</div><p class="sub">${t('soundHint')}</p><button class="toggle-row" id="soundToggle" role="switch" aria-checked="${g.sound}"><span class="flag">${g.sound ? '🔊' : '🔇'}</span><strong>${t('sound')}</strong><span class="switch ${g.sound ? 'on' : ''}"></span></button></section><section class="panel settings-panel"><div class="panel-title">⏱ ${t('timerTitle')}</div><p class="sub">${t('timerHint')}</p><div class="choice-row">${[
+    .join('');
+  const timers = [
     ['normal', 'timerNormal'],
     ['long', 'timerLong'],
     ['off', 'timerOff']
@@ -7993,9 +8341,8 @@ function settings() {
       ([m, k]) =>
         `<button class="mini-btn ${g.timerMode === m ? 'is-selected' : ''}" data-timer="${m}" aria-pressed="${g.timerMode === m}">${t(k)}</button>`
     )
-    .join(
-      ''
-    )}</div></section><section class="panel settings-panel"><div class="panel-title">✨ ${t('motionTitle')}</div><p class="sub">${t('motionHint')}</p><button class="toggle-row" id="motionToggle" role="switch" aria-checked="${g.reduceMotion}"><span class="flag">${g.reduceMotion ? '🐢' : '💃'}</span><strong>${t('motionReduce')}</strong><span class="switch ${g.reduceMotion ? 'on' : ''}"></span></button></section><section class="panel settings-panel"><div class="panel-title">🎬 ${t('rpSetting')}</div><p class="sub">${t('rpSettingHint')}</p><button class="toggle-row" id="replayToggle" role="switch" aria-checked="${g.replayAsk !== false}"><span class="flag">🎬</span><strong>${t('rpSettingLabel')}</strong><span class="switch ${g.replayAsk !== false ? 'on' : ''}"></span></button></section><button class="bigbtn light" id="closeSettingsBottom">${t('back')}</button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p>`;
+    .join('');
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1><div class="panel-title">🌍 ${t('language')}</div><div class="lang-list">${langs}</div><p class="sub small">${t('settingsTip')}</p><div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}${toggle('replayToggle', g.replayAsk !== false, '🎬', t('rpSettingLabel'), t('rpSettingHint'))}<p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
 }
 /** Les trois onglets du tour : Indice, Calcul, Choisir un numéro (+ boutons de capture). */
 function questionView() {
@@ -8094,7 +8441,7 @@ function resultView() {
     desc =
       t('foundDesc', { n: x.n, player: pname(x.player) }) +
       (x.bonus ? '<br><span class="bonus-line">' + t('bonusDeduction') + '</span>' : '');
-    extra = lens(x.n);
+    extra = lens(x.n) + racePodiumNote(x);
   } else if (x.type === 'wrong') {
     title = '😅 ' + t('miss');
     desc = t('missDesc', { n: x.n });
@@ -8107,7 +8454,7 @@ function resultView() {
         nums: x.nums.join('·'),
         player: pname(x.player)
       }) + (x.bonus ? '<br><span class="bonus-line">' + t('bonusDeduction') + '</span>' : '');
-    extra = lens(x.n);
+    extra = lens(x.n) + racePodiumNote(x);
   } else if (x.type === 'netMiss') {
     title = '🕸️ ' + t('netMiss');
     desc = t('netMissDesc', { nums: x.nums.join('·'), p: x.nums.length });
@@ -8145,7 +8492,7 @@ function resultView() {
   const top = ['found', 'netHit'].includes(x.type) ? extra : '';
   if (top)
     extra = g.lastHunt ? `<button class="mini-btn rp-open" id="openReplay">🎬 ${t('rpButton')}</button>` : '';
-  return `<div class="result-card ${tone}">${top}<div class="result-title">${title}</div><p class="result-desc">${desc}</p>${extra}${move}${clue ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div><button class="bigbtn ${clue ? '' : 'green'}" id="next">${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('raceSeeWin') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
+  return `<div class="result-card ${tone}">${top}<div class="result-title">${title}</div><p class="result-desc">${desc}</p>${extra}${move}${clue ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div><button class="bigbtn ${clue ? '' : 'green'}" id="next">${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {
@@ -8245,15 +8592,45 @@ function end() {
     champions = tot.map((s, i) => (s === best ? pname(i) : null)).filter(Boolean),
     order = tot.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
   const soloLost = g.players === 1 && g.soloWon === false;
-  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel"><div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel"><div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
+/** Course : après une capture, place obtenue et annonce du nouveau numéro pour les autres. */
+function racePodiumNote(x) {
+  if (!isRace() || g.players < 2) return '';
+  const place = placeFor(raceRound());
+  return `<div class="podium-note">${t('racePlace', { medal: ['🥇', '🥈', '🥉', '🎖️'][place - 1], player: pname(x.player), n: place })}<small>${t('raceNewNumber')}</small></div>`;
+}
+/** Classement final de la Course : podium (ordre des captures, ex aequo dans un même tour), puis les autres aux points. */
+function raceRanking() {
+  const placed = g.placed.map(p => ({ i: p.player, place: placeFor(p.round), turn: p.turn }));
+  const others = colors
+    .slice(0, g.players)
+    .map((_, i) => i)
+    .filter(i => !isPlaced(i))
+    .map(i => ({ i, v: g.scores[i] + (g.stars[i] || 0) }))
+    .sort((a, b) => b.v - a.v);
+  const first = placed.length + 1;
+  others.forEach((o, k) => (o.place = k && o.v === others[k - 1].v ? others[k - 1].place : first + k));
+  return { placed, others };
+}
+/** Fin de la Course : vainqueur(s), podium, puis les joueurs non placés classés aux points. */
 function endRace() {
-  const w = g.raceWinner,
-    next = (g.starter + 1) % g.players;
-  return `${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot('caught')}</div><h1>🏆 ${t('raceWin', { player: pname(w) })}</h1><p class="intro">${t('raceWinDesc', { turns: g.raceTurns })}</p></section>
- <section class="panel centered"><div class="race-winner"><span class="player-chip" style="background:${colors[w]}">${esc(pname(w))}</span><small>🎯 ${t('raceWinnerTag')}</small></div>
- <div class="race-others">${g.scores.map((v, i) => (i === w ? '' : `<span><i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}</span>`)).join('')}</div>
- <p class="sub">${t('nextStarter', { player: pname(next) })}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+  const { placed, others } = raceRanking(),
+    winners = placed.filter(p => p.place === 1).map(p => pname(p.i)),
+    next = (g.starter + 1) % g.players,
+    medal = n => ['🥇', '🥈', '🥉', '🎖️'][Math.min(n, 4) - 1];
+  const rows = [
+    ...placed.map(
+      p =>
+        `<div class="finalscore"><div class="medal">${medal(p.place)}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('podiumCaught', { turn: p.turn })}</small></div></div>`
+    ),
+    ...others.map(
+      o =>
+        `<div class="finalscore"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}</strong><small>${t('podiumNotCaught', { n: o.v })}</small></div></div>`
+    )
+  ].join('');
+  return `${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot('caught')}</div><h1>🏆 ${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro">${t('raceWinDesc', { turns: g.raceTurns })}</p></section>
+ <section class="panel"><div class="label centered">${t('podiumTitle')}</div>${rows}<p class="sub centered">${t('nextStarter', { player: pname(next) })}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
 /** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */
 function endSolo() {
@@ -8283,7 +8660,7 @@ function endSoloCareer(res) {
         `<li><span>${t(key, vars)}</span><b dir="ltr">${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</b></li>`
     )
     .join('');
-  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></section>
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></section>
  <section class="panel centered solo-card career-card">${
    won
      ? `<div class="solo-stars" aria-label="${res.stars}/3">${[1, 2, 3].map(i => `<span class="${i <= res.stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div>`
@@ -8303,7 +8680,7 @@ function endSoloLegacy() {
     misses = h.filter(e => e.type === 'wrong' || e.type === 'netMiss').length,
     clues = h.filter(e => e.type === 'question' || e.type === 'math').length,
     stars = won ? (turns <= 3 ? 3 : turns <= 6 ? 2 : 1) : 0;
-  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></section>
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></section>
  <section class="panel centered solo-card">${won ? `<div class="solo-stars" aria-label="${stars}/3">${[1, 2, 3].map(i => `<span class="${i <= stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div><div class="solo-rate">${t(['', 'soloRate1', 'soloRate2', 'soloRate3'][stars])}</div>` : `<div class="solo-reveal"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><small>${t('soloReveal')}</small></div>`}
  <div class="solo-stats"><div><b>${turns}</b><small>${t('statTurns')}</small></div><div><b>${clues}</b><small>${t('statClues')}</small></div><div><b>${misses}</b><small>${t('statMisses')}</small></div></div>
  ${won ? (g.soloNewRecord ? `<div class="ch-new">${t('soloNewRecord')}</div>` : g.soloBest ? `<p class="sub">${t('soloBest', { n: g.soloBest })}</p>` : '') : ''}
@@ -8312,7 +8689,7 @@ function endSoloLegacy() {
 function endChallenge() {
   const r = records(),
     best = r[chRecordKey()] || 0;
-  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
 
 /* ---- 12-replay.js ---- */
@@ -8473,7 +8850,7 @@ function modalView() {
   if (g.modal === 'tutInvite' && g.screen === 'home') return wrapM(tutInviteView());
   if (g.modal === 'rules' && g.screen === 'home')
     return wrapM(
-      `<h2>📖 ${t('rulesTitle')}</h2><p class="intro-dark">${t('heroText')}</p><div class="steps">${['rule1', 'rule2', 'rule3'].map((key, i) => `<div class="step"><span class="stepnum">${i + 1}</span><span>${t(key)}</span></div>`).join('')}</div><div class="help-detail">💡 ${t('ruleExample')}</div><p class="sub small">${t('levelsFree')}</p><button class="bigbtn green" id="rulesTutorial">🎓 ${t('tutTry')}</button><button class="bigbtn light" id="closeModal">${t('close')}</button>`
+      `<h2>📖 ${t('rulesTitle')}</h2><p class="intro-dark">${t('heroText')}</p><div class="steps">${['rule1', 'rule2', 'rule3'].map((key, i) => `<div class="step"><span class="stepnum">${i + 1}</span><span>${t(key)}</span></div>`).join('')}</div><details class="help-fold"><summary>💡 ${t('ruleMovesTitle')}</summary><div class="help-detail">${t('ruleExample')}</div><p class="sub small">${t('levelsFree')}</p></details><button class="bigbtn green" id="rulesTutorial">🎓 ${t('tutTry')}</button><button class="bigbtn light" id="closeModal">${t('close')}</button>`
     );
   if (g.modal === 'challenge' && g.screen === 'home') {
     const r = records(),
@@ -8485,7 +8862,7 @@ function modalView() {
         .filter(k => r[k])
         .map(k => `${t(k === 'timed' ? 'chTimed' : 'chEndless')} ${r[k]}`);
     return wrapM(
-      `<div class="hero-mascot small-mascot">${mascot('think')}</div><h2>🏆 ${t('chTitle')}</h2><p>${t('chDesc')}</p><div class="label">${t('chDiffTitle')}</div><div class="ch-diffs" role="radiogroup">${Object.keys(
+      `<h2>🏆 ${t('chTitle')}</h2><p>${t('chDesc')}</p><div class="label">${t('chDiffTitle')}</div><div class="ch-diffs" role="radiogroup">${Object.keys(
         CHALLENGE_DIFFS
       )
         .map(
@@ -8494,7 +8871,7 @@ function modalView() {
         )
         .join(
           ''
-        )}</div><div class="modal-actions"><button class="bigbtn pink ch-opt" id="chTimed">⏱ ${t('chTimed')}<small>${t('chTimedSub')} · ${rec('timed')}</small></button><button class="bigbtn ch-opt" id="chEndless">♾️ ${t('chEndless')}<small>${t('chEndlessSub')} · ${rec('endless')}</small></button><p class="sub small">⏱ ${t('chFormulaTimed')}</p><p class="sub small">♾️ ${t('chFormulaEndless')}</p>${old.length ? `<p class="sub small ch-old">${t('chOldRecords', { list: old.join(' · ') })}</p>` : ''}<button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
+        )}</div><div class="modal-actions"><button class="bigbtn pink ch-opt" id="chTimed">⏱ ${t('chTimed')}<small>${t('chTimedSub')} · ${rec('timed')}</small></button><button class="bigbtn ch-opt" id="chEndless">♾️ ${t('chEndless')}<small>${t('chEndlessSub')} · ${rec('endless')}</small></button><details class="help-fold"><summary>📊 ${t('chFormulaTitle')}</summary><p class="sub small">⏱ ${t('chFormulaTimed')}</p><p class="sub small">♾️ ${t('chFormulaEndless')}</p></details>${old.length ? `<p class="sub small ch-old">${t('chOldRecords', { list: old.join(' · ') })}</p>` : ''}<button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
     );
   }
   if (g.modal === 'names' && g.screen === 'home') {
@@ -9047,7 +9424,6 @@ function bind() {
     render();
   };
   click('closeSettings', close);
-  click('closeSettingsBottom', close);
   click('next', nextTurn);
   click('history', () => {
     g.showHistory = !g.showHistory;

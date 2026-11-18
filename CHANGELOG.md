@@ -1,5 +1,21 @@
 # Historique des versions
 
+## V8.9
+
+**Mode Course : un podium, personne n'est privé de son tour**
+- Celui qui attrape le numéro monte sur le podium ; un **nouveau numéro** est tiré pour les autres, qui finissent le tour.
+  Une capture dans le **même tour** = même place (**ex aequo**). Les joueurs déjà placés ne rejouent plus ;
+  les autres continuent pour les places suivantes. Personne n'attrape avant la limite : les points départagent.
+- Après une capture : « 🥇 Joueur 2 monte sur le podium : place 1 ! », médaille sur sa pastille ; écran final en podium.
+
+**Ni défilement, ni boutons collés** (retour du test sur téléphone 360 × 735)
+- Audit automatique de **111 écrans et fenêtres × 3 tailles** (360 × 735, 393 × 806, 412 × 870), FR/EN/AR :
+  aucun défilement, au moins 8 px entre deux boutons. Lancé à chaque compilation (`npm run audit:layout`).
+- Réglages sur un seul écran (langues côte à côte, interrupteurs compacts, durées des chronos repliables).
+- Écrans de fin : détective à côté du titre ; « Rejouer » / « Mon bureau » / « Accueil » espacés et alignés.
+- Fenêtres Règles et Défi : explications détaillées repliables ; 10 px minimum entre boutons empilés.
+- Reste à faire : les très petits écrans (360 × 640) défilent encore un peu.
+
 ## V8.8
 
 Carrière du mode Solo classique (cahier des charges « KIT SOLO », partie V8.5 de son plan).

@@ -177,6 +177,28 @@ function mathAnswer(ans) {
   g.showHints = false;
   render();
 }
+/*
+ * Mode Course à plusieurs : un podium plutôt qu'une fin brutale.
+ * Celui qui attrape le numéro prend une place ; un nouveau numéro est tiré pour les autres,
+ * qui finissent le tour (une capture dans le MÊME tour = même place, ex aequo), puis continuent
+ * la chasse pour les places suivantes. Personne n'est privé de son tour.
+ */
+/** Tour de table en cours (0, 1, 2…) : chaque joueur joue une fois par tour de table. */
+const raceRound = () => Math.floor(g.turn / g.players);
+/** Le joueur i est-il déjà sur le podium ? */
+const isPlaced = i => (g.placed || []).some(p => p.player === i);
+/** Place obtenue par une capture faite pendant le tour de table r (les captures d'un même tour sont ex aequo). */
+const placeFor = r => 1 + (g.placed || []).filter(p => p.round < r).length;
+/** Fin de la course : premier(s) du podium vainqueur(s). */
+function finishRace() {
+  const first = g.placed[0];
+  g.raceWinner = first ? first.player : null;
+  g.raceTurns = first ? first.turn : g.turn;
+  g.screen = 'end';
+  g.inGame = false;
+  g.modal = null;
+  sfx('win');
+}
 /** Bouton « Continuer » : après une aide on reste dans le tour, sinon victoire / fin / joueur suivant. */
 function nextTurn() {
   if (g.phase !== 'result') return;
@@ -195,14 +217,8 @@ function nextTurn() {
     return;
   }
   if (isRace() && g.players > 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
-    g.raceWinner = g.last.player;
-    g.raceTurns = g.turn + 1;
-    g.screen = 'end';
-    g.inGame = false;
-    g.modal = null;
-    sfx('win');
-    render();
-    return;
+    // Course : le joueur monte sur le podium (un nouveau numéro a déjà été tiré pour les autres).
+    g.placed.push({ player: g.last.player, round: raceRound(), turn: g.turn + 1 });
   }
   if (g.mode !== 'challenge' && g.players === 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
     g.soloWon = true;
@@ -228,7 +244,20 @@ function nextTurn() {
     render();
     return;
   }
+  const turnBefore = g.turn;
   g.turn++;
+  if (isRace() && g.players > 1 && g.placed.length) {
+    // les joueurs déjà sur le podium ne jouent plus
+    while (g.turn < g.limit && isPlaced(active())) g.turn++;
+    const roundEnded = Math.floor(g.turn / g.players) > Math.floor(turnBefore / g.players),
+      left = colors.slice(0, g.players).filter((_, i) => !isPlaced(i));
+    // fin : tout le monde est placé, ou un tour complet est fini et il reste au plus un chercheur
+    if (!left.length || (roundEnded && left.length <= 1) || g.turn >= g.limit) {
+      finishRace();
+      render();
+      return;
+    }
+  }
   if (g.limit && g.turn >= g.limit) {
     g.raceWinner = null;
     g.soloWon = false;

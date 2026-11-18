@@ -44,6 +44,8 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           npm test
+      - name: Mise en page — aucun défilement, aucun bouton collé (3 tailles × 3 langues)
+        run: npm run audit:layout
       - name: Publier les captures d'écran des tests
         if: always()
         uses: actions/upload-artifact@v4
