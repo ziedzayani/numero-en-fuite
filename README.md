@@ -31,6 +31,19 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 - **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
   à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
 
+## V8.2
+
+- **Deux modes en multijoueur**, choisis avant la partie :
+  - 🏁 **Course** (par défaut) : le premier qui attrape le numéro gagne, la partie s'arrête. Pas de filet.
+    Si personne ne l'attrape avant le dernier tour, les points et les ⭐ départagent.
+  - 🏆 **Points** : plusieurs tours, capture +10, filet +2, nouveau numéro après chaque capture ; meilleur score.
+- **Solo** = règles de la Course (attraper = gagner), sans filet. Le Défi solo garde le filet et son score.
+- **Le joueur qui commence change** à chaque « Rejouer » (équité).
+- **Aide par joueur** (numéros possibles en vert), choisie avant la partie, désactivée par défaut
+  (remplace le réglage « Aide du carnet »). En solo : fenêtre « Prêt ? » avec l'aide.
+- **Boutons plats** : plus de « reflet » sous les boutons.
+- **Filet limité à 3 par joueur** (mode Points et Défi solo) : ●●○ sur le bouton, puis « Plus de filet ».
+
 ## V8.1
 
 - Film : la flèche va toujours de l’ancien au nouveau numéro (2 ──−2──➜ 15) ; quand il fait le tour : « 🔄 Après 1, il repart de 15 ».
