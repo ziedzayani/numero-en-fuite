@@ -9,6 +9,7 @@ function modalView() {
   const wrapM = c =>
     `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal">${c}</div></div>`;
   if (['netWait', 'netLost'].includes(g.modal)) return wrapM(netModalView());
+  if (g.modal === 'backup' && g.screen === 'settings') return wrapM(backupView());
   if (g.modal === 'tutorial' && g.screen === 'home' && g.tut) return wrapM(tutorialView());
   if (g.modal === 'tutInvite' && g.screen === 'home') return wrapM(tutInviteView());
   if (g.modal === 'rules' && g.screen === 'home')
@@ -96,4 +97,21 @@ function modalView() {
   return wrapM(
     `<div class="hero-mascot">${mascot('hop')}</div><h2>${t('handoffTitle', { player: pname(p) })}</h2><p><span class="player-chip" style="background:${colors[p]}">${esc(pname(p))}</span></p>${raceNewsFor(p)}<p>${t('handoffText')}</p><button class="bigbtn green" id="handoffGo">${t('handoffGo')} ${arrow()}</button>`
   );
+}
+
+/** Fenêtre « Mes progrès » : créer un code de sauvegarde, ou récupérer des progrès (avec confirmation). */
+function backupView() {
+  const b = g.backup || { view: 'menu' },
+    close = `<button class="bigbtn light" id="backupClose">${t('close')}</button>`,
+    sum = s => t('backupSummary', { rank: s.rank, name: rankName(s.rank), xp: s.xp, wins: s.wins });
+  if (b.view === 'export')
+    return `<h2>📤 ${t('backupExportTitle')}</h2><p>${t('backupExportText')}</p><textarea id="backupCode" class="backup-code" readonly dir="ltr">${esc(b.code)}</textarea>${b.copied ? `<p class="sub">✅ ${t('backupCopied')}</p>` : ''}<button class="bigbtn" id="backupCopy">📋 ${t('backupCopy')}</button>${close}`;
+  if (b.view === 'import')
+    return `<h2>📥 ${t('backupImportTitle')}</h2><p>${t('backupImportText')}</p><textarea id="backupInput" class="backup-code" dir="ltr" placeholder="NEF1-…">${esc(b.input || '')}</textarea>${b.error ? `<p class="net-error">⚠️ ${t('backupErr_' + b.error)}</p>` : ''}<button class="bigbtn" id="backupCheck">${t('backupCheck')}</button>${close}`;
+  if (b.view === 'confirm') {
+    const cur = progressSummary(careerProfile(loadCareer()));
+    return `<h2>📥 ${t('backupConfirmTitle')}</h2><p>${t('backupContains')}<br><b>${sum(b.summary)}</b></p><p>${t('backupReplaces')}<br>${sum(cur)}</p><button class="bigbtn pink" id="backupApply">${t('backupApply')}</button><button class="bigbtn light" id="backupClose">${t('cancel')}</button>`;
+  }
+  if (b.view === 'done') return `<h2>✅ ${t('backupDone')}</h2><p>${sum(b.summary)}</p>${close}`;
+  return `<h2>💾 ${t('backupTitle')}</h2><p>${t('backupIntro')}</p><button class="bigbtn" id="backupExport">📤 ${t('backupExportTitle')}</button><button class="bigbtn green" id="backupImport">📥 ${t('backupImportTitle')}</button>${close}`;
 }

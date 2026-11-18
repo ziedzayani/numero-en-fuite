@@ -186,3 +186,84 @@ function soloTip(won, turns, stars, history, last) {
   const names = { junior: 'levelJunior', malin: 'levelMalin', expert: 'levelExpert', genius: 'levelGenius' };
   return next ? ['tipNextLevel', { levelKey: names[next] }] : ['tipPerfect', {}];
 }
+
+/*
+ * Sauvegarde de secours des progrès (Réglages › Mes progrès) : un code texte à garder
+ * (message, notes…) et à recoller après un changement de téléphone ou une réinstallation.
+ *   Format : « NEF1-<données base64>-<contrôle> » ; contrôle = empreinte FNV-1a des données.
+ *   Contenu : carrière solo (sans le journal des parties), records des défis, réglages.
+ *   Jamais la partie en cours. Un code abîmé est refusé ; l'import demande confirmation.
+ */
+const BACKUP_PREFIX = 'NEF1';
+const BACKUP_PREFS = ['lang', 'sound', 'timerMode', 'reduceMotion', 'replayAsk', 'tutSeen'];
+
+/** Empreinte FNV-1a 32 bits (détecte un code tronqué ou modifié). */
+function fnv1a(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(36);
+}
+const toB64 = s => btoa(unescape(encodeURIComponent(s)));
+const fromB64 = s => decodeURIComponent(escape(atob(s)));
+
+/** Code de sauvegarde des progrès actuels. */
+function exportProgress() {
+  const c = loadCareer(),
+    p = careerProfile(c);
+  const data = {
+    v: 1,
+    career: { ...c, profiles: { [c.activeProfileId]: { ...p, processed: {} } } },
+    records: records(),
+    prefs: Object.fromEntries(BACKUP_PREFS.map(k => [k, g[k]]))
+  };
+  const b = toB64(JSON.stringify(data));
+  return `${BACKUP_PREFIX}-${b}-${fnv1a(b)}`;
+}
+
+/**
+ * Lit un code de sauvegarde. Renvoie { ok: true, data, summary } ou { ok: false, error }.
+ * error : 'format' (pas un code du jeu), 'damaged' (code incomplet ou modifié).
+ */
+function readBackup(code) {
+  const m = String(code || '')
+    .replace(/\s+/g, '')
+    .match(/^NEF1-([A-Za-z0-9+/=]+)-([0-9a-z]+)$/);
+  if (!m) return { ok: false, error: 'format' };
+  if (fnv1a(m[1]) !== m[2]) return { ok: false, error: 'damaged' };
+  let data;
+  try {
+    data = JSON.parse(fromB64(m[1]));
+  } catch (e) {
+    return { ok: false, error: 'damaged' };
+  }
+  const prof =
+    data && data.career && data.career.profiles && data.career.profiles[data.career.activeProfileId];
+  if (!data || data.v !== 1 || !prof || typeof data.records !== 'object')
+    return { ok: false, error: 'damaged' };
+  return { ok: true, data, summary: progressSummary(prof) };
+}
+
+/** Résumé lisible d'une carrière : rang, XP, victoires. */
+const progressSummary = p => ({
+  rank: rankOf(p.xpTotal || 0).rank,
+  xp: p.xpTotal || 0,
+  wins: p.totalWins || 0
+});
+
+/** Remplace les progrès par ceux du code (après confirmation). Renvoie true si c'est fait. */
+function importProgress(code) {
+  const r = readBackup(code);
+  if (!r.ok) return false;
+  try {
+    localStorage.setItem(CAREER_STORAGE, JSON.stringify(r.data.career));
+    localStorage.setItem(RECORDS_STORAGE, JSON.stringify(r.data.records));
+  } catch (e) {
+    return false;
+  }
+  loadCareer(); // complète un code ancien ou partiel champ par champ
+  for (const k of BACKUP_PREFS) if (r.data.prefs && k in r.data.prefs) g[k] = r.data.prefs[k];
+  return true;
+}

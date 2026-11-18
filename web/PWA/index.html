@@ -5604,6 +5604,30 @@ body.scr-end .finalscore {
   display: none !important;
 }
 
+/* V8.12 : Mes progrès (sauvegarde de secours) */
+.backup-row .chev {
+  margin-inline-start: auto;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink2);
+}
+.backup-code {
+  display: block;
+  width: 100%;
+  min-height: 92px;
+  margin: 8px 0;
+  padding: 8px 10px;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  box-sizing: border-box;
+  font: 12px/1.35 monospace;
+  word-break: break-all;
+  resize: none;
+}
+.modal .bigbtn + .bigbtn {
+  margin-top: 10px;
+}
+
 </style>
 </head>
 <body><main id="app" aria-live="polite"></main>
@@ -5690,7 +5714,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "8.11";
+const APP_VERSION = "8.12";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -5708,6 +5732,24 @@ const dictionaries = {
   "appVersion": "Version {v}",
   "askQuit": "Quitter la partie",
   "back": "Retour",
+  "backupApply": "Remplacer mes progrès",
+  "backupCheck": "Vérifier le code",
+  "backupConfirmTitle": "Remplacer tes progrès ?",
+  "backupContains": "Ce code contient :",
+  "backupCopied": "Code copié ! Colle-le dans un message ou une note.",
+  "backupCopy": "Copier le code",
+  "backupDone": "Progrès récupérés !",
+  "backupErr_damaged": "Code incomplet ou abîmé : recopie-le en entier.",
+  "backupErr_format": "Ce n’est pas un code de sauvegarde du jeu.",
+  "backupExportText": "Copie ce code et garde-le précieusement. Il ne contient pas la partie en cours.",
+  "backupExportTitle": "Créer mon code de sauvegarde",
+  "backupHint": "Sauvegarder ou récupérer rang, XP et records.",
+  "backupImportText": "Colle ici ton code de sauvegarde (il commence par NEF1-).",
+  "backupImportTitle": "Récupérer mes progrès",
+  "backupIntro": "Garde un code de sauvegarde (dans un message ou tes notes) : il te permet de retrouver ton rang, tes XP et tes records sur un nouveau téléphone ou après une réinstallation.",
+  "backupReplaces": "Il remplacera tes progrès actuels :",
+  "backupSummary": "Rang {rank} — {name} · {xp} XP · {wins} victoires",
+  "backupTitle": "Mes progrès",
   "bonusClue": "Ton indice bonus",
   "bonusDeduction": "🧠 +1 bonus déduction (question posée) !",
   "bravo": "BRAVO !",
@@ -6151,6 +6193,24 @@ const dictionaries = {
   "appVersion": "Version {v}",
   "askQuit": "Leave the game",
   "back": "Back",
+  "backupApply": "Replace my progress",
+  "backupCheck": "Check the code",
+  "backupConfirmTitle": "Replace your progress?",
+  "backupContains": "This code contains:",
+  "backupCopied": "Code copied! Paste it into a message or a note.",
+  "backupCopy": "Copy the code",
+  "backupDone": "Progress restored!",
+  "backupErr_damaged": "Incomplete or damaged code: copy it again in full.",
+  "backupErr_format": "This is not a backup code from the game.",
+  "backupExportText": "Copy this code and keep it safe. It does not include the game in progress.",
+  "backupExportTitle": "Create my backup code",
+  "backupHint": "Save or restore rank, XP and records.",
+  "backupImportText": "Paste your backup code here (it starts with NEF1-).",
+  "backupImportTitle": "Restore my progress",
+  "backupIntro": "Keep a backup code (in a message or your notes): it brings back your rank, XP and records on a new phone or after reinstalling.",
+  "backupReplaces": "It will replace your current progress:",
+  "backupSummary": "Rank {rank} — {name} · {xp} XP · {wins} wins",
+  "backupTitle": "My progress",
   "bonusClue": "Your bonus hint",
   "bonusDeduction": "🧠 +1 deduction bonus (you asked a question)!",
   "bravo": "GREAT JOB!",
@@ -6594,6 +6654,24 @@ const dictionaries = {
   "appVersion": "الإصدار {v}",
   "askQuit": "الخروج من اللعبة",
   "back": "رجوع",
+  "backupApply": "استبدل تقدّمي",
+  "backupCheck": "تحقق من الرمز",
+  "backupConfirmTitle": "استبدال تقدّمك؟",
+  "backupContains": "يحتوي هذا الرمز على:",
+  "backupCopied": "تم نسخ الرمز! الصقه في رسالة أو ملاحظة.",
+  "backupCopy": "انسخ الرمز",
+  "backupDone": "تم استرجاع التقدّم!",
+  "backupErr_damaged": "رمز ناقص أو تالف: انسخه كاملًا مرة أخرى.",
+  "backupErr_format": "هذا ليس رمز حفظ من اللعبة.",
+  "backupExportText": "انسخ هذا الرمز واحتفظ به. لا يحتوي على اللعبة الجارية.",
+  "backupExportTitle": "إنشاء رمز الحفظ",
+  "backupHint": "احفظ أو استرجع الرتبة والخبرة والأرقام القياسية.",
+  "backupImportText": "الصق رمز الحفظ هنا (يبدأ بـ NEF1-).",
+  "backupImportTitle": "استرجاع تقدّمي",
+  "backupIntro": "احتفظ برمز حفظ (في رسالة أو ملاحظاتك): يعيد لك رتبتك وخبرتك وأرقامك القياسية على هاتف جديد أو بعد إعادة التثبيت.",
+  "backupReplaces": "سيستبدل تقدّمك الحالي:",
+  "backupSummary": "الرتبة {rank} — {name} · {xp} XP · {wins} انتصارات",
+  "backupTitle": "تقدّمي",
   "bonusClue": "تلميحك الإضافي",
   "bonusDeduction": "🧠 +1 مكافأة استنتاج (طرحت سؤالًا)!",
   "bravo": "أحسنت!",
@@ -7896,6 +7974,87 @@ function soloTip(won, turns, stars, history, last) {
   return next ? ['tipNextLevel', { levelKey: names[next] }] : ['tipPerfect', {}];
 }
 
+/*
+ * Sauvegarde de secours des progrès (Réglages › Mes progrès) : un code texte à garder
+ * (message, notes…) et à recoller après un changement de téléphone ou une réinstallation.
+ *   Format : « NEF1-<données base64>-<contrôle> » ; contrôle = empreinte FNV-1a des données.
+ *   Contenu : carrière solo (sans le journal des parties), records des défis, réglages.
+ *   Jamais la partie en cours. Un code abîmé est refusé ; l'import demande confirmation.
+ */
+const BACKUP_PREFIX = 'NEF1';
+const BACKUP_PREFS = ['lang', 'sound', 'timerMode', 'reduceMotion', 'replayAsk', 'tutSeen'];
+
+/** Empreinte FNV-1a 32 bits (détecte un code tronqué ou modifié). */
+function fnv1a(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(36);
+}
+const toB64 = s => btoa(unescape(encodeURIComponent(s)));
+const fromB64 = s => decodeURIComponent(escape(atob(s)));
+
+/** Code de sauvegarde des progrès actuels. */
+function exportProgress() {
+  const c = loadCareer(),
+    p = careerProfile(c);
+  const data = {
+    v: 1,
+    career: { ...c, profiles: { [c.activeProfileId]: { ...p, processed: {} } } },
+    records: records(),
+    prefs: Object.fromEntries(BACKUP_PREFS.map(k => [k, g[k]]))
+  };
+  const b = toB64(JSON.stringify(data));
+  return `${BACKUP_PREFIX}-${b}-${fnv1a(b)}`;
+}
+
+/**
+ * Lit un code de sauvegarde. Renvoie { ok: true, data, summary } ou { ok: false, error }.
+ * error : 'format' (pas un code du jeu), 'damaged' (code incomplet ou modifié).
+ */
+function readBackup(code) {
+  const m = String(code || '')
+    .replace(/\s+/g, '')
+    .match(/^NEF1-([A-Za-z0-9+/=]+)-([0-9a-z]+)$/);
+  if (!m) return { ok: false, error: 'format' };
+  if (fnv1a(m[1]) !== m[2]) return { ok: false, error: 'damaged' };
+  let data;
+  try {
+    data = JSON.parse(fromB64(m[1]));
+  } catch (e) {
+    return { ok: false, error: 'damaged' };
+  }
+  const prof =
+    data && data.career && data.career.profiles && data.career.profiles[data.career.activeProfileId];
+  if (!data || data.v !== 1 || !prof || typeof data.records !== 'object')
+    return { ok: false, error: 'damaged' };
+  return { ok: true, data, summary: progressSummary(prof) };
+}
+
+/** Résumé lisible d'une carrière : rang, XP, victoires. */
+const progressSummary = p => ({
+  rank: rankOf(p.xpTotal || 0).rank,
+  xp: p.xpTotal || 0,
+  wins: p.totalWins || 0
+});
+
+/** Remplace les progrès par ceux du code (après confirmation). Renvoie true si c'est fait. */
+function importProgress(code) {
+  const r = readBackup(code);
+  if (!r.ok) return false;
+  try {
+    localStorage.setItem(CAREER_STORAGE, JSON.stringify(r.data.career));
+    localStorage.setItem(RECORDS_STORAGE, JSON.stringify(r.data.records));
+  } catch (e) {
+    return false;
+  }
+  loadCareer(); // complète un code ancien ou partiel champ par champ
+  for (const k of BACKUP_PREFS) if (r.data.prefs && k in r.data.prefs) g[k] = r.data.prefs[k];
+  return true;
+}
+
 /* ---- 07-timers.js ---- */
 /*
  * Chronos. Ils n'avancent que si la partie est visible et qu'aucune fenêtre n'est ouverte
@@ -8652,7 +8811,7 @@ function settings() {
         `<button class="mini-btn ${g.timerMode === m ? 'is-selected' : ''}" data-timer="${m}" aria-pressed="${g.timerMode === m}">${t(k)}</button>`
     )
     .join('');
-  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1><div class="panel-title">🌍 ${t('language')}</div><div class="lang-list">${langs}</div><p class="sub small">${t('settingsTip')}</p><div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}${toggle('replayToggle', g.replayAsk !== false, '🎬', t('rpSettingLabel'), t('rpSettingHint'))}<p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1><div class="panel-title">🌍 ${t('language')}</div><div class="lang-list">${langs}</div><p class="sub small">${t('settingsTip')}</p><div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}${toggle('replayToggle', g.replayAsk !== false, '🎬', t('rpSettingLabel'), t('rpSettingHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">💾</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
 }
 /** Les trois onglets du tour : Indice, Calcul, Choisir un numéro (+ boutons de capture). */
 function questionView() {
@@ -9165,6 +9324,7 @@ function modalView() {
   const wrapM = c =>
     `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal">${c}</div></div>`;
   if (['netWait', 'netLost'].includes(g.modal)) return wrapM(netModalView());
+  if (g.modal === 'backup' && g.screen === 'settings') return wrapM(backupView());
   if (g.modal === 'tutorial' && g.screen === 'home' && g.tut) return wrapM(tutorialView());
   if (g.modal === 'tutInvite' && g.screen === 'home') return wrapM(tutInviteView());
   if (g.modal === 'rules' && g.screen === 'home')
@@ -9252,6 +9412,23 @@ function modalView() {
   return wrapM(
     `<div class="hero-mascot">${mascot('hop')}</div><h2>${t('handoffTitle', { player: pname(p) })}</h2><p><span class="player-chip" style="background:${colors[p]}">${esc(pname(p))}</span></p>${raceNewsFor(p)}<p>${t('handoffText')}</p><button class="bigbtn green" id="handoffGo">${t('handoffGo')} ${arrow()}</button>`
   );
+}
+
+/** Fenêtre « Mes progrès » : créer un code de sauvegarde, ou récupérer des progrès (avec confirmation). */
+function backupView() {
+  const b = g.backup || { view: 'menu' },
+    close = `<button class="bigbtn light" id="backupClose">${t('close')}</button>`,
+    sum = s => t('backupSummary', { rank: s.rank, name: rankName(s.rank), xp: s.xp, wins: s.wins });
+  if (b.view === 'export')
+    return `<h2>📤 ${t('backupExportTitle')}</h2><p>${t('backupExportText')}</p><textarea id="backupCode" class="backup-code" readonly dir="ltr">${esc(b.code)}</textarea>${b.copied ? `<p class="sub">✅ ${t('backupCopied')}</p>` : ''}<button class="bigbtn" id="backupCopy">📋 ${t('backupCopy')}</button>${close}`;
+  if (b.view === 'import')
+    return `<h2>📥 ${t('backupImportTitle')}</h2><p>${t('backupImportText')}</p><textarea id="backupInput" class="backup-code" dir="ltr" placeholder="NEF1-…">${esc(b.input || '')}</textarea>${b.error ? `<p class="net-error">⚠️ ${t('backupErr_' + b.error)}</p>` : ''}<button class="bigbtn" id="backupCheck">${t('backupCheck')}</button>${close}`;
+  if (b.view === 'confirm') {
+    const cur = progressSummary(careerProfile(loadCareer()));
+    return `<h2>📥 ${t('backupConfirmTitle')}</h2><p>${t('backupContains')}<br><b>${sum(b.summary)}</b></p><p>${t('backupReplaces')}<br>${sum(cur)}</p><button class="bigbtn pink" id="backupApply">${t('backupApply')}</button><button class="bigbtn light" id="backupClose">${t('cancel')}</button>`;
+  }
+  if (b.view === 'done') return `<h2>✅ ${t('backupDone')}</h2><p>${sum(b.summary)}</p>${close}`;
+  return `<h2>💾 ${t('backupTitle')}</h2><p>${t('backupIntro')}</p><button class="bigbtn" id="backupExport">📤 ${t('backupExportTitle')}</button><button class="bigbtn green" id="backupImport">📥 ${t('backupImportTitle')}</button>${close}`;
 }
 
 /* ---- 14-tutorial.js ---- */
@@ -10053,6 +10230,40 @@ function bind() {
       render();
     })
   );
+  // Mes progrès : sauvegarde de secours
+  const setBackup = b => {
+    g.backup = b;
+    g.modal = b ? 'backup' : null;
+    sfx('tap');
+    render();
+  };
+  click('openBackup', () => setBackup({ view: 'menu' }));
+  click('backupClose', () => setBackup(null));
+  click('backupExport', () => setBackup({ view: 'export', code: exportProgress() }));
+  click('backupImport', () => setBackup({ view: 'import' }));
+  click('backupCopy', () => {
+    const ta = document.getElementById('backupCode');
+    const done = () => setBackup({ ...g.backup, copied: true });
+    ta.select();
+    try {
+      document.execCommand('copy'); // fonctionne dans la WebView Android (pas de contexte sécurisé)
+    } catch (e) {}
+    if (navigator.clipboard && window.isSecureContext)
+      navigator.clipboard.writeText(ta.value).then(done, done);
+    else done();
+  });
+  click('backupCheck', () => {
+    const input = (document.getElementById('backupInput') || {}).value || '';
+    const r = readBackup(input);
+    setBackup(
+      r.ok ? { view: 'confirm', input, summary: r.summary } : { view: 'import', input, error: r.error }
+    );
+  });
+  click('backupApply', () => {
+    const b = g.backup;
+    if (importProgress(b.input)) setBackup({ view: 'done', summary: b.summary });
+    else setBackup({ view: 'import', input: b.input, error: 'damaged' });
+  });
   click('soundToggle', () => {
     g.sound = !g.sound;
     render();
@@ -10207,6 +10418,12 @@ function back() {
     return true;
   }
   if (g.screen === 'game' && g.modal === 'handoff') return true;
+  if (g.modal === 'backup') {
+    g.modal = null;
+    g.backup = null;
+    render();
+    return true;
+  }
   if (g.screen === 'lan') {
     netLeave();
     return true;
@@ -10286,6 +10503,9 @@ window.__numero = {
   tutCapture,
   tutLoopPick,
   act,
+  exportProgress,
+  readBackup,
+  importProgress,
   netCreate,
   netJoin,
   netLaunch,

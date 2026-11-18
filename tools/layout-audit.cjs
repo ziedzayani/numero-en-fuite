@@ -145,6 +145,21 @@ const STATES = {
     N.state.net = { role: 'client', seat: 1 };
     N.state.modal = 'netLost';
   },
+  'progrès : menu': N => {
+    N.state.screen = 'settings';
+    N.state.modal = 'backup';
+    N.state.backup = { view: 'menu' };
+  },
+  'progrès : export': N => {
+    N.state.screen = 'settings';
+    N.state.modal = 'backup';
+    N.state.backup = { view: 'export', code: N.exportProgress(), copied: true };
+  },
+  'progrès : import erreur': N => {
+    N.state.screen = 'settings';
+    N.state.modal = 'backup';
+    N.state.backup = { view: 'import', input: 'xx', error: 'damaged' };
+  },
   'film (proposition)': N => {
     N.state.players = 1;
     N.state.level = 'junior';

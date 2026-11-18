@@ -1,5 +1,11 @@
 # Historique des versions
 
+## V8.12
+
+- **Mes progrès** (Réglages) : code de sauvegarde « NEF1-… » à garder (message, notes) pour retrouver rang, XP,
+  records et réglages sur un nouveau téléphone ou après une réinstallation. Contrôle d'intégrité (un code abîmé est
+  refusé), confirmation qui montre ce qui sera remplacé, partie en cours jamais touchée.
+
 ## V8.11
 
 **Multijoueur Wi-Fi local (première version)** : 2 à 4 joueurs, un téléphone chacun, sur le même Wi-Fi ou le partage

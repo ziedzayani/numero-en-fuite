@@ -27,6 +27,12 @@ function back() {
     return true;
   }
   if (g.screen === 'game' && g.modal === 'handoff') return true;
+  if (g.modal === 'backup') {
+    g.modal = null;
+    g.backup = null;
+    render();
+    return true;
+  }
   if (g.screen === 'lan') {
     netLeave();
     return true;
@@ -106,6 +112,9 @@ window.__numero = {
   tutCapture,
   tutLoopPick,
   act,
+  exportProgress,
+  readBackup,
+  importProgress,
   netCreate,
   netJoin,
   netLaunch,

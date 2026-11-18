@@ -237,6 +237,40 @@ function bind() {
       render();
     })
   );
+  // Mes progrès : sauvegarde de secours
+  const setBackup = b => {
+    g.backup = b;
+    g.modal = b ? 'backup' : null;
+    sfx('tap');
+    render();
+  };
+  click('openBackup', () => setBackup({ view: 'menu' }));
+  click('backupClose', () => setBackup(null));
+  click('backupExport', () => setBackup({ view: 'export', code: exportProgress() }));
+  click('backupImport', () => setBackup({ view: 'import' }));
+  click('backupCopy', () => {
+    const ta = document.getElementById('backupCode');
+    const done = () => setBackup({ ...g.backup, copied: true });
+    ta.select();
+    try {
+      document.execCommand('copy'); // fonctionne dans la WebView Android (pas de contexte sécurisé)
+    } catch (e) {}
+    if (navigator.clipboard && window.isSecureContext)
+      navigator.clipboard.writeText(ta.value).then(done, done);
+    else done();
+  });
+  click('backupCheck', () => {
+    const input = (document.getElementById('backupInput') || {}).value || '';
+    const r = readBackup(input);
+    setBackup(
+      r.ok ? { view: 'confirm', input, summary: r.summary } : { view: 'import', input, error: r.error }
+    );
+  });
+  click('backupApply', () => {
+    const b = g.backup;
+    if (importProgress(b.input)) setBackup({ view: 'done', summary: b.summary });
+    else setBackup({ view: 'import', input: b.input, error: 'damaged' });
+  });
   click('soundToggle', () => {
     g.sound = !g.sound;
     render();

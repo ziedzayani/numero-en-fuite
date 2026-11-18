@@ -1165,6 +1165,42 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     for (const x of [A, B, C]) await x.ctx.close();
   }
 
+  // 3l) V8.12 : sauvegarde de secours des progrès (export / import)
+  {
+    const before = failed;
+    const A = await fresh(browser, { width: 360, height: 735 });
+    // un joueur avec des progrès : 2 victoires, records
+    await A.page.evaluate(() => { const N = window.__numero; for (const lv of ['junior', 'malin']) { N.state.players = 1; N.state.level = lv; N.state.mode = 'normal'; N.start(true); N.state.replayAsk = false; N.guess(N.state.secret); N.nextTurn(); } N.state.lang = 'en'; N.state.screen = 'settings'; N.state.modal = null; N.render(); });
+    const src = await A.page.evaluate(() => window.__numero.loadCareer().profiles['local-default']);
+    await A.page.click('#openBackup'); await A.page.click('#backupExport');
+    const code = await A.page.inputValue('#backupCode');
+    check(/^NEF1-[A-Za-z0-9+/=]+-[0-9a-z]+$/.test(code) && code.length < 2500, `Export : code de sauvegarde « NEF1-… » (${code.length} caractères)`);
+    await A.page.click('#backupCopy');
+    check(await A.page.waitForSelector('text=Code copied', { timeout: 3000 }).then(() => true, () => false), 'Export : bouton « Copier » avec confirmation');
+    // nouveau téléphone
+    const B = await fresh(browser, { width: 360, height: 735 });
+    await B.page.evaluate(() => { const N = window.__numero; N.state.screen = 'settings'; N.render(); });
+    await B.page.click('#openBackup'); await B.page.click('#backupImport');
+    await B.page.fill('#backupInput', 'bonjour'); await B.page.click('#backupCheck');
+    check((await B.page.textContent('.net-error')).includes('pas un code'), 'Import : texte quelconque refusé');
+    const broken = code.slice(0, 12) + (code[12] === 'A' ? 'B' : 'A') + code.slice(13);
+    await B.page.fill('#backupInput', broken); await B.page.click('#backupCheck');
+    check((await B.page.textContent('.net-error')).includes('abîmé'), 'Import : code modifié ou tronqué refusé (contrôle d’intégrité)');
+    await B.page.fill('#backupInput', '  ' + code.slice(0, 40) + '\n' + code.slice(40) + ' '); await B.page.click('#backupCheck');
+    const conf = await B.page.textContent('.modal');
+    check(conf.includes(`${src.xpTotal} XP`) && conf.includes('2 victoires') && (await B.page.evaluate(() => window.__numero.loadCareer().profiles['local-default'].xpTotal)) === 0, 'Import : confirmation qui montre ce que contient le code et ce qu’il remplace — rien n’est écrit avant');
+    await B.page.click('#backupApply');
+    const dst = await B.page.evaluate(() => window.__numero.loadCareer().profiles['local-default']);
+    const st = await S(B.page);
+    check(dst.xpTotal === src.xpTotal && dst.totalWins === 2 && dst.levels.junior.bestScore === src.levels.junior.bestScore && st.lang === 'en' && await B.page.isVisible('text=Progress restored'), 'Import : rang, XP, victoires, records et langue retrouvés');
+    await B.page.reload();
+    check((await B.page.evaluate(() => window.__numero.loadCareer().profiles['local-default'].xpTotal)) === src.xpTotal, 'Import : progrès conservés après redémarrage');
+    const errs = [...A.page.errors, ...B.page.errors];
+    check(errs.length === 0, 'Aucune erreur JavaScript (sauvegarde) ' + errs.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V8.12 : sauvegarde de secours des progrès`);
+    await A.ctx.close(); await B.ctx.close();
+  }
+
   // 4) Rendu sur petits écrans + captures
   for (const vp of [{ width: 320, height: 568, tag: '320' }, { width: 360, height: 740, tag: '360' }]) {
     const before = failed;
