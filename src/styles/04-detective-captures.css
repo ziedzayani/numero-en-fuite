@@ -1,0 +1,680 @@
+/*
+ * Boutons de capture, carnet, détective animé et ses expressions, confettis, mouvements réduits.
+ */
+/* ===== V7 : captures, carnet, détective vivant, finitions ===== */
+button {
+  transition:
+    transform 0.09s ease,
+    box-shadow 0.09s ease,
+    filter 0.15s,
+    background-color 0.15s;
+}
+button:not(:disabled):active {
+  transform: translateY(3px) scale(0.97);
+}
+#app.screen-enter > * {
+  animation: screenIn 0.3s ease both;
+}
+@keyframes screenIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* chiffres bien lisibles */
+.numtile {
+  position: relative;
+  color: #1a2150;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+.numtile.possible {
+  background: #8ff0a8;
+  color: #0f3a1d;
+}
+.numtile.impossible {
+  opacity: 0.32;
+}
+.numtile.sel {
+  background: #ffd84d;
+  color: #1d2450;
+  box-shadow:
+    0 5px 0 var(--yellowDark),
+    0 0 0 4px #fff,
+    0 0 0 7px #f36ab6;
+  z-index: 2;
+}
+.numtile.in-net {
+  outline: 3px dashed #6a52e6;
+  outline-offset: 2px;
+}
+.numtile.hit-precise {
+  animation: targetPulse 0.26s ease-in-out 3;
+  z-index: 3;
+}
+.numtile.hit-precise::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 4px solid #f0386b;
+  box-shadow: inset 0 0 0 4px #fff;
+  animation: ringIn 0.5s ease-out both;
+}
+.numtile.hit-net::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 14px;
+  border: 3px solid #4d37b8;
+  background: repeating-linear-gradient(45deg, transparent 0 6px, #6a52e6aa 6px 8px),
+    repeating-linear-gradient(-45deg, transparent 0 6px, #6a52e6aa 6px 8px);
+  animation: netDrop 0.55s cubic-bezier(0.3, 1.4, 0.6, 1) both;
+}
+@keyframes targetPulse {
+  50% {
+    transform: scale(1.14);
+  }
+}
+@keyframes ringIn {
+  from {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes netDrop {
+  from {
+    transform: translateY(-60px) scale(1.3);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.pane-head .pick-hint {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink2);
+  line-height: 1.3;
+}
+.capture-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 10px;
+}
+.capbtn {
+  border: 4px solid var(--line);
+  border-radius: 20px;
+  min-height: 62px;
+  padding: 5px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.15;
+  text-shadow: 0 2px 0 #0003;
+}
+.capbtn small {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.95;
+}
+.capbtn.precise {
+  background: linear-gradient(180deg, #ff7fbf, #f0478f);
+  box-shadow: 0 6px 0 #b42c6b;
+}
+.capbtn.net {
+  background: linear-gradient(180deg, #9b86ff, #6a52e6);
+  box-shadow: 0 6px 0 #4330a8;
+}
+.capbtn:disabled {
+  filter: saturate(0.35);
+  opacity: 0.55;
+}
+.capbtn:not(:disabled) {
+  animation: capReady 0.5s ease;
+}
+@keyframes capReady {
+  40% {
+    transform: scale(1.05);
+  }
+}
+/* scores animés */
+.chip {
+  position: relative;
+}
+.chip.bump {
+  animation: bump 0.5s ease;
+}
+@keyframes bump {
+  30% {
+    transform: scale(1.12);
+  }
+}
+.delta {
+  position: absolute;
+  top: -12px;
+  inset-inline-end: -4px;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 15px;
+  padding: 1px 8px;
+  border-radius: 99px;
+  border: 3px solid var(--line);
+  animation: floatUp 0.9s ease both;
+}
+.delta.up {
+  background: #4ce08a;
+  color: #0f3a1d;
+}
+.delta.down {
+  background: #ff8fa8;
+  color: #5a0c22;
+}
+@keyframes floatUp {
+  from {
+    transform: translateY(10px) scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+/* carnet */
+.nb-count {
+  font-weight: 800;
+  font-size: 17px;
+  margin: 4px 0 8px;
+}
+.nb-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 5px;
+  margin: 0 auto 8px;
+  max-width: 330px;
+}
+.nb-grid.dense {
+  grid-template-columns: repeat(10, 1fr);
+}
+.nb-grid span {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 800;
+  border: 2px solid var(--line);
+}
+.nb-grid .ok {
+  background: #8ff0a8;
+  color: #0f3a1d;
+}
+.nb-grid .no {
+  background: #e6e9f3;
+  color: #9aa1bd;
+  border-color: #c5cbe0;
+  text-decoration: line-through;
+}
+.nb-legend {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.nb-legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  margin-inline-end: 4px;
+  vertical-align: -1px;
+  border: 2px solid var(--line);
+}
+.nb-legend i.ok {
+  background: #8ff0a8;
+}
+.nb-legend i.no {
+  background: #e6e9f3;
+}
+.nb-note {
+  font-size: 13px;
+  margin: 6px 0 4px;
+}
+.nb-h {
+  font-size: 16px;
+  margin: 10px 0 6px;
+  text-align: start;
+}
+.history-items .hi {
+  display: inline-block;
+  width: 20px;
+}
+/* bulle du détective */
+.bubble .quip {
+  font-weight: 600;
+  color: #3a4675;
+  font-size: 13px;
+}
+/* ---- détective vivant ---- */
+.dt-rig {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 92%;
+}
+.detective-scene .dt-rig > [class] {
+  animation-name: none;
+}
+.detective-scene.idle .dt-rig {
+  animation: bob 2.6s ease-in-out infinite;
+}
+@keyframes bob {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+.detector-pupil {
+  animation: blink 4.5s infinite;
+  transition:
+    translate 0.25s,
+    scale 0.25s;
+}
+@keyframes blink {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+.detector-brow {
+  position: absolute;
+  top: 18px;
+  width: 17px;
+  height: 5px;
+  background: var(--line);
+  border-radius: 5px;
+  opacity: 0;
+  transition:
+    opacity 0.2s,
+    transform 0.25s;
+  z-index: 3;
+}
+.detector-brow.left {
+  left: 17px;
+}
+.detector-brow.right {
+  right: 16px;
+}
+.detector-mouth,
+.detector-tongue {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.detector-smile {
+  transition:
+    width 0.2s,
+    left 0.2s,
+    height 0.2s,
+    opacity 0.2s;
+}
+/* expressions */
+.expr-curious .detector-brow {
+  opacity: 1;
+}
+.expr-curious .detector-brow.left {
+  transform: translateY(-5px) rotate(-14deg);
+}
+.expr-curious .detector-pupil {
+  translate: 3px 0;
+}
+.expr-curious .detector-smile {
+  width: 18px;
+  left: 29px;
+  height: 10px;
+}
+.expr-surprised .detector-brow {
+  opacity: 1;
+  transform: translateY(-6px);
+}
+.expr-surprised .detector-pupil {
+  scale: 0.75;
+}
+.expr-surprised .detector-smile {
+  opacity: 0;
+}
+.expr-surprised .detector-mouth {
+  opacity: 1;
+  width: 13px;
+  height: 15px;
+  left: 31px;
+  top: 58px;
+  border: 4px solid var(--line);
+  border-radius: 50%;
+  background: #6b2c55;
+}
+.expr-worried .detector-brow {
+  opacity: 1;
+}
+.expr-worried .detector-brow.left {
+  transform: rotate(16deg);
+}
+.expr-worried .detector-brow.right {
+  transform: rotate(-16deg);
+}
+.expr-worried .detector-pupil {
+  translate: 0 3px;
+}
+.expr-worried .detector-smile {
+  opacity: 0;
+}
+.expr-worried .detector-mouth,
+.expr-grimace .detector-mouth {
+  opacity: 1;
+  width: 26px;
+  height: 12px;
+  left: 25px;
+  top: 64px;
+  border-top: 4px solid var(--line);
+  border-radius: 50%;
+}
+.expr-grimace .detector-brow {
+  opacity: 1;
+}
+.expr-grimace .detector-brow.left {
+  transform: rotate(18deg) translateY(2px);
+}
+.expr-grimace .detector-brow.right {
+  transform: rotate(-18deg) translateY(2px);
+}
+.expr-grimace .detector-pupil {
+  scale: 1 0.35;
+}
+.expr-grimace .detector-smile {
+  opacity: 0;
+}
+.expr-grimace .detector-tongue {
+  opacity: 1;
+  width: 11px;
+  height: 10px;
+  left: 33px;
+  top: 65px;
+  background: #ff7b9c;
+  border: 3px solid var(--line);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+.expr-proud .detector-brow {
+  opacity: 1;
+  transform: translateY(-4px);
+}
+.expr-proud .detector-pupil {
+  scale: 1 0.45;
+}
+.expr-proud .detector-smile {
+  width: 34px;
+  left: 21px;
+  height: 17px;
+}
+/* animations par situation (transformations uniquement : fluide sur petits téléphones) */
+.think-dots {
+  position: absolute;
+  right: 6px;
+  top: 30px;
+  display: none;
+  gap: 4px;
+}
+.think-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--line);
+  animation: dot 1.2s ease-in-out infinite;
+}
+.think-dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.think-dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.detective-scene.think .think-dots {
+  display: flex;
+}
+.detective-scene.think .detector-orbit {
+  display: none;
+}
+@keyframes dot {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.detective-scene.think .dt-rig {
+  animation: ponder 2.4s ease-in-out infinite;
+}
+@keyframes ponder {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-6deg);
+  }
+}
+.detective-scene.search .dt-rig > .detector-magnifier {
+  animation: sweep 1.8s ease-in-out infinite;
+}
+@keyframes sweep {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+  35% {
+    transform: translate(10px, -14px) rotate(-12deg) scale(1.12);
+  }
+  70% {
+    transform: translate(-4px, 6px) rotate(8deg);
+  }
+}
+.detective-scene.search .dt-rig {
+  animation: lean 1.8s ease-in-out infinite;
+}
+@keyframes lean {
+  50% {
+    transform: translateX(-4px) rotate(-3deg);
+  }
+}
+.detective-scene.aim .dt-rig {
+  animation: aim 0.5s ease-in-out infinite alternate;
+}
+@keyframes aim {
+  to {
+    transform: scale(1.05) translateY(-2px);
+  }
+}
+.detective-scene.dash-right .dt-rig {
+  animation: walkR 0.9s ease both;
+}
+.detective-scene.dash-left .dt-rig {
+  animation: walkL 0.9s ease both;
+}
+@keyframes walkR {
+  25% {
+    transform: translate(8px, -8px);
+  }
+  50% {
+    transform: translate(16px, 0);
+  }
+  75% {
+    transform: translate(22px, -6px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+@keyframes walkL {
+  25% {
+    transform: translate(-8px, -8px);
+  }
+  50% {
+    transform: translate(-16px, 0);
+  }
+  75% {
+    transform: translate(-22px, -6px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+.detective-scene.dash-right .dt-rig > .detector-foot.left,
+.detective-scene.dash-left .dt-rig > .detector-foot.left {
+  animation: step 0.3s ease-in-out 3;
+}
+.detective-scene.dash-right .dt-rig > .detector-foot.right,
+.detective-scene.dash-left .dt-rig > .detector-foot.right {
+  animation: step 0.3s ease-in-out 0.15s 3;
+}
+@keyframes step {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.detective-scene.hop .dt-rig {
+  animation: hop2 0.7s ease 2;
+}
+@keyframes hop2 {
+  40% {
+    transform: translateY(-18px) scaleY(1.04);
+  }
+  70% {
+    transform: translateY(0) scaleY(0.95);
+  }
+}
+.detective-scene.caught .dt-rig {
+  animation: dance 0.55s ease-in-out 4;
+}
+@keyframes dance {
+  0%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  25% {
+    transform: rotate(-10deg) translateY(-10px);
+  }
+  50% {
+    transform: rotate(0) translateY(0);
+  }
+  75% {
+    transform: rotate(10deg) translateY(-10px);
+  }
+}
+.detective-scene.caught .dt-rig > .detector-hand.left,
+.detective-scene.proud .dt-rig > .detector-hand.left {
+  animation: waveL 0.55s ease-in-out 4;
+}
+.detective-scene.caught .dt-rig > .detector-hand.right,
+.detective-scene.proud .dt-rig > .detector-hand.right {
+  animation: waveR 0.55s ease-in-out 4;
+}
+@keyframes waveL {
+  50% {
+    transform: translate(-6px, -22px);
+  }
+}
+@keyframes waveR {
+  50% {
+    transform: translate(6px, -22px);
+  }
+}
+.detective-scene.proud .dt-rig {
+  animation: proud 0.6s ease 2;
+}
+@keyframes proud {
+  50% {
+    transform: translateY(-12px) scale(1.04);
+  }
+}
+.detective-scene.grimace .dt-rig {
+  animation: shake 0.5s ease 1;
+}
+@keyframes shake {
+  20%,
+  60% {
+    transform: translateX(-6px) rotate(-3deg);
+  }
+  40%,
+  80% {
+    transform: translateX(6px) rotate(3deg);
+  }
+}
+/* victoire : pluie de confettis */
+.rain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 40;
+}
+.rain i {
+  position: absolute;
+  top: -20px;
+  width: var(--w);
+  height: calc(var(--w) * 1.6);
+  background: var(--c);
+  border-radius: 2px;
+  animation: fall var(--t) linear var(--d) 2 both;
+}
+@keyframes fall {
+  from {
+    transform: translateY(-20px) rotate(0);
+  }
+  to {
+    transform: translateY(110vh) rotate(540deg);
+  }
+}
+/* animations réduites */
+body.reduce-motion *,
+body.reduce-motion *::before,
+body.reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}
+@media (max-width: 350px) {
+  .numbergrid.expert {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .numbergrid.expert .numtile {
+    aspect-ratio: 1.12;
+  }
+  .capbtn {
+    font-size: 14px;
+    min-height: 56px;
+  }
+  .pane-head .pick-hint {
+    font-size: 12px;
+  }
+}
+@media (max-height: 640px) {
+  .capbtn {
+    min-height: 52px;
+  }
+}

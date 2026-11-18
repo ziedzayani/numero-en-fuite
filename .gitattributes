@@ -1,0 +1,10 @@
+* text=auto eol=lf
+*.woff2 binary
+*.png binary
+*.jar binary
+gradlew.bat eol=crlf
+# Fichiers générés par « npm run build » (repliés dans les diffs GitHub)
+app/src/main/assets/index.html linguist-generated=true
+web/Numero_en_Fuite.html linguist-generated=true
+web/PWA/index.html linguist-generated=true
+web/PWA/sw.js linguist-generated=true

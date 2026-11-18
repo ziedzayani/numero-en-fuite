@@ -1,0 +1,478 @@
+/*
+ * Correctifs, effet loupe sur le numéro, logo « 9? » vivant.
+ */
+/* ===== V7.1 : correctifs ===== */
+body.scr-home #app {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(10px + env(safe-area-inset-top));
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+}
+body.scr-home .hero-row {
+  padding: 0;
+}
+body.scr-home .hero-row .hero-mascot {
+  flex-basis: 110px;
+  width: 110px;
+  height: 100px;
+}
+body.scr-home .hero-row .detective-scene {
+  transform: scale(0.66);
+}
+body.scr-home .hero-row h1 {
+  font-size: clamp(28px, 8.6vw, 40px);
+}
+body.scr-home .start-panel {
+  margin: 6px 0 4px;
+  padding: 12px 12px 10px;
+}
+body.scr-home .selector {
+  margin: 6px 0 10px;
+  gap: 7px;
+}
+body.scr-home .seg {
+  min-height: 58px;
+  padding: 5px 2px;
+}
+body.scr-home .difficulty {
+  margin: 6px 0 12px;
+  gap: 7px;
+}
+body.scr-home .level {
+  gap: 2px;
+  padding: 6px 3px;
+}
+body.scr-home .level-emoji {
+  font-size: 19px;
+  line-height: 1.1;
+}
+body.scr-home .level strong {
+  font-size: 16px;
+  line-height: 1.1;
+}
+body.scr-home .lvl-sub {
+  font-size: 10.5px;
+  line-height: 1.2;
+  min-height: 2.4em;
+  display: flex;
+  align-items: center;
+}
+body.scr-home .bigbtn {
+  min-height: 58px;
+}
+body.scr-home .rules-btn {
+  margin-top: 8px;
+  min-height: 40px;
+}
+body.scr-home .footer {
+  margin: auto 0 0;
+  padding-top: 4px;
+}
+@media (max-height: 680px) {
+  body.scr-home .lvl-sub {
+    display: none;
+  }
+  body.scr-home .hero-row .hero-mascot {
+    height: 84px;
+    flex-basis: 96px;
+    width: 96px;
+  }
+  body.scr-home .hero-row .detective-scene {
+    transform: scale(0.56);
+  }
+}
+.mathform.six {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.mathform.six .mathbtn {
+  min-height: 50px;
+  font-size: 24px;
+}
+.math-title b.long {
+  font-size: 27px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.math-title .prio {
+  font-size: 12px;
+  color: #8a5a00;
+  font-weight: 600;
+}
+.names {
+  display: grid;
+  gap: 9px;
+  margin: 0 0 14px;
+}
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 16px;
+  padding: 4px 12px;
+}
+.name-row .player-dot {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+.name-row input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  padding: 9px 0;
+}
+.name-row:focus-within {
+  box-shadow: 0 0 0 4px #ffd84d;
+}
+@media (max-width: 350px) {
+  .math-title b.long {
+    font-size: 22px;
+  }
+}
+.hero-row .hero-mascot {
+  position: relative;
+  display: block;
+  overflow: visible;
+}
+.hero-row .hero-mascot .detective-scene {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -75px 0 0 -85px;
+}
+body.scr-home .hero-row {
+  gap: 6px;
+}
+/* ===== V7.2 : encourager les questions, effets loupe et logo ===== */
+.tab-badge {
+  display: inline-block;
+  margin-inline-start: 3px;
+  padding: 0 5px;
+  border-radius: 99px;
+  background: #4ce08a;
+  color: #0f3a1d;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.5;
+  vertical-align: 2px;
+  border: 2px solid var(--line);
+}
+.actiontab:disabled .tab-badge {
+  display: none;
+}
+.proscons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0 0 8px;
+}
+.proscons span {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 3px 9px;
+  border-radius: 10px;
+  border: 2px solid;
+}
+.proscons .pro {
+  background: #e7fbe9;
+  border-color: #7fd69a;
+  color: #14532d;
+}
+.proscons .con {
+  background: #fff3e0;
+  border-color: #f3b77a;
+  color: #7a3d00;
+}
+.mathbox .proscons {
+  justify-content: center;
+  margin: 8px 0 0;
+}
+.bonus-line {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  background: #ffef95;
+  border: 2px solid #d3b244;
+  font-weight: 700;
+  font-size: 14px;
+  color: #4a3a00;
+}
+/* loupe qui vient grossir le numéro choisi */
+.loupe-fx {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150%;
+  aspect-ratio: 1;
+  margin: -75% 0 0 -75%;
+  border-radius: 50%;
+  border: 6px solid #c8efff;
+  box-shadow:
+    0 0 0 3px var(--line),
+    inset 0 0 0 3px #6db4d4;
+  background: radial-gradient(circle at 35% 30%, #ffffffcc, #bde8ff55 60%, #95cae733);
+  pointer-events: none;
+  z-index: 4;
+  animation: loupeIn 0.7s cubic-bezier(0.2, 1.3, 0.5, 1) both;
+}
+.loupe-fx::after {
+  content: '';
+  position: absolute;
+  right: -16%;
+  bottom: -24%;
+  width: 18%;
+  height: 42%;
+  background: #d09a51;
+  border: 3px solid var(--line);
+  border-radius: 10px;
+  transform: rotate(-40deg);
+}
+.numtile.hit-precise {
+  font-size: 1.25em;
+}
+@keyframes loupeIn {
+  0% {
+    transform: translate(60px, 70px) rotate(25deg) scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: translate(-3px, -3px) rotate(-6deg) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+/* grosse loupe sur le numéro attrapé */
+.found-lens {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 2px auto 0;
+  animation: lensPop 0.6s cubic-bezier(0.2, 1.4, 0.5, 1) both;
+}
+.lens-glass {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 7px solid #c8efff;
+  box-shadow:
+    0 0 0 4px var(--line),
+    inset 0 0 0 4px #6db4d4;
+  background: radial-gradient(circle at 35% 30%, #fff, #d9f3ff 65%, #a9dcf5);
+}
+.lens-glass b {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--ink);
+  animation: lensZoom 1s ease 0.2s both;
+}
+.lens-handle {
+  position: absolute;
+  right: 6px;
+  bottom: 2px;
+  width: 14px;
+  height: 38px;
+  background: #d09a51;
+  border: 4px solid var(--line);
+  border-radius: 10px;
+  transform: rotate(-42deg);
+}
+@keyframes lensPop {
+  from {
+    transform: scale(0.2) rotate(-30deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes lensZoom {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1.15);
+  }
+}
+/* logo « 9? » vivant */
+.brand-icon {
+  position: relative;
+}
+.brand-icon .logo-9,
+.brand-icon .logo-q {
+  display: inline-block;
+}
+.brand-icon.thinking {
+  animation: logoThink 1.6s ease-in-out infinite;
+}
+.brand-icon.thinking .logo-q {
+  animation: logoQ 1s ease-in-out infinite;
+}
+.brand-icon.wonder .logo-q {
+  animation: logoQ 1.4s ease-in-out infinite;
+}
+.brand-icon.cheer {
+  animation: logoCheer 0.6s ease 3;
+}
+.logo-bubble {
+  position: absolute;
+  top: -12px;
+  inset-inline-end: -10px;
+  font-style: normal;
+  font-size: 13px;
+  line-height: 1;
+  padding: 2px 5px 5px;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  border: 2px solid var(--line);
+  animation: dot 1.2s ease-in-out infinite;
+}
+@keyframes logoThink {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-8deg);
+  }
+  60% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes logoQ {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-3px) rotate(18deg);
+  }
+}
+@keyframes logoCheer {
+  30% {
+    transform: scale(1.18) rotate(-8deg);
+  }
+  60% {
+    transform: scale(1.1) rotate(8deg);
+  }
+}
+@media (max-width: 350px) {
+  .proscons span {
+    font-size: 11px;
+  }
+}
+.gbar .brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  line-height: 1;
+}
+.actiontab[data-tab='question'] {
+  position: relative;
+  overflow: visible;
+}
+.actiontab .tab-badge {
+  position: absolute;
+  top: -10px;
+  inset-inline-end: -5px;
+  margin: 0;
+  vertical-align: 0;
+}
+.tradeoff {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 2px;
+  margin: -2px 0 9px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+}
+.tradeoff .up {
+  color: #1d7a40;
+}
+.tradeoff .down {
+  color: #a5560b;
+}
+.mathbox .tradeoff {
+  margin: 8px 0 0;
+}
+.tradeoff {
+  list-style: none;
+  padding: 8px 12px;
+  margin: 0 0 9px;
+  display: grid;
+  gap: 3px;
+  background: #f5f8ff;
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: start;
+  flex-direction: initial;
+  column-gap: 0;
+}
+.tradeoff li {
+  margin: 0;
+}
+.tradeoff .up {
+  color: #1d6b3b;
+}
+.tradeoff .gift {
+  color: #2f3a63;
+}
+.tradeoff .gift b {
+  color: #c2185b;
+}
+.tradeoff .down {
+  color: #a5560b;
+}
+.mathbox .tradeoff {
+  margin: 10px 0 0;
+  background: #fffbea;
+}
+.lvl-badge {
+  flex-direction: column;
+  gap: 0;
+  padding: 2px 0;
+}
+.lvl-badge .lvl-emo {
+  font-size: 16px;
+  line-height: 1.1;
+}
+.lvl-badge .lvl-range {
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0;
+}

@@ -1,0 +1,307 @@
+/*
+ * Chronos (global / réponse / calcul) et défi solo.
+ */
+/* ===== V7.5 : deux chronos, défi solo ===== */
+.timers {
+  display: flex;
+  gap: 7px;
+  margin: 8px 0 0;
+  flex: 0 0 auto;
+}
+.tmr {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  padding: 3px 8px;
+}
+.tmr .tmr-l {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3a4675;
+  white-space: nowrap;
+}
+.tmr .timer-bar {
+  flex: 1;
+  height: 10px;
+  min-width: 20px;
+}
+.tmr b {
+  font-size: 14px;
+  font-weight: 800;
+  min-width: 34px;
+  text-align: end;
+  white-space: nowrap;
+}
+.tmr.answer .timer-bar span,
+.tmr.math .timer-bar span {
+  background: linear-gradient(90deg, #7d67ee, #46b4ff);
+}
+.tmr.hurry {
+  border-color: #d0263f;
+}
+.tmr.hurry b {
+  color: #d0263f;
+  animation: pulse 0.5s ease-in-out infinite alternate;
+}
+.tmr.hurry .timer-bar span {
+  background: linear-gradient(90deg, #ff6b6b, #f36ab6);
+}
+.tmr.chUp,
+.tmr.challenge {
+  justify-content: center;
+}
+.tmr.chUp b {
+  font-size: 18px;
+}
+.mv-op {
+  display: block;
+  font-size: 12px;
+  color: #503dc1;
+}
+.home-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.home-row .mini-btn {
+  margin: 0;
+  min-height: 44px;
+}
+.ch-btn {
+  background: #f36ab6;
+  color: #fff;
+  box-shadow: 0 4px 0 var(--pinkDark);
+}
+.ch-opt {
+  flex-direction: column;
+  gap: 2px;
+  text-transform: none;
+  font-size: 19px;
+}
+.ch-opt small {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+.kp-display {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 62px;
+  margin: 0 auto 8px;
+  max-width: 240px;
+  background: #fff;
+  border: 4px solid var(--line);
+  border-radius: 18px;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 4px 0 #d9e0ff;
+}
+.kp-display small {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6a52e6;
+  margin-top: 3px;
+}
+.kp-display.empty {
+  color: #b7bfd8;
+}
+.kp-display.hit-net {
+  animation: targetPulse 0.26s ease-in-out 3;
+  background: repeating-linear-gradient(45deg, #fff 0 6px, #e4dcff 6px 8px);
+}
+.kp-display.hit-precise {
+  animation: targetPulse 0.26s ease-in-out 3;
+}
+.kp-display .loupe-fx {
+  width: 80px;
+  margin: -40px 0 0 -40px;
+}
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+.key {
+  min-height: 48px;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+  box-shadow: 0 4px 0 #d9e0ff;
+}
+.key.fn {
+  background: #eef3ff;
+  font-size: 20px;
+}
+.ch-score {
+  font-size: 56px;
+  font-weight: 800;
+  color: #4b3aaf;
+  line-height: 1.1;
+  margin: 4px 0;
+}
+.ch-new {
+  display: inline-block;
+  margin: 4px 0 8px;
+  padding: 4px 14px;
+  border-radius: 99px;
+  background: #ffef95;
+  border: 3px solid var(--line);
+  font-weight: 800;
+}
+.sub.small {
+  font-size: 12px;
+}
+@media (max-height: 680px) {
+  .key {
+    min-height: 42px;
+  }
+  .kp-display {
+    height: 54px;
+  }
+}
+.modal .small-mascot {
+  position: relative;
+  display: block;
+  height: 112px;
+}
+.modal .small-mascot .detective-scene {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -75px 0 0 -85px;
+}
+.gstatus-row b,
+.gstatus-row span {
+  white-space: nowrap;
+}
+.ch-bonus {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: #dff4ff;
+  border: 3px solid #6db4d4;
+  font-weight: 800;
+  font-size: 16px;
+  color: #0b4a6b;
+  animation: lensPop 0.5s ease both;
+}
+.move-line.frozen {
+  background: #e6f6ff;
+  border-color: #6db4d4;
+}
+.move-line.frozen b {
+  color: #2a8fc1;
+}
+.difficulty {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+}
+.level {
+  padding: 6px 2px !important;
+  min-width: 0;
+}
+.level strong {
+  font-size: 15px !important;
+}
+.level .age {
+  font-size: 10px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+.level .lvl-sub {
+  font-size: 10px !important;
+}
+.level-range {
+  font-size: 13px !important;
+}
+.level[data-level='genius'] {
+  background: #efe9ff;
+}
+.level[data-level='genius'].is-selected {
+  background: #d9ccff;
+  box-shadow: 0 4px 0 #7d67ee;
+}
+@media (max-width: 350px) {
+  .level strong {
+    font-size: 13px !important;
+  }
+  .level .age {
+    font-size: 9px;
+  }
+}
+/* V7.7 : onglets toujours visibles, contenu plus compact (pas de défilement) */
+.turn-body .actiontabs {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background: #fffdf7;
+  margin: 0;
+  padding: 0 0 8px;
+}
+.q-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+.q-head .tradeoff {
+  flex: 1;
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 13px;
+  gap: 1px;
+}
+.q-head .reroll {
+  flex: 0 0 auto;
+  min-height: 44px;
+  width: 44px;
+  padding: 0;
+}
+.qbtn {
+  min-height: 50px;
+  padding: 6px 10px;
+}
+.qicon {
+  width: 34px;
+  height: 34px;
+  font-size: 17px;
+}
+.qtext {
+  font-size: 14.5px;
+  line-height: 1.22;
+}
+.qtext small {
+  font-size: 10px;
+  margin-top: 2px;
+}
+.questions {
+  gap: 7px;
+}
+.bubble .quip {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mv-op {
+  white-space: normal;
+}
+#app.screen-enter > .modal-back {
+  animation: fadeIn 0.2s ease both;
+}

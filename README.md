@@ -1,190 +1,94 @@
-# Le Numéro en fuite — V7
+# Le Numéro en fuite
 
-Jeu familial de logique et de calcul mental (1 à 4 joueurs sur un seul téléphone).
-Application Android native (WebView) qui fonctionne **entièrement hors ligne**, **sans aucune permission**.
+Jeu familial de logique et de calcul mental (1 à 4 joueurs sur un seul téléphone, en français, anglais et arabe).
+Application Android (WebView) qui fonctionne **entièrement hors ligne**, **sans aucune permission**.
+
+- Nouveautés : [CHANGELOG.md](CHANGELOG.md)
+- Fonctionnement du code, conventions, comment ajouter une langue / une question / un niveau :
+  [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
+## Télécharger l'APK
+
+Dernière version, compilée et vérifiée automatiquement :
+**Releases › [apk-latest](../../releases/tag/apk-latest) › `NumeroEnFuite.apk`** (lien utilisable depuis le téléphone).
 
 ## Contenu du projet
 
 | Chemin | Rôle |
 |---|---|
-| `app/src/main/assets/index.html` | Le jeu complet (HTML/CSS/JS, 3 langues, détective violet, police Baloo intégrée) |
+| `src/` | **Sources du jeu** (à modifier) : `js/` logique et écrans, `styles/` CSS, `i18n/` traductions, `assets/fonts/` police |
+| `tools/build.mjs` | Assemble `src/` en un seul fichier HTML autonome (hors ligne) |
+| `tools/lint.mjs` | Analyse statique ESLint du script assemblé |
+| `app/src/main/assets/index.html` | Jeu **généré** embarqué dans l'APK (ne pas modifier à la main) |
 | `app/src/main/java/.../MainActivity.java` | Conteneur Android (WebView sécurisée, bouton Retour, Android 15) |
 | `app/src/main/AndroidManifest.xml` | Manifeste (aucune permission, RTL, portrait) |
-| `app/build.gradle` | compileSdk/targetSdk 35, minSdk 23 (Android 6+) |
+| `app/build.gradle` | compileSdk/targetSdk 35, minSdk 23 (Android 6+), **version du jeu** |
 | `gradlew`, `gradle/wrapper/` | Gradle Wrapper 8.11.1 : compilation reproductible |
-| `.github/workflows/build-apk.yml` | Tests + compilation + vérification automatique de l'APK |
-| `tests/game.test.cjs` | ~4 820 vérifications automatiques du jeu |
+| `.github/workflows/build-apk.yml` | Vérifications + tests + compilation + vérification + publication de l'APK |
+| `tests/game.test.cjs` | ~4 200 vérifications automatiques du jeu dans Chromium |
+| `web/Numero_en_Fuite.html` | Version navigateur autonome (générée) |
+| `web/PWA/` | Version web installable, à héberger en HTTPS (`index.html` et `sw.js` générés) |
 | `LICENCE-POLICE.txt` | Licence libre (SIL OFL 1.1) de la police Baloo Bhaijaan 2 |
-| `web/Numero_en_Fuite_V7.html` | Version navigateur autonome |
-| `web/PWA/` | Version web installable (à héberger en HTTPS) |
 
-## Nouveautés V7
+## Modifier le jeu
 
-- **Deux façons de capturer** : touche un numéro, puis 🎯 *Capture précise* (+10 / −1) ou 🕸️ *Filet magique*
-  (+2, ou −1 par numéro si le filet est vide : −2 au niveau Petit, −3 ailleurs) sur 2 numéros voisins au niveau Petit (1–9)
-  et 3 aux autres niveaux, toujours dans les limites du niveau.
-  Une seule capture par tour, animations différentes (cible / filet).
-- **Mon carnet 📓** : questions, réponses, calculs, déplacements, numéros éliminés et numéros encore possibles,
-  recalculés à chaque déplacement. Aide *Désactivée* par défaut, ou *Automatique* / *Sur demande* (Réglages).
-- **Détective vivant** : réfléchit, cherche avec sa loupe, vise, marche ou saute quand le numéro bouge, danse quand
-  on gagne, grimace quand on rate ; expressions joyeuse, surprise, inquiète, curieuse, fière ; bulles amusantes FR/EN/AR.
-- **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
-  à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
+Prérequis : Node.js 20 ou plus.
 
-## V8.2
+```bash
+npm ci                          # installe les outils (versions figées)
+# … modifier les fichiers de src/ …
+npm run build                   # régénère index.html, la version web et la PWA
+npm run check                   # fichiers générés à jour + ESLint + format (comme la CI)
+npx playwright install chromium # une seule fois
+npm test                        # tests complets (~10 min)
+```
 
-- **Deux modes en multijoueur**, choisis avant la partie :
-  - 🏁 **Course** (par défaut) : le premier qui attrape le numéro gagne, la partie s'arrête. Pas de filet.
-    Si personne ne l'attrape avant le dernier tour, les points et les ⭐ départagent.
-  - 🏆 **Points** : plusieurs tours, capture +10, filet +2, nouveau numéro après chaque capture ; meilleur score.
-- **Solo** = règles de la Course (attraper = gagner), sans filet. Le Défi solo garde le filet et son score.
-- **Le joueur qui commence change** à chaque « Rejouer » (équité).
-- **Aide par joueur** (numéros possibles en vert), choisie avant la partie, désactivée par défaut
-  (remplace le réglage « Aide du carnet »). En solo : fenêtre « Prêt ? » avec l'aide.
-- **Boutons plats** : plus de « reflet » sous les boutons.
-- **Filet limité à 3 par joueur** (mode Points et Défi solo) : ●●○ sur le bouton, puis « Plus de filet ».
+`npm run format` remet le code au format standard (Prettier). Ne jamais modifier les fichiers générés :
+la CI refuse un commit où ils ne correspondent pas aux sources.
 
-## V8.1
+Nouvelle version : incrémenter `versionCode` et `versionName` dans `app/build.gradle`, puis `npm run build`
+(le cache de la PWA change automatiquement), et ajouter une section dans `CHANGELOG.md`.
 
-- Film : la flèche va toujours de l’ancien au nouveau numéro (2 ──−2──➜ 15) ; quand il fait le tour : « 🔄 Après 1, il repart de 15 ».
-- Fin de partie solo : 1 à 3 étoiles selon la rapidité, compteurs tours / indices / ratés, record par niveau ; perdu : loupe sur le numéro caché. Plus de « classement » ni de « pts + 0 ⭐ ».
-- Multijoueur : « dont N ⭐ bonus » seulement s’il y a des étoiles. « You win! » sans espace avant « ! ».
-- Film : boutons explicites « ◀ Précédent » et « Suivant ▶ » (gros bouton vert), aussi en mode « Avec les boutons ».
-- Plus d'icône ❓ en début de phrase (film et carnet) : remplacée par 💡 ; ponctuation vérifiée (FR « ? » avec espace insécable, EN sans espace, AR « ؟ »).
+## Compilation automatique (GitHub Actions)
 
-## V8.0
+À chaque envoi sur `main`, le workflow :
 
-- **Solo : la partie est gagnée dès que le numéro est attrapé** (« 🏆 Gagné ! Tu as attrapé le numéro en 3 tours »).
-  Pas trouvé en 12 tours : « Il t'a échappé », le numéro est révélé.
-- Film du parcours : **plus d'écran noir** entre les étapes ; **6 secondes** par étape ;
-  choix **Automatique / Avec les boutons** ; les **choix ratés du joueur** sont montrés (🎯 12 ✗, filet 8·9·10 ✗,
-  calcul faux) avec « il était sur le … » et les cases en rouge sur la grille ; la capture finale en vert.
+1. vérifie que les fichiers générés correspondent à `src/`, le format et l'analyse ESLint ;
+2. lance les tests du jeu (1 à 4 joueurs, 4 niveaux, 3 langues, défi, film, sauvegarde) ;
+3. compile l'**APK release** avec Gradle et le SDK Android officiel ;
+4. vérifie la signature (`apksigner`), le manifeste (`aapt2`, dont « non débogable »), l'alignement (`zipalign`)
+   et la présence du jeu, puis publie l'APK dans **Releases › apk-latest**.
 
-## V7.9
-
-- Film du parcours plus lent : **5 secondes par étape**, avec une barre de temps. Animation en 2 temps :
-  l'ancien numéro reste affiché, puis il s'envole (avec des traces de pas) et le nouveau numéro atterrit à sa place.
-
-## V7.8
-
-- **🎬 Film du parcours** : après chaque capture, une fenêtre propose « Revoir l’évasion du numéro ? ».
-  Le film montre le numéro de départ, puis chaque question, calcul ou capture ratée avec le saut
-  (ex. 13 ➡ +1 → 14), les traces sur la grille, jusqu’à la capture (confettis). Lecture automatique,
-  pas à pas (◀ ▶▶), recommencer ⏮. Bouton « Revoir son parcours » dans le résultat ; réglage pour ne plus
-  le proposer. Fonctionne aussi au niveau Génie et en défi (×2, miroir…).
-
-## V7.7
-
-- Onglet Indice sans défilement : onglets toujours visibles, explications compactes, bouton 🔀 à côté.
-- Prénoms : « C'est parti » lance directement la partie (plus d'écran sombre ni de 2e appui).
-- Miroir expliqué avec un exemple : « 1 ↔ 50, 2 ↔ 49… (le 10 devient 41) » ; ×2 : « le 7 devient 14 ».
-
-## V7.6
-
-- **Nouveau niveau 🦉 Génie** (13 ans et +) : numéros de 1 à 50 (pavé numérique), sauts annoncés ±3, ±5, ×2 ou miroir,
-  calculs mélangés à 6 choix, chrono global 100 s.
-- **Défi : le calcul devient rentable** — calcul juste : le numéro est **gelé 🧊** (pas de saut), **+30 points**
-  (+10 par bonne réponse d'affilée), **+15 s** en contre la montre, et un indice. Calcul faux : −10 et saut fou.
-  Captures en défi : ratée −20 (−40 au filet), victoire au filet −50.
-
-## V7.5
-
-- **Le numéro bouge toujours** (jamais « resté sur place ») : ±1 au niveau Petit, ±1 ou ±2 ailleurs.
-- **Deux chronos visibles dès le début du tour** : 🕐 chrono global du tour (aide + choix du numéro :
-  Petit 75 s, Moyen 70 s, Grand 90 s) et 💬 chrono de réponse pour la question (25 / 20 / 20 s) ou 🧮 le calcul
-  (30 / 30 / 45 s). Réponse trop lente : plus d'aide ce tour. Chrono global écoulé : tour perdu. ⏸ met tout en pause.
-- **🏆 Défi solo** (bouton sur l'accueil) : numéros de 1 à 100, pavé numérique, sauts « fous » annoncés
-  (+7, −7, +9, +11, −13, ×2, ÷2, miroir). Deux variantes : *Contre la montre* (3 minutes) ou *Sans limite de temps*.
-  Score : 1000 − 25 par tour − 10 par aide − 20 par erreur (+2 par seconde restante), record enregistré.
-  Le carnet reste exact même avec ces sauts.
-
-## V7.4
-
-- Badge du niveau en haut à gauche (ex. 🧠 1–15) à la place du logo « 9? ».
-- Onglet 💡 Indice ; avantages et inconvénients expliqués en 3 lignes courtes (« Attrape-le juste après : +10 +1 bonus »).
-- Les étoiles ⭐ (gagnées avec les calculs) valent **+1 point chacune à la fin de la partie** ; le classement final
-  affiche « points + étoiles ».
-
-## V7.2
-
-- Plus d'aide automatique par défaut (pas de numéros en vert, jamais « il ne reste qu'un numéro ») : le filet suffit.
-  L'aide reste activable dans Réglages › Aide du carnet.
-- Pour encourager les questions : avantages / inconvénients affichés pour Indice, Calcul et Deviner, et
-  **+1 bonus déduction** quand on attrape le numéro juste après avoir posé une question (précise +11, filet +3).
-- Capture précise réussie : **+10** (puis un nouveau numéro se cache). Le chrono du numéro ne démarre qu'à l'ouverture de « Deviner ».
-- Effets : une loupe vient grossir le numéro au moment de la capture, grosse loupe sur le numéro attrapé,
-  logo « 9? » qui réfléchit pendant un calcul et fête les captures.
-
-## Correctifs V7.1
-
-- Plus de clignotement de l'écran à chaque appui (Réglages et partie).
-- Niveau Grand : calculs mélangés avec priorités (ex. 7 × 6 − 36 ÷ 4, (3 + 5) × 7 − 9), 6 propositions, 45 s.
-- Prénoms des joueurs en multijoueur ; « Tour suivant » en solo.
-- Quitter une partie la termine (confirmation demandée) ; l'accueil tient sur un seul écran.
-
-## Nouveautés V6
-
-- Nouveau design « ciel bleu », police arrondie Baloo Bhaijaan 2 intégrée (lisible en français, anglais et arabe, sans Internet).
-- **Écran de jeu sur une seule page** (sans défilement) : barre compacte (tour, progression, carnet 📒, pause ⏸),
-  scores, détective + bulle, onglets Indice / Calcul / Deviner.
-- **Chronos adaptés à l'âge** — Petit (5–7 ans) : 30 s par calcul, 40 s pour choisir un numéro ; Moyen (8–10 ans) : 30 s / 35 s ;
-  Grand (11 ans et +) : 25 s / 30 s. Calcul hors temps : pas d'étoile, le joueur garde son tour. Numéro non choisi à temps :
-  tour perdu (0 point). Réglages : *Normal*, *Plus de temps* (×1,5), *Sans chrono*. Le bouton ⏸ (et le bouton Retour)
-  met tout en pause ; l'appli se met aussi en pause quand on la quitte.
-- **Calculs selon l'âge** — Petit : + et − jusqu'à 10 ; Moyen : additions/soustractions à retenue (ex. 47 + 28, 63 − 27),
-  tables de 3 à 9 ; Grand : 23 × 7, 96 ÷ 8, 6 × 7 − 15, 238 + 57.
-- Écran « Passe le téléphone » entre les joueurs, bouton « Reprendre la partie », fenêtres de confirmation intégrées.
-- Bouton Retour Android géré, affichage correct sur Android 15 (barres système), sons (désactivables).
-
-## Obtenir l'APK avec GitHub Actions (sans rien installer)
-
-1. Crée un dépôt GitHub (privé ou public) et envoie **le contenu de ce dossier à la racine** (on doit voir `app/`, `gradlew`, `.github/` à la racine).
-   Le plus simple : sur la page du dépôt vide, « uploading an existing file », puis glisse tout le contenu du dossier.
-   ⚠️ Le dossier `.github` est caché sur certains ordinateurs : vérifie qu'il a bien été envoyé.
-   S'il manque, sur GitHub : *Add file › Create new file*, nomme-le `.github/workflows/build-apk.yml`
-   et colle le contenu du fichier du même nom.
-2. Onglet **Actions** → **Construire APK Android** → **Run workflow** (ou il démarre seul après l'envoi).
-3. Après environ 10 minutes (coche verte), l'APK est publié automatiquement dans **Releases** :
-   `https://github.com/<ton-compte>/<ton-dépôt>/releases/tag/apk-latest` → touche `NumeroEnFuite-V7-debug.apk`
-   (lien utilisable directement depuis le téléphone, sans compte ni décompression).
-4. Il est aussi disponible dans l'artefact **NumeroEnFuite-V7-APK-debug** de l'exécution (Actions).
-
-Le workflow : lance les tests du jeu, compile avec Gradle et le SDK Android officiel, puis vérifie la signature
-(`apksigner`), le manifeste (`aapt2`), l'alignement (`zipalign`) et la présence du jeu dans l'APK.
 Si une étape échoue, aucun APK n'est publié.
 
-## Compiler avec Android Studio
-
-Ouvre le dossier contenant `settings.gradle`, attends la synchronisation Gradle, puis **Build › Build APK(s)**.
-En ligne de commande : `./gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk`.
+En local : `./gradlew assembleRelease` (avec les variables de la section « Clé de signature »)
+→ `app/build/outputs/apk/release/app-release.apk`. Android Studio : ouvrir le dossier contenant `settings.gradle`.
 
 ## Installer sur le téléphone
 
-1. **Désinstalle les anciennes versions** du jeu (une ancienne version signée avec une autre clé bloque l'installation).
-2. Copie l'APK sur le téléphone et touche-le dans l'application *Fichiers*.
-3. Android demande d'autoriser l'installation d'applications pour l'application *Fichiers* : accepte (c'est le réglage
-   normal « Sources inconnues » pour toute application qui ne vient pas du Play Store).
+1. Si une ancienne version est installée et que l'installation est refusée, **désinstalle-la** d'abord
+   (voir « Clé de signature » ; l'ancienne version de test s'appelait `com.atelier.numeroenfuite.debug`).
+2. Télécharge `NumeroEnFuite.apk` et touche-le dans l'application *Fichiers*.
+3. Android demande d'autoriser l'installation d'applications pour *Fichiers* : accepte (réglage normal
+   « Sources inconnues » pour toute application qui ne vient pas du Play Store).
 4. Play Protect peut afficher « Application inconnue » / « Analyser l'application » : choisis **Analyser** ;
    l'application ne demande aucune permission. Ne désactive pas Play Protect.
 
-L'APK debug s'installe sous le nom « Le Numéro en fuite » (identifiant `com.atelier.numeroenfuite.debug`).
+## Clé de signature (recommandé)
 
-## APK « release » signé avec ta propre clé (facultatif)
+Android n'accepte une mise à jour que si elle est signée avec la **même clé** que la version installée.
+Sans clé permanente, la CI signe chaque APK avec une clé temporaire : il faut alors désinstaller le jeu
+avant chaque mise à jour (la partie sauvegardée et les records sont perdus).
 
-Une clé personnelle donne une identité stable à l'application (nécessaire pour publier plus tard sur le Play Store).
-
-```bash
-keytool -genkeypair -v -keystore numero.jks -alias numero -keyalg RSA -keysize 4096 -validity 10000
-base64 -w0 numero.jks > numero.jks.b64     # sur macOS : base64 -i numero.jks
-```
-
-Dans le dépôt GitHub : *Settings › Secrets and variables › Actions*, crée `NEF_KEYSTORE_BASE64` (contenu du .b64),
-`NEF_KEYSTORE_PASSWORD`, `NEF_KEY_ALIAS` (`numero`) et `NEF_KEY_PASSWORD`. Le workflow produira alors aussi
-l'artefact **NumeroEnFuite-V7-APK-release**. Garde `numero.jks` et ses mots de passe en lieu sûr : ne les mets jamais dans le dépôt.
-
-## Lancer les tests sur ton ordinateur
+Pour des mises à jour qui s'installent par-dessus, crée une fois ta clé :
 
 ```bash
-npm install --no-save playwright && npx playwright install chromium
-node tests/game.test.cjs
+keytool -genkeypair -v -keystore numero.jks -storetype PKCS12 -alias numero -keyalg RSA -keysize 4096 -validity 10000
+base64 -w0 numero.jks > numero.jks.b64     # sur macOS : base64 -i numero.jks -o numero.jks.b64
 ```
+
+Puis dans le dépôt GitHub : *Settings › Secrets and variables › Actions › New repository secret* :
+`NEF_KEYSTORE_BASE64` (contenu du `.b64`), `NEF_KEYSTORE_PASSWORD`, `NEF_KEY_ALIAS` (`numero`), `NEF_KEY_PASSWORD`
+(identique au mot de passe du keystore pour PKCS12).
+Garde `numero.jks` et son mot de passe en lieu sûr, **jamais dans le dépôt** (`*.jks` est ignoré par git) :
+sans eux, plus aucune mise à jour ne pourra remplacer l'application installée.

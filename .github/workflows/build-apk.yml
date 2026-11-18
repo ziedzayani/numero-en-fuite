@@ -1,5 +1,10 @@
 name: Construire APK Android
 
+# 1. vérifie que les fichiers générés correspondent aux sources (src/) + analyse ESLint
+# 2. teste le jeu dans Chromium (Playwright)
+# 3. compile l'APK RELEASE avec Gradle et le SDK Android officiel, le vérifie
+# 4. le publie dans la Release « apk-latest » (téléchargement direct depuis le téléphone)
+
 on:
   workflow_dispatch:
   push:
@@ -7,7 +12,7 @@ on:
   pull_request:
 
 permissions:
-  contents: write   # nécessaire pour publier l'APK dans « Releases »
+  contents: write # nécessaire pour publier l'APK dans « Releases »
 
 jobs:
   apk:
@@ -15,20 +20,27 @@ jobs:
     timeout-minutes: 30
     env:
       HAS_RELEASE_KEY: ${{ secrets.NEF_KEYSTORE_BASE64 != '' }}
+      APK_NAME: NumeroEnFuite.apk
     steps:
       - name: Récupérer le code source
         uses: actions/checkout@v5
 
-      # ---------- 1. Tests automatiques du jeu (navigateur Chromium sans écran) ----------
+      # ---------- 1. Qualité du code ----------
       - name: Node.js
         uses: actions/setup-node@v5
         with:
           node-version: '22'
-      - name: Tester le jeu (1 à 4 joueurs, 3 niveaux, 3 langues, sauvegarde)
+          cache: npm
+      - name: Installer les outils (versions figées par package-lock.json)
+        run: npm ci --no-audit --no-fund
+      - name: Fichiers générés à jour, format et analyse statique
+        run: npm run check
+
+      # ---------- 2. Tests automatiques du jeu (navigateur Chromium sans écran) ----------
+      - name: Tester le jeu (1 à 4 joueurs, 4 niveaux, 3 langues, défi, film, sauvegarde)
         run: |
-          npm install --no-save --no-audit --no-fund playwright@1.49.1
           npx playwright install --with-deps chromium
-          node tests/game.test.cjs app/src/main/assets/index.html test-screenshots
+          npm test
       - name: Publier les captures d'écran des tests
         if: always()
         uses: actions/upload-artifact@v4
@@ -37,7 +49,7 @@ jobs:
           path: test-screenshots/
           if-no-files-found: ignore
 
-      # ---------- 2. Compilation Android officielle (Gradle + SDK Google) ----------
+      # ---------- 3. Compilation Android officielle (Gradle + SDK Google) ----------
       - name: Java 17
         uses: actions/setup-java@v5
         with:
@@ -62,31 +74,69 @@ jobs:
           echo "sdk.dir=$SDK" > local.properties
       - name: Cache Gradle
         uses: gradle/actions/setup-gradle@v4
-      - name: Compiler l'APK debug
+
+      # Clé de signature : celle des secrets GitHub si elle existe (mises à jour sans
+      # désinstaller), sinon une clé temporaire créée pour cette compilation seulement.
+      - name: Préparer la clé de signature
+        env:
+          NEF_KEYSTORE_BASE64: ${{ secrets.NEF_KEYSTORE_BASE64 }}
+          NEF_KEYSTORE_PASSWORD: ${{ secrets.NEF_KEYSTORE_PASSWORD }}
+          NEF_KEY_ALIAS: ${{ secrets.NEF_KEY_ALIAS }}
+          NEF_KEY_PASSWORD: ${{ secrets.NEF_KEY_PASSWORD }}
+        run: |
+          KS="$RUNNER_TEMP/release.jks"
+          if [ "$HAS_RELEASE_KEY" = "true" ]; then
+            echo "$NEF_KEYSTORE_BASE64" | base64 -d > "$KS"
+            {
+              echo "NEF_KEYSTORE_PASSWORD=$NEF_KEYSTORE_PASSWORD"
+              echo "NEF_KEY_ALIAS=$NEF_KEY_ALIAS"
+              echo "NEF_KEY_PASSWORD=$NEF_KEY_PASSWORD"
+            } >> "$GITHUB_ENV"
+            echo "Clé permanente (secrets GitHub)."
+          else
+            PASS="$(openssl rand -hex 24)"
+            echo "::add-mask::$PASS"
+            keytool -genkeypair -keystore "$KS" -storetype PKCS12 -storepass "$PASS" -keypass "$PASS" \
+              -alias numero -keyalg RSA -keysize 3072 -validity 10000 \
+              -dname "CN=Le Numero en fuite, O=Atelier familial" > /dev/null
+            {
+              echo "NEF_KEYSTORE_PASSWORD=$PASS"
+              echo "NEF_KEY_ALIAS=numero"
+              echo "NEF_KEY_PASSWORD=$PASS"
+            } >> "$GITHUB_ENV"
+            echo "::warning::Pas de secret NEF_KEYSTORE_BASE64 : APK signé avec une clé temporaire (désinstaller l'ancienne version avant chaque mise à jour)."
+          fi
+          echo "NEF_KEYSTORE_FILE=$KS" >> "$GITHUB_ENV"
+
+      - name: Compiler l'APK release
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon --stacktrace assembleDebug
+          ./gradlew --no-daemon --stacktrace assembleRelease
+          rm -f "$NEF_KEYSTORE_FILE"
 
-      # ---------- 3. Vérifications de l'APK produit ----------
-      - name: Vérifier l'APK (signature, manifeste, contenu)
+      # ---------- 4. Vérifications de l'APK produit ----------
+      - name: Vérifier l'APK (signature, manifeste, non débogable, contenu)
         run: |
-          APK=app/build/outputs/apk/debug/app-debug.apk
+          APK=app/build/outputs/apk/release/app-release.apk
           BT="$ANDROID_HOME/build-tools/35.0.0"
           test -s "$APK"
           echo "== Taille ==";      ls -lh "$APK"
           echo "== Alignement =="; "$BT/zipalign" -c -v 4 "$APK" | tail -1
           echo "== Signature ==";   "$BT/apksigner" verify --verbose --print-certs "$APK"
-          echo "== Manifeste ==";   "$BT/aapt2" dump badging "$APK" | grep -E "package:|sdkVersion|targetSdkVersion|uses-permission|launchable-activity|application-label"
+          BADGING="$("$BT/aapt2" dump badging "$APK")"
+          echo "$BADGING" | grep -E "package:|sdkVersion|targetSdkVersion|uses-permission|launchable-activity|application-label"
+          if echo "$BADGING" | grep -q "application-debuggable"; then echo "::error::APK débogable"; exit 1; fi
+          echo "$BADGING" | grep -q "package: name='com.atelier.numeroenfuite'"
           unzip -l "$APK" | grep -q "assets/index.html"
-          echo "Le jeu est bien embarqué dans l'APK."
+          echo "APK release, non débogable, jeu embarqué."
           mkdir -p livraison
-          cp "$APK" livraison/NumeroEnFuite-V7-debug.apk
-          (cd livraison && sha256sum NumeroEnFuite-V7-debug.apk > NumeroEnFuite-V7-debug.apk.sha256)
+          cp "$APK" "livraison/$APK_NAME"
+          (cd livraison && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
 
-      - name: Télécharger l'APK debug
+      - name: Télécharger l'APK
         uses: actions/upload-artifact@v4
         with:
-          name: NumeroEnFuite-V7-APK-debug
+          name: NumeroEnFuite-APK
           path: livraison/
 
       - name: Publier l'APK dans « Releases » (téléchargement direct depuis le téléphone)
@@ -95,33 +145,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG=apk-latest
+          VERSION="$(grep -oP "versionName '\K[^']+" app/build.gradle)"
+          if [ "$HAS_RELEASE_KEY" = "true" ]; then
+            NOTE="Signé avec la clé permanente : la mise à jour s'installe par-dessus l'ancienne version."
+          else
+            NOTE="Signé avec une clé temporaire : désinstallez d'abord l'ancienne version du jeu."
+          fi
           gh release delete "$TAG" --yes --cleanup-tag || true
-          gh release create "$TAG" livraison/NumeroEnFuite-V7-debug.apk livraison/NumeroEnFuite-V7-debug.apk.sha256 \
+          gh release create "$TAG" "livraison/$APK_NAME" "livraison/$APK_NAME.sha256" \
             --target "$GITHUB_SHA" --prerelease \
-            --title "Le Numéro en fuite V7 — APK de test" \
-            --notes "APK debug compilé automatiquement (Gradle + SDK Android officiel), vérifié par apksigner et aapt2. Commit : $GITHUB_SHA. Désinstallez d'abord toute ancienne version du jeu."
-
-      # ---------- 4. (Facultatif) APK release signé avec VOTRE clé ----------
-      # Ne s'exécute que si les secrets NEF_KEYSTORE_BASE64, NEF_KEYSTORE_PASSWORD,
-      # NEF_KEY_ALIAS et NEF_KEY_PASSWORD sont définis dans le dépôt (voir README).
-      - name: Compiler l'APK release signé
-        env:
-          NEF_KEYSTORE_BASE64: ${{ secrets.NEF_KEYSTORE_BASE64 }}
-          NEF_KEYSTORE_PASSWORD: ${{ secrets.NEF_KEYSTORE_PASSWORD }}
-          NEF_KEY_ALIAS: ${{ secrets.NEF_KEY_ALIAS }}
-          NEF_KEY_PASSWORD: ${{ secrets.NEF_KEY_PASSWORD }}
-        if: env.HAS_RELEASE_KEY == 'true'
-        run: |
-          echo "$NEF_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
-          export NEF_KEYSTORE_FILE="$RUNNER_TEMP/release.jks"
-          ./gradlew --no-daemon assembleRelease
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk
-          mkdir -p livraison-release
-          cp app/build/outputs/apk/release/app-release.apk livraison-release/NumeroEnFuite-V7-release.apk
-          rm -f "$RUNNER_TEMP/release.jks"
-      - name: Télécharger l'APK release
-        if: env.HAS_RELEASE_KEY == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: NumeroEnFuite-V7-APK-release
-          path: livraison-release/
+            --title "Le Numéro en fuite $VERSION" \
+            --notes "APK release compilé automatiquement (Gradle + SDK Android officiel), vérifié par apksigner et aapt2. $NOTE Commit : $GITHUB_SHA."

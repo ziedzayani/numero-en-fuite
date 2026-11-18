@@ -1,0 +1,486 @@
+/*
+ * Écran de jeu sans défilement : barre du haut, scores, bulle du détective, onglets, accueil compact.
+ */
+/* ===== V6.1 : écran de jeu sans défilement ===== */
+body.scr-game {
+  overflow: hidden;
+}
+body.scr-game #app {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: calc(8px + env(safe-area-inset-top));
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+}
+.gbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.gbar .brand-icon {
+  flex: 0 0 46px;
+  height: 46px;
+  font-size: 19px;
+  border-radius: 14px;
+}
+.gstatus {
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 16px;
+  padding: 4px 11px 7px;
+  box-shadow: 0 4px 0 #1d245033;
+}
+.gstatus-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.25;
+}
+.gstatus-row b {
+  font-weight: 800;
+}
+.gstatus-row span {
+  font-weight: 700;
+  color: #2f3a63;
+}
+.gprogress {
+  height: 9px;
+  border-radius: 99px;
+  background: #e4ecff;
+  margin-top: 3px;
+  overflow: hidden;
+  border: 2px solid #c9d6ff;
+}
+.gprogress span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #ffd84d, #4ce08a);
+  transition: width 0.3s;
+}
+.icon-btn {
+  flex: 0 0 auto;
+}
+.pause-btn {
+  background: #ffd84d;
+  box-shadow: 0 4px 0 var(--yellowDark);
+}
+.chips {
+  display: grid;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+.chip {
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 15px;
+  padding: 4px 6px 5px;
+  text-align: center;
+  min-width: 0;
+  box-shadow: 0 4px 0 #1d245033;
+  transition: transform 0.2s;
+}
+.chip.current {
+  background: #ffef95;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #d3b244;
+}
+.cname {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3a4675;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.cscore {
+  display: block;
+  line-height: 1.1;
+}
+.cscore b {
+  font-size: 22px;
+  font-weight: 800;
+}
+.cscore small {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6a5a00;
+}
+.turn-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 24px;
+}
+.turn-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.mini-mascot {
+  flex: 0 0 86px;
+  width: 86px;
+  height: 76px;
+  position: relative;
+}
+.mini-mascot .detective-scene {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: scale(0.5);
+  transform-origin: 0 0;
+}
+.bubble {
+  flex: 1;
+  min-width: 0;
+  background: #eef3ff;
+  border: 3px solid var(--line);
+  border-radius: 18px;
+  padding: 7px 12px;
+  position: relative;
+}
+.bubble::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -10px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  background: #eef3ff;
+  border-inline-start: 3px solid var(--line);
+  border-bottom: 3px solid var(--line);
+  transform: translateY(-50%) rotate(45deg);
+}
+[dir='rtl'] .bubble::before {
+  transform: translateY(-50%) rotate(-45deg);
+}
+.bubble b {
+  display: block;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+.bubble span {
+  display: block;
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.3;
+  margin-top: 2px;
+}
+.timer {
+  margin: 8px 0 0;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.timer-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3a4675;
+  white-space: nowrap;
+}
+.timer-bar {
+  height: 14px;
+}
+.timer b {
+  min-width: 52px;
+  font-size: 16px;
+  padding: 1px 6px;
+}
+.turn-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding: 2px 2px 6px;
+  -webkit-overflow-scrolling: touch;
+}
+.actiontabs {
+  margin: 0 0 9px;
+  gap: 7px;
+}
+.actiontab {
+  min-height: 46px;
+  padding: 6px 3px;
+  font-size: 15px;
+}
+.pane-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+.pane-head h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.pane-head h3 small {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.mini-btn.small {
+  min-height: 40px;
+  padding: 6px 11px;
+  font-size: 14px;
+  border-radius: 13px;
+}
+.mini-btn.is-on {
+  background: #7ce596;
+  box-shadow: 0 4px 0 #37b962;
+}
+.questions {
+  gap: 8px;
+  margin: 0;
+}
+.qbtn {
+  min-height: 58px;
+  padding: 7px 10px;
+  border-radius: 16px;
+}
+.qicon {
+  width: 38px;
+  height: 38px;
+  font-size: 19px;
+  border-radius: 12px;
+}
+.qtext {
+  font-size: 15px;
+  line-height: 1.25;
+}
+.mathbox {
+  margin: 0;
+  padding: 12px 12px 14px;
+}
+.math-title {
+  gap: 4px;
+  font-size: 13px;
+}
+.math-title b {
+  font-size: 36px;
+}
+.mathform {
+  margin-top: 12px;
+}
+.mathbtn {
+  min-height: 58px;
+}
+.numbergrid {
+  margin: 0 auto;
+  gap: 8px;
+  max-width: 330px;
+}
+.numtile {
+  aspect-ratio: 1.35;
+  border-radius: 16px;
+}
+.numbergrid.wide {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  max-width: 100%;
+}
+.numbergrid.expert {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  max-width: 100%;
+  gap: 6px;
+}
+.numbergrid.wide .numtile {
+  aspect-ratio: 1.1;
+}
+.numbergrid.expert .numtile {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  font-size: 23px;
+}
+.banner.slim {
+  padding: 6px 10px;
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+.result-card {
+  margin: 0 0 10px;
+  padding: 12px 12px 10px;
+}
+.result-title {
+  font-size: 30px;
+  margin: 2px 0 4px;
+}
+.result-desc {
+  font-size: 16px;
+  margin: 4px 0 8px;
+}
+.move-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  padding: 7px 11px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: start;
+}
+.move-line > b {
+  font-size: 24px;
+  font-weight: 800;
+  color: #503dc1;
+  white-space: nowrap;
+}
+.move-line small b {
+  font-weight: 700;
+}
+.move-line small {
+  font-size: 12px;
+  color: var(--ink2);
+  font-weight: 500;
+}
+.move-line.bonus {
+  display: block;
+  text-align: center;
+}
+.keep {
+  margin: 9px 0 0;
+  background: #fff6cf;
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-weight: 700;
+  color: #4a3a00;
+  font-size: 14px;
+}
+.modal {
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+.modal .small-mascot {
+  height: 110px;
+}
+.modal .small-mascot .detective-scene {
+  transform: scale(0.72);
+}
+.modal .history-items {
+  text-align: start;
+  max-height: 50dvh;
+  overflow: auto;
+}
+.modal .steps {
+  text-align: start;
+}
+.modal .help-detail {
+  text-align: start;
+  margin-bottom: 14px;
+}
+.intro-dark {
+  font-size: 15px;
+  color: var(--ink2);
+}
+.modal .bigbtn {
+  margin-top: 4px;
+}
+/* Accueil compact */
+.hero-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 0 0;
+}
+.hero-row .hero-mascot {
+  flex: 0 0 128px;
+  width: 128px;
+  height: 118px;
+}
+.hero-row .detective-scene {
+  transform: scale(0.78);
+}
+.hero-row h1 {
+  text-align: start;
+  margin: 0;
+  font-size: clamp(30px, 9.4vw, 44px);
+}
+.start-panel {
+  margin: 8px 0;
+}
+.selector {
+  margin: 8px 0 12px;
+}
+.difficulty {
+  margin: 8px 0 14px;
+}
+.level {
+  min-height: 0;
+  padding: 8px 4px;
+}
+.rules-btn {
+  display: block;
+  margin: 12px auto 0;
+}
+.footer {
+  margin: 6px 0 0;
+}
+@media (max-height: 640px) {
+  .mini-mascot {
+    flex-basis: 68px;
+    width: 68px;
+    height: 60px;
+  }
+  .mini-mascot .detective-scene {
+    transform: scale(0.4);
+  }
+  .bubble b {
+    font-size: 16px;
+  }
+  .qbtn {
+    min-height: 50px;
+  }
+  .actiontab {
+    min-height: 42px;
+  }
+  .numtile {
+    aspect-ratio: 1.5;
+  }
+  .numbergrid.expert .numtile {
+    aspect-ratio: 1.12;
+  }
+  .math-title b {
+    font-size: 30px;
+  }
+  .hero-row .hero-mascot {
+    height: 100px;
+  }
+  .hero-row .detective-scene {
+    transform: scale(0.66);
+  }
+}
+@media (max-width: 350px) {
+  .actiontab {
+    font-size: 13px;
+  }
+  .numbergrid.expert .numtile {
+    font-size: 19px;
+  }
+  .timer-label {
+    display: none;
+  }
+  .cscore b {
+    font-size: 19px;
+  }
+}

@@ -1,0 +1,307 @@
+/*
+ * Écrans de fin, fenêtre avant la partie, modes Course / Points, avantages / risques.
+ */
+/* V8.1 : écran de fin solo */
+.solo-card {
+  padding: 16px 16px 14px;
+}
+.solo-stars {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 2px;
+}
+.solo-stars span {
+  font-size: 52px;
+  line-height: 1;
+  color: #dfe3f0;
+  -webkit-text-stroke: 3px var(--line);
+  text-shadow: 0 4px 0 #1d245033;
+}
+.solo-stars span.on {
+  color: #ffd84d;
+  animation: starPop 0.5s cubic-bezier(0.2, 1.6, 0.5, 1) var(--d) both;
+}
+.solo-stars span:nth-child(2) {
+  font-size: 64px;
+  transform: translateY(-8px);
+}
+.solo-stars span.on:nth-child(2) {
+  animation-name: starPop2;
+}
+@keyframes starPop {
+  from {
+    transform: scale(0) rotate(-90deg);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes starPop2 {
+  from {
+    transform: translateY(-8px) scale(0) rotate(-90deg);
+  }
+  to {
+    transform: translateY(-8px);
+  }
+}
+.solo-rate {
+  font-size: 22px;
+  font-weight: 800;
+  color: #4b3aaf;
+  margin: 2px 0 10px;
+}
+.solo-reveal {
+  margin: 0 0 6px;
+}
+.solo-reveal small {
+  display: block;
+  font-weight: 700;
+  color: var(--ink2);
+  margin-top: -4px;
+}
+.solo-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 4px 0 12px;
+}
+.solo-stats div {
+  background: #f2f6ff;
+  border: 3px solid var(--line);
+  border-radius: 16px;
+  padding: 6px 4px;
+}
+.solo-stats b {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.solo-stats small {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink2);
+}
+body.reduce-motion .solo-stars span.on {
+  animation: none;
+}
+@media (max-width: 340px) {
+  .rp-ctrl {
+    gap: 4px;
+  }
+  .rp-ctrl .rp-next {
+    font-size: 14px;
+    gap: 3px;
+  }
+  .rp-ctrl .key.rp-prev {
+    min-width: 46px;
+    padding: 0 8px;
+  }
+}
+/* flèche toujours de l'ancien vers le nouveau numéro */
+.rp-move .mv-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  min-width: 58px;
+}
+.rp-move .mv-arrow i {
+  font-style: normal;
+  font-size: 17px;
+  font-weight: 800;
+  color: #503dc1;
+  background: #efe9ff;
+  border: 2px solid #b9a8ff;
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+.rp-move .mv-arrow em {
+  font-style: normal;
+  font-size: 26px;
+  color: var(--ink);
+  margin-top: -2px;
+}
+.rp-hint.wrap {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 10px;
+  border-radius: 10px;
+  background: #fff3d6;
+  color: #7a4a00;
+  border: 2px solid #f3c56a;
+  font-size: 13px;
+}
+/* V8.2 : fenêtre avant la partie, mode Course / Points, boutons plats */
+.name-row .help-chip {
+  flex: 0 0 auto;
+  border: 2px solid #c9d6ff;
+  background: #f2f6ff;
+  color: var(--ink2);
+  border-radius: 99px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 36px;
+  filter: grayscale(1);
+  opacity: 0.8;
+}
+.name-row .help-chip.on {
+  background: #8ff0a8;
+  border-color: #1d7a40;
+  color: #0f3a1d;
+  filter: none;
+  opacity: 1;
+}
+.solo-name {
+  flex: 1;
+  font-size: 18px;
+  text-align: start;
+}
+.help-note {
+  font-size: 12px !important;
+  margin: -6px 0 10px !important;
+  color: var(--ink2);
+}
+.mode-pick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 6px 0 14px;
+}
+.mode-card {
+  border: 3px solid #c9d6ff;
+  background: #f7f9ff;
+  border-radius: 16px;
+  padding: 8px 8px;
+  text-align: start;
+  font: inherit;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mode-card b {
+  font-size: 16px;
+  font-weight: 800;
+}
+.mode-card small {
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--ink2);
+  font-weight: 600;
+}
+.mode-card.on {
+  border-color: var(--line);
+  background: #ffef95;
+}
+.race-winner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0 10px;
+}
+.race-winner .player-chip {
+  font-size: 22px;
+  padding: 6px 18px;
+}
+.race-winner small {
+  font-weight: 700;
+  color: var(--ink2);
+}
+.race-others {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--ink2);
+  margin: 0 0 6px;
+}
+/* boutons plats : plus de « reflet » sous les boutons */
+button,
+.bigbtn,
+.mini-btn,
+.seg,
+.level,
+.qbtn,
+.mathbtn,
+.numtile,
+.key,
+.capbtn,
+.actiontab,
+.toggle-row,
+.icon-btn,
+.lang-choice,
+.mode-card,
+.rp-ctrl .key,
+.capbtn.precise,
+.capbtn.net,
+.pause-btn,
+.ch-btn,
+.rp-open {
+  box-shadow: none !important;
+}
+.numtile.sel {
+  outline: 4px solid #f36ab6;
+  outline-offset: 2px;
+}
+button:not(:disabled):active {
+  transform: scale(0.96);
+}
+.names {
+  grid-template-columns: minmax(0, 1fr);
+}
+.name-row {
+  min-width: 0;
+}
+.capbtn .nets-left {
+  font-size: 14px;
+  letter-spacing: 3px;
+  line-height: 1;
+  color: #ffe680;
+}
+.capbtn.net.empty {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+/* V8.3 : avantages / risques à la demande */
+.q-head {
+  align-items: center;
+}
+.q-head .q-title {
+  flex: 1;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  text-align: start;
+}
+.q-head .info-btn {
+  flex: 0 0 auto;
+  min-height: 44px;
+  width: 44px;
+  padding: 0;
+  font-size: 18px;
+}
+.q-head .info-btn.on {
+  background: #e6f0ff;
+  border-color: var(--line);
+}
+.info-link {
+  display: inline-block;
+  margin: 10px auto 0;
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 2px solid #c9d6ff;
+  background: #f2f6ff;
+  color: var(--ink2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+.mathbox .tradeoff {
+  cursor: pointer;
+}

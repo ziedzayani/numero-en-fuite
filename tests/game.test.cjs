@@ -1,6 +1,6 @@
 /*
  * Tests automatiques du jeu « Le Numéro en fuite » (navigateur Chromium sans écran).
- * Usage :  npm install playwright && npx playwright install chromium
+ * Usage :  npm ci && npx playwright install chromium   (puis : npm test)
  *          node tests/game.test.cjs [chemin/vers/index.html] [dossier/captures]
  */
 const path = require('path');
@@ -145,8 +145,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       if (right) return s.secret;
       for (let k = 1; k <= max; k++) { const c = ((s.secret - 1 + k * 3) % max) + 1; if (mode === 'precise' ? c !== s.secret : !N.netRange(c).includes(s.secret)) return c; } return null; }, { right: wantRight, mode });
     if (st.tab !== 'guess') await page.click('[data-tab="guess"]');
-    if (players === 1) check(await page.isDisabled('#capPrecise') && !(await page.$('#capNet')), `${label} t${turn} : solo — un seul bouton de capture (pas de filet)`);
-    else check(await page.isDisabled('#capPrecise') && await page.isDisabled('#capNet'), `${label} t${turn} : les 2 boutons de capture attendent un numéro`);
+    check(await page.isDisabled('#capPrecise') && await page.isDisabled('#capNet'), `${label} t${turn} : les 2 boutons de capture attendent un numéro`);
     if (max > 30) { await page.click('[data-key="clr"]'); for (const ch of String(n)) await page.click(`[data-key="${ch}"]`); } else await page.click(`[data-guess="${n}"]`);
     const inNet = max > 30 ? await page.evaluate(n => window.__numero.netRange(n), n) : await page.$$eval('.numtile.in-net', els => els.map(e => Number(e.textContent)));
     const expNet = await page.evaluate(n => window.__numero.netRange(n), n);
@@ -156,7 +155,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     guessCount++;
     const g = await S(page);
     const delta = g.scores[player] - st.scores[player];
-    const expDelta = wantRight ? (mode === 'precise' ? 10 : 2) + (action === 0 ? 1 : 0) : (mode === 'precise' ? -1 : -(level === 'junior' ? 2 : 3));
+    const expDelta = wantRight ? (mode === 'precise' ? 10 : 4) + (action === 0 ? 1 : 0) : (mode === 'precise' ? -1 : -(level === 'junior' ? 2 : 3));
     check(delta === expDelta, `${label} t${turn} : ${mode} ${wantRight ? 'réussie' : 'ratée'} → ${expDelta > 0 ? '+' : ''}${expDelta} (obtenu ${delta})`);
     check(g.last.type === (mode === 'precise' ? (wantRight ? 'found' : 'wrong') : (wantRight ? 'netHit' : 'netMiss')), `${label} t${turn} : type de capture enregistré`);
     if (wantRight) finds++;
@@ -404,8 +403,10 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless'); N.ask(N.state.choices[0]); N.nextTurn(); N.mathAnswer; });
     await page.click('#next').catch(() => {});
     await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless'); });
-    await page.click('[data-tab="math"]');
-    check((await page.textContent('.mathbox .tradeoff')).includes('🧊'), 'Défi : avantages du calcul affichés (gel, +30)');
+    await page.click('[data-tab="math"]'); await page.click('.mathbox .info-link');
+    check((await page.textContent('.mathbox .tradeoff')).includes('🧊'), 'Défi : avantages du calcul affichés (gel, +30) avec ℹ️');
+    await page.click('.mathbox .tradeoff');
+    check(!(await page.$('.mathbox .tradeoff')), 'Défi : un toucher referme les avantages / risques');
     await page.click(`[data-math="${(await S(page)).math.result}"]`);
     check(await page.isVisible('.ch-bonus') && await page.isVisible('.move-line.frozen'), 'Défi : résultat « 🧊 +30 points » et « Gelé »');
     const netWin = await page.evaluate(() => { localStorage.removeItem('numeroEnFuiteRecords'); const N = window.__numero; N.startChallenge('endless'); N.netCapture(N.state.secret); N.nextTurn(); return N.state.chFinal; });
@@ -499,7 +500,9 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click('#closeModal');
     // Encourager les questions : avantages/inconvénients + bonus +1
     await fresh2('malin');
-    check(await page.isVisible('.tradeoff .up') && await page.isVisible('.tradeoff .down') && !(await page.$('.tab-badge')), 'Question : avantage / inconvénient sur une ligne discrète');
+    check(!(await page.$('.tradeoff')) && await page.isVisible('.q-head .info-btn'), 'Avantages / risques cachés par défaut, bouton ℹ️');
+    await page.click('.q-head .info-btn');
+    check(await page.isVisible('.tradeoff .up') && await page.isVisible('.tradeoff .down'), 'ℹ️ : les avantages / risques s’affichent au toucher');
     await page.click('[data-tab="math"]');
     check(await page.isVisible('.mathbox .tradeoff') && await page.getAttribute('.gbar .brand-icon', 'class').then(c => /thinking/.test(c)) && await page.isVisible('.logo-bubble'), 'Calcul : avantages/inconvénients, et le logo réfléchit');
     await fresh2('malin');
@@ -517,7 +520,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     sc0 = (await S(page)).scores[0];
     await page.evaluate(() => { const N = window.__numero; N.netCapture(N.state.secret); });
     st = await S(page);
-    check(st.scores[0] - sc0 === 3, 'Question puis filet réussi : +2 +1 bonus = +3');
+    check(st.scores[0] - sc0 === 5, 'Question puis filet réussi : +4 +1 bonus = +5');
     await fresh2('malin');
     sc0 = (await S(page)).scores[0];
     await page.evaluate(() => { const N = window.__numero; N.guess(N.state.secret); });
@@ -525,9 +528,10 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     // Mode Course (et solo) : pas de filet, le premier qui attrape gagne
     await page.evaluate(() => { const N = window.__numero; N.state.players = 3; N.state.gameMode = 'race'; N.state.starter = 0; N.state.level = 'junior'; N.start(true); });
     await page.click('[data-tab="guess"]'); await page.click('[data-guess="5"]');
-    check(!(await page.$('#capNet')) && await page.$$eval('.numtile.in-net', e => e.length) === 0 && await page.isVisible('#capPrecise'), 'Mode Course : pas de filet, un seul gros bouton de capture');
-    const netRefused = await page.evaluate(() => { const N = window.__numero; N.netCapture(N.state.secret); return N.state.phase; });
-    check(netRefused === 'choose', 'Mode Course : le filet est refusé même appelé directement');
+    check(await page.isVisible('#capNet') && await page.$$eval('.numtile.in-net', e => e.length) === 2 && (await page.textContent('#capNet .nets-left')) === '●●●', 'Mode Course : filet disponible 3 fois (●●●)');
+    const raceNet = await page.evaluate(() => { const N = window.__numero; const s0 = N.state.scores[0]; N.netCapture(N.state.secret); const r = [N.state.last.type, N.state.scores[0] - s0, N.netsLeft(0)]; N.nextTurn(); return [...r, N.state.screen, N.state.raceWinner]; });
+    check(raceNet.join() === 'netHit,4,2,end,0', 'Mode Course : un filet réussi attrape le numéro et fait gagner (' + raceNet.join(' ') + ')');
+    await page.evaluate(() => { const N = window.__numero; N.state.players = 3; N.state.gameMode = 'race'; N.state.starter = 0; N.state.level = 'junior'; N.start(true); });
     await page.evaluate(() => { const N = window.__numero; N.guess(N.state.secret % 9 + 1); N.nextTurn(); N.state.modal = null; N.guess(N.state.secret); });
     check((await page.textContent('#next')).includes('gagnant'), 'Mode Course : bouton « Voir le gagnant »');
     await page.click('#next');
@@ -542,7 +546,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(st.screen === 'end' && st.raceWinner == null && (await page.textContent('.hero h1')).includes('Personne') && await page.isVisible('.finalscore'), 'Mode Course sans capture après le dernier tour : départage aux points et ⭐');
     await page.evaluate(() => { const N = window.__numero; N.state.players = 1; N.start(); });
     await page.click('[data-tab="guess"]');
-    check(!(await page.$('#capNet')), 'Solo : pas de filet');
+    check(await page.isVisible('#capNet'), 'Solo : filet disponible (3 fois)');
     // boutons plats
     check(await page.evaluate(() => [...document.querySelectorAll('button')].every(b => getComputedStyle(b).boxShadow === 'none')), 'Boutons plats : plus de reflet sous les boutons');
     // animations réduites

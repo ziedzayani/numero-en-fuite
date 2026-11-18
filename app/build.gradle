@@ -1,8 +1,16 @@
 plugins { id 'com.android.application' }
 
-// Signature « release » facultative : uniquement si les variables d'environnement
-// existent (secrets GitHub). Sinon, seul l'APK debug (signé avec la clé de debug
-// standard générée par le SDK Android) est produit.
+/*
+ * Le Numéro en fuite — module Android.
+ *
+ * L'application est un simple conteneur WebView : tout le jeu est dans
+ * src/main/assets/index.html, GÉNÉRÉ par `npm run build` à partir de ../src.
+ *
+ * APK distribué = variante « release » (non débogable, sans suffixe .debug).
+ * Signature lue dans des variables d'environnement, jamais dans le dépôt :
+ *   NEF_KEYSTORE_FILE, NEF_KEYSTORE_PASSWORD, NEF_KEY_ALIAS, NEF_KEY_PASSWORD
+ * (fournies par la CI à partir des secrets GitHub, voir README « Clé de signature »).
+ */
 def releaseStore = System.getenv('NEF_KEYSTORE_FILE')
 def hasReleaseKey = releaseStore != null && new File(releaseStore).exists()
 
@@ -14,8 +22,9 @@ android {
         applicationId 'com.atelier.numeroenfuite'
         minSdk 23
         targetSdk 35
-        versionCode 20
-        versionName '8.2'
+        // Incrémenter les deux à chaque version publiée (versionName alimente aussi le cache de la PWA).
+        versionCode 21
+        versionName '8.3'
     }
 
     signingConfigs {
@@ -30,11 +39,9 @@ android {
     }
 
     buildTypes {
-        debug {
-            applicationIdSuffix '.debug'
-            versionNameSuffix '-debug'
-        }
         release {
+            debuggable false
+            // Pas de code Java à réduire (une seule activité) : R8 n'apporterait rien.
             minifyEnabled false
             if (hasReleaseKey) {
                 signingConfig signingConfigs.release

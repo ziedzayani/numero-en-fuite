@@ -106,6 +106,7 @@ public class MainActivity extends Activity {
         game.loadUrl(GAME_URL);
     }
 
+    /** Seules les pages du jeu embarqué peuvent s'ouvrir : aucun lien externe, aucun accès réseau. */
     private static boolean isGameUrl(String url) {
         return url != null && url.startsWith("file:///android_asset/");
     }

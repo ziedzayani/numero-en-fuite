@@ -1,0 +1,314 @@
+/*
+ * Finitions typographiques, règles propres à l’arabe (RTL), petits écrans.
+ */
+/* ===== V6 : finitions de design ===== */
+body,
+button {
+  font-family: inherit;
+}
+.hero h1 {
+  font-size: clamp(36px, 10vw, 50px);
+  line-height: 1;
+  letter-spacing: 0;
+  text-shadow:
+    0 3px 0 #1d2450,
+    2px 0 0 #1d2450,
+    -2px 0 0 #1d2450,
+    0 -2px 0 #1d2450,
+    0 8px 0 #1d245033;
+}
+.hero h1 span {
+  color: #ffd84d;
+  display: inline-block;
+  transform: rotate(-2deg);
+}
+.intro strong {
+  color: #ffe680;
+}
+.brand {
+  background: #ffd84d;
+  padding: 6px 12px 6px 7px;
+}
+.brand b {
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: 0;
+  max-width: 200px;
+}
+.brand small {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: #6b5600;
+}
+.panel {
+  background: #fffdf7;
+  box-shadow:
+    0 7px 0 #1d24502e,
+    0 18px 30px #0b1d6a33;
+}
+.panel.alt {
+  background: #f2f6ff;
+}
+.panel-title {
+  font-size: 23px;
+  letter-spacing: 0;
+}
+.label {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #4157a8;
+}
+.sub {
+  font-size: 14px;
+  line-height: 1.45;
+}
+.step {
+  font-size: 15px;
+  line-height: 1.45;
+  color: #2f3a63;
+}
+.help-detail,
+.banner {
+  font-size: 14px;
+  line-height: 1.45;
+}
+.bigbtn {
+  font-size: 21px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  border-radius: 22px;
+  min-height: 66px;
+}
+.bigbtn.light {
+  font-size: 17px;
+}
+.mini-btn {
+  font-size: 14px;
+  line-height: 1.2;
+}
+.seg b {
+  font-size: 28px;
+  line-height: 1;
+}
+.seg small {
+  font-size: 12px;
+}
+.level strong {
+  font-size: 17px;
+}
+.level small {
+  font-size: 11px;
+  line-height: 1.3;
+}
+.level-range {
+  font-size: 15px;
+  font-weight: 800;
+  color: #2f3a63;
+}
+.actiontab {
+  font-size: 15px;
+  line-height: 1.15;
+  white-space: nowrap;
+  padding: 10px 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qtext {
+  font-size: 15px;
+  line-height: 1.3;
+}
+.qtext small {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #5b66a0;
+}
+.math-title {
+  font-size: 15px;
+}
+.math-title b {
+  font-size: 38px;
+  letter-spacing: 0.02em;
+}
+.mathbtn {
+  font-size: 28px;
+}
+.numtile {
+  font-size: 28px;
+  line-height: 1;
+}
+.numbergrid.expert .numtile,
+.numbergrid.wide .numtile {
+  font-size: 24px;
+}
+.result-title {
+  font-size: 32px;
+  letter-spacing: 0.01em;
+}
+.result-desc {
+  font-size: 16px;
+  line-height: 1.45;
+}
+.movebig {
+  font-size: 32px;
+}
+.movement {
+  font-size: 14px;
+}
+.history-items > div {
+  font-size: 13px;
+}
+.tag {
+  font-size: 13px;
+  padding: 7px 13px;
+}
+.score {
+  padding: 9px 4px 8px;
+}
+.score strong {
+  font-size: 28px;
+  line-height: 1;
+}
+.score small {
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.2;
+}
+.score .stars {
+  display: block;
+  font-size: 11px;
+  color: #6a5a00;
+  font-weight: 600;
+  margin-top: 1px;
+}
+.top-actions {
+  flex-wrap: nowrap;
+}
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border-radius: 16px;
+  font-size: 22px;
+  line-height: 1;
+}
+.finalscore strong {
+  font-size: 17px;
+}
+.finalscore .value {
+  font-size: 28px;
+}
+.modal h2 {
+  font-size: 27px;
+  letter-spacing: 0;
+}
+.modal p {
+  font-size: 16px;
+}
+.lang-choice {
+  font-size: 18px;
+}
+/* L'arabe ne doit jamais être espacé (cela casse la liaison des lettres) */
+[lang='ar'] *,
+[lang='ar'] {
+  letter-spacing: 0 !important;
+}
+[dir='rtl'] .hero h1 span {
+  transform: rotate(2deg);
+}
+@media (max-width: 350px) {
+  .hero h1 {
+    font-size: 34px;
+  }
+  .brand b {
+    font-size: 15px;
+    max-width: 150px;
+  }
+  .score strong {
+    font-size: 24px;
+  }
+  .numtile {
+    font-size: 24px;
+  }
+  .numbergrid.expert .numtile,
+  .numbergrid.wide .numtile {
+    font-size: 20px;
+  }
+  .bigbtn {
+    font-size: 18px;
+  }
+  .icon-btn {
+    width: 46px;
+    height: 46px;
+  }
+}
+.timer {
+  margin: 14px 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.timer-bar {
+  flex: 1;
+  height: 18px;
+  border-radius: 99px;
+  background: #fff;
+  border: 3px solid var(--line);
+  overflow: hidden;
+}
+.timer-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #4ce08a, #ffd84d);
+  border-radius: 99px;
+  transition: width 0.25s linear;
+}
+.timer b {
+  min-width: 58px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  padding: 2px 6px;
+}
+.timer.hurry .timer-bar span {
+  background: linear-gradient(90deg, #ff6b6b, #f36ab6);
+}
+.timer.hurry b {
+  color: #d0263f;
+  animation: pulse 0.5s ease-in-out infinite alternate;
+}
+@keyframes pulse {
+  to {
+    transform: scale(1.12);
+  }
+}
+.level .age {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: #e9eeff;
+  color: #33418a;
+  font-size: 11px;
+  font-weight: 600;
+}
+.choice-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.choice-row .mini-btn {
+  min-height: 52px;
+  padding: 8px 4px;
+}
+.choice-row .mini-btn.is-selected {
+  background: #ffef95;
+  box-shadow: 0 4px 0 #d3b244;
+}
