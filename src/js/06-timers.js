@@ -75,6 +75,8 @@ function tick() {
   lastTick = now;
   const l = activeTimers();
   if (!l.length || g.modal || document.hidden) return;
+  // Défi : le chrono s'arrête pendant la lecture du résultat (temps de lecture non pénalisé).
+  if (g.mode === 'challenge' && g.phase !== 'choose') return;
   for (const k of l) {
     if (k === 'global') g.turnElapsed += dt;
     else if (k === 'math') g.mathElapsed += dt;

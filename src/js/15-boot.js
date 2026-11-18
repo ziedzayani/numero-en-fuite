@@ -3,8 +3,9 @@
  */
 
 function back() {
-  if (['rules', 'names', 'challenge'].includes(g.modal) && g.screen === 'home') {
+  if (['rules', 'names', 'challenge', 'tutorial'].includes(g.modal) && g.screen === 'home') {
     g.modal = null;
+    g.tut = null;
     render();
     return true;
   }
@@ -80,6 +81,8 @@ window.__numero = {
   answerLeft,
   answerTimeout,
   startChallenge,
+  openTutorial,
+  tutCapture,
   finishChallenge,
   chScore,
   pressKey,

@@ -8,14 +8,27 @@ function modalView() {
   if (!g.modal) return '';
   const wrapM = c =>
     `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal">${c}</div></div>`;
+  if (g.modal === 'tutorial' && g.screen === 'home' && g.tut) return wrapM(tutorialView());
   if (g.modal === 'rules' && g.screen === 'home')
     return wrapM(
-      `<h2>📖 ${t('rulesTitle')}</h2><p class="intro-dark">${t('heroText')}</p><div class="steps">${['rule1', 'rule2', 'rule3'].map((key, i) => `<div class="step"><span class="stepnum">${i + 1}</span><span>${t(key)}</span></div>`).join('')}</div><div class="help-detail">💡 ${t('ruleExample')}</div><button class="bigbtn light" id="closeModal">${t('close')}</button>`
+      `<h2>📖 ${t('rulesTitle')}</h2><p class="intro-dark">${t('heroText')}</p><div class="steps">${['rule1', 'rule2', 'rule3'].map((key, i) => `<div class="step"><span class="stepnum">${i + 1}</span><span>${t(key)}</span></div>`).join('')}</div><div class="help-detail">💡 ${t('ruleExample')}</div><button class="bigbtn green" id="rulesTutorial">🎓 ${t('tutTry')}</button><button class="bigbtn light" id="closeModal">${t('close')}</button>`
     );
   if (g.modal === 'challenge' && g.screen === 'home') {
-    const r = records();
+    const r = records(),
+      diff = g.chDiffPref in CHALLENGE_DIFFS ? g.chDiffPref : 'medium',
+      rec = kind =>
+        r[chRecordKey(kind, diff)] ? t('chRecord', { n: r[chRecordKey(kind, diff)] }) : t('chNoRecord');
     return wrapM(
-      `<div class="hero-mascot small-mascot">${mascot('think')}</div><h2>🏆 ${t('chTitle')}</h2><p>${t('chDesc')}</p><div class="modal-actions"><button class="bigbtn pink ch-opt" id="chTimed">⏱ ${t('chTimed')}<small>${t('chTimedSub')} · ${r.timed ? t('chRecord', { n: r.timed }) : t('chNoRecord')}</small></button><button class="bigbtn ch-opt" id="chEndless">♾️ ${t('chEndless')}<small>${t('chEndlessSub')} · ${r.endless ? t('chRecord', { n: r.endless }) : t('chNoRecord')}</small></button><button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
+      `<div class="hero-mascot small-mascot">${mascot('think')}</div><h2>🏆 ${t('chTitle')}</h2><p>${t('chDesc')}</p><div class="label">${t('chDiffTitle')}</div><div class="ch-diffs" role="radiogroup">${Object.keys(
+        CHALLENGE_DIFFS
+      )
+        .map(
+          d =>
+            `<button role="radio" aria-checked="${diff === d}" class="${diff === d ? 'on' : ''}" data-chdiff="${d}"><b>${t('chDiff_' + d)}</b><small>${t('chDiffSub_' + d)}</small></button>`
+        )
+        .join(
+          ''
+        )}</div><div class="modal-actions"><button class="bigbtn pink ch-opt" id="chTimed">⏱ ${t('chTimed')}<small>${t('chTimedSub')} · ${rec('timed')}</small></button><button class="bigbtn ch-opt" id="chEndless">♾️ ${t('chEndless')}<small>${t('chEndlessSub')} · ${rec('endless')}</small></button><p class="sub small">${t('chFormula')}</p><button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
     );
   }
   if (g.modal === 'names' && g.screen === 'home') {

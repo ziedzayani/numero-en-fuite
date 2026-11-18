@@ -206,7 +206,7 @@ function bind() {
   });
   click('again', () => {
     sfx('tap');
-    if (g.mode === 'challenge') return startChallenge(g.chKind);
+    if (g.mode === 'challenge') return startChallenge(g.chKind, g.chDiff);
     if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
     start();
   });
@@ -275,6 +275,37 @@ function bind() {
     g.modal = 'challenge';
     render();
   });
+  app.querySelectorAll('[data-chdiff]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.chDiffPref = b.dataset.chdiff;
+      sfx('tap');
+      render();
+    })
+  );
+  click('openTutorial', openTutorial);
+  click('rulesTutorial', openTutorial);
+  click('tutNext', tutNext);
+  click('tutAsk', tutNext);
+  click('tutPrecise', () => tutCapture('precise'));
+  click('tutNet', () => tutCapture('net'));
+  click('tutClose', () => {
+    g.modal = null;
+    g.tut = null;
+    render();
+  });
+  click('tutPlay', () => {
+    g.tut = null;
+    g.modal = 'names';
+    render();
+  });
+  app.querySelectorAll('[data-tutpick]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.tut.sel = Number(b.dataset.tutpick);
+      g.tut.miss = null;
+      sfx('tap');
+      render();
+    })
+  );
   click('chTimed', () => startChallenge('timed'));
   click('chEndless', () => startChallenge('endless'));
   app.querySelectorAll('[data-key]').forEach(b => b.addEventListener('click', () => pressKey(b.dataset.key)));

@@ -42,7 +42,13 @@ function nextMove() {
   const from = g.secret;
   let m;
   if (g.mode === 'challenge' || g.level === 'genius') {
-    m = { ...pick(g.mode === 'challenge' ? CH_MOVES : GENIUS_MOVES) };
+    // Un saut annoncé doit vraiment déplacer le numéro : ÷2 sur 1 (1 → 1) ou ×2 sur le maximum
+    // (50 → 50) le laisseraient sur place ; on tire alors un autre saut.
+    const moves = g.mode === 'challenge' ? CH_MOVES : GENIUS_MOVES;
+    for (let tries = 0; tries < 20; tries++) {
+      m = { ...pick(moves) };
+      if (moveFn(m)(g.secret) !== g.secret) break;
+    }
     applyMove(m);
   } else {
     const range = g.level === 'junior' ? 1 : 2;

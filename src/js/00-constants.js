@@ -9,8 +9,9 @@
  *      sons, sauvegarde          10 écrans (accueil, réglages, jeu, résultat, fins)
  *   03 questions (indices)       11 film du parcours du numéro
  *   04 calculs                   12 fenêtres (pause, carnet, noms, défi…)
- *   05 défi solo, start()        13 render() + bind() : affichage et événements
- *   06 chronos                   14 bouton Retour Android, démarrage, API de test
+ *   05 défi solo, start()        13 tutoriel scripté
+ *   06 chronos                   14 render() + bind() : affichage et événements
+ *                                15 bouton Retour Android, démarrage, API de test
  *
  * Principe : tout l'état vit dans l'objet `g` (sauvegardé dans localStorage).
  * Chaque action modifie `g` puis appelle render(), qui reconstruit l'écran.
@@ -53,3 +54,26 @@ const SCORE = { precise: 10, net: 4, miss: -1, deductionBonus: 1 };
 
 /** Nombre de filets par joueur et par partie (tous les modes). */
 const NETS_MAX = 3;
+
+/**
+ * Score du défi solo. Règle de conception : prolonger la partie ne doit JAMAIS rapporter.
+ * Un tour de plus coûte au moins perTurn + miss = 65 points, alors qu'un calcul juste rapporte
+ * au plus goodMath + timeRefund × perSecond = 10 + 30 = 40 points. Le combo est seulement visuel.
+ */
+const CHALLENGE_SCORE = {
+  start: 1000,
+  perTurn: 45, // par tour après le premier
+  question: 5,
+  wrongMath: 10,
+  goodMath: 10,
+  miss: 20, // capture précise ratée
+  netMiss: 40,
+  netWin: 50, // victoire au filet (moins méritoire qu'une capture précise)
+  perSecond: 2, // par seconde restante, contre la montre
+  timeRefundMs: 15000 // calcul juste en contre la montre
+};
+/** Difficultés du défi → niveau utilisé pour les calculs, les questions et le filet (numéros toujours 1–100). */
+const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
+
+/** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
+const APP_VERSION = /* @inject version */ '';

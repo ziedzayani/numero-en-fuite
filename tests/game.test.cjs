@@ -389,7 +389,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       return { errs: [...new Set(errs)], ops: [...ops].sort().join(' ') }; }, EXPECTED_FN);
     check(sim.errs.length === 0, 'Défi : 40 parties simulées, carnet exact malgré ×2, ÷2, miroir, +7… ' + sim.errs.join(', '));
     check(sim.ops.split(' ').length >= 5, 'Défi : sauts variés observés (' + sim.ops + ')');
-    // Calcul juste en défi : gel, +30, combo, +15 s ; faux : −10 et saut
+    // Calcul juste en défi : gel, +10 (combo seulement visuel), +15 s ; faux : −10 et saut
     const mres = await page.evaluate(() => { const N = window.__numero; N.startChallenge('timed'); const s = N.state; s.chElapsed = 60000;
       const sec0 = s.secret, sc0 = N.chScore(); N.mathAnswer(s.math.result); const a = { frozen: s.last.frozen, shift: s.last.shift, same: s.secret === sec0, bonus: s.last.chBonus, d: N.chScore() - sc0, time: s.chElapsed };
       N.nextTurn(); N.guess(s.secret % 100 + 1 === s.secret ? 1 : (s.secret % 100) + 1); N.nextTurn();
@@ -397,18 +397,18 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       N.nextTurn(); N.guess(s.secret % 100 + 1); N.nextTurn();
       const sc2 = N.chScore(); N.mathAnswer(s.math.options.find(o => o !== s.math.result)); const c = { frozen: s.last.frozen, moved: typeof s.last.shift === 'object', d: N.chScore() - sc2, streak: s.chStreak };
       return { a, b, c }; });
-    check(mres.a.frozen && mres.a.same && mres.a.shift === 0 && mres.a.bonus === 30 && mres.a.d === 30 && mres.a.time === 45000, 'Défi : calcul juste → numéro gelé 🧊, +30 points, +15 s au chrono');
-    check(mres.b.bonus === 40 && mres.b.streak === 2 && mres.b.same && mres.b.d === 40, 'Défi : 2e calcul juste d’affilée → combo +40');
+    check(mres.a.frozen && mres.a.same && mres.a.shift === 0 && mres.a.bonus === 10 && mres.a.d === 10 && mres.a.time === 45000, 'Défi : calcul juste → numéro gelé 🧊, +10 points, +15 s au chrono');
+    check(mres.b.bonus === 10 && mres.b.streak === 2 && mres.b.same && mres.b.d === 10, 'Défi : 2e calcul juste d’affilée → combo ×2 affiché, toujours +10 (pas de bonus croissant)');
     check(!mres.c.frozen && mres.c.moved && mres.c.d === -10 && mres.c.streak === 0, 'Défi : calcul faux → −10 et saut fou, combo remis à zéro');
     await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless'); N.ask(N.state.choices[0]); N.nextTurn(); N.mathAnswer; });
     await page.click('#next').catch(() => {});
     await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless'); });
     await page.click('[data-tab="math"]'); await page.click('.mathbox .info-link');
-    check((await page.textContent('.mathbox .tradeoff')).includes('🧊'), 'Défi : avantages du calcul affichés (gel, +30) avec ℹ️');
+    check((await page.textContent('.mathbox .tradeoff')).includes('🧊'), 'Défi : avantages du calcul affichés (gel, +10) avec ℹ️');
     await page.click('.mathbox .tradeoff');
     check(!(await page.$('.mathbox .tradeoff')), 'Défi : un toucher referme les avantages / risques');
     await page.click(`[data-math="${(await S(page)).math.result}"]`);
-    check(await page.isVisible('.ch-bonus') && await page.isVisible('.move-line.frozen'), 'Défi : résultat « 🧊 +30 points » et « Gelé »');
+    check(await page.isVisible('.ch-bonus') && await page.isVisible('.move-line.frozen'), 'Défi : résultat « 🧊 +10 points » et « Gelé »');
     const netWin = await page.evaluate(() => { localStorage.removeItem('numeroEnFuiteRecords'); const N = window.__numero; N.startChallenge('endless'); N.netCapture(N.state.secret); N.nextTurn(); return N.state.chFinal; });
     check(netWin === 950, `Défi gagné au filet : −50 (score ${netWin})`);
     await page.evaluate(() => { const N = window.__numero; N.state.screen = 'home'; N.render(); });
@@ -418,8 +418,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check((await page.textContent('#next')).includes('score'), 'Défi trouvé : bouton « Voir mon score »');
     await page.click('#next');
     st = await S(page);
-    check(st.screen === 'end' && st.chWon && st.chFinal === 990 && await page.isVisible('.ch-score') && await page.isVisible('.ch-new'), `Défi réussi au 1er tour avec 1 aide : score 990, nouveau record (${st.chFinal})`);
-    check((await page.evaluate(() => window.__numero.records())).endless === 990, 'Record enregistré');
+    check(st.screen === 'end' && st.chWon && st.chFinal === 995 && await page.isVisible('.ch-score') && await page.isVisible('.ch-new'), `Défi réussi au 1er tour avec 1 question : score 995, nouveau record (${st.chFinal})`);
+    check((await page.evaluate(() => window.__numero.records()))['endless-medium'] === 995, 'Record enregistré pour « sans limite / moyen »');
     // contre la montre : échec quand le temps est écoulé
     await page.click('#again');
     await page.evaluate(() => { const N = window.__numero; N.startChallenge('timed'); });
@@ -713,6 +713,142 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(!(await page.content()).includes('❓'), 'Aucune icône ❓ en début de phrase');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (film) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} Film du parcours : exact, popup, lecture pas à pas, arabe`);
+    await ctx.close();
+  }
+
+  // 3g) V8.4 : barème du défi anti-abus, chrono figé sur les résultats, difficultés, sauts jamais sur place,
+  //     version affichée, tutoriel, mini-carnet, sauts « à l'aveugle », sous-totaux
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser, { width: 412, height: 800 });
+    // Critère de l'audit : retarder volontairement la capture ne doit JAMAIS rapporter plus qu'une capture plus rapide.
+    const abuse = await page.evaluate(() => {
+      const N = window.__numero, bad = [];
+      const run = (kind, diff, plan) => {
+        N.startChallenge(kind, diff); const s = N.state; s.chElapsed = 60000;
+        for (const a of plan) {
+          if (a === 'calc') N.mathAnswer(s.math.result); else if (a === 'q') N.ask(s.choices[0]); else if (a === 'badcalc') N.mathAnswer(s.math.options.find(o => o !== s.math.result));
+          if (s.phase === 'result') N.nextTurn();
+          if (a === 'net') N.netCapture(s.secret > 50 ? 1 : 100); else N.guess(s.secret === 1 ? 2 : s.secret - 1);
+          N.nextTurn();
+        }
+        N.guess(N.state.secret); N.nextTurn(); return N.state.chFinal;
+      };
+      let sims = 0;
+      for (const kind of ['timed', 'endless']) for (const diff of ['easy', 'medium', 'hard']) {
+        const quick = run(kind, diff, []);
+        for (let k = 1; k <= 8; k++) { const sc = run(kind, diff, Array(k).fill('calc')); sims++; if (sc >= quick) bad.push(`${kind}/${diff} ${k} calculs+ratés : ${sc} ≥ ${quick}`); }
+        for (let r = 0; r < 20; r++) {
+          const plan = Array.from({ length: 1 + Math.floor(Math.random() * 6) }, () => ['calc', 'calc', 'q', 'badcalc', 'none', 'net'][Math.floor(Math.random() * 6)]);
+          const sc = run(kind, diff, plan); sims++; if (sc >= quick) bad.push(`${kind}/${diff} [${plan}] : ${sc} ≥ ${quick}`);
+        }
+      }
+      // le scénario de l'audit : 8 calculs justes + 7 ratés puis capture (1 205 points en V8.3)
+      const audit = run('endless', 'hard', Array(7).fill('calc'));
+      return { bad, sims, audit, quick: run('endless', 'hard', []) };
+    });
+    check(abuse.bad.length === 0, `Défi : ${abuse.sims} parties « retardées exprès » ne battent jamais une capture plus rapide ` + abuse.bad.slice(0, 3).join(' | '));
+    check(abuse.audit < abuse.quick, `Défi : le scénario de l’audit (7 calculs justes + 7 ratés) ne rapporte plus (${abuse.audit} < ${abuse.quick})`);
+    // chrono du défi figé pendant la lecture du résultat
+    const tm = await page.evaluate(async () => {
+      const N = window.__numero, wait = ms => new Promise(r => setTimeout(r, ms));
+      N.startChallenge('timed', 'medium'); N.state.modal = null; N.render(); N.ask(N.state.choices[0]);
+      const a = N.state.chElapsed; await wait(900); const b = N.state.chElapsed;
+      N.nextTurn(); await wait(900); const c = N.state.chElapsed;
+      N.startChallenge('endless', 'medium'); N.ask(N.state.choices[0]); const d = N.state.chElapsed; await wait(700);
+      return { result: b - a, play: c - b, endless: N.state.chElapsed - d };
+    });
+    check(tm.result === 0 && tm.endless === 0, `Défi : chrono arrêté pendant l’écran de résultat (+${tm.result} ms, sans limite +${tm.endless} ms)`);
+    check(tm.play >= 600, `Défi : le chrono repart quand on rejoue (+${tm.play} ms)`);
+    // difficultés
+    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'home'; N.state.mode = 'normal'; N.state.modal = null; N.render(); });
+    await page.click('#openChallenge');
+    check((await page.$$('[data-chdiff]')).length === 3 && await page.isVisible('[data-chdiff="medium"].on'), 'Défi : 3 difficultés, « Moyen » par défaut');
+    await page.click('[data-chdiff="easy"]'); await page.click('#chEndless');
+    const easy = await page.evaluate(() => { const N = window.__numero, r = []; for (let i = 0; i < 60; i++) { N.startChallenge('endless', 'easy'); r.push(N.state.math.result, ...N.state.math.options); } return { level: N.state.level, diff: N.state.chDiff, max: Math.max(...r), n: N.state.math.options.length, maxN: N.maxN() }; });
+    check(easy.level === 'junior' && easy.diff === 'easy' && easy.max <= 13 && easy.n === 3 && easy.maxN === 100, `Défi facile : calculs du niveau Petit, numéros 1–100 (max proposé ${easy.max})`);
+    const hard = await page.evaluate(() => { const N = window.__numero; N.startChallenge('timed', 'hard'); return [N.state.level, N.state.math.options.length, N.state.chDiffPref].join(); });
+    check(hard === 'expert,6,hard', 'Défi difficile : calculs à priorités, 6 propositions, choix mémorisé (' + hard + ')');
+    const recs = await page.evaluate(() => { localStorage.removeItem('numeroEnFuiteRecords'); const N = window.__numero; N.startChallenge('endless', 'easy'); N.guess(N.state.secret); N.nextTurn(); N.startChallenge('endless', 'hard'); N.ask(N.state.choices[0]); N.nextTurn(); N.guess(N.state.secret); N.nextTurn(); return N.records(); });
+    check(recs['endless-easy'] === 1000 && recs['endless-hard'] === 995 && !('endless' in recs), 'Défi : un record par difficulté ' + JSON.stringify(recs));
+    // sauts spéciaux : jamais sur place (÷2 sur 1, ×2 sur le maximum)
+    const still = await page.evaluate(() => {
+      const N = window.__numero; let same = 0, n = 0;
+      for (let i = 0; i < 150; i++) { N.state.players = 1; N.state.level = 'genius'; N.state.mode = 'normal'; N.start(true); N.state.modal = null; N.state.secret = 50; N.ask(N.state.choices[0]); n++; if (N.state.history.at(-1).shift && N.state.secret === 50) same++; }
+      for (let i = 0; i < 150; i++) { N.startChallenge('endless', 'medium'); N.state.secret = i % 2 ? 1 : 100; const s0 = N.state.secret; N.ask(N.state.choices[0]); n++; if (N.state.secret === s0) same++; }
+      return { same, n };
+    });
+    check(still.same === 0, `Génie (50) et défi (1, 100) : ${still.n} sauts, aucun ne laisse le numéro sur place (${still.same})`);
+    // version affichée = versionName de app/build.gradle
+    const gradleVersion = fs.readFileSync(path.join(__dirname, '..', 'app', 'build.gradle'), 'utf8').match(/versionName\s+'([^']+)'/)[1];
+    await page.evaluate(() => { const N = window.__numero; N.state.mode = 'normal'; N.state.screen = 'home'; N.state.modal = null; N.render(); });
+    const foot = await page.textContent('.footer');
+    check(foot.includes('V' + gradleVersion) && !foot.includes('V7'), `Accueil : version ${gradleVersion} affichée (« ${foot.trim()} »)`);
+    await page.click('#openSettings');
+    check((await page.textContent('.app-version')).includes(gradleVersion), 'Réglages : numéro de version affiché');
+    await page.click('#closeSettings');
+    // tutoriel
+    for (const lang of ['fr', 'en', 'ar']) {
+      await page.evaluate(l => { const N = window.__numero; N.state.lang = l; N.state.modal = null; N.state.screen = 'home'; N.render(); }, lang);
+      await page.click('#openTutorial');
+      let txt = '';
+      for (let i = 0; i < 4; i++) { txt += await page.textContent('.modal'); await page.click(i === 1 ? '#tutAsk' : '#tutNext'); }
+      txt += await page.textContent('.modal');
+      check(!/\btut[A-Z0-9]/.test(txt) && (await S(page)).tut.step === 4, `Tutoriel (${lang}) : 5 étapes traduites, arrivée à la capture`);
+      await page.click('#tutClose');
+    }
+    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.render(); });
+    await page.click('#openRules'); await page.click('#rulesTutorial');
+    let tu = await S(page);
+    check(tu.modal === 'tutorial' && tu.tut.step === 0 && (await page.$$('.tut-cell.secret')).length === 1, 'Tutoriel accessible depuis les règles, numéro d’entraînement visible');
+    await page.click('#tutNext'); await page.click('#tutAsk');
+    check((await page.$$('.tut-cell.out')).length === 4, 'Tutoriel : « plus grand que 5 ? » NON → 6, 7, 8, 9 rayés');
+    await page.click('#tutNext');
+    const moved = await page.$$eval('.tut-cell', cs => cs.map(c => (c.classList.contains('out') ? 'x' : '') + (c.classList.contains('secret') ? '*' : '')).join(','));
+    check(moved === 'x,,,,*,,x,x,x' && await page.isVisible('.tut-body .blind-jump'), 'Tutoriel : le numéro s’enfuit (+1, 4 → 5) et le carnet se décale (2 à 6) ' + moved);
+    await page.click('#tutNext');
+    check(await page.isDisabled('#tutPrecise') && await page.isDisabled('#tutNet'), 'Tutoriel : boutons de capture inactifs tant qu’aucun numéro n’est touché');
+    await page.click('[data-tutpick="8"]'); await page.click('#tutPrecise');
+    tu = await S(page);
+    check(tu.tut.step === 4 && (await page.textContent('.tut-body')).includes('5'), 'Tutoriel : capture ratée expliquée, on peut réessayer');
+    await page.click('[data-tutpick="4"]');
+    check((await page.textContent('#tutNet')).includes('4·5'), 'Tutoriel : filet 4·5 (2 voisins au niveau Petit)');
+    await page.click('#tutNet');
+    check((await S(page)).tut.step === 5 && (await page.textContent('.modal')).includes('+4'), 'Tutoriel : filet réussi, +4, conclusion');
+    await page.click('#tutPlay');
+    check((await S(page)).modal === 'names', 'Tutoriel : « Jouer » ouvre la préparation de la partie');
+    await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.render(); });
+    await page.click('#openTutorial');
+    check(await page.evaluate(() => window.__numero.back()) && (await S(page)).modal === null, 'Bouton Retour : ferme le tutoriel');
+    // règle de la Course : départage annoncé
+    await page.click('[data-players="2"]'); await page.click('#start');
+    check((await page.textContent('[data-gmode="race"]')).includes('points départagent'), 'Mode Course : le départage aux points est annoncé');
+    await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.render(); });
+    // mini-carnet et saut « à l'aveugle »
+    await page.evaluate(() => { const N = window.__numero; N.state.players = 2; N.state.level = 'genius'; N.state.mode = 'normal'; N.start(true); N.state.modal = null; N.render(); });
+    check(await page.isVisible('.mini-notebook .tip'), 'Mini-carnet : astuce en début de chasse');
+    await page.evaluate(() => { const N = window.__numero; N.ask(N.state.choices[0]); });
+    const jump = await page.evaluate(() => { const el = document.querySelector('.move-line .blind-jump'), m = window.__numero.state.last.shift; return { ok: !!el, cls: el && el.className, tokens: el && el.textContent.trim(), op: m.op }; });
+    const expCls = { '+': 'hop', '×': 'grow', '÷': 'shrink', mirror: 'mirror' }[jump.op];
+    check(jump.ok && jump.cls.includes(expCls) && jump.tokens === '?', `Saut à l’aveugle « ${jump.op} » animé (${expCls}) sans révéler la position`);
+    await page.evaluate(() => { const N = window.__numero; N.nextTurn(); N.guess(N.state.secret === 1 ? 2 : 1); N.nextTurn(); N.state.modal = null; N.render(); });
+    const mini = await page.textContent('.mini-notebook');
+    check(mini.includes('Derniers indices') && (mini.match(/Joueur/g) || []).length === 2, 'Mini-carnet : les 2 derniers événements de la chasse en cours');
+    // sous-totaux du classement (mode Points)
+    await page.evaluate(() => { const N = window.__numero; N.state.players = 2; N.state.gameMode = 'score'; N.state.level = 'junior'; N.start(true); const s = N.state; s.scores = [12, 7]; s.stars = [3, 0]; s.screen = 'end'; s.modal = null; N.render(); });
+    const sub = await page.$$eval('.finalscore > div:nth-child(2) small', e => e.map(x => x.textContent));
+    check(sub.length === 2 && sub[0].includes('12') && sub[0].includes('3'), 'Classement Points : sous-totaux « captures + ⭐ calculs » ' + sub.join(' / '));
+    const dupIds = await page.evaluate(() => {
+      const N = window.__numero, out = [];
+      const scan = tag => { const seen = {}; document.querySelectorAll('[id]').forEach(e => { if (seen[e.id]) out.push(tag + ':' + e.id); seen[e.id] = 1; }); };
+      for (const m of [null, 'rules', 'challenge', 'names', 'tutorial']) { N.state.screen = 'home'; N.state.mode = 'normal'; N.state.modal = m; if (m === 'tutorial') N.state.tut = { step: 4, sel: 3, miss: null }; N.render(); scan('home/' + m); }
+      N.state.players = 2; N.start(true); for (const m of [null, 'pause', 'notebook', 'quit', 'handoff']) { N.state.modal = m; N.render(); scan('game/' + m); }
+      N.state.screen = 'settings'; N.state.modal = null; N.render(); scan('settings');
+      return out;
+    });
+    check(dupIds.length === 0, 'Aucun identifiant HTML en double (accueil, fenêtres, partie, réglages) ' + dupIds.join(', '));
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (V8.4) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V8.4 : défi anti-abus, chrono figé, difficultés, sauts, version, tutoriel, mini-carnet`);
     await ctx.close();
   }
 

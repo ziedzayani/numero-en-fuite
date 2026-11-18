@@ -66,6 +66,7 @@ const initial = () => ({
   reduceMotion: false,
   names: ['', '', '', ''],
   gameMode: 'race',
+  chDiffPref: 'medium',
   starter: 0,
   playerHelp: [false, false, false, false],
   mode: 'normal',
@@ -223,8 +224,11 @@ function load() {
     if (!['quit', 'handoff', 'pause', 'notebook', 'rules', 'names', 'challenge', null].includes(g.modal))
       g.modal = null;
     if (g.hunt && !Array.isArray(g.hunt.steps)) g.hunt = null;
+    g.tut = null; // le tutoriel n'est jamais repris
     if (!['normal', 'challenge'].includes(g.mode)) g.mode = 'normal';
     if (g.mode === 'challenge' && !['timed', 'endless'].includes(g.chKind)) g.chKind = 'endless';
+    if (!(g.chDiff in CHALLENGE_DIFFS)) g.chDiff = 'hard'; // parties de défi sauvegardées avant la V8.4
+    if (!(g.chDiffPref in CHALLENGE_DIFFS)) g.chDiffPref = 'medium';
     g.chElapsed = Number(g.chElapsed) || 0;
     g.answerElapsed = Number(g.answerElapsed) || 0;
     g.typed = typeof g.typed === 'string' ? g.typed : '';

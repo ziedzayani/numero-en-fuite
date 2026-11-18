@@ -13,20 +13,26 @@ function records() {
     return {};
   }
 }
-/** Score du défi ; withBonus ajoute le bonus de temps restant. */
+/** Clé des records d'un défi : un record par variante et par difficulté. */
+const chRecordKey = (kind = g.chKind, diff = g.chDiff) => `${kind}-${diff}`;
+/**
+ * Score du défi (voir CHALLENGE_SCORE). withBonus ajoute les éléments de fin de partie :
+ * pénalité de victoire au filet et bonus des secondes restantes.
+ */
 function chScore(withBonus = false) {
-  const h = g.history,
-    n = f => h.filter(f).length;
+  const S = CHALLENGE_SCORE,
+    n = f => g.history.filter(f).length;
   let sc =
-    1000 -
-    25 * g.turn -
-    10 * n(e => e.type === 'question' || (e.type === 'math' && !e.correct)) -
-    20 * n(e => e.type === 'wrong') -
-    40 * n(e => e.type === 'netMiss') +
-    (g.chBonus || 0);
+    S.start -
+    S.perTurn * g.turn -
+    S.question * n(e => e.type === 'question') -
+    S.wrongMath * n(e => e.type === 'math' && !e.correct) +
+    S.goodMath * n(e => e.type === 'math' && e.correct) -
+    S.miss * n(e => e.type === 'wrong') -
+    S.netMiss * n(e => e.type === 'netMiss');
   if (withBonus) {
-    if (g.last && g.last.type === 'netHit') sc -= 50;
-    if (g.chKind === 'timed') sc += 2 * Math.ceil(Math.max(0, CH_TIME - g.chElapsed) / 1000);
+    if (g.last && g.last.type === 'netHit') sc -= S.netWin;
+    if (g.chKind === 'timed') sc += S.perSecond * Math.ceil(Math.max(0, CH_TIME - g.chElapsed) / 1000);
   }
   return Math.max(0, sc);
 }
@@ -35,23 +41,28 @@ const fmtTime = ms => {
   const sec = Math.max(0, Math.ceil(ms / 1000));
   return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
 };
-/** Lance un défi ('timed' | 'endless') en mémorisant niveau et joueurs pour les restaurer ensuite. */
-function startChallenge(kind) {
+/**
+ * Lance un défi ('timed' | 'endless') à la difficulté 'easy' | 'medium' | 'hard',
+ * en mémorisant niveau et joueurs pour les restaurer ensuite.
+ */
+function startChallenge(kind, diff = g.chDiffPref) {
+  if (!(diff in CHALLENGE_DIFFS)) diff = 'medium';
   g.playerHelp = [false, false, false, false];
   const prevLevel = g.mode === 'challenge' ? g.prevLevel : g.level,
     prevPlayers = g.mode === 'challenge' ? g.prevPlayers : g.players;
   g.players = 1;
-  g.level = 'expert';
+  g.level = CHALLENGE_DIFFS[diff];
+  g.chDiffPref = diff;
   start();
   g.mode = 'challenge';
   g.chKind = kind;
+  g.chDiff = diff;
   g.prevLevel = prevLevel;
   g.prevPlayers = prevPlayers;
   g.limit = 0;
   g.chElapsed = 0;
-  g.chBonus = 0;
   g.chStreak = 0;
-  g.netsLeft = [3];
+  g.netsLeft = [NETS_MAX];
   g.modal = null;
   g.secret = 1 + rnd(100);
   g.candidates = all(100);
@@ -71,9 +82,9 @@ function finishChallenge(won) {
   g.chRecordNew = false;
   if (won) {
     const r = records(),
-      best = r[g.chKind] || 0;
+      best = r[chRecordKey()] || 0;
     if (g.chFinal > best) {
-      r[g.chKind] = g.chFinal;
+      r[chRecordKey()] = g.chFinal;
       g.chRecordNew = true;
       try {
         localStorage.setItem(RECORDS_STORAGE, JSON.stringify(r));
@@ -109,7 +120,8 @@ function start(skipHandoff = false) {
     gameMode,
     starter,
     playerHelp,
-    showInfo
+    showInfo,
+    chDiffPref
   } = g;
   g = initial();
   g.players = players;
@@ -122,6 +134,7 @@ function start(skipHandoff = false) {
   g.replayAsk = replayAsk;
   g.rpAuto = rpAuto;
   g.showInfo = !!showInfo;
+  g.chDiffPref = chDiffPref in CHALLENGE_DIFFS ? chDiffPref : 'medium';
   g.gameMode = gameMode === 'score' ? 'score' : 'race';
   g.starter = players > 1 ? (starter || 0) % players : 0;
   g.playerHelp = Array.isArray(playerHelp) ? playerHelp.slice(0, 4) : [false, false, false, false];

@@ -10,6 +10,7 @@
  *                              /* @inject scripts *\/  →  src/js/*.js      (ordre alphabétique)
  *   src/js/01-i18n.js        contient /* @inject dictionaries *\/ {} → src/i18n/{fr,en,ar}.json
  *   src/styles/00-fonts.css  référence fonts/*.woff2 → intégrées en data: URI (base64)
+ *   src/js/00-constants.js   contient /* @inject version *\/ '' → versionName de app/build.gradle
  *   src/pwa/sw.js            service worker ; __VERSION__ remplacé par versionName
  *
  * Fichiers GÉNÉRÉS (versionnés pour que l'APK et la version web soient reproductibles,
@@ -87,6 +88,8 @@ function scripts() {
     .map(f => {
       let js = read(`src/js/${f}`);
       // « {} » garde le fichier source valide (lisible par l'éditeur, Prettier, ESLint).
+      if (js.includes('/* @inject version */'))
+        js = inject(js, "/* @inject version */ ''", JSON.stringify(versionName()), f);
       if (js.includes('/* @inject dictionaries */'))
         js = inject(js, '/* @inject dictionaries */ {}', JSON.stringify(dicts, null, 1), f);
       return `/* ---- ${f} ---- */\n${js}`;

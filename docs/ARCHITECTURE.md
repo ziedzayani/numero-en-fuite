@@ -28,7 +28,7 @@ analyse le script **assemblé** et signale les variables non définies ou inutil
 
 | Fichier | Rôle |
 |---|---|
-| `00-constants.js` | Règles chiffrées : `LEVELS` (numéros max, taille du filet), `SCORE`, `NETS_MAX`, clés de stockage |
+| `00-constants.js` | Règles chiffrées : `LEVELS`, `SCORE`, `NETS_MAX`, `CHALLENGE_SCORE`, `CHALLENGE_DIFFS`, `APP_VERSION` |
 | `01-i18n.js` | `dictionaries` (généré à partir de `src/i18n/`) |
 | `02-state.js` | État `g`, `t()` (traduction), utilitaires, sons Web Audio, `save()` / `load()` |
 | `03-questions.js` | Questions-indices, choix de 3 questions utiles par tour |
@@ -41,8 +41,9 @@ analyse le script **assemblé** et signale les variables non définies ou inutil
 | `10-view-screens.js` | Écrans : accueil, réglages, jeu, résultat, fins de partie |
 | `11-replay.js` | Film du parcours du numéro |
 | `12-modals.js` | Fenêtres : règles, noms et mode, pause, carnet, quitter, « passe le téléphone » |
-| `13-render.js` | `render()` (redessine tout) et `bind()` (branche les clics) |
-| `14-boot.js` | Bouton Retour Android `back()`, démarrage, API `window.__numero` |
+| `13-tutorial.js` | Tutoriel scripté (n'utilise pas le moteur ; état `g.tut`) |
+| `14-render.js` | `render()` (redessine tout) et `bind()` (branche les clics) |
+| `15-boot.js` | Bouton Retour Android `back()`, démarrage, API `window.__numero` |
 
 ## Flux de données
 
@@ -83,8 +84,10 @@ L'identifiant doit être stable (il est sauvegardé dans le carnet) et le texte 
 **Ajouter un niveau.** `LEVELS` (`00-constants.js`), `LIMITS` (`06-timers.js`), le choix de niveau dans `home()`,
 les textes `level…` / `age…`, et si besoin les branches de `makeMath()`, `qpool()` et `nextMove()`.
 
-**Changer les points.** `SCORE` dans `00-constants.js` ; mettre à jour la règle affichée (`rule3`, `modeScoreSub`…)
-dans les 3 langues et les tests qui vérifient les scores.
+**Changer les points.** `SCORE` (parties) ou `CHALLENGE_SCORE` (défi) dans `00-constants.js` ; mettre à jour la règle
+affichée (`rule3`, `modeScoreSub`, `chFormula`…) dans les 3 langues et les tests qui vérifient les scores.
+Pour le défi, garder la règle « prolonger ne rapporte jamais » : un tour de plus (`perTurn` + `miss`) doit coûter plus
+que ce qu'un calcul juste rapporte (`goodMath` + `timeRefundMs` × `perSecond`) ; un test le vérifie sur 168 parties simulées.
 
 ## Tests
 

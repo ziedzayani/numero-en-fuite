@@ -1,5 +1,31 @@
 # Historique des versions
 
+## V8.4
+
+Suite à l'audit de la V8.3.
+
+**Défi du super détective**
+- **Barème anti-abus** : calcul juste +10 (le combo 🔥 n'est plus qu'un effet visuel), −45 par tour en plus,
+  question −5. Rater exprès pour enchaîner les calculs ne rapporte plus jamais : le scénario de l'audit
+  (1 205 points avec 7 échecs) donne maintenant moins qu'une capture rapide. Vérifié sur 168 parties simulées (3 difficultés × 2 variantes).
+- **Chrono arrêté pendant la lecture du résultat** (le temps de lecture n'est plus pénalisé).
+- **3 difficultés de calcul** : Facile (+ et − jusqu'à 10), Moyen (retenues, tables), Difficile (priorités, 6 choix).
+  Numéros toujours de 1 à 100. Un record par variante et par difficulté (anciens records remis à zéro : barème différent).
+- Barème complet affiché dès la fenêtre de lancement.
+
+**Règles et jeu**
+- **Tutoriel « Apprends en jouant »** (accueil et règles) : mini-enquête d'une minute avec un numéro visible :
+  question, numéros rayés, fuite (+1) avec le carnet qui se décale, capture précise ou filet, essai raté expliqué.
+- **Sauts « à l'aveugle »** : après un indice, une petite animation montre le type de saut (+2, ×2, ÷2, miroir)
+  sur une piste sans numéros, donc sans révéler où se cache le numéro.
+- **Mini-carnet** sous les questions : les derniers indices sur le numéro en cours, ou une astuce (masqué sur les écrans bas).
+- Un saut annoncé déplace toujours le numéro (÷2 sur le 1 ou ×2 sur le maximum sont retirés au tirage).
+- Règles du niveau Génie expliquées (±3, ±5, ×2, miroir) ; mode Course : « Personne ne l'a eu ? Les points départagent ».
+- Classement du mode Points : sous-totaux « points de captures + ⭐ de calculs ».
+- Version affichée (accueil et Réglages) = version Android, générée automatiquement (fin du « V7 »).
+
+Inchangés à dessein : film à 6 s par étape, filet à +4.
+
 ## V8.3
 
 **Jeu**

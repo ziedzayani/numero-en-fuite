@@ -43,7 +43,7 @@ function home() {
     )
     .join(
       ''
-    )}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn rules-btn" id="openRules">📖 ${t('rulesTitle')}</button><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button></div></section><footer class="footer">${t('homeFooter')} · V7</footer>`;
+    )}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn rules-btn" id="openRules">📖 ${t('rulesTitle')}</button><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn tut-btn" id="openTutorial">🎓 ${t('tutBtn')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
 }
 /** Réglages : langue, chronos, son, mouvements réduits, film. */
 function settings() {
@@ -69,7 +69,7 @@ function settings() {
     )
     .join(
       ''
-    )}</div></section><section class="panel settings-panel"><div class="panel-title">✨ ${t('motionTitle')}</div><p class="sub">${t('motionHint')}</p><button class="toggle-row" id="motionToggle" role="switch" aria-checked="${g.reduceMotion}"><span class="flag">${g.reduceMotion ? '🐢' : '💃'}</span><strong>${t('motionReduce')}</strong><span class="switch ${g.reduceMotion ? 'on' : ''}"></span></button></section><section class="panel settings-panel"><div class="panel-title">🎬 ${t('rpSetting')}</div><p class="sub">${t('rpSettingHint')}</p><button class="toggle-row" id="replayToggle" role="switch" aria-checked="${g.replayAsk !== false}"><span class="flag">🎬</span><strong>${t('rpSettingLabel')}</strong><span class="switch ${g.replayAsk !== false ? 'on' : ''}"></span></button></section><button class="bigbtn light" id="closeSettingsBottom">${t('back')}</button>`;
+    )}</div></section><section class="panel settings-panel"><div class="panel-title">✨ ${t('motionTitle')}</div><p class="sub">${t('motionHint')}</p><button class="toggle-row" id="motionToggle" role="switch" aria-checked="${g.reduceMotion}"><span class="flag">${g.reduceMotion ? '🐢' : '💃'}</span><strong>${t('motionReduce')}</strong><span class="switch ${g.reduceMotion ? 'on' : ''}"></span></button></section><section class="panel settings-panel"><div class="panel-title">🎬 ${t('rpSetting')}</div><p class="sub">${t('rpSettingHint')}</p><button class="toggle-row" id="replayToggle" role="switch" aria-checked="${g.replayAsk !== false}"><span class="flag">🎬</span><strong>${t('rpSettingLabel')}</strong><span class="switch ${g.replayAsk !== false ? 'on' : ''}"></span></button></section><button class="bigbtn light" id="closeSettingsBottom">${t('back')}</button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p>`;
 }
 /** Les trois onglets du tour : Indice, Calcul, Choisir un numéro (+ boutons de capture). */
 function questionView() {
@@ -78,7 +78,7 @@ function questionView() {
     mathOn = g.mathStarted && !g.helpUsed,
     gridclass = maxN() === 30 ? 'expert' : maxN() === 15 ? 'wide' : '';
   return `<div class="actiontabs" role="tablist"><button class="actiontab ${g.tab === 'question' ? 'selected' : ''}" data-tab="question" ${locked || mathOn ? 'disabled' : ''}>💡 ${t('tabQuestion')}</button><button class="actiontab ${g.tab === 'math' ? 'selected' : ''}" data-tab="math" ${locked ? 'disabled' : ''}>🧮 ${t('tabMath')}</button><button class="actiontab ${g.tab === 'guess' ? 'selected' : ''}" data-tab="guess">🎯 ${t('tabGuess')}</button></div>
- <div class="actionpane ${g.tab === 'question' ? 'selected' : ''}"><div class="q-head">${g.showInfo ? `<ul class="tradeoff"><li class="up">👍 ${t('q1')}</li>${g.mode === 'challenge' ? '' : `<li class="gift">🎁 ${t('q2')}</li>`}<li class="down">👎 ${t(g.mode === 'challenge' ? 'q3ch' : g.level === 'genius' ? 'q3g' : 'q3')}</li></ul>` : `<p class="q-title">${t('chooseQuestionShort')}</p>`}<button class="mini-btn small info-btn ${g.showInfo ? 'on' : ''}" data-info aria-pressed="${!!g.showInfo}" aria-label="${t('infoBtn')}" title="${t('infoBtn')}">ℹ️</button><button class="mini-btn small reroll" id="reroll" ${g.rerolled ? 'disabled' : ''} aria-label="${t('changeQuestions')}" title="${t('changeQuestions')}">🔀</button></div><div class="questions">${options.map(q => `<button class="qbtn" data-question="${q.id}"><span class="qicon">${q.icon}</span><span class="qtext">${esc(q.text)}<small>${esc(q.type)}</small></span></button>`).join('')}</div></div>
+ <div class="actionpane ${g.tab === 'question' ? 'selected' : ''}"><div class="q-head">${g.showInfo ? `<ul class="tradeoff"><li class="up">👍 ${t('q1')}</li>${g.mode === 'challenge' ? '' : `<li class="gift">🎁 ${t('q2')}</li>`}<li class="down">👎 ${t(g.mode === 'challenge' ? 'q3ch' : g.level === 'genius' ? 'q3g' : 'q3')}</li></ul>` : `<p class="q-title">${t('chooseQuestionShort')}</p>`}<button class="mini-btn small info-btn ${g.showInfo ? 'on' : ''}" data-info aria-pressed="${!!g.showInfo}" aria-label="${t('infoBtn')}" title="${t('infoBtn')}">ℹ️</button><button class="mini-btn small reroll" id="reroll" ${g.rerolled ? 'disabled' : ''} aria-label="${t('changeQuestions')}" title="${t('changeQuestions')}">🔀</button></div><div class="questions">${options.map(q => `<button class="qbtn" data-question="${q.id}"><span class="qicon">${q.icon}</span><span class="qtext">${esc(q.text)}<small>${esc(q.type)}</small></span></button>`).join('')}</div>${miniNotebook()}</div>
  <div class="actionpane ${g.tab === 'math' ? 'selected' : ''}"><div class="mathbox"><div class="math-title"><b dir="ltr" class="${mathText(g.math).length > 12 ? 'long' : ''}">${mathText(g.math)} = ?</b>${g.math.options.length > 3 ? `<small class="prio">${t('mathRewardSix')}</small>` : ''}</div>${!g.showInfo ? `<button class="info-link" data-info>ℹ️ ${t('infoBtn')}</button>` : g.mode === 'challenge' ? `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1ch')}</li><li class="gift">🎁 ${t(g.chKind === 'timed' ? 'm2chT' : 'm2ch')}</li><li class="down">👎 ${t('m3ch')}</li></ul>` : `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1')}</li><li class="gift">${t('m2')}</li><li class="down">👎 ${t('m3')}</li></ul>`}<div class="mathform ${g.math.options.length > 3 ? 'six' : ''}" dir="ltr">${g.math.options.map(n => `<button class="mathbtn" data-math="${n}">${n}</button>`).join('')}</div></div></div>
  <div class="actionpane ${g.tab === 'guess' ? 'selected' : ''}"><div class="pane-head"><p class="pick-hint">${g.answerLost ? t('answerTimeUp') : maxN() > 30 ? t('keypadHint') : g.helpUsed ? t('captPick', { max: maxN() }) : t('proGuess')}</p>${helpMode() === 'ask' ? `<button class="mini-btn small ${g.showHints ? 'is-on' : ''}" id="hints" aria-pressed="${g.showHints}">💡 ${t('hintsOn')}</button>` : ''}</div>${
    maxN() > 30
@@ -94,6 +94,32 @@ function questionView() {
 }
 function lens(n) {
   return `<div class="found-lens" aria-hidden="true"><span class="lens-glass"><b>${n}</b></span><i class="lens-handle"></i></div>`;
+}
+/**
+ * Mini-carnet sous les questions : les 3 derniers indices sur le numéro EN COURS
+ * (depuis la dernière capture), ou une astuce en début de chasse. Masqué sur les écrans bas (CSS).
+ */
+function miniNotebook() {
+  let from = 0;
+  g.history.forEach((e, i) => {
+    if (e.type === 'found' || e.type === 'netHit') from = i + 1;
+  });
+  const recent = g.history.slice(from).slice(-3).reverse();
+  return `<div class="mini-notebook">${
+    recent.length
+      ? `<b>📓 ${t('miniNotebook')}</b>${recent.map(e => `<p>${historyText(e)}</p>`).join('')}`
+      : `<p class="tip">${t('miniTip')}</p>`
+  }</div>`;
+}
+/**
+ * Saut « à l'aveugle » : montre le TYPE de déplacement (+2, ×2, miroir…) sur une piste
+ * sans numéros, pour ne jamais révéler où se cache le numéro.
+ */
+function blindJump(shift) {
+  const s = typeof shift === 'number' ? { op: '+', k: shift } : shift || { op: '+', k: 0 };
+  const kind = s.op === '+' ? 'hop' : s.op === '×' ? 'grow' : s.op === '÷' ? 'shrink' : 'mirror';
+  const dx = s.op === '+' ? Math.sign(s.k) * Math.min(Math.abs(s.k), 5) * 13 : 0;
+  return `<span class="blind-jump ${kind}" dir="ltr" aria-hidden="true" style="--dx:${dx}px"><span class="bj-track">${'<i></i>'.repeat(11)}</span><b class="bj-token">?</b></span><b dir="ltr" class="bj-label">${shiftSymbol(shift)}</b>`;
 }
 /** Pavé numérique (Génie et défi : trop de numéros pour une grille). */
 function keypadHTML() {
@@ -174,7 +200,7 @@ function resultView() {
   const move = x.frozen
     ? `<div class="move-line frozen"><b>🧊</b><span>${t('frozen')}</span></div>`
     : !['found', 'netHit'].includes(x.type)
-      ? `<div class="move-line"><b dir="ltr">${shiftSymbol(x.shift)}</b><span>${t('moved')}${moveHint(x.shift) ? ' <b class="mv-op">' + moveHint(x.shift) + '</b>' : ''}${clue ? '<br><small>' + t('oldClue') + '</small>' : ''}</span></div>`
+      ? `<div class="move-line">${blindJump(x.shift)}<span>${t('moved')}${moveHint(x.shift) ? ' <b class="mv-op">' + moveHint(x.shift) + '</b>' : ''}${clue ? '<br><small>' + t('oldClue') + '</small>' : ''}</span></div>`
       : '';
   const top = ['found', 'netHit'].includes(x.type) ? extra : '';
   if (top)
@@ -279,7 +305,7 @@ function end() {
     champions = tot.map((s, i) => (s === best ? pname(i) : null)).filter(Boolean),
     order = tot.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
   const soloLost = g.players === 1 && g.soloWon === false;
-  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel"><div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong>${g.stars[p.i] ? `<small>${t('withStars', { n: g.stars[p.i] })}</small>` : ''}</div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel"><div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
 function endRace() {
   const w = g.raceWinner,
@@ -304,6 +330,6 @@ function endSolo() {
 }
 function endChallenge() {
   const r = records(),
-    best = r[g.chKind] || 0;
-  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t('chFormula')}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+    best = r[chRecordKey()] || 0;
+  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t('chFormula')}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }

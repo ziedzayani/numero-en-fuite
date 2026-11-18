@@ -154,9 +154,8 @@ function mathAnswer(ans) {
   if (ch) {
     if (correct) {
       g.chStreak = (g.chStreak || 0) + 1;
-      chBonus = 30 + 10 * (g.chStreak - 1);
-      g.chBonus = (g.chBonus || 0) + chBonus;
-      if (g.chKind === 'timed') g.chElapsed = Math.max(0, g.chElapsed - 15000);
+      chBonus = CHALLENGE_SCORE.goodMath; // le combo (g.chStreak) n'est qu'un effet visuel
+      if (g.chKind === 'timed') g.chElapsed = Math.max(0, g.chElapsed - CHALLENGE_SCORE.timeRefundMs);
     } else g.chStreak = 0;
   }
   const shift = frozen ? 0 : nextMove();

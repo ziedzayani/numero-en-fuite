@@ -305,3 +305,298 @@ button:not(:disabled):active {
 .mathbox .tradeoff {
   cursor: pointer;
 }
+
+/* V8.4 : difficulté du défi, version de l'application */
+.ch-diffs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+.ch-diffs button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 4px;
+  border: 3px solid #c9d4f5;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.ch-diffs button b {
+  font-size: 15px;
+  line-height: 1.1;
+}
+.ch-diffs button small {
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--ink2);
+}
+.ch-diffs button.on {
+  border-color: var(--line);
+  background: #ffef95;
+}
+.app-version {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: #ffffffcc;
+}
+
+/* V8.4 : mini-carnet sous les questions (remplit l'espace vide, masqué sur les écrans bas) */
+.mini-notebook {
+  margin-top: 10px;
+  padding: 8px 11px;
+  border: 2px dashed #b9c6ee;
+  border-radius: 14px;
+  background: #f6f8ff;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--ink2);
+  text-align: start;
+}
+.mini-notebook b {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--ink);
+}
+.mini-notebook p {
+  margin: 2px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mini-notebook p.tip {
+  white-space: normal;
+}
+@media (max-height: 700px) {
+  .mini-notebook {
+    display: none;
+  }
+}
+
+/* V8.4 : saut « à l'aveugle » (type de déplacement, jamais la position) */
+.blind-jump {
+  position: relative;
+  flex: 0 0 auto;
+  width: 82px;
+  height: 44px;
+}
+.bj-track {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+.bj-track i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #b9c6ee;
+}
+.bj-token {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  width: 26px;
+  height: 26px;
+  margin-left: -13px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--purple);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: 0 2px 0 var(--purpleDark);
+}
+.blind-jump.hop .bj-token {
+  animation: bj-hop 1.1s cubic-bezier(0.3, 0.7, 0.4, 1) 0.2s both;
+}
+.blind-jump.grow .bj-token {
+  animation: bj-grow 1s ease-out 0.2s both;
+}
+.blind-jump.shrink .bj-token {
+  animation: bj-shrink 1s ease-out 0.2s both;
+}
+.blind-jump.mirror::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  bottom: 2px;
+  border-left: 2px dashed #8f7ff0;
+}
+.blind-jump.mirror .bj-token {
+  animation: bj-mirror 1.2s ease-in-out 0.2s both;
+}
+.move-line .bj-label {
+  font-size: 22px;
+  font-weight: 800;
+  color: #503dc1;
+  white-space: nowrap;
+}
+@keyframes bj-hop {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(calc(var(--dx) / 2), -16px);
+  }
+  100% {
+    transform: translate(var(--dx), 0);
+  }
+}
+@keyframes bj-grow {
+  0% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(1.7);
+  }
+  100% {
+    transform: scale(1.45);
+  }
+}
+@keyframes bj-shrink {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.65);
+  }
+}
+@keyframes bj-mirror {
+  0% {
+    transform: translateX(-22px) scaleX(1);
+  }
+  50% {
+    transform: translateX(0) scaleX(0);
+  }
+  100% {
+    transform: translateX(22px) scaleX(1);
+  }
+}
+.reduce-motion .bj-token {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bj-token {
+    animation: none !important;
+  }
+}
+
+/* V8.4 : bouton et fenêtre du tutoriel */
+.home-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.home-row .mini-btn {
+  padding: 6px 4px;
+  font-size: 13px;
+  line-height: 1.15;
+  white-space: normal;
+}
+.tut-btn {
+  background: var(--green);
+  color: #fff;
+}
+.tut-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tut-head h2 {
+  margin: 0;
+}
+.tut-body {
+  text-align: start;
+}
+.tut-body > p {
+  margin: 8px 0;
+}
+.tut-grid {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 4px;
+  margin: 10px 0 6px;
+}
+.tut-cell {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  padding: 0;
+}
+button.tut-cell {
+  cursor: pointer;
+}
+.tut-cell.out {
+  background: #eef0f6;
+  color: #a3abc4;
+  text-decoration: line-through;
+  border-color: #c9cfdf;
+}
+.tut-cell.secret {
+  background: #ffef95;
+  box-shadow: 0 0 0 3px #f2b705 inset;
+}
+.tut-cell.in-net {
+  background: #d9f5e5;
+}
+.tut-cell.sel {
+  background: var(--purple);
+  color: #fff;
+}
+.tut-cell.arrived {
+  animation: tut-arrive 0.9s ease-out 0.6s both;
+}
+@keyframes tut-arrive {
+  0% {
+    transform: translateX(-100%) scale(0.8);
+    opacity: 0.4;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+.tut-legend {
+  font-size: 12px;
+  color: var(--ink2);
+}
+.tut-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0 4px;
+  border-radius: 4px;
+  vertical-align: -1px;
+}
+.tut-dot.secret {
+  background: #ffef95;
+  box-shadow: 0 0 0 2px #f2b705 inset;
+}
+.tut-dot.out {
+  background: #eef0f6;
+  border: 1px solid #c9cfdf;
+}
+.tut-q {
+  width: 100%;
+  margin: 6px 0;
+}
+.reduce-motion .tut-cell.arrived {
+  animation: none;
+}
