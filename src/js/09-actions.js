@@ -93,7 +93,7 @@ function netCapture(n) {
 }
 /** Après une capture : propose de revoir le film du parcours (si le réglage le permet). */
 function offerReplay() {
-  if (g.replayAsk === false) return;
+  if (g.replayAsk === false || g.net) return; // en Wi-Fi : bouton « Revoir son parcours » sur chaque téléphone
   setTimeout(
     () => {
       if (
@@ -205,6 +205,99 @@ function finishRace() {
   g.modal = null;
   sfx('win');
 }
+/** Onglet Indice / Calcul / Deviner ; ouvrir « Calcul » lance son chrono. */
+function setTab(tab) {
+  if (!['question', 'math', 'guess'].includes(tab) || (g.helpUsed && tab !== 'guess')) return;
+  g.tab = tab;
+  if (tab === 'math' && !g.mathStarted) {
+    g.mathStarted = true;
+    g.mathElapsed = 0;
+    lastTick = Date.now();
+  }
+  render();
+}
+/** 🔀 : une seule fois par tour, avant toute aide, trois nouvelles questions. */
+function rerollChoices() {
+  if (g.rerolled || g.helpUsed || g.phase !== 'choose') return;
+  makeChoices();
+  g.rerolled = true;
+  render();
+}
+function pauseGame() {
+  if (g.screen !== 'game' || g.modal) return;
+  sfx('tap');
+  g.modal = 'pause';
+  render();
+}
+function resumeGame() {
+  if (g.modal !== 'pause') return;
+  sfx('tap');
+  g.modal = null;
+  lastTick = Date.now();
+  render();
+}
+/** Capture lancée depuis un numéro choisi (le numéro voyage avec l'action en multijoueur). */
+function captureAt(mode, n) {
+  n = Number(n);
+  if (!(n >= 1 && n <= maxN())) return;
+  g.sel = n;
+  launchCapture(mode === 'net' ? 'net' : 'precise');
+}
+/** Actions de jeu : même table pour le joueur local, l'hôte et les messages réseau. */
+const GAME_ACTIONS = {
+  tab: setTab,
+  ask: id => ask(String(id)),
+  math: v => mathAnswer(Number(v)),
+  capture: captureAt,
+  next: () => nextTurn(),
+  reroll: rerollChoices,
+  pause: pauseGame,
+  resume: resumeGame
+};
+
+/** Joueur absent (multijoueur Wi-Fi : parti sans revenir) : ses tours sont sautés. */
+const isAbsent = i => (g.absent || []).includes(i);
+/** Joueur dont on saute le tour : absent, ou déjà sur le podium en Course. */
+const isSkipped = i => isAbsent(i) || (isRace() && g.players > 1 && isPlaced(i));
+/**
+ * Passe au joueur suivant (en sautant les joueurs absents ou déjà placés), ou termine la partie :
+ * limite de tours, podium complet en Course, ou moins de deux joueurs encore présents.
+ */
+function advanceTurn() {
+  const turnBefore = g.turn;
+  g.turn++;
+  if (g.players > 1) while (g.turn < g.limit && isSkipped(active())) g.turn++;
+  const present = colors
+    .slice(0, g.players)
+    .map((_, i) => i)
+    .filter(i => !isAbsent(i));
+  if (isRace() && g.players > 1 && g.placed.length) {
+    const roundEnded = Math.floor(g.turn / g.players) > Math.floor(turnBefore / g.players),
+      left = present.filter(i => !isPlaced(i));
+    // fin : tout le monde est placé, ou un tour complet est fini et il reste au plus un chercheur
+    if (!left.length || (roundEnded && left.length <= 1) || g.turn >= g.limit) {
+      finishRace();
+      render();
+      return;
+    }
+  }
+  if ((g.limit && g.turn >= g.limit) || (g.players > 1 && present.length < 2)) {
+    g.raceWinner = null;
+    g.soloWon = false;
+    g.soloSecret = g.secret;
+    if (g.players === 1 && g.mode !== 'challenge') settleSolo(false); // 12 tours joués : +10 XP
+    g.screen = 'end';
+    g.inGame = false;
+    g.modal = null;
+    sfx(g.players === 1 ? 'bad' : 'win');
+  } else {
+    g.phase = 'choose';
+    g.last = null;
+    prepareTurn();
+    if (g.players > 1 && !g.net) g.modal = 'handoff'; // en Wi-Fi, chacun a son téléphone
+  }
+  render();
+}
 /** Bouton « Continuer » : après une aide on reste dans le tour, sinon victoire / fin / joueur suivant. */
 function nextTurn() {
   if (g.phase !== 'result') return;
@@ -250,34 +343,5 @@ function nextTurn() {
     render();
     return;
   }
-  const turnBefore = g.turn;
-  g.turn++;
-  if (isRace() && g.players > 1 && g.placed.length) {
-    // les joueurs déjà sur le podium ne jouent plus
-    while (g.turn < g.limit && isPlaced(active())) g.turn++;
-    const roundEnded = Math.floor(g.turn / g.players) > Math.floor(turnBefore / g.players),
-      left = colors.slice(0, g.players).filter((_, i) => !isPlaced(i));
-    // fin : tout le monde est placé, ou un tour complet est fini et il reste au plus un chercheur
-    if (!left.length || (roundEnded && left.length <= 1) || g.turn >= g.limit) {
-      finishRace();
-      render();
-      return;
-    }
-  }
-  if (g.limit && g.turn >= g.limit) {
-    g.raceWinner = null;
-    g.soloWon = false;
-    g.soloSecret = g.secret;
-    if (g.players === 1 && g.mode !== 'challenge') settleSolo(false); // 12 tours joués : +10 XP
-    g.screen = 'end';
-    g.inGame = false;
-    g.modal = null;
-    sfx(g.players === 1 ? 'bad' : 'win');
-  } else {
-    g.phase = 'choose';
-    g.last = null;
-    prepareTurn();
-    if (g.players > 1) g.modal = 'handoff';
-  }
-  render();
+  advanceTurn();
 }

@@ -10,8 +10,9 @@
  *   03 questions (indices)       12 film du parcours du numéro
  *   04 calculs                   13 fenêtres (pause, carnet, noms, défi…)
  *   05 défi solo, start()        14 tutoriel scripté
- *   06 carrière solo (score, XP) 15 render() + bind() : affichage et événements
- *   07 chronos                   16 bouton Retour Android, démarrage, API de test
+ *   06 carrière solo (score, XP) 15 multijoueur Wi-Fi (hôte arbitre, copies sans secret)
+ *   07 chronos                   16 render() + bind() : affichage et événements
+ *                                17 bouton Retour Android, démarrage, API de test
  *
  * Principe : tout l'état vit dans l'objet `g` (sauvegardé dans localStorage).
  * Chaque action modifie `g` puis appelle render(), qui reconstruit l'écran.

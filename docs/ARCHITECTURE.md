@@ -43,8 +43,9 @@ analyse le script **assemblé** et signale les variables non définies ou inutil
 | `12-replay.js` | Film du parcours du numéro |
 | `13-modals.js` | Fenêtres : règles, noms et mode, pause, carnet, quitter, « passe le téléphone » |
 | `14-tutorial.js` | Tutoriel scripté (n'utilise pas le moteur ; état `g.tut`) |
-| `15-render.js` | `render()` (redessine tout) et `bind()` (branche les clics) |
-| `16-boot.js` | Bouton Retour Android `back()`, démarrage, API `window.__numero` |
+| `15-net.js` | Multijoueur Wi-Fi : salle d'attente, hôte arbitre, copies sans secret, coupures (voir MULTIJOUEUR.md) |
+| `16-render.js` | `render()` (redessine tout) et `bind()` (branche les clics) |
+| `17-boot.js` | Bouton Retour Android `back()`, démarrage, API `window.__numero` |
 
 ## Flux de données
 
@@ -109,6 +110,7 @@ utiles, carnet exact), chronos et pause, défi, film, sauvegarde et reprise, bou
 
 ## Application Android
 
-`MainActivity` crée une WebView sans accès aux fichiers ni au réseau, n'autorise que `file:///android_asset/`,
+`MainActivity` crée une WebView sans accès aux fichiers, n'autorise que `file:///android_asset/`, expose le seul
+objet `NumeroNet` (`NetBridge`, multijoueur Wi-Fi local),
 gère l'affichage bord à bord (Android 15) et transmet le bouton Retour à `window.__numero.back()`.
 L'APK distribué est la variante **release** (non débogable) ; la signature est décrite dans le README.

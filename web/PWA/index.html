@@ -5505,6 +5505,105 @@ body.scr-end .finalscore {
   padding: 6px 10px;
 }
 
+/* V8.11 : multijoueur Wi-Fi local */
+.lan-btn {
+  grid-column: 1 / -1;
+  background: var(--yellow);
+  color: var(--ink);
+}
+.net-panel .bigbtn + .bigbtn {
+  margin-top: 10px;
+}
+.net-name {
+  display: block;
+  margin: 8px 0;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: start;
+}
+.net-name input {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px 12px;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  font: inherit;
+  font-size: 18px;
+  box-sizing: border-box;
+}
+#netCode {
+  font-size: 30px;
+  letter-spacing: 10px;
+  text-align: center;
+}
+.net-code {
+  margin: 6px auto 4px;
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: 14px;
+  text-align: center;
+  color: #503dc1;
+}
+.net-players {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+}
+.net-players li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: #eef3ff;
+  margin-bottom: 6px;
+}
+.net-players small {
+  margin-inline-start: auto;
+  color: var(--ink2);
+}
+.net-error {
+  margin: 8px 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #ffd9e3;
+  font-weight: 700;
+  font-size: 14px;
+}
+.net-watch {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #ffef95;
+  color: var(--ink);
+  font-weight: 800;
+}
+.net-wait-next {
+  margin: 10px 0 0;
+  text-align: center;
+  font-weight: 700;
+}
+/* les téléphones qui regardent ne peuvent pas jouer à la place du joueur actif */
+.net-spectator .actiontabs,
+.net-spectator .actionpane,
+.net-spectator .capture-row,
+.net-spectator .keypad,
+.net-spectator #reroll {
+  pointer-events: none;
+}
+.net-spectator .actionpane,
+.net-spectator .capture-row {
+  opacity: 0.6;
+}
+.net-client #again {
+  display: none;
+}
+/* l'attribut hidden l'emporte toujours sur le display des boutons */
+[hidden] {
+  display: none !important;
+}
+
 </style>
 </head>
 <body><main id="app" aria-live="polite"></main>
@@ -5524,8 +5623,9 @@ body.scr-end .finalscore {
  *   03 questions (indices)       12 film du parcours du numéro
  *   04 calculs                   13 fenêtres (pause, carnet, noms, défi…)
  *   05 défi solo, start()        14 tutoriel scripté
- *   06 carrière solo (score, XP) 15 render() + bind() : affichage et événements
- *   07 chronos                   16 bouton Retour Android, démarrage, API de test
+ *   06 carrière solo (score, XP) 15 multijoueur Wi-Fi (hôte arbitre, copies sans secret)
+ *   07 chronos                   16 render() + bind() : affichage et événements
+ *                                17 bouton Retour Android, démarrage, API de test
  *
  * Principe : tout l'état vit dans l'objet `g` (sauvegardé dans localStorage).
  * Chaque action modifie `g` puis appelle render(), qui reconstruit l'écran.
@@ -5590,7 +5690,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "8.10";
+const APP_VERSION = "8.11";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -5762,13 +5862,47 @@ const dictionaries = {
   "nbMoves": "Le carnet suit chaque déplacement du numéro.",
   "nbOff": "Aide désactivée : à toi de déduire !",
   "nbPossible": "possible",
+  "netCodeLabel": "Code de la partie (4 chiffres)",
+  "netConnected": "Connecté à la partie !",
+  "netCreate": "Créer une partie",
+  "netDefaultName": "Détective",
+  "netErr_code": "Le code doit avoir 4 chiffres.",
+  "netErr_full": "La partie est complète (4 joueurs).",
+  "netErr_host": "Impossible de créer la partie : vérifie que le Wi-Fi est activé.",
+  "netErr_lost": "La connexion avec l’hôte a été perdue.",
+  "netErr_notFound": "Partie introuvable : vérifie le code et que vous êtes sur le même Wi-Fi.",
+  "netErr_started": "La partie a déjà commencé.",
+  "netErr_version": "Versions différentes : mettez tous le jeu à jour.",
+  "netErr_wifi": "Active le Wi-Fi (ou le partage de connexion) pour jouer en réseau.",
+  "netGiveCode": "Donne ce code aux autres joueurs :",
   "netHit": "FILET RÉUSSI !",
   "netHitDesc": "Le numéro <b>{n}</b> était dans ton filet ({nums}) ! <b>+4 points</b> pour {player}.",
   "netHitDescRace": "Le numéro <b>{n}</b> était dans ton filet ({nums}) !",
   "netHitLog": "{player} · filet {nums} → attrapé (+4)",
+  "netHomeBtn": "Partie Wi-Fi (un téléphone chacun)",
+  "netHost": "hôte",
+  "netIntro": "Chacun joue sur son téléphone. Un joueur crée la partie, les autres la rejoignent avec son code.",
+  "netJoin": "Rejoindre avec un code",
+  "netJoinGo": "Rejoindre",
+  "netLaunch": "Lancer la partie",
+  "netLevelMode": "Niveau {level} · {mode} (à choisir sur l’accueil)",
+  "netLostText": "Le téléphone de l’hôte ne répond plus. Vérifie le Wi-Fi puis réessaie.",
+  "netLostTitle": "Connexion perdue",
   "netMiss": "FILET VIDE !",
   "netMissDesc": "Rien dans le filet <b>{nums}</b>. <b>−{p} points</b> (1 par numéro).",
   "netMissLog": "{player} · filet {nums} vide (−{p}) · {shift}",
+  "netQuit": "Quitter la partie",
+  "netRetry": "Réessayer",
+  "netSameWifi": "Tous les téléphones doivent être sur le même Wi-Fi (ou sur le partage de connexion de l’un d’eux).",
+  "netSearching": "Recherche de la partie sur le Wi-Fi…",
+  "netTitle": "Partie Wi-Fi",
+  "netWaitHost": "En attente que l’hôte lance la partie…",
+  "netWaitReplay": "C’est l’hôte qui peut relancer une partie.",
+  "netWaitText": "On l’attend : la partie reprend dès son retour (rouvrir le jeu et rejoindre avec le même code).",
+  "netWaitTitle": "{player} a perdu la connexion",
+  "netWatching": "Au tour de {player}…",
+  "netWithout": "Continuer sans {player}",
+  "netYourName": "Ton prénom",
   "netsLeft": "{n}/3 restants",
   "netsNone": "Plus de filet",
   "nextGoal": "Prochaine enquête :",
@@ -6171,13 +6305,47 @@ const dictionaries = {
   "nbMoves": "The notebook follows every move of the number.",
   "nbOff": "Help is off: work it out yourself!",
   "nbPossible": "possible",
+  "netCodeLabel": "Game code (4 digits)",
+  "netConnected": "Connected to the game!",
+  "netCreate": "Create a game",
+  "netDefaultName": "Detective",
+  "netErr_code": "The code must have 4 digits.",
+  "netErr_full": "The game is full (4 players).",
+  "netErr_host": "Could not create the game: check that Wi-Fi is on.",
+  "netErr_lost": "The connection to the host was lost.",
+  "netErr_notFound": "Game not found: check the code and that you are on the same Wi-Fi.",
+  "netErr_started": "The game has already started.",
+  "netErr_version": "Different versions: everyone must update the game.",
+  "netErr_wifi": "Turn on Wi-Fi (or a hotspot) to play over the network.",
+  "netGiveCode": "Give this code to the other players:",
   "netHit": "NET SUCCESS!",
   "netHitDesc": "Number <b>{n}</b> was in your net ({nums})! <b>+4 points</b> for {player}.",
   "netHitDescRace": "Number <b>{n}</b> was in your net ({nums})!",
   "netHitLog": "{player} · net {nums} → caught (+4)",
+  "netHomeBtn": "Wi-Fi game (one phone each)",
+  "netHost": "host",
+  "netIntro": "Everyone plays on their own phone. One player creates the game, the others join with its code.",
+  "netJoin": "Join with a code",
+  "netJoinGo": "Join",
+  "netLaunch": "Start the game",
+  "netLevelMode": "Level {level} · {mode} (chosen on the home screen)",
+  "netLostText": "The host’s phone is not responding. Check the Wi-Fi and try again.",
+  "netLostTitle": "Connection lost",
   "netMiss": "EMPTY NET!",
   "netMissDesc": "Nothing in the net <b>{nums}</b>. <b>−{p} points</b> (1 per number).",
   "netMissLog": "{player} · net {nums} empty (−{p}) · {shift}",
+  "netQuit": "Leave the game",
+  "netRetry": "Try again",
+  "netSameWifi": "All phones must be on the same Wi-Fi (or on one phone’s hotspot).",
+  "netSearching": "Looking for the game on the Wi-Fi…",
+  "netTitle": "Wi-Fi game",
+  "netWaitHost": "Waiting for the host to start…",
+  "netWaitReplay": "Only the host can start a new game.",
+  "netWaitText": "Waiting for them: the game resumes as soon as they are back (reopen the game and join with the same code).",
+  "netWaitTitle": "{player} lost the connection",
+  "netWatching": "{player}’s turn…",
+  "netWithout": "Continue without {player}",
+  "netYourName": "Your name",
   "netsLeft": "{n}/3 left",
   "netsNone": "No nets left",
   "nextGoal": "Next case:",
@@ -6580,13 +6748,47 @@ const dictionaries = {
   "nbMoves": "الدفتر يتابع كل حركة للرقم.",
   "nbOff": "المساعدة متوقفة: استنتج بنفسك!",
   "nbPossible": "محتمل",
+  "netCodeLabel": "رمز اللعبة (4 أرقام)",
+  "netConnected": "متصل باللعبة!",
+  "netCreate": "إنشاء لعبة",
+  "netDefaultName": "المحقق",
+  "netErr_code": "يجب أن يتكون الرمز من 4 أرقام.",
+  "netErr_full": "اللعبة ممتلئة (4 لاعبين).",
+  "netErr_host": "تعذّر إنشاء اللعبة: تحقق من تشغيل الواي فاي.",
+  "netErr_lost": "انقطع الاتصال بالمضيف.",
+  "netErr_notFound": "لم يتم العثور على اللعبة: تحقق من الرمز ومن أنكم على نفس الواي فاي.",
+  "netErr_started": "بدأت اللعبة بالفعل.",
+  "netErr_version": "إصدارات مختلفة: حدّثوا اللعبة جميعًا.",
+  "netErr_wifi": "شغّل الواي فاي (أو نقطة الاتصال) للعب عبر الشبكة.",
+  "netGiveCode": "أعطِ هذا الرمز للاعبين الآخرين:",
   "netHit": "نجحت الشبكة!",
   "netHitDesc": "الرقم <b>{n}</b> كان في شبكتك ({nums})! <b>+4 نقاط</b> لـ {player}.",
   "netHitDescRace": "الرقم <b>{n}</b> كان في شبكتك ({nums})!",
   "netHitLog": "{player} · شبكة {nums} ← أمسكه (+4)",
+  "netHomeBtn": "لعبة واي فاي (هاتف لكل لاعب)",
+  "netHost": "المضيف",
+  "netIntro": "كل لاعب يلعب على هاتفه. لاعب ينشئ اللعبة والآخرون ينضمون برمزها.",
+  "netJoin": "انضم برمز",
+  "netJoinGo": "انضم",
+  "netLaunch": "ابدأ اللعبة",
+  "netLevelMode": "المستوى {level} · {mode} (يُختار من الشاشة الرئيسية)",
+  "netLostText": "هاتف المضيف لا يستجيب. تحقق من الواي فاي ثم أعد المحاولة.",
+  "netLostTitle": "انقطع الاتصال",
   "netMiss": "الشبكة فارغة!",
   "netMissDesc": "لا شيء في الشبكة <b>{nums}</b>. <b>−{p} نقاط</b> (1 عن كل رقم).",
   "netMissLog": "{player} · شبكة {nums} فارغة (−{p}) · {shift}",
+  "netQuit": "غادر اللعبة",
+  "netRetry": "أعد المحاولة",
+  "netSameWifi": "يجب أن تكون كل الهواتف على نفس شبكة الواي فاي (أو على نقطة اتصال أحدها).",
+  "netSearching": "جارٍ البحث عن اللعبة على الواي فاي…",
+  "netTitle": "لعبة واي فاي",
+  "netWaitHost": "بانتظار أن يبدأ المضيف اللعبة…",
+  "netWaitReplay": "المضيف وحده يمكنه بدء لعبة جديدة.",
+  "netWaitText": "ننتظره: تستأنف اللعبة فور عودته (افتح اللعبة وانضم بنفس الرمز).",
+  "netWaitTitle": "{player} فقد الاتصال",
+  "netWatching": "دور {player}…",
+  "netWithout": "تابع بدون {player}",
+  "netYourName": "اسمك",
   "netsLeft": "متبقٍّ {n}/3",
   "netsNone": "لا شباك متبقية",
   "nextGoal": "التحقيق القادم:",
@@ -6901,6 +7103,9 @@ const initial = () => ({
   gameMode: 'race',
   chDiffPref: 'medium',
   placed: [], // Course : podium [{ player, round, turn }]
+  net: null, // multijoueur Wi-Fi : { role: 'host' | 'client', seat }
+  lan: null, // écran « Partie Wi-Fi » : { view, error }
+  absent: [], // Wi-Fi : joueurs partis (tours sautés)
   starter: 0,
   playerHelp: [false, false, false, false],
   mode: 'normal',
@@ -7034,7 +7239,7 @@ function load() {
     const d = JSON.parse(raw);
     if (
       !d ||
-      !['home', 'game', 'end', 'settings', 'office'].includes(d.screen) ||
+      !['home', 'game', 'end', 'settings', 'office', 'lan'].includes(d.screen) ||
       ![1, 2, 3, 4].includes(d.players) ||
       !(d.level in LEVELS) ||
       !['fr', 'en', 'ar'].includes(d.lang) ||
@@ -7060,6 +7265,10 @@ function load() {
     if (g.hunt && !Array.isArray(g.hunt.steps)) g.hunt = null;
     g.tut = null; // le tutoriel n'est jamais repris
     if (!Array.isArray(g.placed)) g.placed = [];
+    // une connexion Wi-Fi ne survit pas à un redémarrage : retour à l'accueil
+    if (g.net || g.screen === 'lan') {
+      Object.assign(g, { net: null, lan: null, absent: [], screen: 'home', inGame: false, modal: null });
+    }
     if (!['normal', 'challenge'].includes(g.mode)) g.mode = 'normal';
     if (g.mode === 'challenge' && !['timed', 'endless'].includes(g.chKind)) g.chKind = 'endless';
     if (!(g.chDiff in CHALLENGE_DIFFS)) g.chDiff = 'hard'; // parties de défi sauvegardées avant la V8.4
@@ -7759,20 +7968,8 @@ function timersHTML() {
 let lastTick = Date.now(),
   lastSec = null;
 /** Avance les chronos actifs, met à jour les barres, déclenche les fins de temps. */
-function tick() {
-  const now = Date.now(),
-    dt = Math.min(1000, now - lastTick);
-  lastTick = now;
-  const l = activeTimers();
-  if (!l.length || g.modal || document.hidden) return;
-  // Défi : le chrono s'arrête pendant la lecture du résultat (temps de lecture non pénalisé).
-  if (g.mode === 'challenge' && g.phase !== 'choose') return;
-  for (const k of l) {
-    if (k === 'global') g.turnElapsed += dt;
-    else if (k === 'math') g.mathElapsed += dt;
-    else if (k === 'answer') g.answerElapsed += dt;
-    else g.chElapsed += dt;
-  }
+/** Met à jour les barres de chrono affichées (sans tout redessiner). */
+function paintTimers(l = activeTimers()) {
   for (const k of l) {
     const el = document.querySelector(`[data-tk="${k}"]`);
     if (!el) continue;
@@ -7782,6 +7979,25 @@ function tick() {
     el.querySelector('b').textContent = timerText(k, left).replace(/&[^;]+;/g, '');
     if (k !== 'chUp') el.classList.toggle('hurry', left <= 5000);
   }
+}
+function tick() {
+  const now = Date.now(),
+    dt = Math.min(1000, now - lastTick);
+  lastTick = now;
+  if (g.net && g.net.role === 'client') return; // invité Wi-Fi : c'est l'hôte qui décompte
+  netCheckWaiting();
+  const l = activeTimers();
+  if (!l.length || g.modal || (document.hidden && !g.net)) return;
+  // Défi : le chrono s'arrête pendant la lecture du résultat (temps de lecture non pénalisé).
+  if (g.mode === 'challenge' && g.phase !== 'choose') return;
+  for (const k of l) {
+    if (k === 'global') g.turnElapsed += dt;
+    else if (k === 'math') g.mathElapsed += dt;
+    else if (k === 'answer') g.answerElapsed += dt;
+    else g.chElapsed += dt;
+  }
+  paintTimers(l);
+  netBroadcastTimers(); // hôte Wi-Fi : chronos envoyés aux autres téléphones
   const urgent = l.filter(k => k !== 'chUp').map(timerLeft);
   if (urgent.length) {
     const sec = Math.ceil(Math.min(...urgent) / 1000);
@@ -8042,7 +8258,7 @@ function netCapture(n) {
 }
 /** Après une capture : propose de revoir le film du parcours (si le réglage le permet). */
 function offerReplay() {
-  if (g.replayAsk === false) return;
+  if (g.replayAsk === false || g.net) return; // en Wi-Fi : bouton « Revoir son parcours » sur chaque téléphone
   setTimeout(
     () => {
       if (
@@ -8154,6 +8370,99 @@ function finishRace() {
   g.modal = null;
   sfx('win');
 }
+/** Onglet Indice / Calcul / Deviner ; ouvrir « Calcul » lance son chrono. */
+function setTab(tab) {
+  if (!['question', 'math', 'guess'].includes(tab) || (g.helpUsed && tab !== 'guess')) return;
+  g.tab = tab;
+  if (tab === 'math' && !g.mathStarted) {
+    g.mathStarted = true;
+    g.mathElapsed = 0;
+    lastTick = Date.now();
+  }
+  render();
+}
+/** 🔀 : une seule fois par tour, avant toute aide, trois nouvelles questions. */
+function rerollChoices() {
+  if (g.rerolled || g.helpUsed || g.phase !== 'choose') return;
+  makeChoices();
+  g.rerolled = true;
+  render();
+}
+function pauseGame() {
+  if (g.screen !== 'game' || g.modal) return;
+  sfx('tap');
+  g.modal = 'pause';
+  render();
+}
+function resumeGame() {
+  if (g.modal !== 'pause') return;
+  sfx('tap');
+  g.modal = null;
+  lastTick = Date.now();
+  render();
+}
+/** Capture lancée depuis un numéro choisi (le numéro voyage avec l'action en multijoueur). */
+function captureAt(mode, n) {
+  n = Number(n);
+  if (!(n >= 1 && n <= maxN())) return;
+  g.sel = n;
+  launchCapture(mode === 'net' ? 'net' : 'precise');
+}
+/** Actions de jeu : même table pour le joueur local, l'hôte et les messages réseau. */
+const GAME_ACTIONS = {
+  tab: setTab,
+  ask: id => ask(String(id)),
+  math: v => mathAnswer(Number(v)),
+  capture: captureAt,
+  next: () => nextTurn(),
+  reroll: rerollChoices,
+  pause: pauseGame,
+  resume: resumeGame
+};
+
+/** Joueur absent (multijoueur Wi-Fi : parti sans revenir) : ses tours sont sautés. */
+const isAbsent = i => (g.absent || []).includes(i);
+/** Joueur dont on saute le tour : absent, ou déjà sur le podium en Course. */
+const isSkipped = i => isAbsent(i) || (isRace() && g.players > 1 && isPlaced(i));
+/**
+ * Passe au joueur suivant (en sautant les joueurs absents ou déjà placés), ou termine la partie :
+ * limite de tours, podium complet en Course, ou moins de deux joueurs encore présents.
+ */
+function advanceTurn() {
+  const turnBefore = g.turn;
+  g.turn++;
+  if (g.players > 1) while (g.turn < g.limit && isSkipped(active())) g.turn++;
+  const present = colors
+    .slice(0, g.players)
+    .map((_, i) => i)
+    .filter(i => !isAbsent(i));
+  if (isRace() && g.players > 1 && g.placed.length) {
+    const roundEnded = Math.floor(g.turn / g.players) > Math.floor(turnBefore / g.players),
+      left = present.filter(i => !isPlaced(i));
+    // fin : tout le monde est placé, ou un tour complet est fini et il reste au plus un chercheur
+    if (!left.length || (roundEnded && left.length <= 1) || g.turn >= g.limit) {
+      finishRace();
+      render();
+      return;
+    }
+  }
+  if ((g.limit && g.turn >= g.limit) || (g.players > 1 && present.length < 2)) {
+    g.raceWinner = null;
+    g.soloWon = false;
+    g.soloSecret = g.secret;
+    if (g.players === 1 && g.mode !== 'challenge') settleSolo(false); // 12 tours joués : +10 XP
+    g.screen = 'end';
+    g.inGame = false;
+    g.modal = null;
+    sfx(g.players === 1 ? 'bad' : 'win');
+  } else {
+    g.phase = 'choose';
+    g.last = null;
+    prepareTurn();
+    if (g.players > 1 && !g.net) g.modal = 'handoff'; // en Wi-Fi, chacun a son téléphone
+  }
+  render();
+}
 /** Bouton « Continuer » : après une aide on reste dans le tour, sinon victoire / fin / joueur suivant. */
 function nextTurn() {
   if (g.phase !== 'result') return;
@@ -8199,36 +8508,7 @@ function nextTurn() {
     render();
     return;
   }
-  const turnBefore = g.turn;
-  g.turn++;
-  if (isRace() && g.players > 1 && g.placed.length) {
-    // les joueurs déjà sur le podium ne jouent plus
-    while (g.turn < g.limit && isPlaced(active())) g.turn++;
-    const roundEnded = Math.floor(g.turn / g.players) > Math.floor(turnBefore / g.players),
-      left = colors.slice(0, g.players).filter((_, i) => !isPlaced(i));
-    // fin : tout le monde est placé, ou un tour complet est fini et il reste au plus un chercheur
-    if (!left.length || (roundEnded && left.length <= 1) || g.turn >= g.limit) {
-      finishRace();
-      render();
-      return;
-    }
-  }
-  if (g.limit && g.turn >= g.limit) {
-    g.raceWinner = null;
-    g.soloWon = false;
-    g.soloSecret = g.secret;
-    if (g.players === 1 && g.mode !== 'challenge') settleSolo(false); // 12 tours joués : +10 XP
-    g.screen = 'end';
-    g.inGame = false;
-    g.modal = null;
-    sfx(g.players === 1 ? 'bad' : 'win');
-  } else {
-    g.phase = 'choose';
-    g.last = null;
-    prepareTurn();
-    if (g.players > 1) g.modal = 'handoff';
-  }
-  render();
+  advanceTurn();
 }
 
 /* ---- 10-view-mascot.js ---- */
@@ -8316,7 +8596,7 @@ function home() {
     )
     .join(
       ''
-    )}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn rules-btn" id="openRules">📖 ${t('rulesTitle')}</button><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn tut-btn" id="openTutorial">🎓 ${t('tutBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
+    )}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn rules-btn" id="openRules">📖 ${t('rulesTitle')}</button><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn tut-btn" id="openTutorial">🎓 ${t('tutBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button>${netTransport() ? `<button class="mini-btn lan-btn" id="openLan">📶 ${t('netHomeBtn')}</button>` : ''}</div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
 }
 /** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
 function office() {
@@ -8522,7 +8802,7 @@ function resultView() {
   const top = ['found', 'netHit'].includes(x.type) ? extra : '';
   if (top)
     extra = g.lastHunt ? `<button class="mini-btn rp-open" id="openReplay">🎬 ${t('rpButton')}</button>` : '';
-  return `<div class="result-card ${tone}">${top}<div class="result-title">${title}</div><p class="result-desc">${desc}</p>${extra}${move}${clue ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div><button class="bigbtn ${clue ? '' : 'green'}" id="next">${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
+  return `<div class="result-card ${tone}">${top}<div class="result-title">${title}</div><p class="result-desc">${desc}</p>${extra}${move}${clue ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${g.net && !myTurn() ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {
@@ -8610,7 +8890,7 @@ function game() {
         : result && ['found', 'netHit'].includes(x.type)
           ? 'cheer'
           : '';
-  return `<header class="gbar"><span class="brand-icon lvl-badge ${logo}" dir="ltr" aria-label="${t('levelBadge')} 1–${maxN()}"><span class="lvl-emo">${g.mode === 'challenge' ? '🏆' : { junior: '🐣', malin: '🧠', expert: '🚀', genius: '🦉' }[g.level]}</span><b class="lvl-range">1–${maxN()}</b>${logo === 'thinking' ? '<i class="logo-bubble">…</i>' : ''}</span><div class="gstatus">${g.mode === 'challenge' ? `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: '∞' })}</b><span>🏆 ${chScore()}</span></div>` : `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: g.limit })}</b><span>🎯 ${g.captures}</span></div><div class="gprogress" dir="ltr"><span style="width:${pct}%"></span></div>`}</div><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header>${scoreboard()}<section class="panel turn-card"><div class="turn-top"><div class="mini-mascot">${mascot(anim === 'worried' ? 'idle' : anim, party, anim === 'worried' ? 'worried' : null)}</div><div class="bubble"><b>${head}</b><span class="quip">${quip(qk)}</span></div></div>${result && g.mode !== 'challenge' ? '' : timersHTML()}<div class="turn-body">${result ? resultView() : questionView()}</div></section>`;
+  return `<header class="gbar"><span class="brand-icon lvl-badge ${logo}" dir="ltr" aria-label="${t('levelBadge')} 1–${maxN()}"><span class="lvl-emo">${g.mode === 'challenge' ? '🏆' : { junior: '🐣', malin: '🧠', expert: '🚀', genius: '🦉' }[g.level]}</span><b class="lvl-range">1–${maxN()}</b>${logo === 'thinking' ? '<i class="logo-bubble">…</i>' : ''}</span><div class="gstatus">${g.mode === 'challenge' ? `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: '∞' })}</b><span>🏆 ${chScore()}</span></div>` : `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: g.limit })}</b><span>🎯 ${g.captures}</span></div><div class="gprogress" dir="ltr"><span style="width:${pct}%"></span></div>`}</div><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header>${scoreboard()}<section class="panel turn-card"><div class="turn-top"><div class="mini-mascot">${mascot(anim === 'worried' ? 'idle' : anim, party, anim === 'worried' ? 'worried' : null)}</div><div class="bubble"><b>${head}</b><span class="quip">${netWatchBanner() || quip(qk)}</span></div></div>${result && g.mode !== 'challenge' ? '' : timersHTML()}<div class="turn-body">${result ? resultView() : questionView()}</div></section>`;
 }
 /** Écran de fin : choisit entre défi, solo, course et points. */
 function end() {
@@ -8622,7 +8902,7 @@ function end() {
     champions = tot.map((s, i) => (s === best ? pname(i) : null)).filter(Boolean),
     order = tot.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
   const soloLost = g.players === 1 && g.soloWon === false;
-  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel"><div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel"><div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {
@@ -8668,7 +8948,7 @@ function endRace() {
     )
   ].join('');
   return `${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot('caught')}</div><h1>🏆 ${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro">${t('raceWinDesc', { turns: g.raceTurns })}</p></section>
- <section class="panel"><div class="label centered">${t('podiumTitle')}</div>${rows}<p class="sub centered">${t('nextStarter', { player: pname(next) })}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+ <section class="panel"><div class="label centered">${t('podiumTitle')}</div>${rows}<p class="sub centered">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}<button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
 /** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */
 function endSolo() {
@@ -8722,12 +9002,12 @@ function endSoloLegacy() {
  <section class="panel centered solo-card">${won ? `<div class="solo-stars" aria-label="${stars}/3">${[1, 2, 3].map(i => `<span class="${i <= stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div><div class="solo-rate">${t(['', 'soloRate1', 'soloRate2', 'soloRate3'][stars])}</div>` : `<div class="solo-reveal"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><small>${t('soloReveal')}</small></div>`}
  <div class="solo-stats"><div><b>${turns}</b><small>${t('statTurns')}</small></div><div><b>${clues}</b><small>${t('statClues')}</small></div><div><b>${misses}</b><small>${t('statMisses')}</small></div></div>
  ${won ? (g.soloNewRecord ? `<div class="ch-new">${t('soloNewRecord')}</div>` : g.soloBest ? `<p class="sub">${t('soloBest', { n: g.soloBest })}</p>` : '') : ''}
- <button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+ ${netEndNote()}<button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
 function endChallenge() {
   const r = records(),
     best = r[chRecordKey()] || 0;
-  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p>${netEndNote()}<button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
 
 /* ---- 12-replay.js ---- */
@@ -8884,6 +9164,7 @@ function modalView() {
   if (!g.modal) return '';
   const wrapM = c =>
     `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal">${c}</div></div>`;
+  if (['netWait', 'netLost'].includes(g.modal)) return wrapM(netModalView());
   if (g.modal === 'tutorial' && g.screen === 'home' && g.tut) return wrapM(tutorialView());
   if (g.modal === 'tutInvite' && g.screen === 'home') return wrapM(tutInviteView());
   if (g.modal === 'rules' && g.screen === 'home')
@@ -8932,7 +9213,7 @@ function modalView() {
     );
   if (g.modal === 'pause')
     return wrapM(
-      `<div class="hero-mascot small-mascot">${mascot()}</div><h2>⏸ ${t('pauseTitle')}</h2><p>${t('pauseText')}</p><div class="modal-actions"><button class="bigbtn green" id="resumeGame">▶ ${t('resumeBtn')}</button><button class="bigbtn light" id="pauseSettings">⚙️ ${t('settings')}</button><button class="bigbtn pink" id="askQuit">🏠 ${t('askQuit')}</button></div>`
+      `<div class="hero-mascot small-mascot">${mascot()}</div><h2>⏸ ${t('pauseTitle')}</h2><p>${t('pauseText')}</p><div class="modal-actions"><button class="bigbtn green" id="resumeGame">▶ ${t('resumeBtn')}</button><button class="bigbtn light" id="pauseSettings" ${g.net ? 'hidden' : ''}>⚙️ ${t('settings')}</button><button class="bigbtn pink" id="askQuit">🏠 ${t('askQuit')}</button></div>`
     );
   if (g.modal === 'notebook') {
     const max = maxN(),
@@ -9111,7 +9392,428 @@ function tutInviteView() {
   return `<div class="hero-mascot small-mascot">${mascot('think')}</div><h2>👋 ${t('tutInviteTitle')}</h2><p>${t('tutInviteText')}</p><button class="bigbtn green" id="inviteTutorial">🎓 ${t('tutTry')}</button><button class="bigbtn light" id="closeModal">${t('tutLater')}</button>`;
 }
 
-/* ---- 15-render.js ---- */
+/* ---- 15-net.js ---- */
+/*
+ * Multijoueur Wi-Fi local : 2 à 4 joueurs, un téléphone chacun, sans Internet ni serveur.
+ *
+ * Principe : un téléphone HÔTE crée la partie (code à 4 chiffres) et en est le SEUL arbitre.
+ *   - L'hôte fait tourner le moteur habituel (g, ask, guess, nextTurn…) ; il est le joueur 0.
+ *   - Les autres téléphones envoient seulement des ACTIONS ({ t: 'action', name, args }) ;
+ *     l'hôte vérifie que c'est bien leur tour puis les applique (table GAME_ACTIONS).
+ *   - Après chaque changement, l'hôte envoie à chacun une COPIE de l'état SANS le numéro secret,
+ *     son parcours ni la réponse du calcul en cours (redactState). Chaque téléphone l'affiche
+ *     avec les écrans habituels ; seuls les réglages d'affichage restent propres à chacun.
+ *
+ * Transport : objet window.NumeroNet fourni par l'application Android (NetBridge.java), ou par
+ * les tests automatiques (faux réseau). Contrat, messages et événements : docs/MULTIJOUEUR.md.
+ * Sans transport (version navigateur), le mode Wi-Fi n'est pas proposé.
+ */
+
+const NET_PROTOCOL = 1; // à incrémenter si les messages changent : deux versions différentes refusent de jouer ensemble
+const NET_MAX = 4;
+/** Réglages d'affichage propres à chaque téléphone : jamais écrasés par l'état reçu de l'hôte. */
+const NET_LOCAL_KEYS = [
+  'lang',
+  'sound',
+  'reduceMotion',
+  'showInfo',
+  'showHints',
+  'showHistory',
+  'rpAuto',
+  'rpIdx',
+  'rpPlaying'
+];
+/** Fenêtres partagées par tous (les autres, comme le carnet ou le film, restent locales). */
+const NET_SHARED_MODALS = ['pause', 'netWait'];
+
+/** Transport réseau disponible ? (application Android ou tests) */
+const netTransport = () => (typeof window.NumeroNet === 'object' && window.NumeroNet) || null;
+
+/**
+ * État réseau de CE téléphone (jamais sauvegardé : une connexion ne survit pas à un redémarrage).
+ *   role 'host' : code, lobby [{ seat, name, peer, token, connected }]
+ *   role 'client' : code, seat, token, lobby (copie), hostName
+ */
+let net = { role: null };
+
+/** C'est à ce téléphone de jouer ? (toujours vrai hors multijoueur Wi-Fi) */
+const myTurn = () => !g.net || active() === g.net.seat;
+
+/** Toute action de jeu passe par ici : locale, appliquée par l'hôte, ou envoyée à l'hôte. */
+function act(name, ...args) {
+  const fn = GAME_ACTIONS[name];
+  if (!fn) return;
+  if (!g.net) return fn(...args);
+  if (!['pause', 'resume'].includes(name) && !myTurn()) return; // seul le joueur dont c'est le tour agit
+  if (g.net.role === 'host') return fn(...args);
+  netSend('host', { t: 'action', name, args });
+}
+
+function netSend(peer, msg) {
+  const tr = netTransport();
+  if (tr) tr.send(peer, JSON.stringify(msg));
+}
+const newToken = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+const netName = () => (g.names[0] || '').trim() || t('netDefaultName');
+
+/* ---------- Hôte ---------- */
+
+/** Crée une partie : code à 4 chiffres, salle d'attente avec l'hôte comme joueur 1. */
+function netCreate() {
+  const tr = netTransport();
+  if (!tr) return;
+  net = {
+    role: 'host',
+    code: String(1000 + rnd(9000)),
+    lobby: [{ seat: 0, name: netName(), peer: null, token: newToken(), connected: true }],
+    lastSent: {}
+  };
+  g.screen = 'lan';
+  g.lan = { view: 'hostLobby', error: null };
+  tr.hostStart(net.code);
+  if (tr.keepAwake) tr.keepAwake(true);
+  render();
+}
+
+/** Lance la partie avec les joueurs de la salle d'attente (2 à 4). */
+function netLaunch() {
+  if (net.role !== 'host') return;
+  const seats = net.lobby.filter(p => p.connected);
+  if (seats.length < 2) return;
+  net.lobby = seats.map((p, i) => ({ ...p, seat: i }));
+  g.players = seats.length;
+  g.names = net.lobby.map(p => p.name);
+  g.playerHelp = [false, false, false, false];
+  start(true);
+  g.net = { role: 'host', seat: 0 };
+  g.absent = [];
+  g.lan = null;
+  render();
+  netBroadcastLobby();
+}
+
+/** « Rejouer » de l'hôte : même salle, joueurs encore connectés (le premier joueur tourne). */
+const netRelaunch = () => netLaunch();
+
+/** Copie de l'état envoyée aux autres : sans secret, sans parcours, sans la réponse du calcul en cours. */
+function redactState(seat) {
+  const s = JSON.parse(JSON.stringify(g));
+  delete s.secret;
+  delete s.hunt;
+  delete s.soloSecret;
+  if (s.math) s.math = { ...s.math, result: null };
+  if (!NET_SHARED_MODALS.includes(s.modal)) s.modal = null;
+  s.sel = null;
+  s.capturing = g.capturing; // l'animation de capture est montrée à tous
+  s.net = { role: 'client', seat, connected: net.lobby.map(p => p.connected) };
+  for (const k of NET_LOCAL_KEYS) delete s[k];
+  return s;
+}
+
+/** Après chaque affichage de l'hôte : envoie la nouvelle copie à chaque joueur connecté (si elle a changé). */
+function netBroadcast() {
+  if (net.role !== 'host' || !g.net) return;
+  for (const p of net.lobby) {
+    if (!p.peer || !p.connected) continue;
+    const msg = JSON.stringify({ t: 'state', s: redactState(p.seat) });
+    if (net.lastSent[p.peer] === msg) continue;
+    net.lastSent[p.peer] = msg;
+    netTransport().send(p.peer, msg);
+  }
+}
+/** Chronos : envoyés deux fois par seconde, sans tout redessiner. */
+let netTimerSent = 0;
+function netBroadcastTimers() {
+  if (net.role !== 'host' || !g.net || Date.now() - netTimerSent < 500) return;
+  netTimerSent = Date.now();
+  const v = { turnElapsed: g.turnElapsed, answerElapsed: g.answerElapsed, mathElapsed: g.mathElapsed };
+  for (const p of net.lobby) if (p.peer && p.connected) netSend(p.peer, { t: 'timers', v });
+}
+function netBroadcastLobby() {
+  const players = net.lobby.map(p => ({ seat: p.seat, name: p.name, connected: p.connected }));
+  for (const p of net.lobby)
+    if (p.peer && p.connected) netSend(p.peer, { t: 'lobby', players, started: !!g.net });
+}
+
+function hostOnMessage(peer, m) {
+  if (m.t === 'hello') {
+    if (m.v !== NET_PROTOCOL) return netSend(peer, { t: 'error', code: 'version' });
+    if (String(m.code) !== net.code) return netSend(peer, { t: 'error', code: 'code' });
+    const returning = net.lobby.find(p => m.token && p.token === m.token);
+    if (returning) {
+      // retour d'un joueur (coupure Wi-Fi, écran éteint…) : il reprend sa place
+      returning.peer = peer;
+      returning.connected = true;
+      delete net.lastSent[peer];
+      if (g.modal === 'netWait' && g.netWaitSeat === returning.seat) g.modal = null;
+      netSend(peer, { t: 'welcome', seat: returning.seat, token: returning.token });
+      render();
+      netBroadcastLobby();
+      return;
+    }
+    if (g.net) return netSend(peer, { t: 'error', code: 'started' });
+    if (net.lobby.length >= NET_MAX) return netSend(peer, { t: 'error', code: 'full' });
+    const name =
+      String(m.name || '')
+        .slice(0, 14)
+        .trim() || t('netDefaultName');
+    const p = { seat: net.lobby.length, name, peer, token: newToken(), connected: true };
+    net.lobby.push(p);
+    netSend(peer, { t: 'welcome', seat: p.seat, token: p.token });
+    netBroadcastLobby();
+    render();
+    return;
+  }
+  if (m.t === 'action') {
+    const p = net.lobby.find(x => x.peer === peer && x.connected);
+    if (!p || !g.net || !GAME_ACTIONS[m.name]) return;
+    if (!['pause', 'resume'].includes(m.name) && active() !== p.seat) return; // pas son tour : ignoré
+    GAME_ACTIONS[m.name](...(Array.isArray(m.args) ? m.args.slice(0, 2) : []));
+  }
+}
+
+function hostOnLeft(peer) {
+  const p = net.lobby.find(x => x.peer === peer);
+  if (!p) return;
+  p.connected = false;
+  if (!g.net) net.lobby = net.lobby.filter(x => x !== p).map((x, i) => ({ ...x, seat: i })); // salle d'attente
+  netBroadcastLobby();
+  render();
+}
+
+/** Hôte : si le joueur dont c'est le tour est déconnecté, tout le monde attend (fenêtre « netWait »). */
+function netCheckWaiting() {
+  if (net.role !== 'host' || !g.net || g.screen !== 'game') return;
+  const p = net.lobby[active()];
+  if (p && !p.connected && !isAbsent(p.seat) && !g.modal) {
+    g.modal = 'netWait';
+    g.netWaitSeat = p.seat;
+    g.netWaitSince = Date.now();
+    render();
+  }
+}
+/** Hôte : « Continuer sans lui » — ses tours seront sautés. */
+function netContinueWithout() {
+  if (net.role !== 'host' || g.modal !== 'netWait') return;
+  const seat = g.netWaitSeat;
+  g.absent = [...(g.absent || []), seat];
+  g.modal = null;
+  if (active() === seat) {
+    g.last = null;
+    advanceTurn();
+  } else render();
+}
+
+/* ---------- Joueur invité ---------- */
+
+function netJoin(code) {
+  const tr = netTransport();
+  code = String(code || '').replace(/\D/g, '');
+  if (!tr || code.length !== 4) {
+    g.lan = { view: 'join', error: 'code' };
+    return render();
+  }
+  net = { role: 'client', code, seat: null, token: net.code === code ? net.token : null, lobby: [] };
+  g.lan = { view: 'joining', error: null };
+  tr.joinStart(code);
+  if (tr.keepAwake) tr.keepAwake(true);
+  render();
+}
+
+/** Applique la copie reçue de l'hôte, en gardant les réglages et la sélection propres à ce téléphone. */
+function clientApplyState(s) {
+  const keep = Object.fromEntries(NET_LOCAL_KEYS.map(k => [k, g[k]]));
+  const localModal = ['notebook', 'replay', 'netLost'].includes(g.modal) ? g.modal : null;
+  const sameTurn = g.turn === s.turn && g.phase === s.phase;
+  const local = { sel: sameTurn ? g.sel : null, typed: sameTurn ? g.typed : '' };
+  g = Object.assign(s, keep, local);
+  if (localModal && !s.modal) g.modal = localModal;
+  g.lan = null;
+  render();
+}
+
+function clientOnMessage(m) {
+  if (m.t === 'welcome') {
+    net.seat = m.seat;
+    net.token = m.token;
+    g.lan = { view: 'clientLobby', error: null };
+    render();
+  } else if (m.t === 'lobby') {
+    net.lobby = m.players || [];
+    if (!m.started && g.lan) {
+      g.lan.view = 'clientLobby';
+      render();
+    }
+  } else if (m.t === 'state' && m.s) clientApplyState(m.s);
+  else if (m.t === 'timers' && g.net) {
+    Object.assign(g, m.v);
+    paintTimers();
+  } else if (m.t === 'error') {
+    netStop();
+    g.lan = { view: 'join', error: m.code };
+    render();
+  }
+}
+
+/* ---------- Événements du transport ---------- */
+
+/** Point d'entrée des événements du transport (Android ou tests) : chaîne JSON. */
+window.__netEvent = raw => {
+  let e;
+  try {
+    e = typeof raw === 'string' ? JSON.parse(raw) : raw;
+  } catch (err) {
+    return;
+  }
+  if (!e || !net.role) return;
+  if (e.type === 'message') {
+    let m;
+    try {
+      m = JSON.parse(e.data);
+    } catch (err) {
+      return;
+    }
+    if (!m || typeof m !== 'object') return;
+    return net.role === 'host' ? hostOnMessage(e.peer, m) : clientOnMessage(m);
+  }
+  if (net.role === 'host') {
+    if (e.type === 'peerLeft') hostOnLeft(e.peer);
+    else if (e.type === 'hosting') {
+      net.address = e.ip && e.port ? `${e.ip}:${e.port}` : null;
+      render();
+    } else if (e.type === 'error') {
+      g.lan = { view: 'menu', error: 'host' };
+      netStop();
+      render();
+    }
+    return;
+  }
+  // invité
+  if (e.type === 'connected')
+    netSend('host', { t: 'hello', v: NET_PROTOCOL, code: net.code, name: netName(), token: net.token });
+  else if (e.type === 'error') {
+    g.lan = { view: 'join', error: e.code || 'notFound' };
+    render();
+  } else if (e.type === 'disconnected') {
+    if (g.net && g.screen !== 'end') {
+      g.modal = 'netLost';
+      render();
+    } else if (g.lan) {
+      g.lan = { view: 'join', error: 'lost' };
+      render();
+    }
+  }
+};
+
+/** Coupe le réseau sur ce téléphone (garde le code et le jeton pour pouvoir revenir). */
+function netStop() {
+  const tr = netTransport();
+  if (tr) {
+    tr.stop();
+    if (tr.keepAwake) tr.keepAwake(false);
+  }
+}
+/** Quitte complètement le multijoueur et revient à l'accueil. */
+function netLeave() {
+  netStop();
+  net = { role: null };
+  g.net = null;
+  g.lan = null;
+  g.absent = [];
+  g.screen = 'home';
+  g.inGame = false;
+  g.modal = null;
+  render();
+}
+/** Invité : nouvelle tentative après une coupure (même code, même jeton → même place). */
+function netRetry() {
+  const { code, token } = net;
+  netStop();
+  net = { role: 'client', code, token, seat: null, lobby: [] };
+  g.modal = null;
+  g.lan = g.net ? null : { view: 'joining', error: null };
+  netTransport().joinStart(code);
+  render();
+}
+
+/* ---------- Écrans ---------- */
+
+/** Écran « Partie Wi-Fi » : menu, salle d'attente de l'hôte, rejoindre, salle d'attente de l'invité. */
+function lanScreen() {
+  const v = (g.lan && g.lan.view) || 'menu',
+    err = g.lan && g.lan.error ? `<p class="net-error">⚠️ ${t('netErr_' + g.lan.error)}</p>` : '';
+  const players = list =>
+    `<ul class="net-players">${list
+      .map(
+        p =>
+          `<li><i class="player-dot" style="background:${colors[p.seat] || colors[0]}"></i><b>${esc(p.name)}</b>${p.seat === 0 ? `<small>${t('netHost')}</small>` : ''}${p.connected === false ? '<small>📵</small>' : ''}</li>`
+      )
+      .join('')}</ul>`;
+  const nameField = `<label class="net-name">${t('netYourName')}<input id="netName" maxlength="14" value="${esc(g.names[0] || '')}" autocomplete="off"></label>`;
+  let body;
+  if (v === 'menu')
+    body = `<p class="sub">${t('netIntro')}</p>${nameField}${err}<button class="bigbtn" id="netCreate">📶 ${t('netCreate')}</button><button class="bigbtn light" id="netGoJoin">🔑 ${t('netJoin')}</button><p class="sub small">${t('netSameWifi')}</p>`;
+  else if (v === 'hostLobby')
+    body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div><p class="sub small">${t('netLevelMode', { level: t({ junior: 'levelJunior', malin: 'levelMalin', expert: 'levelExpert', genius: 'levelGenius' }[g.level]), mode: t(g.gameMode === 'score' ? 'modeScore' : 'modeRace') })}</p>${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < 2 ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
+  else if (v === 'join' || v === 'joining')
+    body = `${nameField}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
+  else
+    body = `<p class="sub">✅ ${t('netConnected')}</p>${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
+  return `<header class="top">${brand()}<button class="mini-btn" id="netCancelTop">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel net-panel"><h1 class="settings-title">📶 ${t('netTitle')}</h1>${body}</section>`;
+}
+
+/** Fenêtres réseau : attente d'un joueur déconnecté (partagée), connexion perdue (locale). */
+function netModalView() {
+  if (g.modal === 'netWait') {
+    const name = pname(g.netWaitSeat),
+      host = g.net && g.net.role === 'host';
+    return `<h2>📵 ${t('netWaitTitle', { player: name })}</h2><p>${t('netWaitText')}</p>${
+      host ? `<button class="bigbtn light" id="netWithout">${t('netWithout', { player: name })}</button>` : ''
+    }`;
+  }
+  if (g.modal === 'netLost')
+    return `<h2>📵 ${t('netLostTitle')}</h2><p>${t('netLostText')}</p><button class="bigbtn" id="netRetry">🔄 ${t('netRetry')}</button><button class="bigbtn light" id="netQuitGame">${t('netQuit')}</button>`;
+  return '';
+}
+
+/** Fin de partie sur un téléphone invité : c'est l'hôte qui relance. */
+const netEndNote = () =>
+  g.net && g.net.role === 'client' ? `<p class="sub centered">⏳ ${t('netWaitReplay')}</p>` : '';
+
+/** « Au tour de … » dans la bulle du détective, sur les téléphones qui regardent. */
+function netWatchBanner() {
+  if (!g.net || myTurn() || g.screen !== 'game') return '';
+  return `<b class="net-watch">⏳ ${t('netWatching', { player: pname(active()) })}</b>`;
+}
+
+/** Branche les boutons des écrans réseau (appelée par bind()). */
+function bindNet(click) {
+  const nameInput = document.getElementById('netName');
+  if (nameInput)
+    nameInput.addEventListener('input', () => {
+      g.names[0] = nameInput.value;
+    });
+  click('openLan', () => {
+    g.screen = 'lan';
+    g.lan = { view: 'menu', error: null };
+    render();
+  });
+  click('netCreate', netCreate);
+  click('netGoJoin', () => {
+    g.lan = { view: 'join', error: null };
+    render();
+  });
+  click('netJoinGo', () => netJoin((document.getElementById('netCode') || {}).value));
+  const leave = () => netLeave();
+  click('netCancel', leave);
+  click('netCancelTop', leave);
+  click('netQuitGame', leave);
+  click('netLaunch', netLaunch);
+  click('netWithout', netContinueWithout);
+  click('netRetry', netRetry);
+}
+
+/* ---- 16-render.js ---- */
 /*
  * Affichage : render() reconstruit tout l'écran à partir de `g`, puis bind() branche
  * les événements. Simple et sûr pour un petit jeu : il n'y a jamais d'écran « désynchronisé ».
@@ -9132,11 +9834,16 @@ function render() {
   document.documentElement.lang = g.lang;
   document.documentElement.dir = g.lang === 'ar' ? 'rtl' : 'ltr';
   {
-    const bc = 'scr-' + g.screen + (g.reduceMotion ? ' reduce-motion' : '');
+    const bc =
+      'scr-' +
+      g.screen +
+      (g.reduceMotion ? ' reduce-motion' : '') +
+      (g.net && !myTurn() ? ' net-spectator' : '') +
+      (g.net && g.net.role === 'client' ? ' net-client' : '');
     if (document.body.className !== bc) document.body.className = bc;
   }
   document.title = t('title');
-  const screens = { home, game, settings, end, office };
+  const screens = { home, game, settings, end, office, lan: lanScreen };
   app.innerHTML = (screens[g.screen] || end)() + modalView();
   {
     const mk = g.screen + '|' + (g.modal || ''),
@@ -9154,6 +9861,7 @@ function render() {
   } else if (!changed) app.classList.remove('screen-enter');
   bind();
   save();
+  netBroadcast(); // hôte Wi-Fi : chaque changement est envoyé aux autres téléphones
 }
 /** Branche les clics des éléments de l'écran (identifiants et attributs data-*). */
 function bind() {
@@ -9179,21 +9887,13 @@ function bind() {
       render();
     })
   );
-  app.querySelectorAll('[data-tab]').forEach(b =>
-    b.addEventListener('click', () => {
-      if (g.helpUsed && b.dataset.tab !== 'guess') return;
-      g.tab = b.dataset.tab;
-      if (g.tab === 'math' && !g.mathStarted) {
-        g.mathStarted = true;
-        g.mathElapsed = 0;
-        lastTick = Date.now();
-      }
-      render();
-    })
-  );
+  // Actions de jeu : passent par act() (multijoueur Wi-Fi : envoyées à l'hôte, seul arbitre).
+  app
+    .querySelectorAll('[data-tab]')
+    .forEach(b => b.addEventListener('click', () => act('tab', b.dataset.tab)));
   app
     .querySelectorAll('[data-question]')
-    .forEach(b => b.addEventListener('click', () => ask(b.dataset.question)));
+    .forEach(b => b.addEventListener('click', () => act('ask', b.dataset.question)));
   app.querySelectorAll('[data-guess]').forEach(b =>
     b.addEventListener('click', () => {
       if (g.capturing || g.phase !== 'choose') return;
@@ -9202,8 +9902,8 @@ function bind() {
       render();
     })
   );
-  click('capPrecise', () => launchCapture('precise'));
-  click('capNet', () => launchCapture('net'));
+  click('capPrecise', () => act('capture', 'precise', g.sel));
+  click('capNet', () => act('capture', 'net', g.sel));
   click('motionToggle', () => {
     g.reduceMotion = !g.reduceMotion;
     render();
@@ -9269,7 +9969,7 @@ function bind() {
   });
   app
     .querySelectorAll('[data-math]')
-    .forEach(b => b.addEventListener('click', () => mathAnswer(Number(b.dataset.math))));
+    .forEach(b => b.addEventListener('click', () => act('math', Number(b.dataset.math))));
   click('start', () => {
     sfx('tap');
     g.modal = 'names';
@@ -9322,9 +10022,11 @@ function bind() {
     sfx('tap');
     if (g.mode === 'challenge') return startChallenge(g.chKind, g.chDiff);
     if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
+    if (g.net) return netRelaunch();
     start();
   });
   click('quitYes', () => {
+    if (g.net) return netLeave();
     g.modal = null;
     g.inGame = false;
     g.screen = 'home';
@@ -9377,23 +10079,16 @@ function bind() {
     sfx('tap');
     render();
   });
+  bindNet(click);
   click('menu', () => {
+    if (g.net) return netLeave();
     g.screen = 'home';
     g.last = null;
     g.modal = null;
     render();
   });
-  click('pause', () => {
-    sfx('tap');
-    g.modal = 'pause';
-    render();
-  });
-  click('resumeGame', () => {
-    sfx('tap');
-    g.modal = null;
-    lastTick = Date.now();
-    render();
-  });
+  click('pause', () => act('pause'));
+  click('resumeGame', () => act('resume'));
   click('pauseSettings', () => {
     g.settingsFrom = 'game';
     g.screen = 'settings';
@@ -9463,7 +10158,7 @@ function bind() {
     render();
   };
   click('closeSettings', close);
-  click('next', nextTurn);
+  click('next', () => act('next'));
   click('history', () => {
     g.showHistory = !g.showHistory;
     render();
@@ -9479,15 +10174,10 @@ function bind() {
       render();
     })
   );
-  click('reroll', () => {
-    if (g.rerolled || g.helpUsed || g.phase !== 'choose') return;
-    makeChoices();
-    g.rerolled = true;
-    render();
-  });
+  click('reroll', () => act('reroll'));
 }
 
-/* ---- 16-boot.js ---- */
+/* ---- 17-boot.js ---- */
 /*
  * Démarrage et points d'entrée externes.
  */
@@ -9517,6 +10207,17 @@ function back() {
     return true;
   }
   if (g.screen === 'game' && g.modal === 'handoff') return true;
+  if (g.screen === 'lan') {
+    netLeave();
+    return true;
+  }
+  if (g.net && ['netWait', 'netLost', 'quit'].includes(g.modal)) return true; // fenêtres réseau : choix à faire
+  if (g.net && g.screen === 'game') {
+    // Wi-Fi : Retour propose de quitter (une pause bloquerait aussi les autres téléphones)
+    g.modal = 'quit';
+    render();
+    return true;
+  }
   if (g.screen === 'office') {
     g.screen = g.officeFrom === 'end' && g.soloResult ? 'end' : 'home';
     render();
@@ -9584,6 +10285,13 @@ window.__numero = {
   openTutorial,
   tutCapture,
   tutLoopPick,
+  act,
+  netCreate,
+  netJoin,
+  netLaunch,
+  netLeave,
+  netContinueWithout,
+  redactState,
   scoreSolo,
   settleSolo,
   rankOf,

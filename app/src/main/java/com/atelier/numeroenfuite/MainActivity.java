@@ -17,7 +17,9 @@ import android.widget.FrameLayout;
 /**
  * Le Numéro en fuite — conteneur Android.
  * Le jeu complet (HTML/CSS/JS) est embarqué dans assets/index.html et fonctionne hors ligne.
- * Aucune permission, aucun accès réseau, aucune navigation externe.
+ * Aucune navigation externe : la WebView n'ouvre que les pages du jeu embarqué.
+ * Réseau : uniquement le multijoueur Wi-Fi LOCAL, via {@link NetBridge} (window.NumeroNet),
+ * entre téléphones du même réseau ; aucun accès Internet, aucun serveur.
  */
 public class MainActivity extends Activity {
 
@@ -25,6 +27,7 @@ public class MainActivity extends Activity {
     private static final int SKY = 0xFF2A5CF5;
 
     private WebView game;
+    private NetBridge net;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +77,10 @@ public class MainActivity extends Activity {
             s.setSafeBrowsingEnabled(true);
         }
 
+        // Multijoueur Wi-Fi local : seul objet exposé au JavaScript (messages texte entre téléphones).
+        net = new NetBridge(this, game);
+        game.addJavascriptInterface(net, "NumeroNet");
+
         game.setWebChromeClient(new WebChromeClient());
         game.setWebViewClient(new WebViewClient() {
             @Override
@@ -106,7 +113,7 @@ public class MainActivity extends Activity {
         game.loadUrl(GAME_URL);
     }
 
-    /** Seules les pages du jeu embarqué peuvent s'ouvrir : aucun lien externe, aucun accès réseau. */
+    /** Seules les pages du jeu embarqué peuvent s'ouvrir : aucun lien externe, aucune page web. */
     private static boolean isGameUrl(String url) {
         return url != null && url.startsWith("file:///android_asset/");
     }
@@ -142,6 +149,10 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (net != null) {
+            net.shutdown();
+            net = null;
+        }
         if (game != null) {
             ViewGroup parent = (ViewGroup) game.getParent();
             if (parent != null) parent.removeView(game);

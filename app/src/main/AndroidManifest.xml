@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Aucune permission : le jeu fonctionne entièrement hors ligne. -->
+<!--
+  Le jeu fonctionne hors ligne. Les autorisations ci-dessous servent UNIQUEMENT au multijoueur
+  Wi-Fi local (téléphones d'un même réseau, sans Internet ni serveur) : ce sont des autorisations
+  « normales », accordées à l'installation, sans aucune fenêtre de demande.
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- connexions TCP entre téléphones du réseau local -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- trouver la partie par son code (annonce mDNS / NSD) -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="false"

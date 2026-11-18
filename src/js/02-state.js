@@ -68,6 +68,9 @@ const initial = () => ({
   gameMode: 'race',
   chDiffPref: 'medium',
   placed: [], // Course : podium [{ player, round, turn }]
+  net: null, // multijoueur Wi-Fi : { role: 'host' | 'client', seat }
+  lan: null, // écran « Partie Wi-Fi » : { view, error }
+  absent: [], // Wi-Fi : joueurs partis (tours sautés)
   starter: 0,
   playerHelp: [false, false, false, false],
   mode: 'normal',
@@ -201,7 +204,7 @@ function load() {
     const d = JSON.parse(raw);
     if (
       !d ||
-      !['home', 'game', 'end', 'settings', 'office'].includes(d.screen) ||
+      !['home', 'game', 'end', 'settings', 'office', 'lan'].includes(d.screen) ||
       ![1, 2, 3, 4].includes(d.players) ||
       !(d.level in LEVELS) ||
       !['fr', 'en', 'ar'].includes(d.lang) ||
@@ -227,6 +230,10 @@ function load() {
     if (g.hunt && !Array.isArray(g.hunt.steps)) g.hunt = null;
     g.tut = null; // le tutoriel n'est jamais repris
     if (!Array.isArray(g.placed)) g.placed = [];
+    // une connexion Wi-Fi ne survit pas à un redémarrage : retour à l'accueil
+    if (g.net || g.screen === 'lan') {
+      Object.assign(g, { net: null, lan: null, absent: [], screen: 'home', inGame: false, modal: null });
+    }
     if (!['normal', 'challenge'].includes(g.mode)) g.mode = 'normal';
     if (g.mode === 'challenge' && !['timed', 'endless'].includes(g.chKind)) g.chKind = 'endless';
     if (!(g.chDiff in CHALLENGE_DIFFS)) g.chDiff = 'hard'; // parties de défi sauvegardées avant la V8.4

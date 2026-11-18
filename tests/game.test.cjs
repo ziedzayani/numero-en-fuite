@@ -1055,6 +1055,116 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
+  // 3k) V8.11 : multijoueur Wi-Fi local — 3 téléphones simulés reliés par un faux réseau
+  //     (même contrat que l'application Android : hostStart / joinStart / send / stop, événements __netEvent)
+  {
+    const before = failed;
+    const hosts = {}; let peerSeq = 0;
+    const deliver = (pg, ev) => setTimeout(() => pg.evaluate(e => window.__netEvent(JSON.stringify(e)), ev).catch(() => {}), 5);
+    const hostOf = pg => Object.values(hosts).find(h => h.page === pg);
+    const netOp = (src, op, a, b) => {
+      if (op === 'hostStart') { hosts[a] = { page: src, code: a, peers: new Map() }; deliver(src, { type: 'hosting', ip: '192.168.1.10', port: 40123 }); }
+      else if (op === 'joinStart') { const h = hosts[a]; if (!h) return deliver(src, { type: 'error', code: 'notFound' }); const id = 'p' + (++peerSeq); h.peers.set(id, src); src.__peer = { code: a, id }; deliver(h.page, { type: 'peerJoined', peer: id }); deliver(src, { type: 'connected' }); }
+      else if (op === 'send') { const h = hostOf(src); if (h) { const dst = h.peers.get(a); if (dst) deliver(dst, { type: 'message', peer: 'host', data: b }); } else if (src.__peer && hosts[src.__peer.code]) deliver(hosts[src.__peer.code].page, { type: 'message', peer: src.__peer.id, data: b }); }
+      else if (op === 'stop') { const h = hostOf(src); if (h) { for (const pg of h.peers.values()) deliver(pg, { type: 'disconnected' }); delete hosts[h.code]; } else if (src.__peer) { const hh = hosts[src.__peer.code]; if (hh) { hh.peers.delete(src.__peer.id); deliver(hh.page, { type: 'peerLeft', peer: src.__peer.id }); } src.__peer = null; } }
+    };
+    const phone = async () => {
+      const ctx = await browser.newContext({ viewport: { width: 360, height: 735 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+      const page = await ctx.newPage(); page.errors = [];
+      page.on('pageerror', e => page.errors.push(String(e)));
+      await page.exposeBinding('__fakeNet', ({ page: src }, op, a, b) => { netOp(src, op, a, b); });
+      await page.addInitScript(() => { window.NumeroNet = { hostStart: c => window.__fakeNet('hostStart', c), joinStart: c => window.__fakeNet('joinStart', c), send: (p, d) => window.__fakeNet('send', p, d), stop: () => window.__fakeNet('stop'), keepAwake: () => {} }; });
+      await page.goto(URL); await page.evaluate(() => localStorage.clear()); await page.reload();
+      await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.state.reduceMotion = true; N.render(); });
+      return { ctx, page };
+    };
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const SN = p => S(p);
+    const [A, B, C] = [await phone(), await phone(), await phone()];
+    const host = A.page, p2 = B.page, p3 = C.page;
+    check(await host.isVisible('#openLan'), 'Accueil : bouton « Partie Wi-Fi » quand le réseau est disponible (application Android)');
+    { const { ctx, page } = await fresh(browser); check(!(await page.$('#openLan')), 'Version navigateur sans réseau : pas de bouton Wi-Fi'); await ctx.close(); }
+    // l'hôte crée la partie
+    await host.click('#openLan'); await host.fill('#netName', 'Léa'); await host.click('#netCreate');
+    const code = (await host.textContent('.net-code')).trim();
+    check(/^\d{4}$/.test(code) && await host.isDisabled('#netLaunch'), `Hôte : code à 4 chiffres (${code}), « Lancer » inactif tant qu’il est seul`);
+    // un mauvais code
+    await p2.click('#openLan'); await p2.fill('#netName', 'Omar'); await p2.click('#netGoJoin'); await p2.fill('#netCode', code === '9999' ? '8888' : '9999'); await p2.click('#netJoinGo'); await wait(150);
+    check(await p2.isVisible('.net-error') && (await p2.textContent('.net-error')).includes('introuvable'), 'Mauvais code → « Partie introuvable »');
+    // deux joueurs rejoignent
+    await p2.fill('#netCode', code); await p2.click('#netJoinGo');
+    await p3.click('#openLan'); await p3.fill('#netName', 'Zoé'); await p3.click('#netGoJoin'); await p3.fill('#netCode', code); await p3.click('#netJoinGo');
+    await wait(300);
+    const hostList = await host.$$eval('.net-players li b', e => e.map(x => x.textContent).join(','));
+    check(hostList === 'Léa,Omar,Zoé' && (await p3.textContent('.net-panel')).includes('En attente') && !(await host.isDisabled('#netLaunch')), 'Salle d’attente : Léa (hôte), Omar, Zoé — invités en attente, « Lancer » actif (' + hostList + ')');
+    // lancement
+    await host.click('#netLaunch'); await wait(300);
+    let [h, s2, s3] = [await SN(host), await SN(p2), await SN(p3)];
+    check(h.screen === 'game' && s2.screen === 'game' && s3.screen === 'game' && h.players === 3 && s2.names.join() === 'Léa,Omar,Zoé', 'Partie lancée sur les 3 téléphones avec les 3 prénoms');
+    check(s2.secret === undefined && s3.secret === undefined && (s2.math || {}).result === null && !s2.hunt && h.secret >= 1, 'Le numéro secret, son parcours et la réponse du calcul ne sont jamais envoyés aux autres téléphones');
+    check(!(await host.$('.net-watch')) && (await p2.textContent('.net-watch')).includes('Léa') && (await p3.textContent('.net-watch')).includes('Léa'), 'Tour de Léa : bandeau « Au tour de Léa… » chez Omar et Zoé');
+    // action hors tour : refusée par l'hôte
+    await p2.evaluate(() => window.__numero.act('ask', window.__numero.state.choices[0])); await wait(150);
+    check((await SN(host)).history.length === 0, 'Omar ne peut pas jouer à la place de Léa (action refusée par l’hôte)');
+    // Léa pose une question (interface), puis rate
+    await host.click('[data-tab="question"]'); await host.click('[data-question]'); await wait(200);
+    s2 = await SN(p2);
+    check(s2.phase === 'result' && s2.last && s2.last.type === 'question' && await p2.isVisible('.result-card') && !(await p2.isVisible('#next')) && await p2.isVisible('.net-wait-next'), 'Omar voit en direct la question de Léa et sa réponse ; il n’a pas le bouton « Continuer »');
+    await host.click('#next'); await wait(100);
+    const hs = (await SN(host)).secret, miss = hs === 1 ? 2 : 1;
+    await host.click(`[data-guess="${miss}"]`); await host.click('#capPrecise'); await wait(150); await host.click('#next'); await wait(250);
+    [h, s2] = [await SN(host), await SN(p2)];
+    check(h.turn === 1 && !(await p2.$('.net-watch')) && (await host.textContent('.net-watch')).includes('Omar'), 'Tour suivant : à Omar de jouer, Léa regarde');
+    // Omar joue sur SON téléphone : choisit un numéro (sélection locale), capture → arbitrée par l'hôte
+    await p2.click('[data-tab="guess"]'); await wait(150);
+    const sec = (await SN(host)).secret;
+    await p2.click(`[data-guess="${sec}"]`);
+    check((await SN(p2)).sel === sec && (await SN(host)).sel !== sec, 'La sélection d’un numéro reste locale au téléphone d’Omar');
+    await p2.click('#capPrecise'); await wait(300);
+    [h, s3] = [await SN(host), await SN(p3)];
+    check(h.last && h.last.type === 'found' && h.last.player === 1 && h.scores[1] === 10, 'Omar attrape le numéro depuis son téléphone : +10, vérifié par l’hôte');
+    check(await p3.isVisible('.podium-note') && (await p3.textContent('.podium-note')).includes('Omar'), 'Zoé voit l’annonce « Omar monte sur le podium » et le nouveau numéro');
+    // chronos : décomptés par l'hôte, reçus par les autres
+    await p2.click('#next'); await wait(1300);
+    const tz = await SN(p3);
+    check(tz.turnElapsed > 300 && (await SN(host)).turnElapsed > 300, `Chronos : décomptés par l’hôte, reçus par les autres (${Math.round(tz.turnElapsed)} ms)`);
+    // réglage local : Zoé passe en arabe, l'hôte reste en français
+    await p3.evaluate(() => { const N = window.__numero; N.state.lang = 'ar'; N.render(); }); await wait(1200);
+    check((await SN(p3)).lang === 'ar' && (await SN(host)).lang === 'fr' && (await p3.evaluate(() => document.documentElement.dir)) === 'rtl', 'Réglages d’affichage propres à chaque téléphone (Zoé en arabe, Léa en français)');
+    // déconnexion du joueur actif (Zoé) → tout le monde attend, puis l'hôte continue sans elle
+    netOp(p3, 'stop'); await wait(300);
+    [h, s2] = [await SN(host), await SN(p2)];
+    check(h.modal === 'netWait' && s2.modal === 'netWait' && await host.isVisible('#netWithout') && !(await p2.$('#netWithout')), 'Zoé déconnectée pendant son tour : « En attente de Zoé » chez tous, seul l’hôte peut continuer sans elle');
+    // retour de Zoé avec son jeton : elle reprend sa place
+    await p3.evaluate(() => { window.__numero.state.modal = 'netLost'; window.__numero.render(); });
+    await p3.click('#netRetry'); await wait(400);
+    [h, s3] = [await SN(host), await SN(p3)];
+    check(h.modal === null && s3.screen === 'game' && s3.net.seat === 2 && s3.turn === h.turn, 'Zoé revient (même code) : elle retrouve sa place et la partie reprend');
+    // nouvelle coupure, l'hôte continue sans elle
+    netOp(p3, 'stop'); await wait(250);
+    await host.click('#netWithout'); await wait(250);
+    h = await SN(host);
+    check(h.absent.includes(2) && h.modal === null && h.screen === 'end' && (await SN(p2)).screen === 'end', 'Continuer sans Zoé : Omar déjà sur le podium, Léa seule à chercher → fin de partie et podium chez tous');
+    // fin : seul l'hôte relance ; « Rejouer » garde les joueurs encore connectés
+    check(!(await p2.isVisible('#again')) && (await p2.textContent('#app')).includes('hôte qui peut relancer'), 'Fin de partie : les invités attendent que l’hôte relance');
+    await host.click('#again'); await wait(300);
+    [h, s2] = [await SN(host), await SN(p2)];
+    check(h.screen === 'game' && s2.screen === 'game' && h.players === 2 && s2.names.join() === 'Léa,Omar', 'Rejouer (hôte) : nouvelle partie à 2 avec les joueurs encore connectés');
+    // l'hôte quitte en pleine partie → les invités sont prévenus
+    await host.evaluate(() => window.__numero.netLeave()); await wait(250);
+    s2 = await SN(p2);
+    check(s2.modal === 'netLost' && await p2.isVisible('#netRetry'), 'L’hôte quitte : « Connexion perdue » chez Omar, avec Réessayer / Quitter');
+    await p2.click('#netQuitGame');
+    check((await SN(p2)).screen === 'home' && !(await SN(p2)).net, 'Quitter : retour à l’accueil, mode réseau fermé');
+    // relance après fermeture de l'application : jamais de partie réseau fantôme
+    await p2.reload();
+    check((await SN(p2)).screen === 'home' && !(await SN(p2)).net, 'Après redémarrage : pas de partie Wi-Fi « fantôme », retour à l’accueil');
+    const errs = [host, p2, p3].flatMap(p => p.errors);
+    check(errs.length === 0, 'Aucune erreur JavaScript sur les 3 téléphones ' + errs.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V8.11 : multijoueur Wi-Fi — salle d’attente, arbitrage, secret protégé, coupures, retour`);
+    for (const x of [A, B, C]) await x.ctx.close();
+  }
+
   // 4) Rendu sur petits écrans + captures
   for (const vp of [{ width: 320, height: 568, tag: '320' }, { width: 360, height: 740, tag: '360' }]) {
     const before = failed;

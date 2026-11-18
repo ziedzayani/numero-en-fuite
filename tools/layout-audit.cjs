@@ -110,6 +110,41 @@ const STATES = {
     N.guess(N.state.secret);
     N.nextTurn();
   },
+  'wifi menu': N => {
+    N.state.screen = 'lan';
+    N.state.lan = { view: 'menu', error: 'host' };
+  },
+  'wifi salle hôte': N => {
+    N.netCreate();
+  },
+  'wifi rejoindre (erreur)': N => {
+    N.state.screen = 'lan';
+    N.state.lan = { view: 'join', error: 'notFound' };
+  },
+  'wifi salle invité': N => {
+    N.state.screen = 'lan';
+    N.state.lan = { view: 'clientLobby', error: null };
+  },
+  'wifi jeu (spectateur)': N => {
+    N.state.players = 3;
+    N.state.level = 'genius';
+    N.start(true);
+    N.state.net = { role: 'client', seat: 1 };
+    N.state.tab = 'guess';
+  },
+  'wifi attente joueur': N => {
+    N.state.players = 3;
+    N.start(true);
+    N.state.net = { role: 'host', seat: 0 };
+    N.state.netWaitSeat = 1;
+    N.state.modal = 'netWait';
+  },
+  'wifi connexion perdue': N => {
+    N.state.players = 3;
+    N.start(true);
+    N.state.net = { role: 'client', seat: 1 };
+    N.state.modal = 'netLost';
+  },
   'film (proposition)': N => {
     N.state.players = 1;
     N.state.level = 'junior';
@@ -187,6 +222,10 @@ const STATES = {
     const p = await c.newPage();
     const errs = [];
     p.on('pageerror', e => errs.push(e.message));
+    // faux transport muet : les écrans Wi-Fi s'affichent comme dans l'application Android
+    await p.addInitScript(() => {
+      window.NumeroNet = { hostStart() {}, joinStart() {}, send() {}, stop() {}, keepAwake() {} };
+    });
     await p.goto(
       'file://' +
         (process.env.FILE || path.join(__dirname, '..', 'app', 'src', 'main', 'assets', 'index.html'))

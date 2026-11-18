@@ -18,11 +18,16 @@ function render() {
   document.documentElement.lang = g.lang;
   document.documentElement.dir = g.lang === 'ar' ? 'rtl' : 'ltr';
   {
-    const bc = 'scr-' + g.screen + (g.reduceMotion ? ' reduce-motion' : '');
+    const bc =
+      'scr-' +
+      g.screen +
+      (g.reduceMotion ? ' reduce-motion' : '') +
+      (g.net && !myTurn() ? ' net-spectator' : '') +
+      (g.net && g.net.role === 'client' ? ' net-client' : '');
     if (document.body.className !== bc) document.body.className = bc;
   }
   document.title = t('title');
-  const screens = { home, game, settings, end, office };
+  const screens = { home, game, settings, end, office, lan: lanScreen };
   app.innerHTML = (screens[g.screen] || end)() + modalView();
   {
     const mk = g.screen + '|' + (g.modal || ''),
@@ -40,6 +45,7 @@ function render() {
   } else if (!changed) app.classList.remove('screen-enter');
   bind();
   save();
+  netBroadcast(); // hôte Wi-Fi : chaque changement est envoyé aux autres téléphones
 }
 /** Branche les clics des éléments de l'écran (identifiants et attributs data-*). */
 function bind() {
@@ -65,21 +71,13 @@ function bind() {
       render();
     })
   );
-  app.querySelectorAll('[data-tab]').forEach(b =>
-    b.addEventListener('click', () => {
-      if (g.helpUsed && b.dataset.tab !== 'guess') return;
-      g.tab = b.dataset.tab;
-      if (g.tab === 'math' && !g.mathStarted) {
-        g.mathStarted = true;
-        g.mathElapsed = 0;
-        lastTick = Date.now();
-      }
-      render();
-    })
-  );
+  // Actions de jeu : passent par act() (multijoueur Wi-Fi : envoyées à l'hôte, seul arbitre).
+  app
+    .querySelectorAll('[data-tab]')
+    .forEach(b => b.addEventListener('click', () => act('tab', b.dataset.tab)));
   app
     .querySelectorAll('[data-question]')
-    .forEach(b => b.addEventListener('click', () => ask(b.dataset.question)));
+    .forEach(b => b.addEventListener('click', () => act('ask', b.dataset.question)));
   app.querySelectorAll('[data-guess]').forEach(b =>
     b.addEventListener('click', () => {
       if (g.capturing || g.phase !== 'choose') return;
@@ -88,8 +86,8 @@ function bind() {
       render();
     })
   );
-  click('capPrecise', () => launchCapture('precise'));
-  click('capNet', () => launchCapture('net'));
+  click('capPrecise', () => act('capture', 'precise', g.sel));
+  click('capNet', () => act('capture', 'net', g.sel));
   click('motionToggle', () => {
     g.reduceMotion = !g.reduceMotion;
     render();
@@ -155,7 +153,7 @@ function bind() {
   });
   app
     .querySelectorAll('[data-math]')
-    .forEach(b => b.addEventListener('click', () => mathAnswer(Number(b.dataset.math))));
+    .forEach(b => b.addEventListener('click', () => act('math', Number(b.dataset.math))));
   click('start', () => {
     sfx('tap');
     g.modal = 'names';
@@ -208,9 +206,11 @@ function bind() {
     sfx('tap');
     if (g.mode === 'challenge') return startChallenge(g.chKind, g.chDiff);
     if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
+    if (g.net) return netRelaunch();
     start();
   });
   click('quitYes', () => {
+    if (g.net) return netLeave();
     g.modal = null;
     g.inGame = false;
     g.screen = 'home';
@@ -263,23 +263,16 @@ function bind() {
     sfx('tap');
     render();
   });
+  bindNet(click);
   click('menu', () => {
+    if (g.net) return netLeave();
     g.screen = 'home';
     g.last = null;
     g.modal = null;
     render();
   });
-  click('pause', () => {
-    sfx('tap');
-    g.modal = 'pause';
-    render();
-  });
-  click('resumeGame', () => {
-    sfx('tap');
-    g.modal = null;
-    lastTick = Date.now();
-    render();
-  });
+  click('pause', () => act('pause'));
+  click('resumeGame', () => act('resume'));
   click('pauseSettings', () => {
     g.settingsFrom = 'game';
     g.screen = 'settings';
@@ -349,7 +342,7 @@ function bind() {
     render();
   };
   click('closeSettings', close);
-  click('next', nextTurn);
+  click('next', () => act('next'));
   click('history', () => {
     g.showHistory = !g.showHistory;
     render();
@@ -365,10 +358,5 @@ function bind() {
       render();
     })
   );
-  click('reroll', () => {
-    if (g.rerolled || g.helpUsed || g.phase !== 'choose') return;
-    makeChoices();
-    g.rerolled = true;
-    render();
-  });
+  click('reroll', () => act('reroll'));
 }

@@ -1,5 +1,18 @@
 # Historique des versions
 
+## V8.11
+
+**Multijoueur Wi-Fi local (première version)** : 2 à 4 joueurs, un téléphone chacun, sur le même Wi-Fi ou le partage
+de connexion d'un téléphone — sans Internet, sans serveur. Accueil › « Partie Wi-Fi » › Créer (code à 4 chiffres)
+ou Rejoindre avec le code › salle d'attente › partie en direct sur tous les écrans.
+- Le téléphone de l'hôte est le seul arbitre ; le **numéro secret ne quitte jamais son téléphone**.
+- Seul le joueur dont c'est le tour peut agir ; les autres voient tout en direct. Course (podium) et Points.
+- Coupures : « En attente de … », retour à sa place avec le même code, ou « Continuer sans lui » (hôte).
+- Android : `NetBridge.java` (TCP + annonce NSD) ; 4 autorisations **normales** (aucune fenêtre de demande),
+  vérifiées par la CI. Écran gardé allumé pendant une partie Wi-Fi.
+- Testé avec 3 téléphones simulés ; **à valider sur de vrais téléphones** (liste dans docs/MULTIJOUEUR.md).
+- Correctif : un bouton marqué « caché » restait visible (le style des boutons l'emportait).
+
 ## V8.10
 
 - **Questions d'intervalle proportionnelles au niveau** : « Est-il entre a et b ? » couvre environ un quart des numéros

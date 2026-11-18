@@ -1,7 +1,8 @@
 # Le Numéro en fuite
 
 Jeu familial de logique et de calcul mental (1 à 4 joueurs sur un seul téléphone, en français, anglais et arabe).
-Application Android (WebView) qui fonctionne **entièrement hors ligne**, **sans aucune permission**.
+Application Android (WebView) qui fonctionne **entièrement hors ligne**. Multijoueur sur **un seul téléphone** ou
+**un téléphone chacun** sur le même Wi-Fi ([docs/MULTIJOUEUR.md](docs/MULTIJOUEUR.md)) — sans Internet ni serveur.
 
 - Nouveautés : [CHANGELOG.md](CHANGELOG.md)
 - Fonctionnement du code, conventions, comment ajouter une langue / une question / un niveau :
@@ -22,7 +23,8 @@ Dernière version, compilée et vérifiée automatiquement :
 | `tools/layout-audit.cjs` | Audit de mise en page : aucun défilement, aucun bouton collé (3 tailles × 3 langues) |
 | `app/src/main/assets/index.html` | Jeu **généré** embarqué dans l'APK (ne pas modifier à la main) |
 | `app/src/main/java/.../MainActivity.java` | Conteneur Android (WebView sécurisée, bouton Retour, Android 15) |
-| `app/src/main/AndroidManifest.xml` | Manifeste (aucune permission, RTL, portrait) |
+| `app/src/main/AndroidManifest.xml` | Manifeste (autorisations réseau local normales, RTL, portrait) |
+| `app/src/main/java/.../NetBridge.java` | Transport du multijoueur Wi-Fi local (TCP + annonce NSD), exposé au jeu |
 | `app/build.gradle` | compileSdk/targetSdk 35, minSdk 23 (Android 6+), **version du jeu** |
 | `gradlew`, `gradle/wrapper/` | Gradle Wrapper 8.11.1 : compilation reproductible |
 | `.github/workflows/build-apk.yml` | Vérifications + tests + compilation + vérification + publication de l'APK |
@@ -74,7 +76,8 @@ En local : `./gradlew assembleRelease` (avec les variables de la section « Clé
 3. Android demande d'autoriser l'installation d'applications pour *Fichiers* : accepte (réglage normal
    « Sources inconnues » pour toute application qui ne vient pas du Play Store).
 4. Play Protect peut afficher « Application inconnue » / « Analyser l'application » : choisis **Analyser** ;
-   l'application ne demande aucune permission. Ne désactive pas Play Protect.
+   l'application ne demande aucune autorisation à l'écran (seulement l'accès au réseau local, accordé d'office).
+   Ne désactive pas Play Protect.
 
 ## Clé de signature (recommandé)
 

@@ -136,6 +136,11 @@ jobs:
           BADGING="$("$BT/aapt2" dump badging "$APK")"
           echo "$BADGING" | grep -E "package:|sdkVersion|targetSdkVersion|uses-permission|launchable-activity|application-label"
           if echo "$BADGING" | grep -q "application-debuggable"; then echo "::error::APK débogable"; exit 1; fi
+          # Seules les autorisations « normales » du multijoueur Wi-Fi local (aucune fenêtre de demande)
+          PERMS="$(echo "$BADGING" | grep -oP "uses-permission: name='\K[^']+" | sort | tr '\n' ' ')"
+          echo "Autorisations : $PERMS"
+          EXPECTED="android.permission.ACCESS_NETWORK_STATE android.permission.ACCESS_WIFI_STATE android.permission.CHANGE_WIFI_MULTICAST_STATE android.permission.INTERNET "
+          if [ "$PERMS" != "$EXPECTED" ]; then echo "::error::Autorisations inattendues : $PERMS"; exit 1; fi
           echo "$BADGING" | grep -q "package: name='com.atelier.numeroenfuite'"
           unzip -l "$APK" | grep -q "assets/index.html"
           echo "APK release, non débogable, jeu embarqué."

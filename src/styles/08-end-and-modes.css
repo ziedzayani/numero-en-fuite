@@ -1243,3 +1243,102 @@ body.scr-end .finalscore {
 .compact-settings .toggle-row {
   padding: 6px 10px;
 }
+
+/* V8.11 : multijoueur Wi-Fi local */
+.lan-btn {
+  grid-column: 1 / -1;
+  background: var(--yellow);
+  color: var(--ink);
+}
+.net-panel .bigbtn + .bigbtn {
+  margin-top: 10px;
+}
+.net-name {
+  display: block;
+  margin: 8px 0;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: start;
+}
+.net-name input {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px 12px;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  font: inherit;
+  font-size: 18px;
+  box-sizing: border-box;
+}
+#netCode {
+  font-size: 30px;
+  letter-spacing: 10px;
+  text-align: center;
+}
+.net-code {
+  margin: 6px auto 4px;
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: 14px;
+  text-align: center;
+  color: #503dc1;
+}
+.net-players {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+}
+.net-players li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: #eef3ff;
+  margin-bottom: 6px;
+}
+.net-players small {
+  margin-inline-start: auto;
+  color: var(--ink2);
+}
+.net-error {
+  margin: 8px 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #ffd9e3;
+  font-weight: 700;
+  font-size: 14px;
+}
+.net-watch {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #ffef95;
+  color: var(--ink);
+  font-weight: 800;
+}
+.net-wait-next {
+  margin: 10px 0 0;
+  text-align: center;
+  font-weight: 700;
+}
+/* les téléphones qui regardent ne peuvent pas jouer à la place du joueur actif */
+.net-spectator .actiontabs,
+.net-spectator .actionpane,
+.net-spectator .capture-row,
+.net-spectator .keypad,
+.net-spectator #reroll {
+  pointer-events: none;
+}
+.net-spectator .actionpane,
+.net-spectator .capture-row {
+  opacity: 0.6;
+}
+.net-client #again {
+  display: none;
+}
+/* l'attribut hidden l'emporte toujours sur le display des boutons */
+[hidden] {
+  display: none !important;
+}

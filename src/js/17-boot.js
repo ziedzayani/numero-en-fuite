@@ -27,6 +27,17 @@ function back() {
     return true;
   }
   if (g.screen === 'game' && g.modal === 'handoff') return true;
+  if (g.screen === 'lan') {
+    netLeave();
+    return true;
+  }
+  if (g.net && ['netWait', 'netLost', 'quit'].includes(g.modal)) return true; // fenêtres réseau : choix à faire
+  if (g.net && g.screen === 'game') {
+    // Wi-Fi : Retour propose de quitter (une pause bloquerait aussi les autres téléphones)
+    g.modal = 'quit';
+    render();
+    return true;
+  }
   if (g.screen === 'office') {
     g.screen = g.officeFrom === 'end' && g.soloResult ? 'end' : 'home';
     render();
@@ -94,6 +105,13 @@ window.__numero = {
   openTutorial,
   tutCapture,
   tutLoopPick,
+  act,
+  netCreate,
+  netJoin,
+  netLaunch,
+  netLeave,
+  netContinueWithout,
+  redactState,
   scoreSolo,
   settleSolo,
   rankOf,

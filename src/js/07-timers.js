@@ -69,20 +69,8 @@ function timersHTML() {
 let lastTick = Date.now(),
   lastSec = null;
 /** Avance les chronos actifs, met à jour les barres, déclenche les fins de temps. */
-function tick() {
-  const now = Date.now(),
-    dt = Math.min(1000, now - lastTick);
-  lastTick = now;
-  const l = activeTimers();
-  if (!l.length || g.modal || document.hidden) return;
-  // Défi : le chrono s'arrête pendant la lecture du résultat (temps de lecture non pénalisé).
-  if (g.mode === 'challenge' && g.phase !== 'choose') return;
-  for (const k of l) {
-    if (k === 'global') g.turnElapsed += dt;
-    else if (k === 'math') g.mathElapsed += dt;
-    else if (k === 'answer') g.answerElapsed += dt;
-    else g.chElapsed += dt;
-  }
+/** Met à jour les barres de chrono affichées (sans tout redessiner). */
+function paintTimers(l = activeTimers()) {
   for (const k of l) {
     const el = document.querySelector(`[data-tk="${k}"]`);
     if (!el) continue;
@@ -92,6 +80,25 @@ function tick() {
     el.querySelector('b').textContent = timerText(k, left).replace(/&[^;]+;/g, '');
     if (k !== 'chUp') el.classList.toggle('hurry', left <= 5000);
   }
+}
+function tick() {
+  const now = Date.now(),
+    dt = Math.min(1000, now - lastTick);
+  lastTick = now;
+  if (g.net && g.net.role === 'client') return; // invité Wi-Fi : c'est l'hôte qui décompte
+  netCheckWaiting();
+  const l = activeTimers();
+  if (!l.length || g.modal || (document.hidden && !g.net)) return;
+  // Défi : le chrono s'arrête pendant la lecture du résultat (temps de lecture non pénalisé).
+  if (g.mode === 'challenge' && g.phase !== 'choose') return;
+  for (const k of l) {
+    if (k === 'global') g.turnElapsed += dt;
+    else if (k === 'math') g.mathElapsed += dt;
+    else if (k === 'answer') g.answerElapsed += dt;
+    else g.chElapsed += dt;
+  }
+  paintTimers(l);
+  netBroadcastTimers(); // hôte Wi-Fi : chronos envoyés aux autres téléphones
   const urgent = l.filter(k => k !== 'chUp').map(timerLeft);
   if (urgent.length) {
     const sec = Math.ceil(Math.min(...urgent) / 1000);
