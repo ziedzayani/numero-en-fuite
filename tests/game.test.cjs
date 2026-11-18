@@ -170,7 +170,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   check(await page.isVisible('#again') && await page.isVisible('#menu'), `${label} : boutons Rejouer / Accueil`);
   const shown = await page.$$eval('.finalscore .value', els => els.map(e => parseInt(e.textContent)));
   const totals = st.scores.map((v, i) => v + st.stars[i]).sort((a, b) => b - a);
-  check(shown.join() === totals.join(), `${label} : classement final = points + étoiles (${shown.join(', ')})`);
+  if (players > 1) check(shown.join() === totals.join(), `${label} : classement final = points + étoiles (${shown.join(', ')})`);
+  else check(await page.$$eval('.solo-stars span.on', e => e.length) === 3 && (await page.textContent('.solo-stats')).includes('2') && !(await page.$('.finalscore')), `${label} : écran solo — 3 étoiles (trouvé en 2 tours), compteurs, pas de « classement »`);
   const unique = new Set(seenQuestions).size;
   check(unique >= Math.min(seenQuestions.length, 12) * 0.7, `${label} : questions variées (${unique} différentes sur ${seenQuestions.length})`);
   check(page.errors.length === 0, `${label} : aucune erreur JavaScript ${page.errors.join(' | ')}`);
@@ -625,6 +626,13 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const missEv = h.steps[missIdx - 1].ev;
     check(await page.isVisible('.rp-pick.bad') && (await page.textContent('.rp-pick')).includes(String(missEv.n)) && await page.$$eval('.rp-track span.miss', e => e.map(x => x.textContent).join()) === String(missEv.n), `Film : le choix raté (${missEv.n}) est montré, en rouge sur la grille`);
     check(await page.isVisible('.rp-was'), 'Film : « il était sur le … » à côté du choix raté');
+    const wrapOk = await page.evaluate(() => { const N = window.__numero, s = N.state; s.lastHunt = { start: 2, max: 15, steps: [{ from: 2, to: 15, shift: -2, ev: { type: 'question', player: 0, qid: s.choices[0], answer: false, shift: -2 } }], end: { type: 'found', player: 0, n: 15 } }; s.rpIdx = 1; s.rpPlaying = false; N.render();
+      const mv = document.querySelector('.rp-move'), sp = mv.querySelectorAll('span'); return sp[0].textContent === '2' && sp[1].textContent === '15' && mv.querySelector('.mv-arrow i').textContent === '−2' && document.querySelector('.rp-hint.wrap').textContent.includes('15'); });
+    check(wrapOk, 'Film : 2 ──−2──➜ 15 avec « Après 1, il repart de 15 » (flèche dans le bon sens)');
+    check(!(await page.textContent('.rp-cap')).includes('⬅'), 'Film : la légende ne répète pas la flèche du saut');
+    await page.evaluate(() => { const N = window.__numero; N.state.rpIdx = 0; N.render(); });
+    check(await page.isVisible('#rpNext') && (await page.textContent('#rpNext')).includes('Suivant') && (await page.textContent('#rpPrev')).includes('Précédent'), 'Film « Avec les boutons » : boutons « Précédent » et « Suivant » visibles');
+    check(await page.evaluate(() => [...document.querySelectorAll('.rp-ctrl .key')].every(b => b.scrollWidth <= b.clientWidth + 1 && b.getBoundingClientRect().width >= 40 && b.getBoundingClientRect().height >= 40)), 'Film : boutons assez grands, textes non coupés');
     // mode boutons : pas d'enchaînement automatique
     const idxM = (await S(page)).rpIdx; await page.waitForTimeout(6600);
     check((await S(page)).rpIdx === idxM && !(await page.$('#rpPlay')) && !(await page.$('.rp-bar')), 'Film « Avec les boutons » : pas d’enchaînement automatique');
@@ -656,6 +664,17 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.state.players = 1; N.start(); for (let i = 0; i < 40 && N.state.screen === 'game'; i++) { N.state.modal = null; N.guess(N.state.secret % N.maxN() + 1); N.nextTurn(); } });
     const st = await S(page);
     check(st.screen === 'end' && st.soloWon === false && (await page.textContent('.hero h1')).includes('échappé') && (await page.textContent('.intro')).includes(String(st.soloSecret)), 'Solo non trouvé en 12 tours : « Il t’a échappé », le numéro est révélé');
+    check(await page.isVisible('.solo-reveal .lens-glass') && !(await page.$('.solo-stars')) && !(await page.$('.finalscore')), 'Solo perdu : loupe sur le numéro caché, pas d’étoiles ni de score');
+    // Ponctuation des questions dans les 3 langues
+    const punct = await page.evaluate(() => { const D = window.__numero.dictionaries, bad = [];
+      for (const [l, d] of Object.entries(D)) for (const [k, v] of Object.entries(d)) { if (typeof v !== 'string') continue;
+        if (/^\s*[?؟❓]/.test(v)) bad.push(l + ':' + k + ' commence par ?');
+        if (l === 'fr' && /[^\u00a0]\?/.test(v.replace(/\?\u00a0/g, '?'))) bad.push('fr:' + k + ' sans espace insécable avant ?');
+        if (l === 'en' && /\s\?/.test(v)) bad.push('en:' + k + ' espace avant ?');
+        if (l === 'ar' && /\?/.test(v)) bad.push('ar:' + k + ' « ? » au lieu de « ؟ »'); }
+      return bad; });
+    check(punct.length === 0, 'Points d’interrogation corrects en FR / EN / AR ' + punct.join(', '));
+    check(!(await page.content()).includes('❓'), 'Aucune icône ❓ en début de phrase');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (film) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} Film du parcours : exact, popup, lecture pas à pas, arabe`);
     await ctx.close();
