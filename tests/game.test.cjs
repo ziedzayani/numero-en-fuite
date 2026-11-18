@@ -156,12 +156,14 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     if (wantRight) finds++;
     const nb = await notebookOK(page);
     check(nb.ok, `${label} t${turn} : carnet exact après la capture (attendu ${nb.exp} / carnet ${nb.got})`);
+    if (players === 1 && wantRight) { const D = await page.evaluate(l => window.__numero.dictionaries[l], lang); check((await page.textContent('#next')).includes(D.soloSeeWin), `${label} t${turn} : solo, numéro attrapé → « ${D.soloSeeWin} »`); await page.click('#next'); break; }
     if (turn + 1 < st.limit) { const D = await page.evaluate(l => window.__numero.dictionaries[l], lang); const want = players === 1 ? D.nextTurn : D.nextPlayer; check((await page.textContent('#next')).includes(want), `${label} t${turn} : bouton « ${want} »`); }
     check(g.secret >= 1 && g.secret <= max, `${label} t${turn} : secret toujours valide`);
     await page.click('#next');
   }
   st = await S(page);
   check(st.screen === 'end', `${label} : écran de victoire atteint`);
+  if (players === 1) check(st.soloWon === true && st.turn === 1 && !(await page.textContent('.hero h1')).includes('😅'), `${label} : solo gagné dès la 1re capture réussie (tour 2)`);
   check(st.captures === finds, `${label} : ${finds} captures comptées`);
   const endText = await page.textContent('#app');
   check(!/\{\w+\}/.test(endText), `${label} : aucun texte non traduit sur l'écran final`);
@@ -454,13 +456,16 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(/caught/.test(await cls()) && /expr-proud/.test(await cls()) && await page.$('.turn-card .confetti'), 'Détective : danse et fierté + confettis quand on gagne');
     check(await page.isVisible('.chip .delta.up'), 'Badge « +10 » sur le score');
     await page.click('#next');
+    st = await S(page);
+    check(st.screen === 'end' && st.soloWon, 'Solo : la partie est gagnée dès que le numéro est attrapé');
+    await page.evaluate(() => { const N = window.__numero; N.start(); });
     // filet raté, animé
     const miss = await page.evaluate(() => { const N = window.__numero; for (let n = 1; n <= 9; n++) if (!N.netRange(n).includes(N.state.secret)) return n; });
     await page.click('[data-tab="guess"]'); await page.click(`[data-guess="${miss}"]`); await page.click('#capNet');
     check(await page.$$eval('.numtile.hit-net', e => e.length) === 2, 'Animation du filet sur les 2 numéros');
     await page.waitForTimeout(1000);
     st = await S(page);
-    check(st.last.type === 'netMiss' && st.scores[0] === 8 && /grimace/.test(await cls()) && /expr-grimace/.test(await cls()), 'Filet vide (2 numéros) −2 : grimace du détective');
+    check(st.last.type === 'netMiss' && st.scores[0] === -2 && /grimace/.test(await cls()) && /expr-grimace/.test(await cls()), 'Filet vide (2 numéros) −2 : grimace du détective');
     await page.click('#next');
     await page.click('[data-tab="math"]');
     check(/search/.test(await cls()), 'Détective : cherche avec sa loupe (calcul)');
@@ -496,13 +501,13 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     st = await S(page);
     check(st.scores[0] - sc0 === 11 && st.last.bonus === 1 && await page.isVisible('.bonus-line') && await page.isVisible('.found-lens'), 'Question puis capture précise réussie : +10 +1 bonus = +11, grosse loupe sur le numéro attrapé');
     check((await page.textContent('.chip .delta')).includes('11') && /cheer/.test(await page.getAttribute('.gbar .brand-icon', 'class')), 'Badge +11 et logo qui fête la capture');
-    await page.click('#next');
+    await page.evaluate(() => { const N = window.__numero; N.start(); });
     await page.click('[data-question]'); await page.click('#next');
     sc0 = (await S(page)).scores[0];
     await page.evaluate(() => { const N = window.__numero; N.netCapture(N.state.secret); });
     st = await S(page);
     check(st.scores[0] - sc0 === 3, 'Question puis filet réussi : +2 +1 bonus = +3');
-    await page.click('#next');
+    await page.evaluate(() => { const N = window.__numero; N.start(); });
     sc0 = (await S(page)).scores[0];
     await page.evaluate(() => { const N = window.__numero; N.guess(N.state.secret); });
     check((await S(page)).scores[0] - sc0 === 10, 'Sans question : capture précise = +10 (pas de bonus)');
@@ -590,8 +595,10 @@ async function playFullGame(browser, players, level, lang = 'fr') {
           N.nextTurn(); } }
       return { errs: [...new Set(errs)], hunts, steps }; });
     check(chk.errs.length === 0 && chk.hunts > 100, `Parcours exact et continu sur ${chk.hunts} captures (${chk.steps} sauts), 4 niveaux + défi ${chk.errs.join(', ')}`);
-    await page.evaluate(() => { const N = window.__numero; N.state.replayAsk = true; N.state.players = 1; N.state.level = 'malin'; N.state.reduceMotion = false; N.start(); });
+    await page.evaluate(() => { const N = window.__numero; N.state.replayAsk = true; N.state.players = 2; N.state.level = 'malin'; N.state.reduceMotion = false; N.start(true); });
     await page.click('[data-question]'); await page.click('#next');
+    await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.guess(N.state.secret % 15 + 1); N.nextTurn(); N.state.modal = null; N.render(); });
+    await page.click('[data-tab="guess"]');
     const sec = (await S(page)).secret;
     await page.click(`[data-guess="${sec}"]`); await page.click('#capPrecise');
     await page.waitForTimeout(900);
@@ -611,25 +618,44 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(seq.join() === want.join(), `Film : chaque étape montre la bonne position (${[h.start, ...seq].join(' → ')})`);
     check(await page.isVisible('.rp-stage.win') && (await page.textContent('.rp-cap')).includes(String(h.end.n)), 'Film : la dernière étape montre la capture');
     check(await page.$$eval('.rp-track span.trail, .rp-track span.cur', e => e.length) >= 1, 'Film : traces du parcours sur la grille');
-    await page.click('#rpRestart'); await page.waitForTimeout(3500);
-    check((await S(page)).rpIdx === 0, 'Film : chaque étape reste affichée (pas d’enchaînement avant 5 s)');
-    check(await page.isVisible('.rp-bar'), 'Film : barre de temps de l’étape');
+    // le choix raté du joueur est montré
+    const missIdx = 1 + h.steps.findIndex(st => st.ev && st.ev.type === 'wrong');
+    await page.click('#rpRestart'); await page.click('#rpModeManual');
+    for (let k = 0; k < missIdx; k++) await page.click('#rpNext');
+    const missEv = h.steps[missIdx - 1].ev;
+    check(await page.isVisible('.rp-pick.bad') && (await page.textContent('.rp-pick')).includes(String(missEv.n)) && await page.$$eval('.rp-track span.miss', e => e.map(x => x.textContent).join()) === String(missEv.n), `Film : le choix raté (${missEv.n}) est montré, en rouge sur la grille`);
+    check(await page.isVisible('.rp-was'), 'Film : « il était sur le … » à côté du choix raté');
+    // mode boutons : pas d'enchaînement automatique
+    const idxM = (await S(page)).rpIdx; await page.waitForTimeout(6600);
+    check((await S(page)).rpIdx === idxM && !(await page.$('#rpPlay')) && !(await page.$('.rp-bar')), 'Film « Avec les boutons » : pas d’enchaînement automatique');
+    // pas de flash : la fenêtre n'est pas ré-animée entre deux étapes
+    await page.click('#rpNext');
+    const anims = await page.evaluate(() => [...document.querySelectorAll('.modal-back, .modal-back > .modal')].flatMap(el => el.getAnimations().map(a => a.animationName)));
+    check(anims.length === 0, 'Film : aucun fondu de la fenêtre entre deux étapes (plus d’écran noir)');
+    check(await page.evaluate(() => getComputedStyle(document.querySelector('.modal-back')).backgroundColor) === 'rgba(20, 32, 74, 0.8)', 'Film : le fond sombre reste identique d’une étape à l’autre');
+    // mode automatique : 6 s par étape
+    await page.click('#rpModeAuto'); await page.click('#rpRestart'); await page.waitForTimeout(4700);
+    check((await S(page)).rpIdx === 0 && await page.isVisible('.rp-bar'), 'Film automatique : l’étape reste affichée (pas d’enchaînement avant 6 s), barre de temps');
     await page.waitForTimeout(2000);
-    check((await S(page)).rpIdx === 1, 'Film : lecture automatique, étape suivante après 5 s');
+    check((await S(page)).rpIdx === 1, 'Film automatique : étape suivante après 6 s');
+    check(await page.evaluate(() => window.__numero.RP_STEP) === 6000, 'Film : 6 secondes par étape');
     await page.click('#rpClose');
     check(!(await S(page)).modal, 'Film : fermeture');
     await page.click('#next');
-    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'ar'; N.state.reduceMotion = true; N.guess(N.state.secret); });
+    await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.state.lang = 'ar'; N.state.reduceMotion = true; N.guess(N.state.secret); });
     await page.waitForTimeout(300);
     check((await S(page)).modal === 'replayAsk', 'Popup aussi en arabe');
     await page.click('#rpNever');
     check((await S(page)).replayAsk === false, '« Ne plus demander » enregistré');
     await page.click('#next');
-    await page.evaluate(() => { const N = window.__numero; N.guess(N.state.secret); });
+    await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.guess(N.state.secret); });
     await page.waitForTimeout(400);
     check(!(await S(page)).modal, 'Plus de popup après « Ne plus demander » (le bouton reste dans le résultat)');
     await page.click('#openReplay');
     check(await page.isVisible('.modal.replay'), 'Film disponible en arabe');
+    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.state.players = 1; N.start(); for (let i = 0; i < 40 && N.state.screen === 'game'; i++) { N.state.modal = null; N.guess(N.state.secret % N.maxN() + 1); N.nextTurn(); } });
+    const st = await S(page);
+    check(st.screen === 'end' && st.soloWon === false && (await page.textContent('.hero h1')).includes('échappé') && (await page.textContent('.intro')).includes(String(st.soloSecret)), 'Solo non trouvé en 12 tours : « Il t’a échappé », le numéro est révélé');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (film) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} Film du parcours : exact, popup, lecture pas à pas, arabe`);
     await ctx.close();

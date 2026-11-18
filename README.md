@@ -31,6 +31,14 @@ Application Android native (WebView) qui fonctionne **entièrement hors ligne**,
 - **Interface** : boutons qui s'enfoncent, transitions d'écran, badges « +5 / −1 » sur les scores, pluie de confettis
   à la victoire, chiffres plus lisibles, nouveaux sons, option « Réduire les animations ».
 
+## V8.0
+
+- **Solo : la partie est gagnée dès que le numéro est attrapé** (« 🏆 Gagné ! Tu as attrapé le numéro en 3 tours »).
+  Pas trouvé en 12 tours : « Il t'a échappé », le numéro est révélé.
+- Film du parcours : **plus d'écran noir** entre les étapes ; **6 secondes** par étape ;
+  choix **Automatique / Avec les boutons** ; les **choix ratés du joueur** sont montrés (🎯 12 ✗, filet 8·9·10 ✗,
+  calcul faux) avec « il était sur le … » et les cases en rouge sur la grille ; la capture finale en vert.
+
 ## V7.9
 
 - Film du parcours plus lent : **5 secondes par étape**, avec une barre de temps. Animation en 2 temps :
