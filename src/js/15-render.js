@@ -226,6 +226,7 @@ function bind() {
   });
   click('handoffGo', () => {
     sfx('tap');
+    markRaceNewsSeen(active()); // l'annonce « X a trouvé le numéro » n'est montrée qu'une fois
     g.modal = null;
     lastTick = Date.now();
     render();

@@ -1,5 +1,15 @@
 # Historique des versions
 
+## V8.10
+
+- **Questions d'intervalle proportionnelles au niveau** : « Est-il entre a et b ? » couvre environ un quart des numéros
+  (4 en Petit et Moyen, 8 en Grand, 13 en Génie) ; « proche de k » s'élargit aussi (écart 6 en Génie).
+  Avant : en Génie, « entre 30 et 33 » + filet attrapait le numéro 72 % du temps après un « oui » ; maintenant 22 %
+  (simulation de 4 000 parties). Une seule question ne suffit plus, il faut enquêter.
+- **Course : chacun est prévenu** quand quelqu'un trouve le numéro. La fenêtre « passe le téléphone » annonce
+  « 🥇 Joueur 1 a trouvé le numéro ! Un nouveau numéro se cache. À toi de le trouver pour la place 2 ! »,
+  une seule fois par joueur.
+
 ## V8.9
 
 **Mode Course : un podium, personne n'est privé de son tour**

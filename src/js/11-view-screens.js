@@ -351,6 +351,14 @@ function end() {
   const soloLost = g.players === 1 && g.soloWon === false;
   return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel"><div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
+/** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
+function raceNewsFor(i) {
+  if (!isRace() || g.players < 2) return '';
+  const news = raceNewsUnseen(i);
+  if (!news.length) return '';
+  const medal = n => ['🥇', '🥈', '🥉', '🎖️'][Math.min(n, 4) - 1];
+  return `<div class="podium-note race-news">${news.map(p => t('raceNewsFound', { medal: medal(placeFor(p.round)), player: pname(p.player) })).join('<br>')}<small>${t('raceNewsNext', { n: placeFor(raceRound()) })}</small></div>`;
+}
 /** Course : après une capture, place obtenue et annonce du nouveau numéro pour les autres. */
 function racePodiumNote(x) {
   if (!isRace() || g.players < 2) return '';

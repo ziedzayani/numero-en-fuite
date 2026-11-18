@@ -189,6 +189,12 @@ const raceRound = () => Math.floor(g.turn / g.players);
 const isPlaced = i => (g.placed || []).some(p => p.player === i);
 /** Place obtenue par une capture faite pendant le tour de table r (les captures d'un même tour sont ex aequo). */
 const placeFor = r => 1 + (g.placed || []).filter(p => p.round < r).length;
+/** Annonces de capture que le joueur i n'a pas encore vues (affichées dans la fenêtre « passe le téléphone »). */
+const raceNewsUnseen = i => (g.placed || []).filter(p => !(p.seen || []).includes(i));
+/** Le joueur i a lu les annonces : on ne les lui remontre plus. */
+function markRaceNewsSeen(i) {
+  for (const p of raceNewsUnseen(i)) (p.seen = p.seen || []).push(i);
+}
 /** Fin de la course : premier(s) du podium vainqueur(s). */
 function finishRace() {
   const first = g.placed[0];
@@ -218,7 +224,7 @@ function nextTurn() {
   }
   if (isRace() && g.players > 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
     // Course : le joueur monte sur le podium (un nouveau numéro a déjà été tiré pour les autres).
-    g.placed.push({ player: g.last.player, round: raceRound(), turn: g.turn + 1 });
+    g.placed.push({ player: g.last.player, round: raceRound(), turn: g.turn + 1, seen: [g.last.player] });
   }
   if (g.mode !== 'challenge' && g.players === 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
     g.soloWon = true;

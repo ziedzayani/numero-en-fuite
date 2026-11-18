@@ -1027,6 +1027,34 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
+  // 3j) V8.10 : intervalles proportionnels au niveau ; annonce « X a trouvé le numéro » en Course
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser, { width: 360, height: 735 });
+    const widths = await page.evaluate(() => { const N = window.__numero, out = {};
+      for (const lv of ['junior', 'malin', 'expert', 'genius']) { N.state.players = 1; N.state.level = lv; N.state.mode = 'normal'; N.start(true);
+        const sizes = new Set(), near = new Set();
+        for (let i = 0; i < 300; i++) { N.state.shownIds = []; N.state.candidates = Array.from({ length: N.maxN() }, (_, k) => k + 1);
+          for (const id of N.state.choices) { const q = N.qbyid(id), c = Array.from({ length: N.maxN() }, (_, k) => k + 1).filter(n => q.test(n)).length; if (id.startsWith('range')) sizes.add(c); if (id.startsWith('near')) near.add(c); }
+          N.start(true); }
+        out[lv] = [[...sizes].join('/'), [...near].join('/')].join(' '); }
+      return out; });
+    check(/^4 /.test(widths.junior) && /^4 /.test(widths.malin) && /^8 /.test(widths.expert) && /^13 /.test(widths.genius), 'Questions « entre a et b » : 4 numéros (Petit, Moyen), 8 (Grand), 13 (Génie) ' + JSON.stringify(widths));
+    check(!/\b7\b/.test(widths.genius.split(' ')[1] || ''), 'Génie : « proche de k » élargi (11 numéros) ' + widths.genius);
+    // annonce aux autres joueurs
+    await page.evaluate(() => { const N = window.__numero; N.state.players = 3; N.state.gameMode = 'race'; N.state.starter = 0; N.state.level = 'junior'; N.state.replayAsk = false; N.start(true); N.state.modal = null; N.guess(N.state.secret); N.nextTurn(); N.render(); });
+    check((await S(page)).modal === 'handoff' && await page.isVisible('.race-news') && (await page.textContent('.race-news')).includes('Joueur 1 a trouvé le numéro') && (await page.textContent('.race-news')).includes('nouveau numéro'), 'Course : le joueur 2 est prévenu — « Joueur 1 a trouvé le numéro ! Un nouveau numéro se cache »');
+    await page.click('#handoffGo');
+    await page.evaluate(() => { const N = window.__numero; N.guess(N.state.secret % 9 + 1); N.nextTurn(); N.render(); });
+    check(await page.isVisible('.race-news') && (await page.textContent('.modal h2')).includes('Joueur 3'), 'Course : le joueur 3 est prévenu à son tour');
+    await page.click('#handoffGo');
+    await page.evaluate(() => { const N = window.__numero; N.guess(N.state.secret % 9 + 1); N.nextTurn(); N.render(); });
+    check((await page.textContent('.modal h2')).includes('Joueur 2') && !(await page.$('.race-news')), 'Course : l’annonce n’est montrée qu’une fois à chacun');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (V8.10) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V8.10 : intervalles proportionnels, annonce de capture en Course`);
+    await ctx.close();
+  }
+
   // 4) Rendu sur petits écrans + captures
   for (const vp of [{ width: 320, height: 568, tag: '320' }, { width: 360, height: 740, tag: '360' }]) {
     const before = failed;

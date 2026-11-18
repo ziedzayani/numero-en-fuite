@@ -102,6 +102,14 @@ const STATES = {
     N.state.players = 3;
     N.start();
   },
+  'passe le téléphone + annonce de capture': N => {
+    N.state.players = 4;
+    N.state.gameMode = 'race';
+    N.start(true);
+    N.state.replayAsk = false;
+    N.guess(N.state.secret);
+    N.nextTurn();
+  },
   'film (proposition)': N => {
     N.state.players = 1;
     N.state.level = 'junior';

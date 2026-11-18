@@ -5589,7 +5589,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "8.9";
+const APP_VERSION = "8.10";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -5824,7 +5824,7 @@ const dictionaries = {
   "qMinus": "Si on enlève {k}, reste-t-il au moins {v} ?",
   "qMult3": "Est-il dans la table de 3 ?",
   "qMultiple": "Est-il dans la table de {k} ?",
-  "qNear": "Est-il proche de {k} (moins de 4 d’écart) ?",
+  "qNear": "Est-il proche de {k} (moins de {r} d’écart) ?",
   "qOdd": "Est-il impair (1, 3, 5...) ?",
   "qPlus": "Si on lui ajoute {k}, dépasse-t-il {v} ?",
   "q_aim": "Prêt… visez…|Je retiens mon souffle !",
@@ -5844,6 +5844,8 @@ const dictionaries = {
   "quitTitle": "Quitter la partie ?",
   "raceContinue": "Continuer",
   "raceNewNumber": "Un nouveau numéro se cache : les autres finissent le tour et continuent la chasse.",
+  "raceNewsFound": "{medal} {player} a trouvé le numéro !",
+  "raceNewsNext": "Un nouveau numéro se cache. À toi de le trouver pour la place {n} !",
   "raceNobody": "Personne ne l’a attrapé…",
   "raceNobodyDesc": "Départage aux points et aux ⭐.",
   "racePlace": "{medal} {player} monte sur le podium : place {n} !",
@@ -6231,7 +6233,7 @@ const dictionaries = {
   "qMinus": "If you subtract {k}, is the result at least {v}?",
   "qMult3": "Is it a multiple of 3?",
   "qMultiple": "Is it a multiple of {k}?",
-  "qNear": "Is it close to {k} (less than 4 away)?",
+  "qNear": "Is it close to {k} (less than {r} away)?",
   "qOdd": "Is it odd (1, 3, 5...)?",
   "qPlus": "If you add {k}, is it greater than {v}?",
   "q_aim": "Ready… aim…|Holding my breath!",
@@ -6251,6 +6253,8 @@ const dictionaries = {
   "quitTitle": "Leave the game?",
   "raceContinue": "Continue",
   "raceNewNumber": "A new number hides: the others finish the round and keep hunting.",
+  "raceNewsFound": "{medal} {player} found the number!",
+  "raceNewsNext": "A new number is hiding. Find it to take place {n}!",
   "raceNobody": "Nobody caught it…",
   "raceNobodyDesc": "Points and ⭐ decide.",
   "racePlace": "{medal} {player} is on the podium: place {n}!",
@@ -6638,7 +6642,7 @@ const dictionaries = {
   "qMinus": "إذا طرحنا منه {k}، هل يتبقى {v} على الأقل؟",
   "qMult3": "هل يقبل القسمة على 3؟",
   "qMultiple": "هل يقبل القسمة على {k}؟",
-  "qNear": "هل يبعد عن {k} بأقل من 4؟",
+  "qNear": "هل هو قريب من {k} (فرق أقل من {r})؟",
   "qOdd": "هل هو فردي (1، 3، 5...)؟",
   "qPlus": "إذا أضفنا إليه {k}، هل يصبح أكبر من {v}؟",
   "q_aim": "استعد… صوّب…|أحبس أنفاسي!",
@@ -6658,6 +6662,8 @@ const dictionaries = {
   "quitTitle": "هل تريد الخروج من اللعبة؟",
   "raceContinue": "متابعة",
   "raceNewNumber": "رقم جديد يختبئ: يكمل الآخرون الدور ويواصلون المطاردة.",
+  "raceNewsFound": "{medal} {player} وجد الرقم!",
+  "raceNewsNext": "رقم جديد يختبئ. اعثر عليه لتحصل على المركز {n}!",
   "raceNobody": "لم يمسكه أحد…",
   "raceNobodyDesc": "النقاط و⭐ تحسم النتيجة.",
   "racePlace": "{medal} {player} على منصة التتويج: المركز {n}!",
@@ -7103,9 +7109,12 @@ function qpool() {
       add(`plus${k}_${v}`, 'typeMath', '➕', 'qPlus', { k, v }, n => n + k > v);
   for (let k = 4; k <= max * 2 - 2; k += 2)
     add(`double_${k}`, 'typeMath', '✖️', 'qDouble', { k }, n => 2 * n > k);
-  for (let a = 2; a < max - 1; a += 2) {
-    const b = Math.min(a + 3, max);
-    add(`range_${a}`, 'typeRange', '🎯', 'qBetween', { a, b }, n => n >= a && n <= b);
+  // Intervalle ≈ un quart des numéros (4 au minimum) : en Génie, « entre 30 et 33 » + filet
+  // gagnait trop facilement ; « entre 30 et 42 » laisse encore une vraie enquête.
+  const width = Math.max(4, Math.round(max / 4));
+  for (let a = 2; a + width - 1 <= max; a += 2) {
+    const b = a + width - 1;
+    add(`range${width}_${a}`, 'typeRange', '🎯', 'qBetween', { a, b }, n => n >= a && n <= b);
   }
   if (g.level !== 'junior') {
     add('mult3', 'typeTrick', '🧩', 'qMult3', {}, n => n % 3 === 0);
@@ -7127,8 +7136,10 @@ function qpool() {
             .split('')
             .reduce((a, b) => a + Number(b), 0) > k
       );
-    for (const k of [10, 15, 20, 25])
-      add(`near${k}`, 'typeDistance', '📍', 'qNear', { k }, n => Math.abs(n - k) < 4);
+    // « proche de k » : écart proportionnel au niveau (4 en Grand, 6 en Génie)
+    const r = Math.max(4, Math.round(max / 8));
+    for (const c of [10, 15, 20, 25, 30, 35, 40].filter(x => x + r <= max))
+      add(`near${r}_${c}`, 'typeDistance', '📍', 'qNear', { k: c, r }, n => Math.abs(n - c) < r);
   }
   return pool;
 }
@@ -8126,6 +8137,12 @@ const raceRound = () => Math.floor(g.turn / g.players);
 const isPlaced = i => (g.placed || []).some(p => p.player === i);
 /** Place obtenue par une capture faite pendant le tour de table r (les captures d'un même tour sont ex aequo). */
 const placeFor = r => 1 + (g.placed || []).filter(p => p.round < r).length;
+/** Annonces de capture que le joueur i n'a pas encore vues (affichées dans la fenêtre « passe le téléphone »). */
+const raceNewsUnseen = i => (g.placed || []).filter(p => !(p.seen || []).includes(i));
+/** Le joueur i a lu les annonces : on ne les lui remontre plus. */
+function markRaceNewsSeen(i) {
+  for (const p of raceNewsUnseen(i)) (p.seen = p.seen || []).push(i);
+}
 /** Fin de la course : premier(s) du podium vainqueur(s). */
 function finishRace() {
   const first = g.placed[0];
@@ -8155,7 +8172,7 @@ function nextTurn() {
   }
   if (isRace() && g.players > 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
     // Course : le joueur monte sur le podium (un nouveau numéro a déjà été tiré pour les autres).
-    g.placed.push({ player: g.last.player, round: raceRound(), turn: g.turn + 1 });
+    g.placed.push({ player: g.last.player, round: raceRound(), turn: g.turn + 1, seen: [g.last.player] });
   }
   if (g.mode !== 'challenge' && g.players === 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
     g.soloWon = true;
@@ -8606,6 +8623,14 @@ function end() {
   const soloLost = g.players === 1 && g.soloWon === false;
   return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel"><div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
+/** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
+function raceNewsFor(i) {
+  if (!isRace() || g.players < 2) return '';
+  const news = raceNewsUnseen(i);
+  if (!news.length) return '';
+  const medal = n => ['🥇', '🥈', '🥉', '🎖️'][Math.min(n, 4) - 1];
+  return `<div class="podium-note race-news">${news.map(p => t('raceNewsFound', { medal: medal(placeFor(p.round)), player: pname(p.player) })).join('<br>')}<small>${t('raceNewsNext', { n: placeFor(raceRound()) })}</small></div>`;
+}
 /** Course : après une capture, place obtenue et annonce du nouveau numéro pour les autres. */
 function racePodiumNote(x) {
   if (!isRace() || g.players < 2) return '';
@@ -8943,7 +8968,7 @@ function modalView() {
   }
   const p = active();
   return wrapM(
-    `<div class="hero-mascot">${mascot('hop')}</div><h2>${t('handoffTitle', { player: pname(p) })}</h2><p><span class="player-chip" style="background:${colors[p]}">${esc(pname(p))}</span></p><p>${t('handoffText')}</p><button class="bigbtn green" id="handoffGo">${t('handoffGo')} ${arrow()}</button>`
+    `<div class="hero-mascot">${mascot('hop')}</div><h2>${t('handoffTitle', { player: pname(p) })}</h2><p><span class="player-chip" style="background:${colors[p]}">${esc(pname(p))}</span></p>${raceNewsFor(p)}<p>${t('handoffText')}</p><button class="bigbtn green" id="handoffGo">${t('handoffGo')} ${arrow()}</button>`
   );
 }
 
@@ -9314,6 +9339,7 @@ function bind() {
   });
   click('handoffGo', () => {
     sfx('tap');
+    markRaceNewsSeen(active()); // l'annonce « X a trouvé le numéro » n'est montrée qu'une fois
     g.modal = null;
     lastTick = Date.now();
     render();

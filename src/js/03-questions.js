@@ -21,9 +21,12 @@ function qpool() {
       add(`plus${k}_${v}`, 'typeMath', '➕', 'qPlus', { k, v }, n => n + k > v);
   for (let k = 4; k <= max * 2 - 2; k += 2)
     add(`double_${k}`, 'typeMath', '✖️', 'qDouble', { k }, n => 2 * n > k);
-  for (let a = 2; a < max - 1; a += 2) {
-    const b = Math.min(a + 3, max);
-    add(`range_${a}`, 'typeRange', '🎯', 'qBetween', { a, b }, n => n >= a && n <= b);
+  // Intervalle ≈ un quart des numéros (4 au minimum) : en Génie, « entre 30 et 33 » + filet
+  // gagnait trop facilement ; « entre 30 et 42 » laisse encore une vraie enquête.
+  const width = Math.max(4, Math.round(max / 4));
+  for (let a = 2; a + width - 1 <= max; a += 2) {
+    const b = a + width - 1;
+    add(`range${width}_${a}`, 'typeRange', '🎯', 'qBetween', { a, b }, n => n >= a && n <= b);
   }
   if (g.level !== 'junior') {
     add('mult3', 'typeTrick', '🧩', 'qMult3', {}, n => n % 3 === 0);
@@ -45,8 +48,10 @@ function qpool() {
             .split('')
             .reduce((a, b) => a + Number(b), 0) > k
       );
-    for (const k of [10, 15, 20, 25])
-      add(`near${k}`, 'typeDistance', '📍', 'qNear', { k }, n => Math.abs(n - k) < 4);
+    // « proche de k » : écart proportionnel au niveau (4 en Grand, 6 en Génie)
+    const r = Math.max(4, Math.round(max / 8));
+    for (const c of [10, 15, 20, 25, 30, 35, 40].filter(x => x + r <= max))
+      add(`near${r}_${c}`, 'typeDistance', '📍', 'qNear', { k: c, r }, n => Math.abs(n - c) < r);
   }
   return pool;
 }
