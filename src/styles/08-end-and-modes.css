@@ -726,3 +726,42 @@ button.tut-cell {
 .tut-loop.answered .tut-cell.loop-b {
   animation: none;
 }
+
+/* V8.6 : pavé numérique compact (écrans de 360 px de large, ~735 px de haut) et touches impossibles grisées */
+.kp-display {
+  height: 54px;
+  margin-bottom: 6px;
+  font-size: 32px;
+}
+.kp-display .kp-range {
+  font-size: 22px;
+  color: #b7bfd8;
+}
+.keypad {
+  gap: 6px;
+}
+.key {
+  min-height: 42px;
+}
+.key:disabled {
+  opacity: 0.3;
+  box-shadow: none;
+}
+@media (max-height: 760px) {
+  .key {
+    min-height: 38px;
+    font-size: 22px;
+  }
+  .kp-display {
+    height: 48px;
+  }
+}
+/* écrans bas : l'afficheur montre déjà « 1–50 », la phrase d'aide du pavé devient inutile */
+@media (max-height: 720px) {
+  .with-keypad .pick-hint {
+    display: none;
+  }
+  .with-keypad .key {
+    min-height: 36px;
+  }
+}

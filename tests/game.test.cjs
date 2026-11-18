@@ -897,6 +897,32 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(fl.some(x => x.startsWith('⏱') && x.includes('seconde restante')) && fl.some(x => x.startsWith('♾️') && !x.includes('seconde restante') && x.includes('Pas de bonus de temps')), 'Défi : barème propre à chaque variante (bonus temps seulement contre la montre)');
     await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless', 'medium'); N.guess(N.state.secret); N.nextTurn(); });
     check(!(await page.textContent('.screen, #app')).includes('seconde restante'), 'Fin d’un défi sans limite : pas de bonus de temps annoncé');
+    // pavé numérique (Génie 1–50) : impossible de taper un numéro hors limites ; tient sur un écran 360 × 735
+    for (const lang of ['fr', 'ar']) {
+      await page.setViewportSize({ width: 360, height: 735 });
+      await page.evaluate(l => { const N = window.__numero; N.state.lang = l; N.state.players = 1; N.state.level = 'genius'; N.state.mode = 'normal'; N.start(true); N.state.modal = null; N.state.tab = 'guess'; N.render(); }, lang);
+      const kp = await page.evaluate(() => { const tb = document.querySelector('.turn-body'); return { over: tb.scrollHeight - tb.clientHeight, range: document.querySelector('.kp-display').textContent.trim(), hint: document.querySelector('.pick-hint').textContent }; });
+      check(kp.over <= 0 && kp.range === '1–50' && kp.hint.includes('50') && !kp.hint.includes('100'), `Génie (${lang}) 360×735 : pavé sans défilement, « 1–50 » affiché, consigne 1 à 50 (${JSON.stringify(kp)})`);
+    }
+    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.render(); });
+    await page.click('[data-key="8"]');
+    const dis8 = await page.$$eval('.key:disabled', e => e.map(x => x.dataset.key).join(''));
+    await page.click('[data-key="6"]', { force: true });
+    let kst = await S(page);
+    check(dis8 === '1234567890' && kst.typed === '8' && kst.sel === 8 && !(await page.isDisabled('#capPrecise')), 'Génie : après « 8 », tous les chiffres sont grisés ; « 86 » est impossible, le 8 reste choisi');
+    await page.click('[data-key="clr"]'); await page.click('[data-key="4"]');
+    const dis4 = await page.$$eval('.key:disabled', e => e.map(x => x.dataset.key).join(''));
+    await page.click('[data-key="7"]', { force: true }); await page.click('[data-key="0"]', { force: true });
+    kst = await S(page);
+    check(dis4 === '' && kst.sel === 47 && kst.typed === '47', `Génie : après « 4 », tous les chiffres restent possibles (40–49) ; 4, 7 puis 0 → 47 (« 470 » refusé)`);
+    await page.click('[data-key="clr"]');
+    check(await page.isDisabled('[data-key="0"]') && !(await page.isDisabled('[data-key="5"]')), 'Pavé : « 0 » impossible en premier chiffre');
+    await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless', 'medium'); N.state.tab = 'guess'; N.render(); });
+    for (const k of ['1', '0']) await page.click(`[data-key="${k}"]`);
+    const dis10 = await page.$$eval('.key:disabled', e => e.map(x => x.dataset.key).join(''));
+    await page.click('[data-key="0"]');
+    check(dis10 === '123456789' && (await S(page)).sel === 100, `Défi 1–100 : après « 10 », seul « 0 » reste possible → 100 (${dis10})`);
+    await page.setViewportSize({ width: 360, height: 640 });
     check(page.errors.length === 0, 'Aucune erreur JavaScript (V8.5) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} V8.5 : niveaux sans âge, tutoriel au premier lancement, défi plus clair`);
     await ctx.close();

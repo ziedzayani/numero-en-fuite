@@ -80,7 +80,7 @@ function questionView() {
   return `<div class="actiontabs" role="tablist"><button class="actiontab ${g.tab === 'question' ? 'selected' : ''}" data-tab="question" ${locked || mathOn ? 'disabled' : ''}>💡 ${t('tabQuestion')}</button><button class="actiontab ${g.tab === 'math' ? 'selected' : ''}" data-tab="math" ${locked ? 'disabled' : ''}>🧮 ${t('tabMath')}</button><button class="actiontab ${g.tab === 'guess' ? 'selected' : ''}" data-tab="guess">🎯 ${t('tabGuess')}</button></div>
  <div class="actionpane ${g.tab === 'question' ? 'selected' : ''}"><div class="q-head">${g.showInfo ? `<ul class="tradeoff"><li class="up">👍 ${t('q1')}</li>${g.mode === 'challenge' ? '' : `<li class="gift">🎁 ${t('q2')}</li>`}<li class="down">👎 ${t(g.mode === 'challenge' ? 'q3ch' : g.level === 'genius' ? 'q3g' : 'q3')}</li></ul>` : `<p class="q-title">${t('chooseQuestionShort')}</p>`}<button class="mini-btn small info-btn ${g.showInfo ? 'on' : ''}" data-info aria-pressed="${!!g.showInfo}" aria-label="${t('infoBtn')}" title="${t('infoBtn')}">ℹ️</button><button class="mini-btn small reroll" id="reroll" ${g.rerolled ? 'disabled' : ''} aria-label="${t('changeQuestions')}" title="${t('changeQuestions')}">🔀</button></div><div class="questions">${options.map(q => `<button class="qbtn" data-question="${q.id}"><span class="qicon">${q.icon}</span><span class="qtext">${esc(q.text)}<small>${esc(q.type)}</small></span></button>`).join('')}</div>${miniNotebook()}</div>
  <div class="actionpane ${g.tab === 'math' ? 'selected' : ''}"><div class="mathbox"><div class="math-title"><b dir="ltr" class="${mathText(g.math).length > 12 ? 'long' : ''}">${mathText(g.math)} = ?</b>${g.math.options.length > 3 ? `<small class="prio">${t('mathRewardSix')}</small>` : ''}</div>${!g.showInfo ? `<button class="info-link" data-info>ℹ️ ${t('infoBtn')}</button>` : g.mode === 'challenge' ? `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1ch')}</li><li class="gift">🎁 ${t(g.chKind === 'timed' ? 'm2chT' : 'm2ch')}</li><li class="down">👎 ${t('m3ch')}</li></ul>` : `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1')}</li><li class="gift">${t('m2')}</li><li class="down">👎 ${t('m3')}</li></ul>`}<div class="mathform ${g.math.options.length > 3 ? 'six' : ''}" dir="ltr">${g.math.options.map(n => `<button class="mathbtn" data-math="${n}">${n}</button>`).join('')}</div></div></div>
- <div class="actionpane ${g.tab === 'guess' ? 'selected' : ''}"><div class="pane-head"><p class="pick-hint">${g.answerLost ? t('answerTimeUp') : maxN() > 30 ? t('keypadHint') : g.helpUsed ? t('captPick', { max: maxN() }) : t('proGuess')}</p>${helpMode() === 'ask' ? `<button class="mini-btn small ${g.showHints ? 'is-on' : ''}" id="hints" aria-pressed="${g.showHints}">💡 ${t('hintsOn')}</button>` : ''}</div>${
+ <div class="actionpane ${g.tab === 'guess' ? 'selected' : ''} ${maxN() > 30 ? 'with-keypad' : ''}"><div class="pane-head"><p class="pick-hint">${g.answerLost ? t('answerTimeUp') : maxN() > 30 ? t('keypadHint', { max: maxN() }) : g.helpUsed ? t('captPick', { max: maxN() }) : t('proGuess')}</p>${helpMode() === 'ask' ? `<button class="mini-btn small ${g.showHints ? 'is-on' : ''}" id="hints" aria-pressed="${g.showHints}">💡 ${t('hintsOn')}</button>` : ''}</div>${
    maxN() > 30
      ? keypadHTML()
      : `<div class="numbergrid ${gridclass}" dir="ltr">${all(maxN())
@@ -128,15 +128,24 @@ function blindJump(shift) {
 }
 /** Pavé numérique (Génie et défi : trop de numéros pour une grille). */
 function keypadHTML() {
-  return `<div class="kp-display ${g.sel == null ? 'empty' : ''} ${g.capturing ? 'hit-' + g.capturing.mode : ''}" dir="ltr" aria-live="polite">${g.sel == null ? g.typed || '—' : g.sel}${g.sel != null && !g.capturing && netAvailable() ? `<small>🕸️ ${netRange(g.sel).join('·')}</small>` : ''}${g.capturing && g.capturing.mode === 'precise' ? '<i class="loupe-fx" aria-hidden="true"></i>' : ''}</div><div class="keypad" dir="ltr">${['1', '2', '3', '4', '5', '6', '7', '8', '9', 'del', '0', 'clr'].map(k => `<button class="key ${k.length > 1 ? 'fn' : ''}" data-key="${k}" aria-label="${k}">${k === 'del' ? '⌫' : k === 'clr' ? 'C' : k}</button>`).join('')}</div>`;
+  return `<div class="kp-display ${g.sel == null ? 'empty' : ''} ${g.capturing ? 'hit-' + g.capturing.mode : ''}" dir="ltr" aria-live="polite">${g.sel == null ? g.typed || `<span class="kp-range">1–${maxN()}</span>` : g.sel}${g.sel != null && !g.capturing && netAvailable() ? `<small>🕸️ ${netRange(g.sel).join('·')}</small>` : ''}${g.capturing && g.capturing.mode === 'precise' ? '<i class="loupe-fx" aria-hidden="true"></i>' : ''}</div><div class="keypad" dir="ltr">${['1', '2', '3', '4', '5', '6', '7', '8', '9', 'del', '0', 'clr'].map(k => `<button class="key ${k.length > 1 ? 'fn' : ''}" data-key="${k}" aria-label="${k}" ${k.length === 1 && !keyAllowed(k) ? 'disabled' : ''}>${k === 'del' ? '⌫' : k === 'clr' ? 'C' : k}</button>`).join('')}</div>`;
 }
-/** Touche du pavé : chiffre, effacer, tout effacer. */
+/**
+ * Un chiffre n'est utilisable que s'il donne encore un numéro de 1 à maxN() :
+ * en Génie (1–50), après « 8 » plus aucun chiffre n'est possible. Impossible de taper « 86 ».
+ */
+function keyAllowed(k) {
+  const n = Number((g.typed || '') + k);
+  return n >= 1 && n <= maxN();
+}
+/** Touche du pavé : chiffre (si autorisé), effacer, tout effacer. */
 function pressKey(k) {
   if (g.capturing || g.phase !== 'choose' || g.screen !== 'game') return;
   let v = g.typed || '';
   if (k === 'del') v = v.slice(0, -1);
   else if (k === 'clr') v = '';
-  else if (v.length < 3) v = (v + k).replace(/^0+/, '');
+  else if (keyAllowed(k)) v = v + k;
+  else return;
   const n = Number(v);
   g.typed = v;
   g.sel = v && n >= 1 && n <= maxN() ? n : null;

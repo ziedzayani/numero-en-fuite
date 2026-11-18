@@ -1,5 +1,14 @@
 # Historique des versions
 
+## V8.7
+
+Retour du test sur téléphone (360 × 735) : en Génie, on pouvait taper « 86 » alors que les numéros vont de 1 à 50 ;
+le numéro restait grisé, les boutons de capture bloqués, sans explication.
+- Pavé numérique : un chiffre qui donnerait un numéro hors limites est **grisé et refusé**
+  (après « 8 » en 1–50, plus rien ; « 0 » jamais en premier). Afficheur vide : « 1–50 » / « 1–100 ».
+- Consigne corrigée : « Tape un numéro de 1 à 50 » en Génie (elle disait toujours 1 à 100).
+- Pavé plus compact : tient sans défilement sur un écran de 360 × 735 (FR et AR), consigne masquée sur les écrans bas.
+
 ## V8.6
 
 Retours du premier essai sur téléphone.

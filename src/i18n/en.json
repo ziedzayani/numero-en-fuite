@@ -96,7 +96,7 @@
   "home": "Home",
   "homeFooter": "Offline · No ads · One phone",
   "infoBtn": "Pros and risks",
-  "keypadHint": "Type a number from 1 to 100, then choose your capture.",
+  "keypadHint": "Type a number from 1 to {max}, then choose your capture.",
   "language": "Game language",
   "languageHint": "Language changes instantly, even during a game.",
   "levExpertSub": "Mixed operations, 6 choices",

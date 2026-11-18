@@ -96,7 +96,7 @@
   "home": "Accueil",
   "homeFooter": "Hors ligne · Sans pub · Un téléphone",
   "infoBtn": "Avantages et risques",
-  "keypadHint": "Tape un numéro de 1 à 100, puis choisis ta capture.",
+  "keypadHint": "Tape un numéro de 1 à {max}, puis choisis ta capture.",
   "language": "Langue du jeu",
   "languageHint": "Le changement s’applique immédiatement, même pendant une partie.",
   "levExpertSub": "Calculs mélangés, 6 choix",
