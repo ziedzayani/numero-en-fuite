@@ -122,7 +122,9 @@ function start(skipHandoff = false) {
     playerHelp,
     showInfo,
     chDiffPref,
-    tutSeen
+    tutSeen,
+    lastMulti,
+    tipsSeen
   } = g;
   g = initial();
   g.players = players;
@@ -136,6 +138,8 @@ function start(skipHandoff = false) {
   g.rpAuto = rpAuto;
   g.showInfo = !!showInfo;
   g.tutSeen = !!tutSeen;
+  g.lastMulti = lastMulti;
+  g.tipsSeen = tipsSeen && typeof tipsSeen === 'object' ? tipsSeen : {};
   g.chDiffPref = chDiffPref in CHALLENGE_DIFFS ? chDiffPref : 'medium';
   g.gameMode = gameMode === 'score' ? 'score' : 'race';
   g.starter = players > 1 ? (starter || 0) % players : 0;

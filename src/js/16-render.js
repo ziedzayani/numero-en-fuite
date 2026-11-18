@@ -56,6 +56,7 @@ function bind() {
   app.querySelectorAll('[data-players]').forEach(b =>
     b.addEventListener('click', () => {
       g.players = Number(b.dataset.players);
+      if (g.players > 1) g.lastMulti = g.players;
       render();
     })
   );
@@ -294,6 +295,29 @@ function bind() {
     g.mode = 'normal';
     g.screen = 'home';
     g.modal = 'names';
+    sfx('tap');
+    render();
+  });
+  click('homeMulti', () => {
+    // À plusieurs : on reprend le dernier nombre de joueurs choisi (2 par défaut)
+    g.players = Math.max(2, g.lastMulti || 2);
+    sfx('tap');
+    render();
+  });
+  click('tipOk', () => {
+    g.modal = null;
+    lastTick = Date.now(); // le temps passé à lire l'astuce n'est pas décompté
+    sfx('tap');
+    render();
+  });
+  click('openMore', () => {
+    g.modal = 'more';
+    sfx('tap');
+    render();
+  });
+  click('openOffice2', () => {
+    g.officeFrom = 'home';
+    g.screen = 'office';
     sfx('tap');
     render();
   });

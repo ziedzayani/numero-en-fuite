@@ -44,8 +44,19 @@ async function fresh(browser, viewport = { width: 360, height: 740 }) {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   // premier lancement : la proposition de tutoriel est testée à part (section V8.4)
-  await page.evaluate(() => { const N = window.__numero; N.state.replayAsk = false; if (N.state.modal === 'tutInvite') { N.state.modal = null; N.render(); } });
+  await page.evaluate(() => { const N = window.__numero; N.state.replayAsk = false; N.state.tipsSeen = Object.fromEntries(N.tipKeys.map(k => [k, true])); if (N.state.modal === 'tutInvite') { N.state.modal = null; N.render(); } });
   return { ctx, page };
+}
+
+/** Accueil V8.13 : « À plusieurs » d'abord, puis le nombre de joueurs. */
+async function pickPlayers(page, n, how = 'click') {
+  if (n > 1 && !(await page.$(`[data-players="${n}"]`))) await page[how]('#homeMulti');
+  await page[how](`[data-players="${n}"]`);
+}
+/** Accueil V8.13 : les règles, le tutoriel et le Wi-Fi sont dans le menu « Plus ». */
+async function viaMore(page, id) {
+  if (!(await page.$('#' + id))) await page.click('#openMore');
+  await page.click('#' + id);
 }
 
 async function noOverflow(page, label) {
@@ -63,7 +74,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   const { ctx, page } = await fresh(browser);
   await page.evaluate(() => { window.__numero.state.reduceMotion = true; });
   if (lang !== 'fr') { await page.click('#openSettings'); await page.click(`[data-language="${lang}"]`); await page.click('#closeSettings'); }
-  await page.click(`[data-players="${players}"]`);
+  await pickPlayers(page, players);
   await page.click(`[data-level="${level}"]`);
   await page.click('#start');
   const NAMES = ['Léa', 'Omar', 'Zoé & Co', 'Nour'];
@@ -252,7 +263,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   {
     const before = failed;
     const { ctx, page } = await fresh(browser);
-    await page.click('[data-players="2"]'); await page.click('[data-level="malin"]'); await page.click('#start');
+    await pickPlayers(page, 2); await page.click('[data-level="malin"]'); await page.click('#start');
     await page.click('#namesGo'); await page.waitForFunction(() => window.__numero.state.screen === 'game');
     let st = await S(page);
     await page.click(`[data-question="${st.choices[0]}"]`);
@@ -362,7 +373,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const before = failed;
     const { ctx, page } = await fresh(browser);
     await page.evaluate(() => { window.__numero.state.reduceMotion = true; });
-    await page.click('[data-players="3"]'); await page.click('[data-level="malin"]');
+    await pickPlayers(page, 3); await page.click('[data-level="malin"]');
     await page.click('#openChallenge');
     check(await page.isVisible('#chTimed') && await page.isVisible('#chEndless'), 'Défi : choix « contre la montre » ou « sans limite »');
     await page.click('#chEndless');
@@ -610,7 +621,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.tap('#closeSettings');
     check((await S(page)).screen === 'home', 'Réglages : bouton Retour');
     // prénoms avec caractères spéciaux
-    await page.tap('[data-players="2"]'); await page.tap('#start');
+    await pickPlayers(page, 2, 'tap'); await page.tap('#start');
     await page.fill('#name0', `<b>Al'i</b>`); await page.fill('#name1', 'Inès');
     await page.tap('#namesGo'); await page.waitForFunction(() => window.__numero.state.screen === 'game');
     const t0 = await page.textContent('.bubble b');
@@ -804,7 +815,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     // tutoriel
     for (const lang of ['fr', 'en', 'ar']) {
       await page.evaluate(l => { const N = window.__numero; N.state.lang = l; N.state.modal = null; N.state.screen = 'home'; N.render(); }, lang);
-      await page.click('#openTutorial');
+      await viaMore(page, 'openTutorial');
       let txt = '';
       for (let i = 0; i < 4; i++) { txt += await page.textContent('.modal'); await page.click(i === 1 ? '#tutAsk' : '#tutNext'); }
       txt += await page.textContent('.modal');
@@ -812,7 +823,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       await page.click('#tutClose');
     }
     await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.render(); });
-    await page.click('#openRules'); await page.click('#rulesTutorial');
+    await viaMore(page, 'openRules'); await page.click('#rulesTutorial');
     let tu = await S(page);
     check(tu.modal === 'tutorial' && tu.tut.step === 0 && (await page.$$('.tut-cell.secret')).length === 1, 'Tutoriel accessible depuis les règles, numéro d’entraînement visible');
     await page.click('#tutNext'); await page.click('#tutAsk');
@@ -841,10 +852,10 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click('#tutPlay');
     check((await S(page)).modal === 'names', 'Tutoriel : « Jouer » ouvre la préparation de la partie');
     await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.render(); });
-    await page.click('#openTutorial');
+    await viaMore(page, 'openTutorial');
     check(await page.evaluate(() => window.__numero.back()) && (await S(page)).modal === null, 'Bouton Retour : ferme le tutoriel');
     // règle de la Course : départage annoncé
-    await page.click('[data-players="2"]'); await page.click('#start');
+    await pickPlayers(page, 2); await page.click('#start');
     check((await page.textContent('[data-gmode="race"]')).includes('points départagent'), 'Mode Course : le départage aux points est annoncé');
     await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.render(); });
     // mini-carnet et saut « à l'aveugle »
@@ -886,7 +897,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       check(await page.evaluate(() => document.scrollingElement.scrollHeight - innerHeight) <= 0, `Accueil 360×640 (${lang}) sans défilement`);
     }
     await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.render(); });
-    await page.click('#openRules');
+    await viaMore(page, 'openRules');
     check((await page.textContent('.modal')).includes('ne dépendent pas de l’âge'), 'Règles : « les niveaux ne dépendent pas de l’âge »');
     await page.click('#closeModal');
     // premier lancement : tutoriel proposé une seule fois, jamais imposé
@@ -1082,18 +1093,19 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const SN = p => S(p);
     const [A, B, C] = [await phone(), await phone(), await phone()];
     const host = A.page, p2 = B.page, p3 = C.page;
-    check(await host.isVisible('#openLan'), 'Accueil : bouton « Partie Wi-Fi » quand le réseau est disponible (application Android)');
-    { const { ctx, page } = await fresh(browser); check(!(await page.$('#openLan')), 'Version navigateur sans réseau : pas de bouton Wi-Fi'); await ctx.close(); }
+    await host.click('#openMore'); check(await host.isVisible('#openLanMore'), 'Menu « Plus » : bouton « Partie Wi-Fi » quand le réseau est disponible (application Android)'); await host.click('#closeModal');
+    await host.click('#homeMulti'); check(await host.isVisible('#openLan'), 'Accueil « À plusieurs » : raccourci Wi-Fi'); await host.click('[data-players="1"]');
+    { const { ctx, page } = await fresh(browser); await page.click('#homeMulti'); await page.click('#openMore'); check(!(await page.$('#openLan')) && !(await page.$('#openLanMore')), 'Version navigateur sans réseau : pas de bouton Wi-Fi'); await ctx.close(); }
     // l'hôte crée la partie
-    await host.click('#openLan'); await host.fill('#netName', 'Léa'); await host.click('#netCreate');
+    await viaMore(host, 'openLanMore'); await host.fill('#netName', 'Léa'); await host.click('#netCreate');
     const code = (await host.textContent('.net-code')).trim();
     check(/^\d{4}$/.test(code) && await host.isDisabled('#netLaunch'), `Hôte : code à 4 chiffres (${code}), « Lancer » inactif tant qu’il est seul`);
     // un mauvais code
-    await p2.click('#openLan'); await p2.fill('#netName', 'Omar'); await p2.click('#netGoJoin'); await p2.fill('#netCode', code === '9999' ? '8888' : '9999'); await p2.click('#netJoinGo'); await wait(150);
+    await viaMore(p2, 'openLanMore'); await p2.fill('#netName', 'Omar'); await p2.click('#netGoJoin'); await p2.fill('#netCode', code === '9999' ? '8888' : '9999'); await p2.click('#netJoinGo'); await wait(150);
     check(await p2.isVisible('.net-error') && (await p2.textContent('.net-error')).includes('introuvable'), 'Mauvais code → « Partie introuvable »');
     // deux joueurs rejoignent
     await p2.fill('#netCode', code); await p2.click('#netJoinGo');
-    await p3.click('#openLan'); await p3.fill('#netName', 'Zoé'); await p3.click('#netGoJoin'); await p3.fill('#netCode', code); await p3.click('#netJoinGo');
+    await viaMore(p3, 'openLanMore'); await p3.fill('#netName', 'Zoé'); await p3.click('#netGoJoin'); await p3.fill('#netCode', code); await p3.click('#netJoinGo');
     await wait(300);
     const hostList = await host.$$eval('.net-players li b', e => e.map(x => x.textContent).join(','));
     check(hostList === 'Léa,Omar,Zoé' && (await p3.textContent('.net-panel')).includes('En attente') && !(await host.isDisabled('#netLaunch')), 'Salle d’attente : Léa (hôte), Omar, Zoé — invités en attente, « Lancer » actif (' + hostList + ')');
@@ -1201,6 +1213,61 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await A.ctx.close(); await B.ctx.close();
   }
 
+  // 3m) V8.13 : accueil simplifié, menu « Plus », règles en 3 cartes, astuces « première fois »
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser, { width: 360, height: 640 });
+    let st = await S(page);
+    check(st.players === 1 && await page.isVisible('[data-players="1"][aria-pressed="true"]') && !(await page.$('[data-players="2"]')), 'Accueil : Solo par défaut au premier lancement, pas de choix 2–4 joueurs affiché');
+    check(!(await page.$('#openRules')) && !(await page.$('#openTutorial')) && await page.isVisible('#openMore') && await page.isVisible('#openOffice2'), 'Accueil : règles et tutoriel rangés dans « Plus », rang cliquable');
+    await page.click('#homeMulti');
+    check((await S(page)).players === 2 && await page.isVisible('[data-players="4"]'), '« À plusieurs » : 2 joueurs par défaut, choix 2 / 3 / 4');
+    await page.click('[data-players="3"]'); await page.click('[data-players="1"]'); await page.click('#homeMulti');
+    check((await S(page)).players === 3, '« À plusieurs » : le dernier nombre de joueurs est retenu');
+    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'en'; N.render(); });
+    await page.reload();
+    st = await S(page);
+    check(st.players === 3 && st.lang === 'en' && st.modal === null, 'Redémarrage : choix de l’accueil et langue conservés (sauvegarde non rejetée)');
+    for (const lang of ['fr', 'en', 'ar']) {
+      await page.evaluate(l => { const N = window.__numero; N.state.lang = l; N.state.modal = null; N.render(); }, lang);
+      check(await page.evaluate(() => document.scrollingElement.scrollHeight - innerHeight) <= 0, `Accueil « À plusieurs » 360×640 (${lang}) sans défilement`);
+      await page.click('#openMore');
+      check(await page.isVisible('#openRules') && await page.isVisible('#openTutorial'), `Menu « Plus » (${lang}) : règles et tutoriel`);
+      await page.click('#openRules');
+      const txt = await page.textContent('.modal');
+      check((await page.$$('.rule-card')).length === 3 && !/ruleCard|rulePoints/.test(txt) && await page.evaluate(() => { const m = document.querySelector('.modal'); return m.scrollHeight <= m.clientHeight + 1; }), `Règles (${lang}) : 3 cartes traduites, sans défilement`);
+      await page.click('#closeModal');
+    }
+    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.render(); });
+    check(await page.evaluate(() => window.__numero.back()) === false || (await S(page)).modal === null, 'Retour : rien à fermer');
+    await page.click('#openMore');
+    check(await page.evaluate(() => window.__numero.back()) && (await S(page)).modal === null, 'Bouton Retour : ferme le menu « Plus »');
+    // astuces du détective : une seule fois, au moment utile
+    await page.evaluate(() => { const N = window.__numero; N.state.players = 1; N.state.level = 'junior'; N.state.mode = 'normal'; N.state.tipsSeen = {}; N.state.reduceMotion = true; N.start(true); N.state.modal = null; N.render(); });
+    st = await S(page); await page.waitForSelector(`[data-question="${st.choices[0]}"]`, { state: 'visible' });
+    await page.click(`[data-question="${st.choices[0]}"]`);
+    st = await S(page);
+    check(st.modal === 'tip' && st.tipKey === 'moved' && (await page.textContent('.modal')).includes('bouger'), 'Astuce : « le numéro vient de bouger » après le premier indice');
+    const t0 = st.turnElapsed;
+    await page.waitForTimeout(1200);
+    check((await S(page)).turnElapsed === t0, 'Astuce : le chrono est en pause pendant la lecture');
+    await page.click('#tipOk');
+    check((await S(page)).modal === null && (await S(page)).tipsSeen.moved === true, 'Astuce : « Compris ! » ferme et la retient');
+    await page.evaluate(() => { const N = window.__numero; Object.assign(N.state, { phase: 'choose', helpUsed: false, tab: 'question' }); N.act('ask', N.state.choices[0]); });
+    check((await S(page)).phase === 'result' && (await S(page)).modal !== 'tip', 'Astuce : jamais deux fois');
+    await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.state.phase = 'choose'; N.state.helpUsed = false; N.render(); N.act('tab', 'guess'); });
+    st = await S(page);
+    check(st.modal === 'tip' && st.tipKey === 'net', 'Astuce : le filet expliqué au premier passage sur « Deviner »');
+    await page.click('#tipOk');
+    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'home'; N.state.modal = null; N.state.inGame = false; N.render(); N.start(true); N.state.modal = null; N.render(); });
+    check((await S(page)).tipsSeen.moved === true, 'Astuces vues : conservées d’une partie à l’autre');
+    await page.reload();
+    check((await S(page)).tipsSeen.net === true, 'Astuces vues : conservées après redémarrage');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (accueil V8.13) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V8.13 : accueil simplifié, menu Plus, règles en cartes, astuces`);
+    await ctx.close();
+  }
+
   // 4) Rendu sur petits écrans + captures
   for (const vp of [{ width: 320, height: 568, tag: '320' }, { width: 360, height: 740, tag: '360' }]) {
     const before = failed;
@@ -1209,7 +1276,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await noOverflow(page, `Accueil ${vp.tag}px`); await shot(page, pre + '01_accueil');
     const tile = await page.$eval('[data-players="1"]', el => el.getBoundingClientRect().height);
     check(tile >= 44, `Boutons tactiles ≥ 44 px (${Math.round(tile)} px)`);
-    await page.click('[data-players="3"]'); await page.click('[data-level="expert"]'); await page.click('#start'); await page.waitForTimeout(300); await shot(page, pre + '01b_prenoms'); await page.click('#namesGo'); await page.waitForFunction(() => window.__numero.state.screen === 'game'); await page.waitForTimeout(450);
+    await pickPlayers(page, 3); await page.click('[data-level="expert"]'); await page.click('#start'); await page.waitForTimeout(300); await shot(page, pre + '01b_prenoms'); await page.click('#namesGo'); await page.waitForFunction(() => window.__numero.state.screen === 'game'); await page.waitForTimeout(450);
     await noOverflow(page, `Partie ${vp.tag}px`); await shot(page, pre + '03_questions');
     const pageScroll = await page.evaluate(() => document.scrollingElement.scrollHeight - window.innerHeight);
     check(pageScroll <= 1, `Partie ${vp.tag}px : tout tient sur l’écran, pas de défilement (${pageScroll}px)`);

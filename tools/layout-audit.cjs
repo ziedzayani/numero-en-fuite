@@ -23,6 +23,19 @@ const STATES = {
   règles: N => {
     N.state.modal = 'rules';
   },
+  'accueil à plusieurs': N => {
+    N.state.players = 3;
+  },
+  'menu Plus': N => {
+    N.state.players = 2;
+    N.state.modal = 'more';
+  },
+  ...Object.fromEntries(
+    ['moved', 'mirror', 'double', 'chFreeze', 'net'].map(k => [
+      'astuce ' + k,
+      `N => { N.state.players = 1; N.state.level = 'genius'; N.state.mode = 'normal'; N.start(true); N.state.modal = 'tip'; N.state.tipKey = '${k}'; }`
+    ])
+  ),
   'défi (fenêtre)': N => {
     N.state.modal = 'challenge';
   },
@@ -260,7 +273,8 @@ const STATES = {
               level: 'junior',
               replayAsk: false,
               tutSeen: true,
-              gameMode: 'race'
+              gameMode: 'race',
+              tipsSeen: Object.fromEntries(N.tipKeys.map(k => [k, true])) // astuces auditées à part
             });
             (0, eval)('(' + src + ')')(N);
             N.render();

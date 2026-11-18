@@ -398,11 +398,14 @@ function bindNet(click) {
     nameInput.addEventListener('input', () => {
       g.names[0] = nameInput.value;
     });
-  click('openLan', () => {
+  const openLan = () => {
+    g.modal = null;
     g.screen = 'lan';
     g.lan = { view: 'menu', error: null };
     render();
-  });
+  };
+  click('openLan', openLan); // accueil, « À plusieurs »
+  click('openLanMore', openLan); // menu « Plus »
   click('netCreate', netCreate);
   click('netGoJoin', () => {
     g.lan = { view: 'join', error: null };

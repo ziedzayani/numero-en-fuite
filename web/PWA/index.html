@@ -5628,6 +5628,193 @@ body.scr-end .finalscore {
   margin-top: 10px;
 }
 
+/* V8.13 : accueil simplifié (Solo / À plusieurs, « Plus »), règles en 3 cartes, astuces du détective */
+.home-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.more-btn {
+  background: var(--yellow);
+  color: var(--ink);
+  box-shadow: 0 4px 0 var(--yellowDark);
+}
+.who-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 2px 0 10px;
+}
+.who-row .seg {
+  min-height: 54px;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 8px;
+}
+.who-row .seg small {
+  font-size: 15px;
+}
+.multi-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 0 0 10px;
+}
+.chip-btn {
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 4px 12px;
+  min-height: 38px;
+  box-shadow: 0 3px 0 #cfd7fb;
+}
+.chip-btn.is-selected {
+  background: var(--pink);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--pinkDark);
+}
+.chip-btn.lan-chip {
+  background: var(--yellow);
+  box-shadow: 0 3px 0 var(--yellowDark);
+}
+.hero-title {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+.rank-chip {
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  background: var(--purple);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 2px 12px;
+  min-height: 32px;
+  box-shadow: 0 3px 0 var(--purpleDark);
+}
+.more-list {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0 14px;
+}
+.more-list .bigbtn + .bigbtn {
+  margin-top: 0;
+}
+.rule-cards {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 10px;
+}
+.rule-card {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 8px;
+  align-items: center;
+  text-align: start;
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 16px;
+  padding: 7px 10px;
+}
+.rule-card:nth-child(1) {
+  background: #e8f0ff;
+}
+.rule-card:nth-child(2) {
+  background: #fff6cf;
+}
+.rule-card:nth-child(3) {
+  background: #e3f8eb;
+}
+.rule-icon {
+  font-size: 26px;
+  text-align: center;
+}
+.rule-card b {
+  display: block;
+  font-size: 15px;
+  color: var(--ink);
+}
+.rule-card p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--ink2);
+}
+.tip-box {
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  gap: 8px;
+  align-items: center;
+  text-align: start;
+  margin-bottom: 12px;
+}
+.tip-box .detector-orbit {
+  display: none;
+}
+.tip-box h2 {
+  margin: 0 0 4px;
+  font-size: 19px;
+}
+.tip-box p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.rule-cards + .help-fold,
+.help-fold + .help-fold {
+  margin: 0 0 8px;
+}
+.rule-cards + .help-fold summary,
+.help-fold + .help-fold summary {
+  padding: 2px 0;
+}
+#backupCode {
+  overflow: hidden; /* code en lecture seule : on le copie avec le bouton, pas besoin de le faire défiler */
+}
+.rule-actions {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+.rule-actions .bigbtn {
+  margin: 0;
+  font-size: 17px;
+  padding-inline: 8px;
+}
+.modal .rule-actions .bigbtn + .bigbtn {
+  margin-top: 0;
+}
+/* V8.13 : réglages un peu plus serrés (la ligne « Mes progrès » doit tenir sans défilement en 360×640) */
+.compact-settings .toggle-row {
+  padding: 5px 10px;
+}
+.compact-settings .app-version {
+  margin: 6px 0 0;
+}
+.compact-settings .settings-title {
+  font-size: 23px;
+  margin: 0 0 2px;
+}
+.compact-settings .panel-title {
+  margin: 6px 0 4px;
+}
+/* V8.13 : boîte « le numéro s'échappe » plus étroite à gauche → le texte (×2, miroir…) prend moins de lignes */
+.move-line {
+  gap: 6px;
+}
+.move-line .blind-jump {
+  width: 64px;
+}
+.move-line .bj-label {
+  font-size: 18px;
+}
+
 </style>
 </head>
 <body><main id="app" aria-live="polite"></main>
@@ -5714,7 +5901,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "8.12";
+const APP_VERSION = "8.13";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -5841,6 +6028,8 @@ const dictionaries = {
   "hintsOn": "Pistes",
   "home": "Accueil",
   "homeFooter": "Hors ligne · Sans pub · Un téléphone",
+  "homeMulti": "À plusieurs",
+  "homeWifi": "Wi-Fi",
   "infoBtn": "Avantages et risques",
   "keypadHint": "Tape un numéro de 1 à {max}, puis choisis ta capture.",
   "language": "Langue du jeu",
@@ -5885,6 +6074,7 @@ const dictionaries = {
   "modeScore": "Points",
   "modeScoreSub": "{n} tours. Capture +10, filet +4 (3 filets chacun). Le meilleur score gagne.",
   "modeTitle": "Mode de jeu",
+  "more": "Plus",
   "motionHint": "Si les mouvements gênent ou le téléphone est lent.",
   "motionReduce": "Réduire les animations",
   "motionTitle": "Animations",
@@ -5895,6 +6085,7 @@ const dictionaries = {
   "mvMirror": "🪞 Miroir : 1 ↔ {max}, 2 ↔ {max1}… (le 10 devient {ex})",
   "mvWrapDown": "🔄 Après 1, il repart de {max}",
   "mvWrapUp": "🔄 Après {max}, il repart de 1",
+  "nPlayers": "{n} joueurs",
   "namesGo": "C’est parti !",
   "namesHint": "Écris vos prénoms (facultatif).",
   "namesTitle": "Qui joue ?",
@@ -6073,8 +6264,16 @@ const dictionaries = {
   "rule1": "Pose <b>une question</b> (si tu attrapes le numéro juste après : +1 bonus), résous <b>un calcul</b> (⭐ = +1 point à la fin) ou tente ta chance tout de suite.",
   "rule2": "Après l’aide, le numéro bouge de quelques cases, mais <b>tu gardes ton tour</b>.",
   "rule3": "Pour finir ton tour, choisis ta capture : 🎯 <b>précise</b> (+10 / −1) ou 🕸️ <b>filet magique</b> sur 2 ou 3 numéros voisins (+4, ou −1 par numéro si le filet est vide), 3 fois par partie.",
+  "ruleCard1": "Pose une question ou résous un calcul : le détective t’aide à réduire les possibilités.",
+  "ruleCard1Title": "Un numéro se cache",
+  "ruleCard2": "Après chaque indice, le numéro bouge ! Pense à décaler ce que tu sais.",
+  "ruleCard2Title": "Il s’enfuit",
+  "ruleCard3": "Devine le bon numéro, ou lance ton filet sur quelques cases voisines.",
+  "ruleCard3Title": "Attrape-le",
   "ruleExample": "Le numéro bouge toujours : de 1 case au niveau Petit, de 1 ou 2 cases aux niveaux Moyen et Grand, à gauche ou à droite. Après le maximum, on revient à 1. Niveau Génie : il saute de ±3 ou ±5, double (×2) ou passe dans le miroir (1 ↔ 50, 2 ↔ 49…).",
   "ruleMovesTitle": "Comment bouge le numéro ?",
+  "rulePoints": "Course : le premier qui attrape le numéro gagne ; les points servent seulement à départager. Points : capture précise +10, filet +4, −1 par numéro raté, et chaque ⭐ (calcul juste) vaut +1.",
+  "rulePointsTitle": "Points et victoire",
   "rulesTitle": "Comment jouer ?",
   "score": "points",
   "scoreDetail": "Détail du score",
@@ -6139,10 +6338,17 @@ const dictionaries = {
   "tipMisses": "cette fois, utilise un indice de plus avant de viser.",
   "tipNextLevel": "enquête parfaite ! Envie d’essayer le niveau {level} ?",
   "tipNoMiss": "super ! Essaie maintenant une enquête sans aucune erreur.",
+  "tipOk": "Compris !",
   "tipPerfect": "enquête parfaite au niveau le plus difficile : chapeau, détective !",
   "tipPrecise": "essaie une capture précise pour gagner le bonus de précision !",
   "tipThreeStars": "encore {n} tour(s) de moins pour obtenir trois étoiles !",
+  "tipTitle": "Astuce du détective",
   "tipTwoStars": "essaie de finir en 6 tours ou moins pour gagner deux étoiles !",
+  "tip_chFreeze": "Bravo ! En Défi, un calcul juste gèle le numéro : il n’a pas bougé ce tour-ci.",
+  "tip_double": "Il a sauté avec ×2 ou ÷2 ! Pense à multiplier ou diviser ce que tu sais.",
+  "tip_mirror": "Le miroir ! Le numéro passe de l’autre côté : 1 devient {max}, 2 devient {max}−1…",
+  "tip_moved": "Le numéro vient de bouger ! Ce que tu savais a glissé avec lui : décale tes idées avant de deviner.",
+  "tip_net": "Pas sûr ? Le filet attrape plusieurs numéros voisins d’un coup, mais rapporte moins de points.",
   "title": "Le Numéro en fuite",
   "totalLine": "{score} pts + {stars} ⭐",
   "turn": "Tour {current} / {total}",
@@ -6302,6 +6508,8 @@ const dictionaries = {
   "hintsOn": "Clues",
   "home": "Home",
   "homeFooter": "Offline · No ads · One phone",
+  "homeMulti": "Multiplayer",
+  "homeWifi": "Wi-Fi",
   "infoBtn": "Pros and risks",
   "keypadHint": "Type a number from 1 to {max}, then choose your capture.",
   "language": "Game language",
@@ -6346,6 +6554,7 @@ const dictionaries = {
   "modeScore": "Points",
   "modeScoreSub": "{n} turns. Catch +10, net +4 (3 nets each). Best score wins.",
   "modeTitle": "Game mode",
+  "more": "More",
   "motionHint": "If motion bothers you or the phone is slow.",
   "motionReduce": "Reduce animations",
   "motionTitle": "Animations",
@@ -6356,6 +6565,7 @@ const dictionaries = {
   "mvMirror": "🪞 Mirror: 1 ↔ {max}, 2 ↔ {max1}… (10 becomes {ex})",
   "mvWrapDown": "🔄 After 1, it wraps around to {max}",
   "mvWrapUp": "🔄 After {max}, it wraps around to 1",
+  "nPlayers": "{n} players",
   "namesGo": "Let’s go!",
   "namesHint": "Type your names (optional).",
   "namesTitle": "Who’s playing?",
@@ -6534,8 +6744,16 @@ const dictionaries = {
   "rule1": "Ask <b>a question</b> (catch the number right after: +1 bonus), solve <b>a maths challenge</b> (⭐ = +1 point at the end), or try your luck straight away.",
   "rule2": "After the hint, the number moves a few places, but <b>you keep your turn</b>.",
   "rule3": "To end your turn, pick a capture: 🎯 <b>precise</b> (+10 / −1) or 🕸️ <b>magic net</b> on 2 or 3 neighbouring numbers (+4, or −1 per number if the net is empty), 3 times per game.",
+  "ruleCard1": "Ask a question or solve a sum: the detective helps you narrow it down.",
+  "ruleCard1Title": "A number hides",
+  "ruleCard2": "After every clue the number moves! Remember to shift what you know.",
+  "ruleCard2Title": "It runs away",
+  "ruleCard3": "Guess the exact number, or throw your net over a few neighbours.",
+  "ruleCard3Title": "Catch it",
   "ruleExample": "The number always moves: 1 step on Little, 1 or 2 steps on Medium and Big, left or right. After the maximum, it wraps to 1. Genius level: it jumps ±3 or ±5, doubles (×2) or goes through the mirror (1 ↔ 50, 2 ↔ 49…).",
   "ruleMovesTitle": "How does the number move?",
+  "rulePoints": "Race: the first to catch the number wins; points only break ties. Points: exact catch +10, net +4, −1 per missed number, and each ⭐ (correct sum) is worth +1.",
+  "rulePointsTitle": "Points and winning",
   "rulesTitle": "How to play",
   "score": "points",
   "scoreDetail": "Score details",
@@ -6600,10 +6818,17 @@ const dictionaries = {
   "tipMisses": "this time, use one more clue before aiming.",
   "tipNextLevel": "perfect case! Fancy trying the {level} level?",
   "tipNoMiss": "great! Now try a case without a single miss.",
+  "tipOk": "Got it!",
   "tipPerfect": "perfect case on the hardest level: hats off, detective!",
   "tipPrecise": "try a precise capture to earn the precision bonus!",
   "tipThreeStars": "{n} turn(s) fewer to get three stars!",
+  "tipTitle": "Detective tip",
   "tipTwoStars": "try to finish in 6 turns or fewer for two stars!",
+  "tip_chFreeze": "Well done! In Challenge, a correct sum freezes the number: it did not move this turn.",
+  "tip_double": "It jumped with ×2 or ÷2! Remember to multiply or divide what you know.",
+  "tip_mirror": "The mirror! The number jumps to the other side: 1 becomes {max}, 2 becomes {max}−1…",
+  "tip_moved": "The number just moved! What you knew slid with it: shift your ideas before guessing.",
+  "tip_net": "Not sure? The net catches several neighbouring numbers at once, but scores fewer points.",
   "title": "The Runaway Number",
   "totalLine": "{score} pts + {stars} ⭐",
   "turn": "Turn {current} / {total}",
@@ -6763,6 +6988,8 @@ const dictionaries = {
   "hintsOn": "الأدلة",
   "home": "الرئيسية",
   "homeFooter": "بدون إنترنت · بدون إعلانات · هاتف واحد",
+  "homeMulti": "عدة لاعبين",
+  "homeWifi": "واي فاي",
   "infoBtn": "المزايا والمخاطر",
   "keypadHint": "اكتب رقمًا من 1 إلى {max}، ثم اختر طريقة الإمساك.",
   "language": "لغة اللعبة",
@@ -6807,6 +7034,7 @@ const dictionaries = {
   "modeScore": "نقاط",
   "modeScoreSub": "{n} دورًا. الإمساك +10، الشبكة +4 (3 شباك لكل لاعب). أعلى نتيجة تفوز.",
   "modeTitle": "طريقة اللعب",
+  "more": "المزيد",
   "motionHint": "إذا كانت الحركة مزعجة أو الهاتف بطيئًا.",
   "motionReduce": "تقليل الحركات",
   "motionTitle": "الحركات",
@@ -6817,6 +7045,7 @@ const dictionaries = {
   "mvMirror": "🪞 مرآة: 1 ↔ {max}، 2 ↔ {max1}… (10 يصبح {ex})",
   "mvWrapDown": "🔄 بعد 1، يعود إلى {max}",
   "mvWrapUp": "🔄 بعد {max}، يعود إلى 1",
+  "nPlayers": "{n} لاعبين",
   "namesGo": "هيا بنا!",
   "namesHint": "اكتبوا أسماءكم (اختياري).",
   "namesTitle": "من يلعب؟",
@@ -6995,8 +7224,16 @@ const dictionaries = {
   "rule1": "اطرح <b>سؤالًا</b> (إذا أمسكت الرقم بعده مباشرة: +1 مكافأة)، أو حل <b>مسألة حسابية</b> (⭐ = +1 نقطة في النهاية)، أو جرّب حظك فورًا.",
   "rule2": "بعد التلميح يتحرك الرقم، لكن <b>يبقى الدور لك</b>.",
   "rule3": "لإنهاء دورك اختر طريقة الإمساك: 🎯 <b>دقيق</b> (+10 / −1) أو 🕸️ <b>الشبكة السحرية</b> على رقمين أو 3 أرقام متجاورة (+4، أو −1 عن كل رقم إذا كانت الشبكة فارغة)، 3 مرات في اللعبة.",
+  "ruleCard1": "اطرح سؤالًا أو حلّ عملية حسابية: المحقق يساعدك على تضييق الاحتمالات.",
+  "ruleCard1Title": "رقم يختبئ",
+  "ruleCard2": "بعد كل دليل يتحرك الرقم! تذكّر أن تزيح ما تعرفه.",
+  "ruleCard2Title": "إنه يهرب",
+  "ruleCard3": "خمّن الرقم الصحيح، أو ارمِ شبكتك على بضعة أرقام متجاورة.",
+  "ruleCard3Title": "أمسِك به",
   "ruleExample": "الرقم يتحرك دائمًا: خانة واحدة في المستوى الصغير، وخانة أو خانتين في المستويين المتوسط والكبير، يمينًا أو يسارًا. وبعد الرقم الأخير نعود إلى 1. مستوى العبقري: يقفز ±3 أو ±5، أو يتضاعف (×2)، أو يمر في المرآة (1 ↔ 50، 2 ↔ 49…).",
   "ruleMovesTitle": "كيف يتحرك الرقم؟",
+  "rulePoints": "السباق: أول من يمسك الرقم يفوز، والنقاط للفصل عند التعادل فقط. النقاط: إمساك دقيق ‎+10، الشبكة ‎+4، ‎−1 لكل رقم خاطئ، وكل ⭐ (حساب صحيح) تساوي ‎+1.",
+  "rulePointsTitle": "النقاط والفوز",
   "rulesTitle": "طريقة اللعب",
   "score": "نقاط",
   "scoreDetail": "تفاصيل النتيجة",
@@ -7061,10 +7298,17 @@ const dictionaries = {
   "tipMisses": "هذه المرة، استعمل تلميحًا إضافيًا قبل التصويب.",
   "tipNextLevel": "تحقيق مثالي! هل تريد تجربة مستوى {level}؟",
   "tipNoMiss": "رائع! جرّب الآن تحقيقًا بلا أي خطأ.",
+  "tipOk": "فهمت!",
   "tipPerfect": "تحقيق مثالي في أصعب مستوى: أحسنت أيها المحقق!",
   "tipPrecise": "جرّب إمساكًا دقيقًا لتربح مكافأة الدقة!",
   "tipThreeStars": "أقل بـ {n} دور للحصول على ثلاث نجوم!",
+  "tipTitle": "نصيحة المحقق",
   "tipTwoStars": "حاول أن تنتهي في 6 أدوار أو أقل لتربح نجمتين!",
+  "tip_chFreeze": "أحسنت! في التحدي، الحساب الصحيح يجمّد الرقم: لم يتحرك في هذا الدور.",
+  "tip_double": "قفز بـ ×2 أو ÷2! تذكّر أن تضرب أو تقسم ما تعرفه.",
+  "tip_mirror": "المرآة! ينتقل الرقم إلى الجهة الأخرى: 1 يصبح {max}، و2 يصبح {max}−1…",
+  "tip_moved": "تحرك الرقم للتو! ما كنت تعرفه انزاح معه: أزِح أفكارك قبل التخمين.",
+  "tip_net": "لست متأكدًا؟ الشبكة تمسك عدة أرقام متجاورة دفعة واحدة، لكنها تمنح نقاطًا أقل.",
   "title": "الرقم الهارب",
   "totalLine": "{score} نقطة + {stars} ⭐",
   "turn": "الدور {current} / {total}",
@@ -7146,14 +7390,14 @@ const initial = () => ({
   screen: 'home',
   settingsFrom: 'home',
   lang: 'fr',
-  players: 2,
+  players: 1, // premier lancement : Solo (le dernier choix est ensuite mémorisé)
   level: 'junior',
   turn: 0,
   limit: 16,
   secret: 1,
   candidates: all(9),
-  scores: [0, 0],
-  stars: [0, 0],
+  scores: [0],
+  stars: [0],
   captures: 0,
   phase: 'choose',
   helpUsed: false,
@@ -7315,6 +7559,18 @@ function load() {
     const legacy = !raw;
     if (legacy) raw = localStorage.getItem(OLD_STORAGE);
     const d = JSON.parse(raw);
+    // Hors partie, le nombre de joueurs choisi à l'accueil peut différer des tableaux de la dernière
+    // partie : on les remet à la bonne taille plutôt que de jeter toute la sauvegarde (langue, réglages…).
+    if (
+      d &&
+      d.screen !== 'game' &&
+      [1, 2, 3, 4].includes(d.players) &&
+      Array.isArray(d.scores) &&
+      Array.isArray(d.stars)
+    ) {
+      if (d.scores.length !== d.players) d.scores = Array(d.players).fill(0);
+      if (d.stars.length !== d.players) d.stars = Array(d.players).fill(0);
+    }
     if (
       !d ||
       !['home', 'game', 'end', 'settings', 'office', 'lan'].includes(d.screen) ||
@@ -7751,7 +8007,9 @@ function start(skipHandoff = false) {
     playerHelp,
     showInfo,
     chDiffPref,
-    tutSeen
+    tutSeen,
+    lastMulti,
+    tipsSeen
   } = g;
   g = initial();
   g.players = players;
@@ -7765,6 +8023,8 @@ function start(skipHandoff = false) {
   g.rpAuto = rpAuto;
   g.showInfo = !!showInfo;
   g.tutSeen = !!tutSeen;
+  g.lastMulti = lastMulti;
+  g.tipsSeen = tipsSeen && typeof tipsSeen === 'object' ? tipsSeen : {};
   g.chDiffPref = chDiffPref in CHALLENGE_DIFFS ? chDiffPref : 'medium';
   g.gameMode = gameMode === 'score' ? 'score' : 'race';
   g.starter = players > 1 ? (starter || 0) % players : 0;
@@ -8343,6 +8603,7 @@ function ask(id) {
   pushHist();
   g.phase = 'result';
   g.showHints = false;
+  tipAfterMove(shift);
   render();
 }
 /** Tir précis sur le numéro n. */
@@ -8499,6 +8760,8 @@ function mathAnswer(ans) {
   pushHist();
   g.phase = 'result';
   g.showHints = false;
+  if (frozen) maybeTip('chFreeze');
+  else tipAfterMove(shift);
   render();
 }
 /*
@@ -8529,10 +8792,30 @@ function finishRace() {
   g.modal = null;
   sfx('win');
 }
+/*
+ * Astuces « première fois » : le détective explique une règle au moment où elle sert,
+ * UNE seule fois par appareil (g.tipsSeen, conservé d'une partie à l'autre). Pendant l'astuce,
+ * les chronos sont en pause (c'est une fenêtre). Jamais en multijoueur Wi-Fi.
+ */
+const TIP_KEYS = ['moved', 'net', 'chFreeze', 'mirror', 'double'];
+function maybeTip(key) {
+  if (g.net || g.screen !== 'game' || g.modal || (g.tipsSeen || {})[key]) return;
+  g.tipsSeen = { ...(g.tipsSeen || {}), [key]: true };
+  g.tipKey = key;
+  g.modal = 'tip';
+}
+/** Après un déplacement : astuce sur le miroir / le double (Génie, Défi), sinon sur la fuite elle-même. */
+function tipAfterMove(shift) {
+  if (shift && shift.op === 'mirror') maybeTip('mirror');
+  else if (shift && (shift.op === '×' || shift.op === '÷')) maybeTip('double');
+  else if (shift) maybeTip('moved');
+}
+
 /** Onglet Indice / Calcul / Deviner ; ouvrir « Calcul » lance son chrono. */
 function setTab(tab) {
   if (!['question', 'math', 'guess'].includes(tab) || (g.helpUsed && tab !== 'guess')) return;
   g.tab = tab;
+  if (tab === 'guess' && netAvailable()) maybeTip('net');
   if (tab === 'math' && !g.mathStarted) {
     g.mathStarted = true;
     g.mathElapsed = 0;
@@ -8743,7 +9026,16 @@ function settingsButton(compact = false) {
 }
 /** Accueil : nombre de joueurs, niveau, Jouer, défi, règles. */
 function home() {
-  return `<header class="top">${brand()}${settingsButton()}</header><section class="hero hero-row"><div class="hero-mascot">${mascot()}</div><h1>${t('hero1')}<br><span>${t('hero2')}</span></h1></section><section class="panel start-panel"><div class="label">👥 ${t('players')}</div><div class="selector">${[1, 2, 3, 4].map(n => `<button class="seg ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}"><b>${n}</b><small>${n === 1 ? t('onePlayer') : t('multiplayer')}</small></button>`).join('')}</div><div class="label">✨ ${t('levels')}</div><div class="difficulty">${[
+  // Accueil simplifié : Solo ou À plusieurs → niveau → JOUER ; le reste dans 3 boutons.
+  const multi = g.players > 1,
+    xp = careerProfile(loadCareer()).xpTotal,
+    rank = rankOf(xp).rank;
+  const who = `<div class="who-row"><button class="seg who ${multi ? '' : 'is-selected'}" data-players="1" aria-pressed="${!multi}"><b>👤</b><small>${t('onePlayer')}</small></button><button class="seg who ${multi ? 'is-selected' : ''}" id="homeMulti" aria-pressed="${multi}"><b>👥</b><small>${t('homeMulti')}</small></button></div>${
+    multi
+      ? `<div class="multi-row">${[2, 3, 4].map(n => `<button class="chip-btn ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}">${t('nPlayers', { n })}</button>`).join('')}${netTransport() ? `<button class="chip-btn lan-chip" id="openLan">📶 ${t('homeWifi')}</button>` : ''}</div>`
+      : ''
+  }`;
+  const levels = [
     ['junior', '🐣', 'levelJunior', 'levJuniorSub', '1–9'],
     ['malin', '🧠', 'levelMalin', 'levMalinSub', '1–15'],
     ['expert', '🚀', 'levelExpert', 'levExpertSub', '1–30'],
@@ -8753,9 +9045,8 @@ function home() {
       ([id, emoji, k, sub, range]) =>
         `<button class="level ${g.level === id ? 'is-selected' : ''}" data-level="${id}" aria-pressed="${g.level === id}"><span class="level-emoji">${emoji}</span><strong>${t(k)}</strong><span class="level-range" dir="ltr">${range}</span><small class="lvl-sub">${t(sub)}</small></button>`
     )
-    .join(
-      ''
-    )}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn rules-btn" id="openRules">📖 ${t('rulesTitle')}</button><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn tut-btn" id="openTutorial">🎓 ${t('tutBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button>${netTransport() ? `<button class="mini-btn lan-btn" id="openLan">📶 ${t('netHomeBtn')}</button>` : ''}</div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
+    .join('');
+  return `<header class="top">${brand()}${settingsButton()}</header><section class="hero hero-row"><div class="hero-mascot">${mascot()}</div><div class="hero-title"><h1>${t('hero1')}<br><span>${t('hero2')}</span></h1><button class="rank-chip" id="openOffice2">🎖️ ${rankName(rank)}</button></div></section><section class="panel start-panel">${who}<div class="label">✨ ${t('levels')}</div><div class="difficulty">${levels}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button><button class="mini-btn more-btn" id="openMore">⋯ ${t('more')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
 }
 /** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
 function office() {
@@ -8811,7 +9102,7 @@ function settings() {
         `<button class="mini-btn ${g.timerMode === m ? 'is-selected' : ''}" data-timer="${m}" aria-pressed="${g.timerMode === m}">${t(k)}</button>`
     )
     .join('');
-  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1><div class="panel-title">🌍 ${t('language')}</div><div class="lang-list">${langs}</div><p class="sub small">${t('settingsTip')}</p><div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}${toggle('replayToggle', g.replayAsk !== false, '🎬', t('rpSettingLabel'), t('rpSettingHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">💾</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1><div class="panel-title">🌍 ${t('language')}</div><div class="lang-list">${langs}</div><div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}${toggle('replayToggle', g.replayAsk !== false, '🎬', t('rpSettingLabel'), t('rpSettingHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">💾</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
 }
 /** Les trois onglets du tour : Indice, Calcul, Choisir un numéro (+ boutons de capture). */
 function questionView() {
@@ -9325,12 +9616,33 @@ function modalView() {
     `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal">${c}</div></div>`;
   if (['netWait', 'netLost'].includes(g.modal)) return wrapM(netModalView());
   if (g.modal === 'backup' && g.screen === 'settings') return wrapM(backupView());
+  if (g.modal === 'tip' && g.screen === 'game')
+    return wrapM(
+      `<div class="tip-box"><div class="mini-mascot">${mascot('idle', false, 'happy')}</div><div><h2>${t('tipTitle')}</h2><p>${t('tip_' + g.tipKey, { max: maxN() })}</p></div></div><button class="bigbtn green" id="tipOk">${t('tipOk')}</button>`
+    );
   if (g.modal === 'tutorial' && g.screen === 'home' && g.tut) return wrapM(tutorialView());
   if (g.modal === 'tutInvite' && g.screen === 'home') return wrapM(tutInviteView());
-  if (g.modal === 'rules' && g.screen === 'home')
+  if (g.modal === 'more' && g.screen === 'home')
     return wrapM(
-      `<h2>📖 ${t('rulesTitle')}</h2><p class="intro-dark">${t('heroText')}</p><div class="steps">${['rule1', 'rule2', 'rule3'].map((key, i) => `<div class="step"><span class="stepnum">${i + 1}</span><span>${t(key)}</span></div>`).join('')}</div><details class="help-fold"><summary>💡 ${t('ruleMovesTitle')}</summary><div class="help-detail">${t('ruleExample')}</div><p class="sub small">${t('levelsFree')}</p></details><button class="bigbtn green" id="rulesTutorial">🎓 ${t('tutTry')}</button><button class="bigbtn light" id="closeModal">${t('close')}</button>`
+      `<h2>⋯ ${t('more')}</h2><div class="more-list"><button class="bigbtn light" id="openRules">📖 ${t('rulesTitle')}</button><button class="bigbtn green" id="openTutorial">🎓 ${t('tutTry')}</button>${netTransport() ? `<button class="bigbtn" id="openLanMore">📶 ${t('netHomeBtn')}</button>` : ''}</div><button class="mini-btn" id="closeModal">${t('close')}</button>`
     );
+  if (g.modal === 'rules' && g.screen === 'home') {
+    // Règles en 3 cartes : comment JOUER d'abord ; les points et les déplacements sont repliés.
+    const cards = [
+      ['🔎', 'ruleCard1Title', 'ruleCard1'],
+      ['💨', 'ruleCard2Title', 'ruleCard2'],
+      ['🎯', 'ruleCard3Title', 'ruleCard3']
+    ]
+      .map(
+        ([icon, title, text], i) =>
+          `<div class="rule-card"><span class="rule-icon" aria-hidden="true">${icon}</span><div><b>${i + 1}. ${t(title)}</b><p>${t(text)}</p></div></div>`
+      )
+      .join('');
+    return wrapM(
+      `<h2>📖 ${t('rulesTitle')}</h2><div class="rule-cards">${cards}</div><details class="help-fold"><summary>💡 ${t('ruleMovesTitle')}</summary><div class="help-detail">${t('ruleExample')}</div><p class="sub small">${t('levelsFree')}</p></details><details class="help-fold"><summary>🏅 ${t('rulePointsTitle')}</summary><div class="help-detail">${t('rulePoints')}</div></details><div class="rule-actions"><button class="bigbtn green" id="rulesTutorial">🎓 ${t('tutBtn')}</button><button class="bigbtn light" id="closeModal">${t('close')}</button></div>`
+    );
+  }
+
   if (g.modal === 'challenge' && g.screen === 'home') {
     const r = records(),
       diff = g.chDiffPref in CHALLENGE_DIFFS ? g.chDiffPref : 'medium',
@@ -9970,11 +10282,14 @@ function bindNet(click) {
     nameInput.addEventListener('input', () => {
       g.names[0] = nameInput.value;
     });
-  click('openLan', () => {
+  const openLan = () => {
+    g.modal = null;
     g.screen = 'lan';
     g.lan = { view: 'menu', error: null };
     render();
-  });
+  };
+  click('openLan', openLan); // accueil, « À plusieurs »
+  click('openLanMore', openLan); // menu « Plus »
   click('netCreate', netCreate);
   click('netGoJoin', () => {
     g.lan = { view: 'join', error: null };
@@ -10049,6 +10364,7 @@ function bind() {
   app.querySelectorAll('[data-players]').forEach(b =>
     b.addEventListener('click', () => {
       g.players = Number(b.dataset.players);
+      if (g.players > 1) g.lastMulti = g.players;
       render();
     })
   );
@@ -10290,6 +10606,29 @@ function bind() {
     sfx('tap');
     render();
   });
+  click('homeMulti', () => {
+    // À plusieurs : on reprend le dernier nombre de joueurs choisi (2 par défaut)
+    g.players = Math.max(2, g.lastMulti || 2);
+    sfx('tap');
+    render();
+  });
+  click('tipOk', () => {
+    g.modal = null;
+    lastTick = Date.now(); // le temps passé à lire l'astuce n'est pas décompté
+    sfx('tap');
+    render();
+  });
+  click('openMore', () => {
+    g.modal = 'more';
+    sfx('tap');
+    render();
+  });
+  click('openOffice2', () => {
+    g.officeFrom = 'home';
+    g.screen = 'office';
+    sfx('tap');
+    render();
+  });
   bindNet(click);
   click('menu', () => {
     if (g.net) return netLeave();
@@ -10394,7 +10733,10 @@ function bind() {
  */
 
 function back() {
-  if (['rules', 'names', 'challenge', 'tutorial', 'tutInvite'].includes(g.modal) && g.screen === 'home') {
+  if (
+    ['rules', 'names', 'challenge', 'tutorial', 'tutInvite', 'more'].includes(g.modal) &&
+    g.screen === 'home'
+  ) {
     g.modal = null;
     g.tut = null;
     render();
@@ -10504,6 +10846,7 @@ window.__numero = {
   tutLoopPick,
   act,
   exportProgress,
+  tipKeys: TIP_KEYS,
   readBackup,
   importProgress,
   netCreate,

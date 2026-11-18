@@ -3,7 +3,10 @@
  */
 
 function back() {
-  if (['rules', 'names', 'challenge', 'tutorial', 'tutInvite'].includes(g.modal) && g.screen === 'home') {
+  if (
+    ['rules', 'names', 'challenge', 'tutorial', 'tutInvite', 'more'].includes(g.modal) &&
+    g.screen === 'home'
+  ) {
     g.modal = null;
     g.tut = null;
     render();
@@ -113,6 +116,7 @@ window.__numero = {
   tutLoopPick,
   act,
   exportProgress,
+  tipKeys: TIP_KEYS,
   readBackup,
   importProgress,
   netCreate,

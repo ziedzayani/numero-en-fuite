@@ -10,12 +10,33 @@ function modalView() {
     `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal">${c}</div></div>`;
   if (['netWait', 'netLost'].includes(g.modal)) return wrapM(netModalView());
   if (g.modal === 'backup' && g.screen === 'settings') return wrapM(backupView());
+  if (g.modal === 'tip' && g.screen === 'game')
+    return wrapM(
+      `<div class="tip-box"><div class="mini-mascot">${mascot('idle', false, 'happy')}</div><div><h2>${t('tipTitle')}</h2><p>${t('tip_' + g.tipKey, { max: maxN() })}</p></div></div><button class="bigbtn green" id="tipOk">${t('tipOk')}</button>`
+    );
   if (g.modal === 'tutorial' && g.screen === 'home' && g.tut) return wrapM(tutorialView());
   if (g.modal === 'tutInvite' && g.screen === 'home') return wrapM(tutInviteView());
-  if (g.modal === 'rules' && g.screen === 'home')
+  if (g.modal === 'more' && g.screen === 'home')
     return wrapM(
-      `<h2>📖 ${t('rulesTitle')}</h2><p class="intro-dark">${t('heroText')}</p><div class="steps">${['rule1', 'rule2', 'rule3'].map((key, i) => `<div class="step"><span class="stepnum">${i + 1}</span><span>${t(key)}</span></div>`).join('')}</div><details class="help-fold"><summary>💡 ${t('ruleMovesTitle')}</summary><div class="help-detail">${t('ruleExample')}</div><p class="sub small">${t('levelsFree')}</p></details><button class="bigbtn green" id="rulesTutorial">🎓 ${t('tutTry')}</button><button class="bigbtn light" id="closeModal">${t('close')}</button>`
+      `<h2>⋯ ${t('more')}</h2><div class="more-list"><button class="bigbtn light" id="openRules">📖 ${t('rulesTitle')}</button><button class="bigbtn green" id="openTutorial">🎓 ${t('tutTry')}</button>${netTransport() ? `<button class="bigbtn" id="openLanMore">📶 ${t('netHomeBtn')}</button>` : ''}</div><button class="mini-btn" id="closeModal">${t('close')}</button>`
     );
+  if (g.modal === 'rules' && g.screen === 'home') {
+    // Règles en 3 cartes : comment JOUER d'abord ; les points et les déplacements sont repliés.
+    const cards = [
+      ['🔎', 'ruleCard1Title', 'ruleCard1'],
+      ['💨', 'ruleCard2Title', 'ruleCard2'],
+      ['🎯', 'ruleCard3Title', 'ruleCard3']
+    ]
+      .map(
+        ([icon, title, text], i) =>
+          `<div class="rule-card"><span class="rule-icon" aria-hidden="true">${icon}</span><div><b>${i + 1}. ${t(title)}</b><p>${t(text)}</p></div></div>`
+      )
+      .join('');
+    return wrapM(
+      `<h2>📖 ${t('rulesTitle')}</h2><div class="rule-cards">${cards}</div><details class="help-fold"><summary>💡 ${t('ruleMovesTitle')}</summary><div class="help-detail">${t('ruleExample')}</div><p class="sub small">${t('levelsFree')}</p></details><details class="help-fold"><summary>🏅 ${t('rulePointsTitle')}</summary><div class="help-detail">${t('rulePoints')}</div></details><div class="rule-actions"><button class="bigbtn green" id="rulesTutorial">🎓 ${t('tutBtn')}</button><button class="bigbtn light" id="closeModal">${t('close')}</button></div>`
+    );
+  }
+
   if (g.modal === 'challenge' && g.screen === 'home') {
     const r = records(),
       diff = g.chDiffPref in CHALLENGE_DIFFS ? g.chDiffPref : 'medium',

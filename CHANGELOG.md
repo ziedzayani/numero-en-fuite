@@ -1,5 +1,17 @@
 # Historique des versions
 
+## V8.13
+
+- **Accueil simplifié** : 👤 Solo (par défaut au premier lancement) ou 👥 À plusieurs (2 / 3 / 4 joueurs, raccourci
+  Wi-Fi) ; le dernier choix est retenu. Niveau, JOUER, puis Défi solo · Mon bureau · ⋯ Plus (règles, tutoriel,
+  partie Wi-Fi). Le rang du joueur est affiché sous le titre et ouvre « Mon bureau ».
+- **Règles en 3 cartes** (se cache · s'enfuit · attrape-le) ; déplacements et points repliés ; tient sans défilement.
+- **Astuces du détective** une seule fois, au moment utile : premier déplacement, miroir, ×2 / ÷2, gel en Défi,
+  premier passage sur « Deviner » (le filet). Chronos en pause pendant la lecture ; jamais en partie Wi-Fi.
+- Correctif : choisir un autre nombre de joueurs à l'accueil rendait la sauvegarde invalide au redémarrage
+  (langue et réglages perdus, tutoriel reproposé).
+- Correctif : écran Réglages (V8.12) qui débordait de 37 px en 360 px de large → CI de nouveau verte.
+
 ## V8.12
 
 - **Mes progrès** (Réglages) : code de sauvegarde « NEF1-… » à garder (message, notes) pour retrouver rang, XP,

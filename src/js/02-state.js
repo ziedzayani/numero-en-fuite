@@ -33,14 +33,14 @@ const initial = () => ({
   screen: 'home',
   settingsFrom: 'home',
   lang: 'fr',
-  players: 2,
+  players: 1, // premier lancement : Solo (le dernier choix est ensuite mémorisé)
   level: 'junior',
   turn: 0,
   limit: 16,
   secret: 1,
   candidates: all(9),
-  scores: [0, 0],
-  stars: [0, 0],
+  scores: [0],
+  stars: [0],
   captures: 0,
   phase: 'choose',
   helpUsed: false,
@@ -202,6 +202,18 @@ function load() {
     const legacy = !raw;
     if (legacy) raw = localStorage.getItem(OLD_STORAGE);
     const d = JSON.parse(raw);
+    // Hors partie, le nombre de joueurs choisi à l'accueil peut différer des tableaux de la dernière
+    // partie : on les remet à la bonne taille plutôt que de jeter toute la sauvegarde (langue, réglages…).
+    if (
+      d &&
+      d.screen !== 'game' &&
+      [1, 2, 3, 4].includes(d.players) &&
+      Array.isArray(d.scores) &&
+      Array.isArray(d.stars)
+    ) {
+      if (d.scores.length !== d.players) d.scores = Array(d.players).fill(0);
+      if (d.stars.length !== d.players) d.stars = Array(d.players).fill(0);
+    }
     if (
       !d ||
       !['home', 'game', 'end', 'settings', 'office', 'lan'].includes(d.screen) ||

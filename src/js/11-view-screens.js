@@ -31,7 +31,16 @@ function settingsButton(compact = false) {
 }
 /** Accueil : nombre de joueurs, niveau, Jouer, défi, règles. */
 function home() {
-  return `<header class="top">${brand()}${settingsButton()}</header><section class="hero hero-row"><div class="hero-mascot">${mascot()}</div><h1>${t('hero1')}<br><span>${t('hero2')}</span></h1></section><section class="panel start-panel"><div class="label">👥 ${t('players')}</div><div class="selector">${[1, 2, 3, 4].map(n => `<button class="seg ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}"><b>${n}</b><small>${n === 1 ? t('onePlayer') : t('multiplayer')}</small></button>`).join('')}</div><div class="label">✨ ${t('levels')}</div><div class="difficulty">${[
+  // Accueil simplifié : Solo ou À plusieurs → niveau → JOUER ; le reste dans 3 boutons.
+  const multi = g.players > 1,
+    xp = careerProfile(loadCareer()).xpTotal,
+    rank = rankOf(xp).rank;
+  const who = `<div class="who-row"><button class="seg who ${multi ? '' : 'is-selected'}" data-players="1" aria-pressed="${!multi}"><b>👤</b><small>${t('onePlayer')}</small></button><button class="seg who ${multi ? 'is-selected' : ''}" id="homeMulti" aria-pressed="${multi}"><b>👥</b><small>${t('homeMulti')}</small></button></div>${
+    multi
+      ? `<div class="multi-row">${[2, 3, 4].map(n => `<button class="chip-btn ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}">${t('nPlayers', { n })}</button>`).join('')}${netTransport() ? `<button class="chip-btn lan-chip" id="openLan">📶 ${t('homeWifi')}</button>` : ''}</div>`
+      : ''
+  }`;
+  const levels = [
     ['junior', '🐣', 'levelJunior', 'levJuniorSub', '1–9'],
     ['malin', '🧠', 'levelMalin', 'levMalinSub', '1–15'],
     ['expert', '🚀', 'levelExpert', 'levExpertSub', '1–30'],
@@ -41,9 +50,8 @@ function home() {
       ([id, emoji, k, sub, range]) =>
         `<button class="level ${g.level === id ? 'is-selected' : ''}" data-level="${id}" aria-pressed="${g.level === id}"><span class="level-emoji">${emoji}</span><strong>${t(k)}</strong><span class="level-range" dir="ltr">${range}</span><small class="lvl-sub">${t(sub)}</small></button>`
     )
-    .join(
-      ''
-    )}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn rules-btn" id="openRules">📖 ${t('rulesTitle')}</button><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn tut-btn" id="openTutorial">🎓 ${t('tutBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button>${netTransport() ? `<button class="mini-btn lan-btn" id="openLan">📶 ${t('netHomeBtn')}</button>` : ''}</div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
+    .join('');
+  return `<header class="top">${brand()}${settingsButton()}</header><section class="hero hero-row"><div class="hero-mascot">${mascot()}</div><div class="hero-title"><h1>${t('hero1')}<br><span>${t('hero2')}</span></h1><button class="rank-chip" id="openOffice2">🎖️ ${rankName(rank)}</button></div></section><section class="panel start-panel">${who}<div class="label">✨ ${t('levels')}</div><div class="difficulty">${levels}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button><button class="mini-btn more-btn" id="openMore">⋯ ${t('more')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
 }
 /** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
 function office() {
@@ -99,7 +107,7 @@ function settings() {
         `<button class="mini-btn ${g.timerMode === m ? 'is-selected' : ''}" data-timer="${m}" aria-pressed="${g.timerMode === m}">${t(k)}</button>`
     )
     .join('');
-  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1><div class="panel-title">🌍 ${t('language')}</div><div class="lang-list">${langs}</div><p class="sub small">${t('settingsTip')}</p><div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}${toggle('replayToggle', g.replayAsk !== false, '🎬', t('rpSettingLabel'), t('rpSettingHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">💾</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1><div class="panel-title">🌍 ${t('language')}</div><div class="lang-list">${langs}</div><div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}${toggle('replayToggle', g.replayAsk !== false, '🎬', t('rpSettingLabel'), t('rpSettingHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">💾</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
 }
 /** Les trois onglets du tour : Indice, Calcul, Choisir un numéro (+ boutons de capture). */
 function questionView() {

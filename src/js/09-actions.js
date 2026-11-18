@@ -19,6 +19,7 @@ function ask(id) {
   pushHist();
   g.phase = 'result';
   g.showHints = false;
+  tipAfterMove(shift);
   render();
 }
 /** Tir précis sur le numéro n. */
@@ -175,6 +176,8 @@ function mathAnswer(ans) {
   pushHist();
   g.phase = 'result';
   g.showHints = false;
+  if (frozen) maybeTip('chFreeze');
+  else tipAfterMove(shift);
   render();
 }
 /*
@@ -205,10 +208,30 @@ function finishRace() {
   g.modal = null;
   sfx('win');
 }
+/*
+ * Astuces « première fois » : le détective explique une règle au moment où elle sert,
+ * UNE seule fois par appareil (g.tipsSeen, conservé d'une partie à l'autre). Pendant l'astuce,
+ * les chronos sont en pause (c'est une fenêtre). Jamais en multijoueur Wi-Fi.
+ */
+const TIP_KEYS = ['moved', 'net', 'chFreeze', 'mirror', 'double'];
+function maybeTip(key) {
+  if (g.net || g.screen !== 'game' || g.modal || (g.tipsSeen || {})[key]) return;
+  g.tipsSeen = { ...(g.tipsSeen || {}), [key]: true };
+  g.tipKey = key;
+  g.modal = 'tip';
+}
+/** Après un déplacement : astuce sur le miroir / le double (Génie, Défi), sinon sur la fuite elle-même. */
+function tipAfterMove(shift) {
+  if (shift && shift.op === 'mirror') maybeTip('mirror');
+  else if (shift && (shift.op === '×' || shift.op === '÷')) maybeTip('double');
+  else if (shift) maybeTip('moved');
+}
+
 /** Onglet Indice / Calcul / Deviner ; ouvrir « Calcul » lance son chrono. */
 function setTab(tab) {
   if (!['question', 'math', 'guess'].includes(tab) || (g.helpUsed && tab !== 'guess')) return;
   g.tab = tab;
+  if (tab === 'guess' && netAvailable()) maybeTip('net');
   if (tab === 'math' && !g.mathStarted) {
     g.mathStarted = true;
     g.mathElapsed = 0;
