@@ -22,7 +22,7 @@ function render() {
     if (document.body.className !== bc) document.body.className = bc;
   }
   document.title = t('title');
-  const screens = { home, game, settings, end };
+  const screens = { home, game, settings, end, office };
   app.innerHTML = (screens[g.screen] || end)() + modalView();
   {
     const mk = g.screen + '|' + (g.modal || ''),
@@ -240,6 +240,27 @@ function bind() {
     g.sound = !g.sound;
     render();
     sfx('tap');
+  });
+  click('openOffice', () => {
+    g.officeFrom = g.screen === 'end' ? 'end' : 'home';
+    g.screen = 'office';
+    g.modal = null;
+    sfx('tap');
+    render();
+  });
+  click('closeOffice', () => {
+    g.screen = g.officeFrom === 'end' && g.soloResult ? 'end' : 'home';
+    sfx('tap');
+    render();
+  });
+  click('officePlay', () => {
+    // solo, au dernier niveau joué : on passe par la fenêtre « Prêt ? » habituelle
+    g.players = 1;
+    g.mode = 'normal';
+    g.screen = 'home';
+    g.modal = 'names';
+    sfx('tap');
+    render();
   });
   click('menu', () => {
     g.screen = 'home';

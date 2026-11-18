@@ -200,7 +200,7 @@ function load() {
     const d = JSON.parse(raw);
     if (
       !d ||
-      !['home', 'game', 'end', 'settings'].includes(d.screen) ||
+      !['home', 'game', 'end', 'settings', 'office'].includes(d.screen) ||
       ![1, 2, 3, 4].includes(d.players) ||
       !(d.level in LEVELS) ||
       !['fr', 'en', 'ar'].includes(d.lang) ||

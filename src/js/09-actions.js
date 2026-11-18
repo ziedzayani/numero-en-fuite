@@ -220,6 +220,7 @@ function nextTurn() {
         } catch (e) {}
       }
     }
+    settleSolo(true); // score, étoiles, record par niveau, XP (une seule fois par partie)
     g.screen = 'end';
     g.inGame = false;
     g.modal = null;
@@ -232,6 +233,7 @@ function nextTurn() {
     g.raceWinner = null;
     g.soloWon = false;
     g.soloSecret = g.secret;
+    if (g.players === 1 && g.mode !== 'challenge') settleSolo(false); // 12 tours joués : +10 XP
     g.screen = 'end';
     g.inGame = false;
     g.modal = null;

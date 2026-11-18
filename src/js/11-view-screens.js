@@ -43,7 +43,36 @@ function home() {
     )
     .join(
       ''
-    )}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn rules-btn" id="openRules">📖 ${t('rulesTitle')}</button><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn tut-btn" id="openTutorial">🎓 ${t('tutBtn')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
+    )}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn rules-btn" id="openRules">📖 ${t('rulesTitle')}</button><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn tut-btn" id="openTutorial">🎓 ${t('tutBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
+}
+/** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
+function office() {
+  const p = careerProfile(loadCareer()),
+    levels = [
+      ['junior', '🐣', 'levelJunior'],
+      ['malin', '🧠', 'levelMalin'],
+      ['expert', '🚀', 'levelExpert'],
+      ['genius', '🦉', 'levelGenius']
+    ];
+  const tiles = [
+    ['officePlayed', p.totalWins + p.totalLosses],
+    ['officeWins', p.totalWins],
+    ['officeLosses', p.totalLosses],
+    ['officeStars', p.totalStars]
+  ]
+    .map(([k, n]) => `<div><b>${n}</b><small>${t(k)}</small></div>`)
+    .join('');
+  const rows = levels
+    .map(([id, emoji, k]) => {
+      const lv = p.levels[id] || {};
+      return `<li><span>${emoji} ${t(k)}</span><span class="rec">${
+        lv.bestScore != null
+          ? `<b dir="ltr">${lv.bestScore} ${t('pts')}</b>`
+          : `<i>${t('officeToDiscover')}</i>`
+      }${lv.bestTurns != null ? `<small>${t('officeBestTurns', { n: lv.bestTurns })}</small>` : ''}</span></li>`;
+    })
+    .join('');
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeOffice">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="hero settings-hero"><h1>📚 ${t('officeTitle')}</h1><p class="intro">${t('officeSub')}</p></section><section class="panel office-panel"><div class="office-rank"><span class="office-badge" aria-hidden="true">🕵️</span><div>${rankBar(p.xpTotal)}</div></div><div class="office-tiles">${tiles}</div><div class="label">📂 ${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}</p><button class="bigbtn" id="officePlay">▶ ${t('officePlay')}</button></section>`;
 }
 /** Réglages : langue, chronos, son, mouvements réduits, film. */
 function settings() {
@@ -329,7 +358,48 @@ function endRace() {
  <div class="race-others">${g.scores.map((v, i) => (i === w ? '' : `<span><i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}</span>`)).join('')}</div>
  <p class="sub">${t('nextStarter', { player: pname(next) })}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
+/** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */
 function endSolo() {
+  return g.soloResult ? endSoloCareer(g.soloResult) : endSoloLegacy();
+}
+/** Libellé traduit d'un rang (1…RANKS.length). */
+const rankName = n => t('rank' + Math.min(n, RANKS.length));
+/** Barre de progression du rang pour un total d'XP. */
+function rankBar(xp) {
+  const r = rankOf(xp);
+  return `<div class="rank-line"><b>${t('rankLabel', { n: r.rank })} — ${rankName(r.rank)}</b><small>${
+    r.next ? t('rankProgress', { xp, next: r.next, left: r.next - xp, n: r.rank + 1 }) : t('rankMax', { xp })
+  }</small></div><div class="xp-bar" role="progressbar" aria-valuenow="${r.pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${r.pct}%"></i></div>`;
+}
+/** Conseil de fin de partie (clé + variables enregistrées par settleSolo). */
+const tipText = ([key, vars]) => t(key, { ...vars, level: vars.levelKey ? t(vars.levelKey) : '' });
+function endSoloCareer(res) {
+  const won = res.won;
+  const record = won
+    ? res.newRecord
+      ? `<div class="ch-new">${t(res.prevBest == null ? 'soloFirstRecord' : 'soloNewRecordPts')}</div>`
+      : `<div class="record-chip">${t('soloRecordPts', { n: res.prevBest })}</div>`
+    : '';
+  const lines = res.lines
+    .map(
+      ([key, v, vars]) =>
+        `<li><span>${t(key, vars)}</span><b dir="ltr">${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</b></li>`
+    )
+    .join('');
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></section>
+ <section class="panel centered solo-card career-card">${
+   won
+     ? `<div class="solo-stars" aria-label="${res.stars}/3">${[1, 2, 3].map(i => `<span class="${i <= res.stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div>`
+     : `<div class="solo-reveal"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><small>${t('soloLoseEncourage')}</small></div>`
+ }<div class="label">${t('soloScoreTitle')}</div><div class="solo-score" dir="ltr">${res.score}<small> ${t('pts')}</small></div>${record}${
+   lines
+     ? `<details class="score-lines"${res.lines.length <= 3 ? ' open' : ''}><summary>${t('scoreDetail')}</summary><ul>${lines}</ul></details>`
+     : ''
+ }<div class="xp-gain"><span>🎖️ ${t('xpGained')}</span><b dir="ltr">+${res.xp} XP</b></div>${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
+ <button class="bigbtn" id="again">🔄 ${t('replay')}</button><div class="end-row"><button class="bigbtn light" id="openOffice">📚 ${t('officeBtn')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></div></section>`;
+}
+/** Ancien écran de fin (parties terminées avant la V8.8 : aucune récompense n'est inventée a posteriori). */
+function endSoloLegacy() {
   const won = g.soloWon !== false,
     turns = won ? g.soloTurns || g.turn + 1 : g.limit,
     h = g.history,

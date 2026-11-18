@@ -5026,6 +5026,180 @@ button.tut-cell {
   }
 }
 
+/* V8.8 : carrière solo — écran de fin, rang / XP, « Mon bureau » (variables de couleur existantes uniquement) */
+.home-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.home-row .mini-btn {
+  min-height: 38px;
+}
+.office-btn {
+  background: var(--purple);
+  color: #fff;
+}
+.career-card .label {
+  margin-top: 6px;
+}
+.solo-score {
+  font-size: 50px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--green);
+}
+.solo-score small {
+  font-size: 18px;
+}
+.record-chip {
+  display: inline-block;
+  margin: 6px 0;
+  padding: 3px 12px;
+  border-radius: 99px;
+  background: #e9eeff;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+.score-lines {
+  margin: 6px 0;
+  text-align: start;
+}
+.score-lines summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #503dc1;
+}
+.score-lines ul,
+.office-records {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+.score-lines li,
+.office-records li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+.score-lines li:nth-child(odd),
+.office-records li:nth-child(odd) {
+  background: #eef3ff;
+}
+.xp-gain {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0 4px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: #eef3ff;
+  font-size: 14px;
+}
+.xp-gain b {
+  color: var(--green);
+}
+.rank-line {
+  text-align: start;
+}
+.rank-line b {
+  display: block;
+  font-size: 15px;
+}
+.rank-line small {
+  font-size: 12px;
+  color: var(--ink2);
+}
+.xp-bar {
+  height: 10px;
+  margin: 5px 0 8px;
+  border-radius: 99px;
+  background: #e1e7fb;
+  overflow: hidden;
+}
+.xp-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--green);
+}
+.next-goal {
+  margin: 6px 0 10px;
+  padding: 8px 11px;
+  border: 2px solid #c9d4f5;
+  border-radius: 14px;
+  background: #f6f8ff;
+  font-size: 13px;
+  text-align: start;
+}
+.end-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.end-row .bigbtn {
+  margin: 0;
+  font-size: 15px;
+}
+.office-rank {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.office-badge {
+  flex: 0 0 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: #e9eeff;
+  font-size: 30px;
+}
+.office-rank > div:last-child {
+  flex: 1;
+  min-width: 0;
+}
+.office-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 8px 0 10px;
+}
+.office-tiles div {
+  padding: 7px 4px;
+  border: 2px solid #c9d4f5;
+  border-radius: 12px;
+  text-align: center;
+}
+.office-tiles b {
+  display: block;
+  font-size: 22px;
+}
+.office-tiles small {
+  font-size: 10.5px;
+  line-height: 1.15;
+  color: var(--ink2);
+}
+.office-records .rec {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.office-records .rec i {
+  font-style: normal;
+  color: var(--ink2);
+}
+.office-records .rec small {
+  font-size: 11px;
+  color: var(--ink2);
+}
+.office-tiles small {
+  display: block;
+  line-height: 1.2;
+}
+
 </style>
 </head>
 <body><main id="app" aria-live="polite"></main>
@@ -5038,15 +5212,15 @@ button.tut-cell {
  *
  * Organisation du code (les fichiers src/js/*.js sont concaténés dans cet ordre,
  * dans UNE seule portée privée, par tools/build.mjs) :
- *   00 constantes et règles      07 déplacements du numéro + journal de la chasse
- *   01 traductions (générées)    08 actions du joueur (question, calcul, capture, tour suivant)
- *   02 état `g`, utilitaires,    09 détective animé, confettis
- *      sons, sauvegarde          10 écrans (accueil, réglages, jeu, résultat, fins)
- *   03 questions (indices)       11 film du parcours du numéro
- *   04 calculs                   12 fenêtres (pause, carnet, noms, défi…)
- *   05 défi solo, start()        13 tutoriel scripté
- *   06 chronos                   14 render() + bind() : affichage et événements
- *                                15 bouton Retour Android, démarrage, API de test
+ *   00 constantes et règles      08 déplacements du numéro + journal de la chasse
+ *   01 traductions (générées)    09 actions du joueur (question, calcul, capture, tour suivant)
+ *   02 état `g`, utilitaires,    10 détective animé, confettis
+ *      sons, sauvegarde          11 écrans (accueil, bureau, réglages, jeu, résultat, fins)
+ *   03 questions (indices)       12 film du parcours du numéro
+ *   04 calculs                   13 fenêtres (pause, carnet, noms, défi…)
+ *   05 défi solo, start()        14 tutoriel scripté
+ *   06 carrière solo (score, XP) 15 render() + bind() : affichage et événements
+ *   07 chronos                   16 bouton Retour Android, démarrage, API de test
  *
  * Principe : tout l'état vit dans l'objet `g` (sauvegardé dans localStorage).
  * Chaque action modifie `g` puis appelle render(), qui reconstruit l'écran.
@@ -5111,7 +5285,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "8.7";
+const APP_VERSION = "8.8";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -5291,6 +5465,7 @@ const dictionaries = {
   "netMissLog": "{player} · filet {nums} vide (−{p}) · {shift}",
   "netsLeft": "{n}/3 restants",
   "netsNone": "Plus de filet",
+  "nextGoal": "Prochaine enquête :",
   "nextPlayer": "Au joueur suivant",
   "nextStarter": "Prochaine partie : {player} commence.",
   "nextTurn": "Tour suivant",
@@ -5299,6 +5474,18 @@ const dictionaries = {
   "notebook": "Mon carnet",
   "notebookIntro": "Questions, calculs, déplacements et tentatives déjà faits.",
   "nowGuess": "Maintenant, choisis ton numéro.",
+  "officeBestTurns": "meilleur : {n} tours",
+  "officeBtn": "Mon bureau",
+  "officeLosses": "Pas encore résolues",
+  "officeNote": "Un record par niveau. Tous les niveaux sont ouverts à tout âge.",
+  "officePlay": "Jouer en solo",
+  "officePlayed": "Enquêtes terminées",
+  "officeRecords": "Mes records en solo",
+  "officeStars": "Étoiles",
+  "officeSub": "Chaque enquête te fait progresser !",
+  "officeTitle": "Mon bureau",
+  "officeToDiscover": "À découvrir",
+  "officeWins": "Gagnées",
   "oldClue": "L’indice concerne sa position <b>avant</b> le déplacement.",
   "oneCandidate": "Il ne reste qu’un numéro possible : tente-le !",
   "onePlayer": "Solo",
@@ -5353,6 +5540,18 @@ const dictionaries = {
   "raceWin": "{player} a attrapé le numéro !",
   "raceWinDesc": "Victoire en {turns} tour(s).",
   "raceWinnerTag": "A attrapé le numéro",
+  "rank1": "Apprenti détective",
+  "rank2": "Chercheur d’indices",
+  "rank3": "Pisteur",
+  "rank4": "Enquêteur confirmé",
+  "rank5": "Maître détective",
+  "rank6": "Grand limier",
+  "rank7": "Inspecteur en chef",
+  "rank8": "Légende des enquêtes",
+  "rankLabel": "Rang {n}",
+  "rankMax": "{xp} XP · plus haut rang atteint",
+  "rankProgress": "{xp} / {next} XP · encore {left} XP avant le rang {n}",
+  "rankUp": "🎉 Nouveau rang : {name} !",
   "readyTitle": "Prêt ?",
   "replay": "Rejouer",
   "result": "Résultat",
@@ -5388,6 +5587,12 @@ const dictionaries = {
   "ruleExample": "Le numéro bouge toujours : de 1 case au niveau Petit, de 1 ou 2 cases aux niveaux Moyen et Grand, à gauche ou à droite. Après le maximum, on revient à 1. Niveau Génie : il saute de ±3 ou ±5, double (×2) ou passe dans le miroir (1 ↔ 50, 2 ↔ 49…).",
   "rulesTitle": "Comment jouer ?",
   "score": "points",
+  "scoreDetail": "Détail du score",
+  "scoreLineMath": "🧮 {n} calculs réussis (3 max)",
+  "scoreLineMiss": "❌ {n} captures ratées",
+  "scoreLinePrecise": "🔎 Capture précise",
+  "scoreLineSaved": "⚡ {n} tours économisés",
+  "scoreLineWin": "🎯 Numéro capturé",
   "secondaryInstruction": "Tu peux prendre un indice ou faire un calcul avant de tenter ta chance.",
   "seconds": "{n} s",
   "seeResults": "Voir le classement",
@@ -5397,14 +5602,19 @@ const dictionaries = {
   "show": "Afficher",
   "showPossible": "Afficher les numéros possibles",
   "soloBest": "Ton record à ce niveau : {n} tours",
+  "soloFirstRecord": "🏆 Premier record à ce niveau !",
   "soloLose": "Il t’a échappé",
   "soloLoseDesc": "Le numéro se cachait sur le <b>{n}</b>. Réessaie !",
+  "soloLoseEncourage": "Tu as découvert de nouveaux indices. Recommence quand tu veux !",
   "soloLoseTitle": "Il t’a échappé…",
   "soloNewRecord": "🎉 Nouveau record !",
+  "soloNewRecordPts": "🏆 Nouveau record !",
   "soloRate1": "Bien joué !",
   "soloRate2": "Très fort !",
   "soloRate3": "Détective de génie !",
+  "soloRecordPts": "Record du niveau : {n} pts",
   "soloReveal": "Il était ici",
+  "soloScoreTitle": "Ton score d’enquête",
   "soloSeeWin": "Voir ma victoire",
   "soloWin": "Gagné",
   "soloWinDesc": "Tu as attrapé le numéro en {turns} tour(s) !",
@@ -5434,6 +5644,14 @@ const dictionaries = {
   "timerOff": "Sans chrono",
   "timerTitle": "Chronos",
   "timerTurnLabel": "Choisis ton numéro",
+  "tipLoss": "observe bien le déplacement du numéro et retente ta chance !",
+  "tipMisses": "cette fois, utilise un indice de plus avant de viser.",
+  "tipNextLevel": "enquête parfaite ! Envie d’essayer le niveau {level} ?",
+  "tipNoMiss": "super ! Essaie maintenant une enquête sans aucune erreur.",
+  "tipPerfect": "enquête parfaite au niveau le plus difficile : chapeau, détective !",
+  "tipPrecise": "essaie une capture précise pour gagner le bonus de précision !",
+  "tipThreeStars": "encore {n} tour(s) de moins pour obtenir trois étoiles !",
+  "tipTwoStars": "essaie de finir en 6 tours ou moins pour gagner deux étoiles !",
   "title": "Le Numéro en fuite",
   "totalLine": "{score} pts + {stars} ⭐",
   "turn": "Tour {current} / {total}",
@@ -5471,6 +5689,7 @@ const dictionaries = {
   "typeRange": "Entre deux",
   "typeTrick": "Pair, impair…",
   "wrongLog": "{player} · capture précise {n} raté (−1) · {shift}",
+  "xpGained": "Expérience gagnée",
   "yes": "Oui",
   "yesAnswer": "OUI !",
   "you": "Toi",
@@ -5645,6 +5864,7 @@ const dictionaries = {
   "netMissLog": "{player} · net {nums} empty (−{p}) · {shift}",
   "netsLeft": "{n}/3 left",
   "netsNone": "No nets left",
+  "nextGoal": "Next case:",
   "nextPlayer": "Next player",
   "nextStarter": "Next game: {player} starts.",
   "nextTurn": "Next turn",
@@ -5653,6 +5873,18 @@ const dictionaries = {
   "notebook": "My notebook",
   "notebookIntro": "Past questions, maths, moves and guesses.",
   "nowGuess": "Now pick a number.",
+  "officeBestTurns": "best: {n} turns",
+  "officeBtn": "My office",
+  "officeLosses": "Not solved yet",
+  "officeNote": "One record per level. Every level is open at any age.",
+  "officePlay": "Play solo",
+  "officePlayed": "Cases played",
+  "officeRecords": "My solo records",
+  "officeStars": "Stars",
+  "officeSub": "Every case helps you progress!",
+  "officeTitle": "My office",
+  "officeToDiscover": "To discover",
+  "officeWins": "Won",
   "oldClue": "The clue describes its position <b>before</b> moving.",
   "oneCandidate": "Only one number left! Give it a try.",
   "onePlayer": "Solo",
@@ -5707,6 +5939,18 @@ const dictionaries = {
   "raceWin": "{player} caught the number!",
   "raceWinDesc": "Won in {turns} turn(s).",
   "raceWinnerTag": "Caught the number",
+  "rank1": "Apprentice detective",
+  "rank2": "Clue seeker",
+  "rank3": "Tracker",
+  "rank4": "Seasoned investigator",
+  "rank5": "Master detective",
+  "rank6": "Super sleuth",
+  "rank7": "Chief inspector",
+  "rank8": "Case legend",
+  "rankLabel": "Rank {n}",
+  "rankMax": "{xp} XP · top rank reached",
+  "rankProgress": "{xp} / {next} XP · {left} XP to rank {n}",
+  "rankUp": "🎉 New rank: {name}!",
   "readyTitle": "Ready?",
   "replay": "Play again",
   "result": "Result",
@@ -5742,6 +5986,12 @@ const dictionaries = {
   "ruleExample": "The number always moves: 1 step on Little, 1 or 2 steps on Medium and Big, left or right. After the maximum, it wraps to 1. Genius level: it jumps ±3 or ±5, doubles (×2) or goes through the mirror (1 ↔ 50, 2 ↔ 49…).",
   "rulesTitle": "How to play",
   "score": "points",
+  "scoreDetail": "Score details",
+  "scoreLineMath": "🧮 {n} correct sums (max 3)",
+  "scoreLineMiss": "❌ {n} missed captures",
+  "scoreLinePrecise": "🔎 Precise capture",
+  "scoreLineSaved": "⚡ {n} turns saved",
+  "scoreLineWin": "🎯 Number caught",
   "secondaryInstruction": "You can get one hint or solve a maths challenge before guessing.",
   "seconds": "{n} s",
   "seeResults": "See results",
@@ -5751,14 +6001,19 @@ const dictionaries = {
   "show": "Show",
   "showPossible": "Show possible numbers",
   "soloBest": "Your best at this level: {n} turns",
+  "soloFirstRecord": "🏆 First record on this level!",
   "soloLose": "It got away",
   "soloLoseDesc": "The number was hiding on <b>{n}</b>. Try again!",
+  "soloLoseEncourage": "You found new clues. Try again whenever you like!",
   "soloLoseTitle": "It got away…",
   "soloNewRecord": "🎉 New record!",
+  "soloNewRecordPts": "🏆 New record!",
   "soloRate1": "Well done!",
   "soloRate2": "Great job!",
   "soloRate3": "Genius detective!",
+  "soloRecordPts": "Level record: {n} pts",
   "soloReveal": "It was here",
+  "soloScoreTitle": "Your case score",
   "soloSeeWin": "See my victory",
   "soloWin": "You win",
   "soloWinDesc": "You caught the number in {turns} turn(s)!",
@@ -5788,6 +6043,14 @@ const dictionaries = {
   "timerOff": "No timer",
   "timerTitle": "Timers",
   "timerTurnLabel": "Pick your number",
+  "tipLoss": "watch how the number moves and try again!",
+  "tipMisses": "this time, use one more clue before aiming.",
+  "tipNextLevel": "perfect case! Fancy trying the {level} level?",
+  "tipNoMiss": "great! Now try a case without a single miss.",
+  "tipPerfect": "perfect case on the hardest level: hats off, detective!",
+  "tipPrecise": "try a precise capture to earn the precision bonus!",
+  "tipThreeStars": "{n} turn(s) fewer to get three stars!",
+  "tipTwoStars": "try to finish in 6 turns or fewer for two stars!",
   "title": "The Runaway Number",
   "totalLine": "{score} pts + {stars} ⭐",
   "turn": "Turn {current} / {total}",
@@ -5825,6 +6088,7 @@ const dictionaries = {
   "typeRange": "In range",
   "typeTrick": "Odd, even…",
   "wrongLog": "{player} · precise capture {n} missed (−1) · {shift}",
+  "xpGained": "Experience earned",
   "yes": "Yes",
   "yesAnswer": "YES!",
   "you": "You",
@@ -5999,6 +6263,7 @@ const dictionaries = {
   "netMissLog": "{player} · شبكة {nums} فارغة (−{p}) · {shift}",
   "netsLeft": "متبقٍّ {n}/3",
   "netsNone": "لا شباك متبقية",
+  "nextGoal": "التحقيق القادم:",
   "nextPlayer": "اللاعب التالي",
   "nextStarter": "اللعبة القادمة: يبدأ {player}.",
   "nextTurn": "الدور التالي",
@@ -6007,6 +6272,18 @@ const dictionaries = {
   "notebook": "دفتري",
   "notebookIntro": "الأسئلة والحسابات والحركات والمحاولات السابقة.",
   "nowGuess": "اختر رقمًا الآن.",
+  "officeBestTurns": "الأفضل: {n} أدوار",
+  "officeBtn": "مكتبي",
+  "officeLosses": "لم تُحل بعد",
+  "officeNote": "رقم قياسي لكل مستوى. كل المستويات مفتوحة في أي عمر.",
+  "officePlay": "العب فرديًا",
+  "officePlayed": "تحقيقات منتهية",
+  "officeRecords": "أرقامي القياسية فرديًا",
+  "officeStars": "نجوم",
+  "officeSub": "كل تحقيق يجعلك تتقدم!",
+  "officeTitle": "مكتبي",
+  "officeToDiscover": "للاكتشاف",
+  "officeWins": "ناجحة",
   "oldClue": "التلميح يصف موقعه <b>قبل</b> الحركة.",
   "oneCandidate": "لم يبقَ سوى رقم واحد محتمل. جرّبه!",
   "onePlayer": "فردي",
@@ -6061,6 +6338,18 @@ const dictionaries = {
   "raceWin": "{player} أمسك الرقم!",
   "raceWinDesc": "فوز في {turns} دور.",
   "raceWinnerTag": "أمسك الرقم",
+  "rank1": "محقق متدرب",
+  "rank2": "باحث عن الأدلة",
+  "rank3": "متعقّب",
+  "rank4": "محقق متمرس",
+  "rank5": "محقق بارع",
+  "rank6": "كبير المتعقبين",
+  "rank7": "كبير المفتشين",
+  "rank8": "أسطورة التحقيقات",
+  "rankLabel": "الرتبة {n}",
+  "rankMax": "{xp} XP · أعلى رتبة",
+  "rankProgress": "{xp} / {next} XP · بقي {left} XP للرتبة {n}",
+  "rankUp": "🎉 رتبة جديدة: {name}!",
   "readyTitle": "جاهز؟",
   "replay": "العب من جديد",
   "result": "النتيجة",
@@ -6096,6 +6385,12 @@ const dictionaries = {
   "ruleExample": "الرقم يتحرك دائمًا: خانة واحدة في المستوى الصغير، وخانة أو خانتين في المستويين المتوسط والكبير، يمينًا أو يسارًا. وبعد الرقم الأخير نعود إلى 1. مستوى العبقري: يقفز ±3 أو ±5، أو يتضاعف (×2)، أو يمر في المرآة (1 ↔ 50، 2 ↔ 49…).",
   "rulesTitle": "طريقة اللعب",
   "score": "نقاط",
+  "scoreDetail": "تفاصيل النتيجة",
+  "scoreLineMath": "🧮 {n} حسابات صحيحة (3 كحد أقصى)",
+  "scoreLineMiss": "❌ {n} محاولات خاطئة",
+  "scoreLinePrecise": "🔎 إمساك دقيق",
+  "scoreLineSaved": "⚡ {n} أدوار موفّرة",
+  "scoreLineWin": "🎯 الإمساك بالرقم",
   "secondaryInstruction": "يمكنك طلب تلميح أو حل مسألة قبل التخمين.",
   "seconds": "{n} ث",
   "seeResults": "عرض النتائج",
@@ -6105,14 +6400,19 @@ const dictionaries = {
   "show": "إظهار",
   "showPossible": "إظهار الأرقام المحتملة",
   "soloBest": "أفضل نتيجة لك في هذا المستوى: {n} أدوار",
+  "soloFirstRecord": "🏆 أول رقم قياسي في هذا المستوى!",
   "soloLose": "لقد هرب منك",
   "soloLoseDesc": "كان الرقم مختبئًا عند <b>{n}</b>. حاول مجددًا!",
+  "soloLoseEncourage": "اكتشفت أدلة جديدة. أعد المحاولة متى شئت!",
   "soloLoseTitle": "لقد هرب منك…",
   "soloNewRecord": "🎉 رقم قياسي جديد!",
+  "soloNewRecordPts": "🏆 رقم قياسي جديد!",
   "soloRate1": "أحسنت!",
   "soloRate2": "رائع جدًا!",
   "soloRate3": "محقق عبقري!",
+  "soloRecordPts": "الرقم القياسي للمستوى: {n} نقطة",
   "soloReveal": "كان هنا",
+  "soloScoreTitle": "نتيجة تحقيقك",
   "soloSeeWin": "شاهد فوزي",
   "soloWin": "فزت",
   "soloWinDesc": "أمسكت الرقم في {turns} دور!",
@@ -6142,6 +6442,14 @@ const dictionaries = {
   "timerOff": "بدون مؤقّت",
   "timerTitle": "المؤقّتات",
   "timerTurnLabel": "اختر رقمك",
+  "tipLoss": "راقب جيدًا حركة الرقم وحاول مجددًا!",
+  "tipMisses": "هذه المرة، استعمل تلميحًا إضافيًا قبل التصويب.",
+  "tipNextLevel": "تحقيق مثالي! هل تريد تجربة مستوى {level}؟",
+  "tipNoMiss": "رائع! جرّب الآن تحقيقًا بلا أي خطأ.",
+  "tipPerfect": "تحقيق مثالي في أصعب مستوى: أحسنت أيها المحقق!",
+  "tipPrecise": "جرّب إمساكًا دقيقًا لتربح مكافأة الدقة!",
+  "tipThreeStars": "أقل بـ {n} دور للحصول على ثلاث نجوم!",
+  "tipTwoStars": "حاول أن تنتهي في 6 أدوار أو أقل لتربح نجمتين!",
   "title": "الرقم الهارب",
   "totalLine": "{score} نقطة + {stars} ⭐",
   "turn": "الدور {current} / {total}",
@@ -6179,6 +6487,7 @@ const dictionaries = {
   "typeRange": "بين رقمين",
   "typeTrick": "زوجي، فردي…",
   "wrongLog": "{player} · إمساك دقيق {n} خطأ (−1) · {shift}",
+  "xpGained": "خبرة مكتسبة",
   "yes": "نعم",
   "yesAnswer": "نعم!",
   "you": "أنت",
@@ -6389,7 +6698,7 @@ function load() {
     const d = JSON.parse(raw);
     if (
       !d ||
-      !['home', 'game', 'end', 'settings'].includes(d.screen) ||
+      !['home', 'game', 'end', 'settings', 'office'].includes(d.screen) ||
       ![1, 2, 3, 4].includes(d.players) ||
       !(d.level in LEVELS) ||
       !['fr', 'en', 'ar'].includes(d.lang) ||
@@ -6832,7 +7141,8 @@ function start(skipHandoff = false) {
   g.starter = players > 1 ? (starter || 0) % players : 0;
   g.playerHelp = Array.isArray(playerHelp) ? playerHelp.slice(0, 4) : [false, false, false, false];
   g.mode = 'normal';
-  g.netsLeft = Array(players).fill(3);
+  g.gameId = newGameId(); // identifiant stable : les récompenses solo ne sont attribuées qu'une fois
+  g.netsLeft = Array(players).fill(NETS_MAX);
   g.screen = 'game';
   g.inGame = true;
   g.modal = players > 1 && skipHandoff !== true ? 'handoff' : null;
@@ -6845,7 +7155,197 @@ function start(skipHandoff = false) {
   render();
 }
 
-/* ---- 06-timers.js ---- */
+/* ---- 06-career.js ---- */
+/*
+ * Carrière du mode Solo classique : score d'enquête, records par niveau, XP et rangs.
+ *
+ * Stockage séparé, versionné : localStorage « numeroEnFuiteCareerV1 ». Les anciennes clés
+ * (partie en cours, records de tours `solo_*`, records des défis) ne sont ni remplacées ni purgées.
+ *
+ * Règles de sûreté :
+ *   - chaque partie a un identifiant stable g.gameId (créé par start(), sauvegardé avec la partie) ;
+ *   - settleSolo() n'attribue score, étoiles et XP qu'UNE fois par gameId (journal `processed`) :
+ *     recharger, rouvrir le résultat ou appuyer sur Retour ne redonne rien ;
+ *   - un abandon (Accueil pendant la partie) ne passe jamais par settleSolo() : 0 XP ;
+ *   - ne concerne ni les défis, ni Course / Points (plusieurs joueurs).
+ */
+
+/** Barème du score Solo (cahier des charges V8.5). Prolonger d'un tour coûte 40, un calcul en rapporte au plus 20. */
+const SOLO_SCORE = { win: 100, perTurnSaved: 40, perMath: 20, maxMath: 3, precise: 10, perMiss: 10 };
+/** XP de fin de partie. */
+const SOLO_XP = { win: 40, recordBonus: 10, loss: 10 };
+/** Seuils d'XP des rangs (le libellé est la clé de traduction rank1…rank8). */
+const RANKS = [0, 100, 250, 450, 700, 1000, 1400, 1900];
+const CAREER_STORAGE = 'numeroEnFuiteCareerV1';
+const CAREER_PROCESSED_MAX = 40; // taille du journal des parties déjà comptées
+
+/** Étoiles de rapidité, inchangées : 3 si ≤ 3 tours, 2 si 4 à 6, 1 au-delà ; 0 en cas de défaite. */
+const soloStars = (won, turns) => (!won ? 0 : turns <= 3 ? 3 : turns <= 6 ? 2 : 1);
+
+/**
+ * Score d'une enquête solo et son détail (lignes affichées sur l'écran de fin).
+ * @param {{won:boolean, turns:number, limit:number, goodMath:number, finalCapture:'precise'|'net', misses:number}} p
+ */
+function scoreSolo({ won, turns, limit, goodMath, finalCapture, misses }) {
+  if (!won) return { total: 0, lines: [] };
+  const S = SOLO_SCORE,
+    saved = Math.max(0, limit - turns),
+    math = Math.min(S.maxMath, Math.max(0, goodMath));
+  const lines = [
+    ['scoreLineWin', S.win, {}],
+    ['scoreLineSaved', S.perTurnSaved * saved, { n: saved }],
+    ['scoreLineMath', S.perMath * math, { n: math }],
+    ['scoreLinePrecise', finalCapture === 'precise' ? S.precise : 0, {}],
+    ['scoreLineMiss', -S.perMiss * misses, { n: misses }]
+  ].filter(([key, v]) => v !== 0 || key === 'scoreLineWin');
+  return {
+    total: Math.max(
+      0,
+      lines.reduce((s, l) => s + l[1], 0)
+    ),
+    lines
+  };
+}
+
+/** Rang pour un total d'XP : { rank (1…), min, next (null au dernier rang), pct dans le rang }. */
+function rankOf(xp) {
+  let i = 0;
+  while (i + 1 < RANKS.length && xp >= RANKS[i + 1]) i++;
+  const min = RANKS[i],
+    next = i + 1 < RANKS.length ? RANKS[i + 1] : null;
+  return { rank: i + 1, min, next, pct: next ? Math.round(((xp - min) / (next - min)) * 100) : 100 };
+}
+
+const emptyLevel = () => ({ bestScore: null, bestTurns: null, gamesPlayed: 0, wins: 0, stars: 0 });
+function emptyCareer() {
+  return {
+    schemaVersion: 1,
+    activeProfileId: 'local-default',
+    profiles: {
+      'local-default': {
+        displayName: 'Détective',
+        xpTotal: 0,
+        totalWins: 0,
+        totalLosses: 0,
+        totalStars: 0,
+        levels: Object.fromEntries(Object.keys(LEVELS).map(l => [l, emptyLevel()])),
+        processed: {} // gameId → résumé déjà attribué (idempotence)
+      }
+    }
+  };
+}
+
+/**
+ * Lit la carrière ; à la première lecture, migre les meilleurs nombres de tours `solo_*`
+ * des records V8.4 (sans inventer de score : bestScore reste null). Une donnée abîmée
+ * est complétée champ par champ plutôt que jetée.
+ */
+function loadCareer() {
+  let c = null;
+  try {
+    c = JSON.parse(localStorage.getItem(CAREER_STORAGE));
+  } catch (e) {}
+  const fresh = !c || c.schemaVersion !== 1 || !c.profiles;
+  if (fresh) c = emptyCareer();
+  const p = (c.profiles[c.activeProfileId] = {
+    ...emptyCareer().profiles['local-default'],
+    ...(c.profiles[c.activeProfileId] || {})
+  });
+  for (const k of ['xpTotal', 'totalWins', 'totalLosses', 'totalStars'])
+    if (!Number.isFinite(p[k]) || p[k] < 0) p[k] = 0;
+  if (!p.processed || typeof p.processed !== 'object') p.processed = {};
+  p.levels = p.levels || {};
+  for (const l of Object.keys(LEVELS)) p.levels[l] = { ...emptyLevel(), ...(p.levels[l] || {}) };
+  if (fresh) {
+    const r = records();
+    for (const l of Object.keys(LEVELS))
+      if (Number.isFinite(r['solo_' + l])) p.levels[l].bestTurns = r['solo_' + l];
+  }
+  return c;
+}
+const careerProfile = c => c.profiles[c.activeProfileId];
+function saveCareer(c) {
+  try {
+    localStorage.setItem(CAREER_STORAGE, JSON.stringify(c));
+  } catch (e) {} // stockage plein ou interdit : le jeu continue
+}
+
+/** Identifiant de partie : stable, sauvegardé avec la partie (reprise après fermeture). */
+const newGameId = () => Date.now().toString(36) + '-' + rnd(1e9).toString(36);
+
+/**
+ * Clôt une partie solo classique (victoire ou défaite après la limite de tours) et renvoie son résumé.
+ * Idempotent : un gameId déjà traité renvoie le résumé enregistré, sans rien attribuer de nouveau.
+ */
+function settleSolo(won) {
+  const c = loadCareer(),
+    p = careerProfile(c),
+    id = g.gameId || newGameId();
+  g.gameId = id;
+  if (p.processed[id]) return (g.soloResult = p.processed[id]);
+  const h = g.history,
+    turns = won ? g.turn + 1 : g.limit,
+    lv = p.levels[g.level] || (p.levels[g.level] = emptyLevel()),
+    score = scoreSolo({
+      won,
+      turns,
+      limit: g.limit || 12,
+      goodMath: h.filter(e => e.type === 'math' && e.correct).length,
+      finalCapture: g.last && g.last.type === 'netHit' ? 'net' : 'precise',
+      misses: h.filter(e => e.type === 'wrong' || e.type === 'netMiss').length
+    }),
+    stars = soloStars(won, turns),
+    prevBest = lv.bestScore,
+    newRecord = won && (prevBest == null || score.total > prevBest), // strictement meilleur
+    xp = won ? SOLO_XP.win + (newRecord ? SOLO_XP.recordBonus : 0) : SOLO_XP.loss,
+    rankBefore = rankOf(p.xpTotal).rank;
+  lv.gamesPlayed++;
+  if (won) {
+    lv.wins++;
+    lv.stars += stars;
+    p.totalWins++;
+    p.totalStars += stars;
+    if (newRecord) lv.bestScore = score.total;
+    if (lv.bestTurns == null || turns < lv.bestTurns) lv.bestTurns = turns;
+  } else p.totalLosses++;
+  p.xpTotal += xp;
+  const result = {
+    won,
+    turns,
+    level: g.level,
+    stars,
+    score: score.total,
+    lines: score.lines,
+    prevBest,
+    newRecord,
+    xp,
+    xpTotal: p.xpTotal,
+    rankUp: rankOf(p.xpTotal).rank > rankBefore,
+    tip: soloTip(won, turns, stars, g.history, g.last)
+  };
+  p.processed[id] = result;
+  const ids = Object.keys(p.processed);
+  for (const old of ids.slice(0, Math.max(0, ids.length - CAREER_PROCESSED_MAX))) delete p.processed[old];
+  saveCareer(c);
+  return (g.soloResult = result);
+}
+
+/** Une seule suggestion pour la prochaine enquête : utile, jamais mensongère (clé + variables). */
+function soloTip(won, turns, stars, history, last) {
+  const misses = history.filter(e => e.type === 'wrong' || e.type === 'netMiss').length;
+  if (!won) return ['tipLoss', {}];
+  if (misses >= 2) return ['tipMisses', {}];
+  if (stars === 1) return ['tipTwoStars', {}];
+  if (stars === 2) return ['tipThreeStars', { n: turns - 3 }];
+  if (last && last.type === 'netHit') return ['tipPrecise', {}];
+  if (misses === 1) return ['tipNoMiss', {}];
+  const order = Object.keys(LEVELS),
+    next = order[order.indexOf(g.level) + 1];
+  const names = { junior: 'levelJunior', malin: 'levelMalin', expert: 'levelExpert', genius: 'levelGenius' };
+  return next ? ['tipNextLevel', { levelKey: names[next] }] : ['tipPerfect', {}];
+}
+
+/* ---- 07-timers.js ---- */
 /*
  * Chronos. Ils n'avancent que si la partie est visible et qu'aucune fenêtre n'est ouverte
  * (pause, carnet, film…). tick() tourne toutes les 200 ms.
@@ -7012,7 +7512,7 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-/* ---- 07-moves.js ---- */
+/* ---- 08-moves.js ---- */
 /*
  * Déplacements du numéro et journal de la chasse.
  * Après chaque indice ou tentative ratée, le numéro bouge. Le carnet (g.candidates)
@@ -7104,7 +7604,7 @@ function afterClue(test) {
   return nextMove();
 }
 
-/* ---- 08-actions.js ---- */
+/* ---- 09-actions.js ---- */
 /*
  * Actions du joueur. Chacune vérifie qu'elle est permise (écran, phase, aide déjà utilisée…)
  * puis modifie `g`, remplit g.last (ce qui vient de se passer) et appelle render().
@@ -7327,6 +7827,7 @@ function nextTurn() {
         } catch (e) {}
       }
     }
+    settleSolo(true); // score, étoiles, record par niveau, XP (une seule fois par partie)
     g.screen = 'end';
     g.inGame = false;
     g.modal = null;
@@ -7339,6 +7840,7 @@ function nextTurn() {
     g.raceWinner = null;
     g.soloWon = false;
     g.soloSecret = g.secret;
+    if (g.players === 1 && g.mode !== 'challenge') settleSolo(false); // 12 tours joués : +10 XP
     g.screen = 'end';
     g.inGame = false;
     g.modal = null;
@@ -7352,7 +7854,7 @@ function nextTurn() {
   render();
 }
 
-/* ---- 09-view-mascot.js ---- */
+/* ---- 10-view-mascot.js ---- */
 /*
  * Le détective violet (dessiné en HTML/CSS) et les effets de fête.
  * mascot(state) choisit l'animation : idle, think, aim, caught, grimace, dash-left…
@@ -7391,7 +7893,7 @@ function confetti() {
   }).join('')}</div>`;
 }
 
-/* ---- 10-view-screens.js ---- */
+/* ---- 11-view-screens.js ---- */
 /*
  * Écrans. Chaque fonction RENVOIE du HTML (chaîne) à partir de `g` ; aucune ne modifie
  * l'état. Les clics sont branchés ensuite par bind() (13-render.js) grâce aux id et data-*.
@@ -7437,7 +7939,36 @@ function home() {
     )
     .join(
       ''
-    )}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn rules-btn" id="openRules">📖 ${t('rulesTitle')}</button><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn tut-btn" id="openTutorial">🎓 ${t('tutBtn')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
+    )}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn rules-btn" id="openRules">📖 ${t('rulesTitle')}</button><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn tut-btn" id="openTutorial">🎓 ${t('tutBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
+}
+/** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
+function office() {
+  const p = careerProfile(loadCareer()),
+    levels = [
+      ['junior', '🐣', 'levelJunior'],
+      ['malin', '🧠', 'levelMalin'],
+      ['expert', '🚀', 'levelExpert'],
+      ['genius', '🦉', 'levelGenius']
+    ];
+  const tiles = [
+    ['officePlayed', p.totalWins + p.totalLosses],
+    ['officeWins', p.totalWins],
+    ['officeLosses', p.totalLosses],
+    ['officeStars', p.totalStars]
+  ]
+    .map(([k, n]) => `<div><b>${n}</b><small>${t(k)}</small></div>`)
+    .join('');
+  const rows = levels
+    .map(([id, emoji, k]) => {
+      const lv = p.levels[id] || {};
+      return `<li><span>${emoji} ${t(k)}</span><span class="rec">${
+        lv.bestScore != null
+          ? `<b dir="ltr">${lv.bestScore} ${t('pts')}</b>`
+          : `<i>${t('officeToDiscover')}</i>`
+      }${lv.bestTurns != null ? `<small>${t('officeBestTurns', { n: lv.bestTurns })}</small>` : ''}</span></li>`;
+    })
+    .join('');
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeOffice">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="hero settings-hero"><h1>📚 ${t('officeTitle')}</h1><p class="intro">${t('officeSub')}</p></section><section class="panel office-panel"><div class="office-rank"><span class="office-badge" aria-hidden="true">🕵️</span><div>${rankBar(p.xpTotal)}</div></div><div class="office-tiles">${tiles}</div><div class="label">📂 ${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}</p><button class="bigbtn" id="officePlay">▶ ${t('officePlay')}</button></section>`;
 }
 /** Réglages : langue, chronos, son, mouvements réduits, film. */
 function settings() {
@@ -7723,7 +8254,48 @@ function endRace() {
  <div class="race-others">${g.scores.map((v, i) => (i === w ? '' : `<span><i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}</span>`)).join('')}</div>
  <p class="sub">${t('nextStarter', { player: pname(next) })}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
+/** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */
 function endSolo() {
+  return g.soloResult ? endSoloCareer(g.soloResult) : endSoloLegacy();
+}
+/** Libellé traduit d'un rang (1…RANKS.length). */
+const rankName = n => t('rank' + Math.min(n, RANKS.length));
+/** Barre de progression du rang pour un total d'XP. */
+function rankBar(xp) {
+  const r = rankOf(xp);
+  return `<div class="rank-line"><b>${t('rankLabel', { n: r.rank })} — ${rankName(r.rank)}</b><small>${
+    r.next ? t('rankProgress', { xp, next: r.next, left: r.next - xp, n: r.rank + 1 }) : t('rankMax', { xp })
+  }</small></div><div class="xp-bar" role="progressbar" aria-valuenow="${r.pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${r.pct}%"></i></div>`;
+}
+/** Conseil de fin de partie (clé + variables enregistrées par settleSolo). */
+const tipText = ([key, vars]) => t(key, { ...vars, level: vars.levelKey ? t(vars.levelKey) : '' });
+function endSoloCareer(res) {
+  const won = res.won;
+  const record = won
+    ? res.newRecord
+      ? `<div class="ch-new">${t(res.prevBest == null ? 'soloFirstRecord' : 'soloNewRecordPts')}</div>`
+      : `<div class="record-chip">${t('soloRecordPts', { n: res.prevBest })}</div>`
+    : '';
+  const lines = res.lines
+    .map(
+      ([key, v, vars]) =>
+        `<li><span>${t(key, vars)}</span><b dir="ltr">${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</b></li>`
+    )
+    .join('');
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></section>
+ <section class="panel centered solo-card career-card">${
+   won
+     ? `<div class="solo-stars" aria-label="${res.stars}/3">${[1, 2, 3].map(i => `<span class="${i <= res.stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div>`
+     : `<div class="solo-reveal"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><small>${t('soloLoseEncourage')}</small></div>`
+ }<div class="label">${t('soloScoreTitle')}</div><div class="solo-score" dir="ltr">${res.score}<small> ${t('pts')}</small></div>${record}${
+   lines
+     ? `<details class="score-lines"${res.lines.length <= 3 ? ' open' : ''}><summary>${t('scoreDetail')}</summary><ul>${lines}</ul></details>`
+     : ''
+ }<div class="xp-gain"><span>🎖️ ${t('xpGained')}</span><b dir="ltr">+${res.xp} XP</b></div>${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
+ <button class="bigbtn" id="again">🔄 ${t('replay')}</button><div class="end-row"><button class="bigbtn light" id="openOffice">📚 ${t('officeBtn')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></div></section>`;
+}
+/** Ancien écran de fin (parties terminées avant la V8.8 : aucune récompense n'est inventée a posteriori). */
+function endSoloLegacy() {
   const won = g.soloWon !== false,
     turns = won ? g.soloTurns || g.turn + 1 : g.limit,
     h = g.history,
@@ -7742,7 +8314,7 @@ function endChallenge() {
   return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
 
-/* ---- 11-replay.js ---- */
+/* ---- 12-replay.js ---- */
 /*
  * Film du parcours du numéro (« Revoir l'évasion ») : une étape toutes les RP_STEP ms
  * (ou bouton par bouton), avec le déplacement, le choix de chaque joueur et la capture finale.
@@ -7885,7 +8457,7 @@ function openReplay() {
   render();
 }
 
-/* ---- 12-modals.js ---- */
+/* ---- 13-modals.js ---- */
 /*
  * Fenêtres par-dessus l'écran (g.modal) : règles, défi, noms et mode de jeu, pause,
  * quitter, carnet, film, « passe le téléphone ». Les chronos sont en pause tant qu'une fenêtre est ouverte.
@@ -7985,7 +8557,7 @@ function modalView() {
   );
 }
 
-/* ---- 13-tutorial.js ---- */
+/* ---- 14-tutorial.js ---- */
 /*
  * Tutoriel : une mini-enquête ENTIÈREMENT scriptée, avec un numéro visible.
  * Elle montre en une minute ce qu'une vraie partie cache : la question raye des numéros,
@@ -8123,7 +8695,7 @@ function tutInviteView() {
   return `<div class="hero-mascot small-mascot">${mascot('think')}</div><h2>👋 ${t('tutInviteTitle')}</h2><p>${t('tutInviteText')}</p><button class="bigbtn green" id="inviteTutorial">🎓 ${t('tutTry')}</button><button class="bigbtn light" id="closeModal">${t('tutLater')}</button>`;
 }
 
-/* ---- 14-render.js ---- */
+/* ---- 15-render.js ---- */
 /*
  * Affichage : render() reconstruit tout l'écran à partir de `g`, puis bind() branche
  * les événements. Simple et sûr pour un petit jeu : il n'y a jamais d'écran « désynchronisé ».
@@ -8148,7 +8720,7 @@ function render() {
     if (document.body.className !== bc) document.body.className = bc;
   }
   document.title = t('title');
-  const screens = { home, game, settings, end };
+  const screens = { home, game, settings, end, office };
   app.innerHTML = (screens[g.screen] || end)() + modalView();
   {
     const mk = g.screen + '|' + (g.modal || ''),
@@ -8367,6 +8939,27 @@ function bind() {
     render();
     sfx('tap');
   });
+  click('openOffice', () => {
+    g.officeFrom = g.screen === 'end' ? 'end' : 'home';
+    g.screen = 'office';
+    g.modal = null;
+    sfx('tap');
+    render();
+  });
+  click('closeOffice', () => {
+    g.screen = g.officeFrom === 'end' && g.soloResult ? 'end' : 'home';
+    sfx('tap');
+    render();
+  });
+  click('officePlay', () => {
+    // solo, au dernier niveau joué : on passe par la fenêtre « Prêt ? » habituelle
+    g.players = 1;
+    g.mode = 'normal';
+    g.screen = 'home';
+    g.modal = 'names';
+    sfx('tap');
+    render();
+  });
   click('menu', () => {
     g.screen = 'home';
     g.last = null;
@@ -8478,7 +9071,7 @@ function bind() {
   });
 }
 
-/* ---- 15-boot.js ---- */
+/* ---- 16-boot.js ---- */
 /*
  * Démarrage et points d'entrée externes.
  */
@@ -8508,6 +9101,11 @@ function back() {
     return true;
   }
   if (g.screen === 'game' && g.modal === 'handoff') return true;
+  if (g.screen === 'office') {
+    g.screen = g.officeFrom === 'end' && g.soloResult ? 'end' : 'home';
+    render();
+    return true;
+  }
   if (g.screen === 'settings') {
     g.screen = ['home', 'game', 'end'].includes(g.settingsFrom) ? g.settingsFrom : 'home';
     render();
@@ -8570,6 +9168,10 @@ window.__numero = {
   openTutorial,
   tutCapture,
   tutLoopPick,
+  scoreSolo,
+  settleSolo,
+  rankOf,
+  loadCareer,
   finishChallenge,
   chScore,
   pressKey,

@@ -34,16 +34,17 @@ analyse le script **assemblé** et signale les variables non définies ou inutil
 | `03-questions.js` | Questions-indices, choix de 3 questions utiles par tour |
 | `04-math.js` | Calculs adaptés à l'âge, `prepareTurn()` |
 | `05-challenge.js` | Défi solo (score, records) et `start()` (nouvelle partie) |
-| `06-timers.js` | Chronos global / réponse / calcul / défi, `tick()` toutes les 200 ms |
-| `07-moves.js` | Déplacements du numéro (jamais nuls), parcours pour le film |
-| `08-actions.js` | Actions du joueur : `ask`, `mathAnswer`, `guess`, `netCapture`, `nextTurn` |
-| `09-view-mascot.js` | Détective animé, confettis |
-| `10-view-screens.js` | Écrans : accueil, réglages, jeu, résultat, fins de partie |
-| `11-replay.js` | Film du parcours du numéro |
-| `12-modals.js` | Fenêtres : règles, noms et mode, pause, carnet, quitter, « passe le téléphone » |
-| `13-tutorial.js` | Tutoriel scripté (n'utilise pas le moteur ; état `g.tut`) |
-| `14-render.js` | `render()` (redessine tout) et `bind()` (branche les clics) |
-| `15-boot.js` | Bouton Retour Android `back()`, démarrage, API `window.__numero` |
+| `06-career.js` | Carrière Solo : `scoreSolo()`, `settleSolo()` (idempotent par `g.gameId`), XP, rangs, migration V8.4 |
+| `07-timers.js` | Chronos global / réponse / calcul / défi, `tick()` toutes les 200 ms |
+| `08-moves.js` | Déplacements du numéro (jamais nuls), parcours pour le film |
+| `09-actions.js` | Actions du joueur : `ask`, `mathAnswer`, `guess`, `netCapture`, `nextTurn` |
+| `10-view-mascot.js` | Détective animé, confettis |
+| `11-view-screens.js` | Écrans : accueil, bureau, réglages, jeu, résultat, fins de partie |
+| `12-replay.js` | Film du parcours du numéro |
+| `13-modals.js` | Fenêtres : règles, noms et mode, pause, carnet, quitter, « passe le téléphone » |
+| `14-tutorial.js` | Tutoriel scripté (n'utilise pas le moteur ; état `g.tut`) |
+| `15-render.js` | `render()` (redessine tout) et `bind()` (branche les clics) |
+| `16-boot.js` | Bouton Retour Android `back()`, démarrage, API `window.__numero` |
 
 ## Flux de données
 
@@ -63,6 +64,16 @@ clic ──▶ bind() ──▶ action (ask / guess / netCapture / nextTurn…) 
   `pushHist()` l'ajoute au carnet (`g.history`) et au parcours du numéro (`g.hunt` → `g.lastHunt` pour le film).
 - **Le carnet est toujours exact** : chaque déplacement est appliqué au secret ET à tous les candidats
   (`applyMove`, `applyShift`) ; les tests le vérifient en reconstruisant le carnet indépendamment.
+
+## Stockage local
+
+| Clé | Contenu |
+|---|---|
+| `numeroEnFuiteV6` | Partie en cours et réglages (objet `g`) |
+| `numeroEnFuiteRecords` | Records : tours solo `solo_<niveau>` (V8.4, conservés), défis `<variante>-<difficulté>` |
+| `numeroEnFuiteCareerV1` | Carrière Solo versionnée : XP, compteurs, records score/tours par niveau, journal `processed` des parties déjà comptées |
+
+Une clé existante n'est jamais remplacée ni purgée ; une donnée illisible est complétée champ par champ.
 
 ## Conventions
 

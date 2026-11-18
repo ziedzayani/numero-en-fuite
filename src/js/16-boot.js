@@ -27,6 +27,11 @@ function back() {
     return true;
   }
   if (g.screen === 'game' && g.modal === 'handoff') return true;
+  if (g.screen === 'office') {
+    g.screen = g.officeFrom === 'end' && g.soloResult ? 'end' : 'home';
+    render();
+    return true;
+  }
   if (g.screen === 'settings') {
     g.screen = ['home', 'game', 'end'].includes(g.settingsFrom) ? g.settingsFrom : 'home';
     render();
@@ -89,6 +94,10 @@ window.__numero = {
   openTutorial,
   tutCapture,
   tutLoopPick,
+  scoreSolo,
+  settleSolo,
+  rankOf,
+  loadCareer,
   finishChallenge,
   chScore,
   pressKey,

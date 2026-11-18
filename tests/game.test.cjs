@@ -177,7 +177,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   const shown = await page.$$eval('.finalscore .value', els => els.map(e => parseInt(e.textContent)));
   const totals = st.scores.map((v, i) => v + st.stars[i]).sort((a, b) => b - a);
   if (players > 1) check(shown.join() === totals.join(), `${label} : classement final = points + étoiles (${shown.join(', ')})`);
-  else check(await page.$$eval('.solo-stars span.on', e => e.length) === 3 && (await page.textContent('.solo-stats')).includes('2') && !(await page.$('.finalscore')), `${label} : écran solo — 3 étoiles (trouvé en 2 tours), compteurs, pas de « classement »`);
+  else check(await page.$$eval('.solo-stars span.on', e => e.length) === 3 && (await page.textContent('.hero .intro')).includes('2') && await page.isVisible('.solo-score') && await page.isVisible('.xp-gain') && !(await page.$('.finalscore')), `${label} : écran solo — 3 étoiles (trouvé en 2 tours), score d’enquête, XP, pas de « classement »`);
   const unique = new Set(seenQuestions).size;
   check(unique >= Math.min(seenQuestions.length, 12) * 0.7, `${label} : questions variées (${unique} différentes sur ${seenQuestions.length})`);
   check(page.errors.length === 0, `${label} : aucune erreur JavaScript ${page.errors.join(' | ')}`);
@@ -925,6 +925,92 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.setViewportSize({ width: 360, height: 640 });
     check(page.errors.length === 0, 'Aucune erreur JavaScript (V8.5) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} V8.5 : niveaux sans âge, tutoriel au premier lancement, défi plus clair`);
+    await ctx.close();
+  }
+
+  // 3i) V8.8 : carrière Solo (cahier des charges « KIT SOLO V8.5 », tests T01–T21)
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser, { width: 360, height: 735 });
+    // T01–T04 : barème
+    const sc = await page.evaluate(() => { const f = window.__numero.scoreSolo, L = 12;
+      return [f({ won: true, turns: 4, limit: L, goodMath: 2, finalCapture: 'precise', misses: 1 }).total,
+        f({ won: true, turns: 1, limit: L, goodMath: 0, finalCapture: 'precise', misses: 0 }).total,
+        f({ won: true, turns: 12, limit: L, goodMath: 0, finalCapture: 'net', misses: 0 }).total,
+        f({ won: true, turns: 6, limit: L, goodMath: 5, finalCapture: 'net', misses: 0 }).total - f({ won: true, turns: 6, limit: L, goodMath: 0, finalCapture: 'net', misses: 0 }).total,
+        f({ won: false, turns: 12, limit: L, goodMath: 3, finalCapture: 'precise', misses: 2 }).total]; });
+    check(sc.join() === '460,550,100,60,0', 'T01–T04 + défaite : barème solo 460 / 550 / 100 / +60 max / 0 (' + sc.join(' ') + ')');
+    // anti-abus : un tour de plus avec calcul juste ne rapporte jamais
+    const ab = await page.evaluate(() => { const f = window.__numero.scoreSolo; let bad = 0;
+      for (let tr = 1; tr < 12; tr++) for (let m = 0; m < 3; m++) if (f({ won: true, turns: tr + 1, limit: 12, goodMath: m + 1, finalCapture: 'precise', misses: 0 }).total >= f({ won: true, turns: tr, limit: 12, goodMath: m, finalCapture: 'precise', misses: 0 }).total) bad++; return bad; });
+    check(ab === 0, 'Solo : prolonger d’un tour pour un calcul juste ne rapporte jamais plus');
+    // T11 : migration V8.4 (tours historiques gardés, aucun score inventé), T12 : records défi intacts
+    await page.evaluate(() => { localStorage.removeItem('numeroEnFuiteCareerV1'); localStorage.setItem('numeroEnFuiteRecords', JSON.stringify({ solo_junior: 5, solo_genius: 9, 'endless-medium': 870, timed: 1205 })); });
+    const mig = await page.evaluate(() => { const p = window.__numero.loadCareer().profiles['local-default']; return [p.levels.junior.bestTurns, p.levels.junior.bestScore, p.levels.genius.bestTurns, p.levels.malin.bestTurns, p.xpTotal].join(); });
+    check(mig === '5,,9,,0', 'T11 : migration — meilleurs tours V8.4 repris, aucun score ni XP inventés (' + mig + ')');
+    // parties simulées
+    const play = (level, misses, maths, net) => page.evaluate(([level, misses, maths, net]) => { const N = window.__numero; N.state.players = 1; N.state.level = level; N.state.mode = 'normal'; N.start(true); N.state.replayAsk = false; N.state.modal = null;
+      for (let i = 0; i < misses; i++) { if (i < maths) { N.mathAnswer(N.state.math.result); N.nextTurn(); } N.guess(N.state.secret === 1 ? 2 : 1); N.nextTurn(); }
+      if (net) N.netCapture(N.state.secret); else N.guess(N.state.secret); N.nextTurn(); N.state.modal = null; N.render(); return N.state.soloResult; }, [level, misses, maths, net]);
+    const careerNow = () => page.evaluate(() => window.__numero.loadCareer().profiles['local-default']);
+    const r1 = await play('junior', 3, 2, false);
+    check(r1.won && r1.turns === 4 && r1.score === 440 && r1.stars === 2 && r1.newRecord && r1.prevBest === null && r1.xp === 50, `T07 : 1re victoire au niveau → record, +50 XP (${r1.score} pts, ${r1.xp} XP)`);
+    check(await page.isVisible('.solo-score') && (await page.textContent('.solo-score')).includes('440') && await page.isVisible('.ch-new') && await page.isVisible('.next-goal') && await page.isVisible('#openOffice'), 'Écran de fin : score, « Premier record », conseil, bouton « Mon bureau »');
+    const r2 = await play('junior', 5, 0, false);
+    check(!r2.newRecord && r2.prevBest === 440 && r2.xp === 40 && (await page.textContent('.record-chip')).includes('440'), `T06 : victoire sans record → +40 XP, « Record du niveau : 440 » (${r2.score} pts)`);
+    // T08 : score égal au record → pas de « nouveau record »
+    const r3 = await play('junior', 3, 2, false);
+    check(r3.score === 440 && !r3.newRecord && r3.xp === 40, 'T08 : score égal au record → pas de « Nouveau record », +40 XP');
+    // T09 / T21 : rouvrir le résultat, recharger, Retour, rien n'est compté deux fois
+    const c0 = await careerNow();
+    for (let i = 0; i < 5; i++) { await page.click('#openOffice'); await page.click('#closeOffice'); }
+    await page.reload(); await page.evaluate(() => { window.__numero.state.modal = null; window.__numero.render(); });
+    const again = await page.evaluate(() => { const N = window.__numero; const before = N.state.soloResult; const r = N.settleSolo(true); return [N.state.screen, r.score === before.score, r.xp === before.xp].join(); });
+    const c1 = await careerNow();
+    check(again === 'end,true,true' && c1.xpTotal === c0.xpTotal && c1.totalWins === c0.totalWins && c1.totalStars === c0.totalStars && c1.levels.junior.gamesPlayed === c0.levels.junior.gamesPlayed, `T09 / T21 : 5 réouvertures, rechargement, nouvel appel — XP ${c0.xpTotal} → ${c1.xpTotal}, rien de doublé`);
+    // T05 : défaite après 12 tours ; T10 : niveaux indépendants
+    const lose = await page.evaluate(() => { const N = window.__numero; N.state.level = 'malin'; N.start(true); N.state.replayAsk = false; for (let i = 0; i < 12 && N.state.screen === 'game'; i++) { N.guess(N.state.secret === 1 ? 2 : 1); N.nextTurn(); } N.state.modal = null; N.render(); return N.state.soloResult; });
+    check(!lose.won && lose.score === 0 && lose.stars === 0 && lose.xp === 10 && await page.isVisible('.solo-reveal'), 'T05 : défaite après 12 tours → 0 point, 0 étoile, +10 XP, numéro révélé');
+    const rM = await play('malin', 1, 1, true);
+    const c2 = await careerNow();
+    check(rM.newRecord && c2.levels.malin.bestScore === rM.score && c2.levels.junior.bestScore === 440 && rM.lines.every(l => l[0] !== 'scoreLinePrecise'), `T10 : record Moyen (${rM.score}) indépendant de Petit (440) ; pas de bonus de précision au filet`);
+    // abandon : 0 XP
+    const xpA = (await careerNow()).xpTotal;
+    await page.evaluate(() => { const N = window.__numero; N.state.level = 'expert'; N.start(true); N.ask(N.state.choices[0]); N.state.screen = 'home'; N.state.inGame = false; N.render(); });
+    check((await careerNow()).xpTotal === xpA, 'Abandon en cours de partie : 0 XP');
+    // T14 : partie suspendue puis reprise → même gameId
+    const gid = await page.evaluate(() => { const N = window.__numero; N.state.level = 'junior'; N.start(true); N.state.modal = null; N.render(); return N.state.gameId; });
+    await page.reload();
+    const gid2 = await page.evaluate(() => window.__numero.state.gameId);
+    check(gid && gid === gid2, 'T14 : partie reprise après fermeture → même identifiant de partie');
+    // T12 : records défi inchangés ; T13 : progression restaurée
+    const rec = await page.evaluate(() => window.__numero.records());
+    check(rec['endless-medium'] === 870 && rec.timed === 1205, 'T12 : records des défis inchangés');
+    // bureau : compteurs et rangs ; T15 : 3 langues ; T16 : 320 px
+    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'home'; N.state.modal = null; N.render(); });
+    await page.click('#openOffice');
+    const c3 = await careerNow();
+    const tiles = await page.$$eval('.office-tiles b', e => e.map(x => x.textContent).join());
+    check(tiles === [c3.totalWins + c3.totalLosses, c3.totalWins, c3.totalLosses, c3.totalStars].join() && (await page.textContent('.office-records')).includes('440'), 'Mon bureau : enquêtes, victoires, défaites, étoiles, records par niveau (' + tiles + ')');
+    const rk = await page.evaluate(() => { const f = window.__numero.rankOf; return [f(0).rank, f(99).rank, f(100).rank, f(560).rank, f(560).pct, f(5000).rank, f(5000).next].join(); });
+    check(rk === '1,1,2,4,44,8,', 'Rangs : seuils 0 / 100 / … ; 560 XP → rang 4 à 44 % (' + rk + ')');
+    for (const lang of ['fr', 'en', 'ar']) for (const scr of ['office', 'end']) {
+      await page.setViewportSize({ width: 320, height: 640 });
+      await page.evaluate(([l, s]) => { const N = window.__numero; N.state.lang = l; N.state.screen = s; if (s === 'end') { N.state.players = 1; N.state.mode = 'normal'; N.state.soloResult = N.loadCareer().profiles['local-default'].processed[Object.keys(N.loadCareer().profiles['local-default'].processed)[0]]; N.state.soloWon = N.state.soloResult.won; } N.render(); }, [lang, scr]);
+      const txt = await page.innerText('#app');
+      const ov = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      check(!/\b(office|rank|score|tip|solo)[A-Z][A-Za-z]+/.test(txt) && ov <= 1 && (lang !== 'ar' || await page.evaluate(() => document.documentElement.dir === 'rtl')), `T15 / T16 (${lang}, ${scr}) : textes traduits, 320 px sans débordement`);
+    }
+    await page.setViewportSize({ width: 360, height: 735 });
+    // T17 : animations réduites
+    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.state.reduceMotion = true; N.state.screen = 'end'; N.render(); });
+    check(!(await page.$('.rain')) && (await page.evaluate(() => document.body.classList.contains('reduce-motion'))) && await page.isVisible('.solo-score'), 'T17 : animations réduites → pas de pluie de confettis, score lisible');
+    await page.evaluate(() => { const N = window.__numero; N.state.reduceMotion = false; N.render(); });
+    // ancien écran de fin (partie terminée avant la V8.8) : aucune récompense inventée
+    const legacy = await page.evaluate(() => { const N = window.__numero, xp = N.loadCareer().profiles['local-default'].xpTotal; N.state.soloResult = null; N.state.soloWon = true; N.state.soloTurns = 3; N.state.screen = 'end'; N.render(); return [!!document.querySelector('.solo-stats'), N.loadCareer().profiles['local-default'].xpTotal === xp].join(); });
+    check(legacy === 'true,true', 'Partie finie avant la mise à jour : ancien écran, aucune XP attribuée a posteriori');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (carrière solo) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V8.8 : carrière solo — barème, records par niveau, XP, rangs, bureau, idempotence, migration`);
     await ctx.close();
   }
 

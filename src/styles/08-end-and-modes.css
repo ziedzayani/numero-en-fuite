@@ -765,3 +765,177 @@ button.tut-cell {
     min-height: 36px;
   }
 }
+
+/* V8.8 : carrière solo — écran de fin, rang / XP, « Mon bureau » (variables de couleur existantes uniquement) */
+.home-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.home-row .mini-btn {
+  min-height: 38px;
+}
+.office-btn {
+  background: var(--purple);
+  color: #fff;
+}
+.career-card .label {
+  margin-top: 6px;
+}
+.solo-score {
+  font-size: 50px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--green);
+}
+.solo-score small {
+  font-size: 18px;
+}
+.record-chip {
+  display: inline-block;
+  margin: 6px 0;
+  padding: 3px 12px;
+  border-radius: 99px;
+  background: #e9eeff;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+.score-lines {
+  margin: 6px 0;
+  text-align: start;
+}
+.score-lines summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #503dc1;
+}
+.score-lines ul,
+.office-records {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+.score-lines li,
+.office-records li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+.score-lines li:nth-child(odd),
+.office-records li:nth-child(odd) {
+  background: #eef3ff;
+}
+.xp-gain {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0 4px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: #eef3ff;
+  font-size: 14px;
+}
+.xp-gain b {
+  color: var(--green);
+}
+.rank-line {
+  text-align: start;
+}
+.rank-line b {
+  display: block;
+  font-size: 15px;
+}
+.rank-line small {
+  font-size: 12px;
+  color: var(--ink2);
+}
+.xp-bar {
+  height: 10px;
+  margin: 5px 0 8px;
+  border-radius: 99px;
+  background: #e1e7fb;
+  overflow: hidden;
+}
+.xp-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--green);
+}
+.next-goal {
+  margin: 6px 0 10px;
+  padding: 8px 11px;
+  border: 2px solid #c9d4f5;
+  border-radius: 14px;
+  background: #f6f8ff;
+  font-size: 13px;
+  text-align: start;
+}
+.end-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.end-row .bigbtn {
+  margin: 0;
+  font-size: 15px;
+}
+.office-rank {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.office-badge {
+  flex: 0 0 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: #e9eeff;
+  font-size: 30px;
+}
+.office-rank > div:last-child {
+  flex: 1;
+  min-width: 0;
+}
+.office-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 8px 0 10px;
+}
+.office-tiles div {
+  padding: 7px 4px;
+  border: 2px solid #c9d4f5;
+  border-radius: 12px;
+  text-align: center;
+}
+.office-tiles b {
+  display: block;
+  font-size: 22px;
+}
+.office-tiles small {
+  font-size: 10.5px;
+  line-height: 1.15;
+  color: var(--ink2);
+}
+.office-records .rec {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.office-records .rec i {
+  font-style: normal;
+  color: var(--ink2);
+}
+.office-records .rec small {
+  font-size: 11px;
+  color: var(--ink2);
+}
+.office-tiles small {
+  display: block;
+  line-height: 1.2;
+}

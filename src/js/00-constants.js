@@ -3,15 +3,15 @@
  *
  * Organisation du code (les fichiers src/js/*.js sont concaténés dans cet ordre,
  * dans UNE seule portée privée, par tools/build.mjs) :
- *   00 constantes et règles      07 déplacements du numéro + journal de la chasse
- *   01 traductions (générées)    08 actions du joueur (question, calcul, capture, tour suivant)
- *   02 état `g`, utilitaires,    09 détective animé, confettis
- *      sons, sauvegarde          10 écrans (accueil, réglages, jeu, résultat, fins)
- *   03 questions (indices)       11 film du parcours du numéro
- *   04 calculs                   12 fenêtres (pause, carnet, noms, défi…)
- *   05 défi solo, start()        13 tutoriel scripté
- *   06 chronos                   14 render() + bind() : affichage et événements
- *                                15 bouton Retour Android, démarrage, API de test
+ *   00 constantes et règles      08 déplacements du numéro + journal de la chasse
+ *   01 traductions (générées)    09 actions du joueur (question, calcul, capture, tour suivant)
+ *   02 état `g`, utilitaires,    10 détective animé, confettis
+ *      sons, sauvegarde          11 écrans (accueil, bureau, réglages, jeu, résultat, fins)
+ *   03 questions (indices)       12 film du parcours du numéro
+ *   04 calculs                   13 fenêtres (pause, carnet, noms, défi…)
+ *   05 défi solo, start()        14 tutoriel scripté
+ *   06 carrière solo (score, XP) 15 render() + bind() : affichage et événements
+ *   07 chronos                   16 bouton Retour Android, démarrage, API de test
  *
  * Principe : tout l'état vit dans l'objet `g` (sauvegardé dans localStorage).
  * Chaque action modifie `g` puis appelle render(), qui reconstruit l'écran.

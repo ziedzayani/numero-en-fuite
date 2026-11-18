@@ -141,7 +141,8 @@ function start(skipHandoff = false) {
   g.starter = players > 1 ? (starter || 0) % players : 0;
   g.playerHelp = Array.isArray(playerHelp) ? playerHelp.slice(0, 4) : [false, false, false, false];
   g.mode = 'normal';
-  g.netsLeft = Array(players).fill(3);
+  g.gameId = newGameId(); // identifiant stable : les récompenses solo ne sont attribuées qu'une fois
+  g.netsLeft = Array(players).fill(NETS_MAX);
   g.screen = 'game';
   g.inGame = true;
   g.modal = players > 1 && skipHandoff !== true ? 'handoff' : null;

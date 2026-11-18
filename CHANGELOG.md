@@ -1,5 +1,23 @@
 # Historique des versions
 
+## V8.8
+
+Carrière du mode Solo classique (cahier des charges « KIT SOLO », partie V8.5 de son plan).
+- **Score d'enquête** : victoire +100, +40 par tour économisé sur 12, +20 par calcul juste (3 au plus),
+  +10 capture précise, −10 par capture ratée, questions gratuites ; défaite 0. Prolonger d'un tour ne rapporte jamais.
+- **Records par niveau** (score et meilleur nombre de tours), « Nouveau record » seulement si strictement meilleur.
+- **XP et 8 rangs** (Apprenti détective → Légende des enquêtes) : victoire +40, +10 si record, défaite après 12 tours +10,
+  abandon 0. Chaque partie a un identifiant : recharger, rouvrir ou revenir ne redonne jamais XP, étoiles ni score.
+- **Écran de fin** : étoiles, score, record, détail repliable, XP et barre de rang, **un conseil** pour la prochaine
+  enquête, boutons Rejouer / Mon bureau / Accueil. Le film du parcours n'est pas modifié.
+- **Mon bureau** (accueil et fin de partie) : rang, XP, enquêtes terminées / gagnées / pas encore résolues, étoiles,
+  records des 4 niveaux, « Jouer en solo ».
+- **Migration V8.4** : les meilleurs nombres de tours `solo_*` sont repris, aucun score ni XP n'est inventé ;
+  stockage séparé `numeroEnFuiteCareerV1`, anciennes clés intactes. Défis, Course et Points inchangés.
+
+Non repris du cahier : les étiquettes « Sauts de 1 case » de la maquette des niveaux (retirées en V8.6 à la demande).
+Prévu ensuite : badges, missions, enquête du jour.
+
 ## V8.7
 
 Retour du test sur téléphone (360 × 735) : en Génie, on pouvait taper « 86 » alors que les numéros vont de 1 à 50 ;
