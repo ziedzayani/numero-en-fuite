@@ -1640,16 +1640,6 @@ button {
     transform: scale(1.12);
   }
 }
-.level .lvl-jumps {
-  display: inline-block;
-  margin-top: 2px;
-  padding: 1px 8px;
-  border-radius: 99px;
-  background: #e9eeff;
-  color: #33418a;
-  font-size: 11px;
-  font-weight: 600;
-}
 .choice-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3537,11 +3527,6 @@ body.scr-home .hero-row {
 .level strong {
   font-size: 15px !important;
 }
-.level .lvl-jumps {
-  font-size: 10px;
-  padding: 1px 5px;
-  white-space: nowrap;
-}
 .level .lvl-sub {
   font-size: 10px !important;
 }
@@ -3558,9 +3543,6 @@ body.scr-home .hero-row {
 @media (max-width: 350px) {
   .level strong {
     font-size: 13px !important;
-  }
-  .level .lvl-jumps {
-    font-size: 9px;
   }
 }
 /* V7.7 : onglets toujours visibles, contenu plus compact (pas de défilement) */
@@ -4972,6 +4954,38 @@ button.tut-cell {
   animation: none;
   opacity: 1;
 }
+.tut-head .rp-step {
+  margin-inline-start: auto;
+}
+.tut-close {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.tut-body + .bigbtn,
+.tut-body + .qbtn,
+.tut-body + .capture-row {
+  margin-top: 12px;
+}
+/* après une réponse, l'écran est redessiné : pas de nouvelle animation, la flèche reste affichée */
+.tut-loop.answered .loop-arrow path {
+  animation: none;
+  opacity: 1;
+}
+.tut-loop.answered .tut-cell.loop-a,
+.tut-loop.answered .tut-cell.loop-b {
+  animation: none;
+}
 
 </style>
 </head>
@@ -5058,7 +5072,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "8.5";
+const APP_VERSION = "8.6";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -5167,10 +5181,6 @@ const dictionaries = {
   "home": "Accueil",
   "homeFooter": "Hors ligne · Sans pub · Un téléphone",
   "infoBtn": "Avantages et risques",
-  "jumpsExpert": "Sauts de 1 ou 2",
-  "jumpsGenius": "Sauts spéciaux",
-  "jumpsJunior": "Sauts de 1",
-  "jumpsMalin": "Sauts de 1 ou 2",
   "keypadHint": "Tape un numéro de 1 à 100, puis choisis ta capture.",
   "language": "Langue du jeu",
   "languageHint": "Le changement s’applique immédiatement, même pendant une partie.",
@@ -5403,9 +5413,9 @@ const dictionaries = {
   "tutLegendOut": "rayé du carnet",
   "tutLegendSecret": "le numéro caché (visible pour l’entraînement)",
   "tutLoop": "Et au bout de la grille ? Un numéro sur le 8 fait +1 : il arrive sur le 9. S’il fait encore +1, il ne tombe pas dans le vide : <b>après 9, on revient à 1</b>. Le parcours tourne en boucle, et ton carnet aussi !",
-  "tutLoopAsk": "👉 Touche la case où il arrive après 9 + 1.",
+  "tutLoopAsk": "👉 Touche la case où il arrive après 9 + 1.",
   "tutLoopNo": "Pas tout à fait : après 9, on recommence au début de la grille. Essaie encore !",
-  "tutLoopOk": "✅ Oui ! 9 + 1 → 1. À toi de capturer maintenant.",
+  "tutLoopOk": "✅ Oui ! 9 + 1 → 1. À toi de capturer maintenant.",
   "tutMiss": "Raté : le numéro est sur le <b>{n}</b>. En vraie partie, il se serait encore enfui ! Réessaie.",
   "tutMissNet": "Filet vide ({nums}) : le numéro est sur le <b>{n}</b>. Réessaie !",
   "tutNext": "Suivant",
@@ -5525,10 +5535,6 @@ const dictionaries = {
   "home": "Home",
   "homeFooter": "Offline · No ads · One phone",
   "infoBtn": "Pros and risks",
-  "jumpsExpert": "Jumps of 1 or 2",
-  "jumpsGenius": "Special jumps",
-  "jumpsJunior": "Jumps of 1",
-  "jumpsMalin": "Jumps of 1 or 2",
   "keypadHint": "Type a number from 1 to 100, then choose your capture.",
   "language": "Game language",
   "languageHint": "Language changes instantly, even during a game.",
@@ -5761,9 +5767,9 @@ const dictionaries = {
   "tutLegendOut": "crossed out",
   "tutLegendSecret": "the hidden number (visible for practice)",
   "tutLoop": "And at the end of the grid? A number on 8 does +1: it lands on 9. If it does +1 again, it does not fall off: <b>after 9 comes 1</b>. The path loops around, and so does your notebook!",
-  "tutLoopAsk": "👉 Tap the square where it lands after 9 + 1.",
+  "tutLoopAsk": "👉 Tap the square where it lands after 9 + 1.",
   "tutLoopNo": "Not quite: after 9, you start again at the beginning of the grid. Try again!",
-  "tutLoopOk": "✅ Yes! 9 + 1 → 1. Now it is your turn to catch it.",
+  "tutLoopOk": "✅ Yes! 9 + 1 → 1. Now it is your turn to catch it.",
   "tutMiss": "Missed: the number is on <b>{n}</b>. In a real game, it would have run away again! Try again.",
   "tutMissNet": "Empty net ({nums}): the number is on <b>{n}</b>. Try again!",
   "tutNext": "Next",
@@ -5883,10 +5889,6 @@ const dictionaries = {
   "home": "الرئيسية",
   "homeFooter": "بدون إنترنت · بدون إعلانات · هاتف واحد",
   "infoBtn": "المزايا والمخاطر",
-  "jumpsExpert": "قفزات بخانة أو خانتين",
-  "jumpsGenius": "قفزات خاصة",
-  "jumpsJunior": "قفزات بخانة",
-  "jumpsMalin": "قفزات بخانة أو خانتين",
   "keypadHint": "اكتب رقمًا من 1 إلى 100، ثم اختر طريقة الإمساك.",
   "language": "لغة اللعبة",
   "languageHint": "تتغير اللغة فورًا، حتى أثناء اللعب.",
@@ -6119,9 +6121,9 @@ const dictionaries = {
   "tutLegendOut": "مشطوب من الدفتر",
   "tutLegendSecret": "الرقم المخفي (ظاهر للتدريب)",
   "tutLoop": "وماذا عند نهاية الشبكة؟ رقم على 8 يقفز +1 فيصل إلى 9. وإذا قفز +1 مرة أخرى لا يسقط: <b>بعد 9 نعود إلى 1</b>. المسار يدور في حلقة، ودفترك أيضًا!",
-  "tutLoopAsk": "👉 المس الخانة التي يصل إليها بعد 9 + 1.",
+  "tutLoopAsk": "👉 المس الخانة التي يصل إليها بعد 9 + 1.",
   "tutLoopNo": "ليس تمامًا: بعد 9 نبدأ من أول الشبكة. حاول مجددًا!",
-  "tutLoopOk": "✅ نعم! بعد 9 + 1 نصل إلى 1. الآن دورك لتمسكه.",
+  "tutLoopOk": "✅ نعم! بعد 9 + 1 نصل إلى 1. الآن دورك لتمسكه.",
   "tutMiss": "لم تصب: الرقم على <b>{n}</b>. في اللعبة الحقيقية كان سيهرب مرة أخرى! حاول مجددًا.",
   "tutMissNet": "الشبكة فارغة ({nums}): الرقم على <b>{n}</b>. حاول مجددًا!",
   "tutNext": "التالي",
@@ -7385,14 +7387,14 @@ function settingsButton(compact = false) {
 /** Accueil : nombre de joueurs, niveau, Jouer, défi, règles. */
 function home() {
   return `<header class="top">${brand()}${settingsButton()}</header><section class="hero hero-row"><div class="hero-mascot">${mascot()}</div><h1>${t('hero1')}<br><span>${t('hero2')}</span></h1></section><section class="panel start-panel"><div class="label">👥 ${t('players')}</div><div class="selector">${[1, 2, 3, 4].map(n => `<button class="seg ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}"><b>${n}</b><small>${n === 1 ? t('onePlayer') : t('multiplayer')}</small></button>`).join('')}</div><div class="label">✨ ${t('levels')}</div><div class="difficulty">${[
-    ['junior', '🐣', 'levelJunior', 'levJuniorSub', '1–9', 'jumpsJunior'],
-    ['malin', '🧠', 'levelMalin', 'levMalinSub', '1–15', 'jumpsMalin'],
-    ['expert', '🚀', 'levelExpert', 'levExpertSub', '1–30', 'jumpsExpert'],
-    ['genius', '🦉', 'levelGenius', 'levGeniusSub', '1–50', 'jumpsGenius']
+    ['junior', '🐣', 'levelJunior', 'levJuniorSub', '1–9'],
+    ['malin', '🧠', 'levelMalin', 'levMalinSub', '1–15'],
+    ['expert', '🚀', 'levelExpert', 'levExpertSub', '1–30'],
+    ['genius', '🦉', 'levelGenius', 'levGeniusSub', '1–50']
   ]
     .map(
-      ([id, emoji, k, sub, range, jumps]) =>
-        `<button class="level ${g.level === id ? 'is-selected' : ''}" data-level="${id}" aria-pressed="${g.level === id}"><span class="level-emoji">${emoji}</span><strong>${t(k)}</strong><span class="level-range" dir="ltr">${range}</span><small class="lvl-sub">${t(sub)}</small><span class="lvl-jumps">${t(jumps)}</span></button>`
+      ([id, emoji, k, sub, range]) =>
+        `<button class="level ${g.level === id ? 'is-selected' : ''}" data-level="${id}" aria-pressed="${g.level === id}"><span class="level-emoji">${emoji}</span><strong>${t(k)}</strong><span class="level-range" dir="ltr">${range}</span><small class="lvl-sub">${t(sub)}</small></button>`
     )
     .join(
       ''
@@ -8034,8 +8036,7 @@ function tutorialView() {
     step === 'capture'
   );
   const legend = `<p class="tut-legend"><span class="tut-dot secret"></span>${t('tutLegendSecret')} <span class="tut-dot out"></span>${t('tutLegendOut')}</p>`;
-  const next = (enabled = true) =>
-    `<button class="bigbtn" id="tutNext" ${enabled ? '' : 'disabled'}>${t('tutNext')} ▶</button>`;
+  const next = () => `<button class="bigbtn" id="tutNext">${t('tutNext')} ▶</button>`;
   let body = '',
     actions = next();
   if (step === 'intro') body = `<p>${t('tut0', { n: TUT.start, max: TUT.max })}</p>${grid}${legend}`;
@@ -8057,8 +8058,8 @@ function tutorialView() {
         ].join(' '),
       true
     );
-    body = `<p>${t('tutLoop')}</p><div class="tut-loop">${loopGrid}<svg class="loop-arrow" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d="M95 2 C95 22 5 22 5 2" /></svg></div><p class="tut-loop-msg">${sel == null ? t('tutLoopAsk') : g.tut.loopOk ? t('tutLoopOk') : t('tutLoopNo')}</p>`;
-    actions = next(g.tut.loopOk);
+    body = `<p>${t('tutLoop')}</p><div class="tut-loop ${sel != null ? 'answered' : ''}">${loopGrid}<svg class="loop-arrow" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d="M95 2 C95 22 5 22 5 2" /></svg></div><p class="tut-loop-msg">${sel == null ? t('tutLoopAsk') : g.tut.loopOk ? t('tutLoopOk') : t('tutLoopNo')}</p>`;
+    actions = g.tut.loopOk ? next() : ''; // « Suivant » n'apparaît qu'après la bonne case
   } else if (step === 'capture') {
     body = `<p>${miss ? t(miss.mode === 'net' ? 'tutMissNet' : 'tutMiss', { nums: miss.nums.join('·'), n: secret }) : t('tut4')}</p>${grid}`;
     actions = `<div class="capture-row"><button class="capbtn precise" id="tutPrecise" ${sel == null ? 'disabled' : ''}><span>🎯 ${t('captPrecise')}</span><small><bdi dir="ltr">+${SCORE.precise}</bdi></small></button><button class="capbtn net" id="tutNet" ${sel == null ? 'disabled' : ''}><span>🕸️ ${sel != null ? `<bdi dir="ltr">${net.join('·')}</bdi>` : t('captNet')}</span><small><bdi dir="ltr">+${SCORE.net}</bdi></small></button></div>`;
@@ -8066,7 +8067,7 @@ function tutorialView() {
     body = `<div class="hero-mascot small-mascot">${mascot('caught')}</div><div class="result-title">🎉 ${t('bravo')}</div><p>${t(g.tut.win === 'net' ? 'tutWinNet' : 'tutWin', { n: secret })}</p><div class="help-detail">${t('tut5')}</div>`;
     actions = `<button class="bigbtn green" id="tutPlay">▶ ${t('play')}</button><button class="bigbtn light" id="tutRestart">🔁 ${t('tutRestart')}</button>`;
   }
-  return `<div class="tut-head"><h2>🎓 ${t('tutTitle')}</h2><span class="rp-step">${t('rpStep', { i: g.tut.step + 1, n: TUT_STEPS.length })}</span></div><div class="tut-body">${body}</div>${actions}<button class="mini-btn" id="tutClose">${t('close')}</button>`;
+  return `<div class="tut-head"><h2>🎓 ${t('tutTitle')}</h2><span class="rp-step">${t('rpStep', { i: g.tut.step + 1, n: TUT_STEPS.length })}</span><button class="tut-close" id="tutClose" aria-label="${t('close')}">✕</button></div><div class="tut-body">${body}</div>${actions}`;
 }
 
 /** Fenêtre proposée au tout premier lancement : le tutoriel est conseillé, jamais imposé. */

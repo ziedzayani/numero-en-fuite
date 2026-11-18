@@ -32,14 +32,14 @@ function settingsButton(compact = false) {
 /** Accueil : nombre de joueurs, niveau, Jouer, défi, règles. */
 function home() {
   return `<header class="top">${brand()}${settingsButton()}</header><section class="hero hero-row"><div class="hero-mascot">${mascot()}</div><h1>${t('hero1')}<br><span>${t('hero2')}</span></h1></section><section class="panel start-panel"><div class="label">👥 ${t('players')}</div><div class="selector">${[1, 2, 3, 4].map(n => `<button class="seg ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}"><b>${n}</b><small>${n === 1 ? t('onePlayer') : t('multiplayer')}</small></button>`).join('')}</div><div class="label">✨ ${t('levels')}</div><div class="difficulty">${[
-    ['junior', '🐣', 'levelJunior', 'levJuniorSub', '1–9', 'jumpsJunior'],
-    ['malin', '🧠', 'levelMalin', 'levMalinSub', '1–15', 'jumpsMalin'],
-    ['expert', '🚀', 'levelExpert', 'levExpertSub', '1–30', 'jumpsExpert'],
-    ['genius', '🦉', 'levelGenius', 'levGeniusSub', '1–50', 'jumpsGenius']
+    ['junior', '🐣', 'levelJunior', 'levJuniorSub', '1–9'],
+    ['malin', '🧠', 'levelMalin', 'levMalinSub', '1–15'],
+    ['expert', '🚀', 'levelExpert', 'levExpertSub', '1–30'],
+    ['genius', '🦉', 'levelGenius', 'levGeniusSub', '1–50']
   ]
     .map(
-      ([id, emoji, k, sub, range, jumps]) =>
-        `<button class="level ${g.level === id ? 'is-selected' : ''}" data-level="${id}" aria-pressed="${g.level === id}"><span class="level-emoji">${emoji}</span><strong>${t(k)}</strong><span class="level-range" dir="ltr">${range}</span><small class="lvl-sub">${t(sub)}</small><span class="lvl-jumps">${t(jumps)}</span></button>`
+      ([id, emoji, k, sub, range]) =>
+        `<button class="level ${g.level === id ? 'is-selected' : ''}" data-level="${id}" aria-pressed="${g.level === id}"><span class="level-emoji">${emoji}</span><strong>${t(k)}</strong><span class="level-range" dir="ltr">${range}</span><small class="lvl-sub">${t(sub)}</small></button>`
     )
     .join(
       ''

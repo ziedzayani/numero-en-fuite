@@ -301,8 +301,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const { ctx, page } = await fresh(browser);
     const kinds = () => page.$$eval('[data-tk]', els => els.map(e => e.dataset.tk).join());
     const txt = k => page.textContent(`[data-tk="${k}"] b`);
-    const jumps = await page.$$eval('.level .lvl-jumps', els => els.map(e => e.textContent));
-    check(jumps.length === 4 && jumps[0].includes('1') && jumps[3].includes('spéciaux'), 'Type de sauts affiché sur les 4 niveaux (pas d’âge) : ' + jumps.join(' / '));
+    const lvls = await page.$$eval('.level', els => els.map(e => e.textContent));
+    check(lvls.length === 4 && lvls.every(x => !/ans\b|Sauts de/.test(x)), 'Niveaux : ni âge ni étiquette « Sauts de… » : ' + lvls.join(' / '));
     for (const [level, ans, mathS, glob] of [['junior', 25, 30, 75], ['malin', 20, 30, 70], ['expert', 20, 45, 90]]) {
       await page.evaluate(lv => { const N = window.__numero; N.state.players = 2; N.state.level = lv; N.state.timerMode = 'normal'; N.start(); }, level);
       await page.click('#handoffGo');
@@ -808,11 +808,11 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const moved = await page.$$eval('.tut-cell', cs => cs.map(c => (c.classList.contains('out') ? 'x' : '') + (c.classList.contains('secret') ? '*' : '')).join(','));
     check(moved === 'x,,,,*,,x,x,x' && await page.isVisible('.tut-body .blind-jump'), 'Tutoriel : le numéro s’enfuit (+1, 4 → 5) et le carnet se décale (2 à 6) ' + moved);
     await page.click('#tutNext');
-    check(await page.isDisabled('#tutNext') && await page.isVisible('.tut-loop .loop-arrow') && (await page.textContent('.tut-body')).includes('après 9, on revient à 1'), 'Tutoriel : étape « boucle » (8 → 9 → 1), flèche, « Suivant » bloqué');
+    check(!(await page.$('#tutNext')) && await page.isVisible('.tut-loop .loop-arrow') && (await page.textContent('.tut-body')).includes('après 9, on revient à 1'), 'Tutoriel : étape « boucle » (8 → 9 → 1), flèche, pas de « Suivant » avant la réponse');
     await page.click('[data-tutpick="9"]');
-    check(await page.isDisabled('#tutNext') && await page.isVisible('.tut-cell.wrong'), 'Tutoriel : mauvaise case (9) → explication, on réessaie');
+    check(!(await page.$('#tutNext')) && await page.isVisible('.tut-cell.wrong'), 'Tutoriel : mauvaise case (9) → explication, on réessaie');
     await page.click('[data-tutpick="1"]');
-    check(!(await page.isDisabled('#tutNext')) && (await S(page)).tut.loopOk, 'Tutoriel : 9 + 1 → 1 trouvé, on peut continuer');
+    check(await page.isVisible('#tutNext') && (await S(page)).tut.loopOk, 'Tutoriel : 9 + 1 → 1 trouvé, on peut continuer');
     await page.click('#tutNext');
     check(await page.isDisabled('#tutPrecise') && await page.isDisabled('#tutNet'), 'Tutoriel : boutons de capture inactifs tant qu’aucun numéro n’est touché');
     await page.click('[data-tutpick="8"]'); await page.click('#tutPrecise');
@@ -869,7 +869,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     for (const lang of ['fr', 'en', 'ar']) {
       await page.evaluate(l => { const N = window.__numero; N.state.lang = l; N.state.modal = null; N.state.screen = 'home'; N.render(); }, lang);
       const lv = await page.$$eval('.level', e => e.map(x => x.textContent).join(' | '));
-      check(!/\d+\s*(ans|an)\b|Ages?\s|سنة|سنوات/.test(lv) && (await page.$$('.level .lvl-jumps')).length === 4, `Niveaux (${lang}) : aucune tranche d’âge, type de sauts affiché`);
+      check(!/\d+\s*(ans|an)\b|Ages?\s|سنة|سنوات/.test(lv) && !(await page.$('.level .lvl-jumps')), `Niveaux (${lang}) : aucune tranche d’âge`);
       check(await page.evaluate(() => document.scrollingElement.scrollHeight - innerHeight) <= 0, `Accueil 360×640 (${lang}) sans défilement`);
     }
     await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.render(); });

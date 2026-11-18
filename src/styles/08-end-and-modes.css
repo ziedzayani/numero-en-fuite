@@ -694,3 +694,35 @@ button.tut-cell {
   animation: none;
   opacity: 1;
 }
+.tut-head .rp-step {
+  margin-inline-start: auto;
+}
+.tut-close {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.tut-body + .bigbtn,
+.tut-body + .qbtn,
+.tut-body + .capture-row {
+  margin-top: 12px;
+}
+/* après une réponse, l'écran est redessiné : pas de nouvelle animation, la flèche reste affichée */
+.tut-loop.answered .loop-arrow path {
+  animation: none;
+  opacity: 1;
+}
+.tut-loop.answered .tut-cell.loop-a,
+.tut-loop.answered .tut-cell.loop-b {
+  animation: none;
+}

@@ -219,11 +219,6 @@
 .level strong {
   font-size: 15px !important;
 }
-.level .lvl-jumps {
-  font-size: 10px;
-  padding: 1px 5px;
-  white-space: nowrap;
-}
 .level .lvl-sub {
   font-size: 10px !important;
 }
@@ -240,9 +235,6 @@
 @media (max-width: 350px) {
   .level strong {
     font-size: 13px !important;
-  }
-  .level .lvl-jumps {
-    font-size: 9px;
   }
 }
 /* V7.7 : onglets toujours visibles, contenu plus compact (pas de défilement) */

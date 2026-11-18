@@ -1,5 +1,13 @@
 # Historique des versions
 
+## V8.6
+
+Retours du premier essai sur téléphone.
+- Tutoriel, étape « boucle » : plus de bouton « Suivant » grisé, il apparaît seulement après la bonne case ;
+  la flèche 9 → 1 reste affichée après la réponse ; « 9 + 1 » n'est plus coupé en fin de ligne.
+- Tutoriel : « Fermer » devient une croix ✕ dans l'en-tête (plus de bouton collé sous « Suivant »).
+- Niveaux : étiquettes « Sauts de 1 / de 1 ou 2 / spéciaux » retirées (elles n'apportaient rien).
+
 ## V8.5
 
 Suite à l'audit de la V8.4.
@@ -13,8 +21,7 @@ Suite à l'audit de la V8.4.
   est inévitable pour passer à la clé permanente.
 
 **Accessibilité et pédagogie**
-- **Plus aucune tranche d'âge** sur les niveaux (FR/EN/AR) : chaque carte indique le type de sauts
-  (de 1, de 1 ou 2, spéciaux) ; « Choisis ton niveau, à tout âge » et une phrase dans les règles.
+- **Plus aucune tranche d'âge** sur les niveaux (FR/EN/AR) ; « Choisis ton niveau, à tout âge » et une phrase dans les règles.
 - Tutoriel : nouvelle étape **« la boucle »** (8 → 9 → 1 avec une flèche ; le joueur touche la case d'arrivée),
   cases du carnet qui glissent lors du décalage, bouton **« Rejouer ce tutoriel »**.
 - Tutoriel **proposé au premier lancement**, une seule fois, jamais imposé (« Plus tard »).

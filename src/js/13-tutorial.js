@@ -96,8 +96,7 @@ function tutorialView() {
     step === 'capture'
   );
   const legend = `<p class="tut-legend"><span class="tut-dot secret"></span>${t('tutLegendSecret')} <span class="tut-dot out"></span>${t('tutLegendOut')}</p>`;
-  const next = (enabled = true) =>
-    `<button class="bigbtn" id="tutNext" ${enabled ? '' : 'disabled'}>${t('tutNext')} ▶</button>`;
+  const next = () => `<button class="bigbtn" id="tutNext">${t('tutNext')} ▶</button>`;
   let body = '',
     actions = next();
   if (step === 'intro') body = `<p>${t('tut0', { n: TUT.start, max: TUT.max })}</p>${grid}${legend}`;
@@ -119,8 +118,8 @@ function tutorialView() {
         ].join(' '),
       true
     );
-    body = `<p>${t('tutLoop')}</p><div class="tut-loop">${loopGrid}<svg class="loop-arrow" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d="M95 2 C95 22 5 22 5 2" /></svg></div><p class="tut-loop-msg">${sel == null ? t('tutLoopAsk') : g.tut.loopOk ? t('tutLoopOk') : t('tutLoopNo')}</p>`;
-    actions = next(g.tut.loopOk);
+    body = `<p>${t('tutLoop')}</p><div class="tut-loop ${sel != null ? 'answered' : ''}">${loopGrid}<svg class="loop-arrow" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d="M95 2 C95 22 5 22 5 2" /></svg></div><p class="tut-loop-msg">${sel == null ? t('tutLoopAsk') : g.tut.loopOk ? t('tutLoopOk') : t('tutLoopNo')}</p>`;
+    actions = g.tut.loopOk ? next() : ''; // « Suivant » n'apparaît qu'après la bonne case
   } else if (step === 'capture') {
     body = `<p>${miss ? t(miss.mode === 'net' ? 'tutMissNet' : 'tutMiss', { nums: miss.nums.join('·'), n: secret }) : t('tut4')}</p>${grid}`;
     actions = `<div class="capture-row"><button class="capbtn precise" id="tutPrecise" ${sel == null ? 'disabled' : ''}><span>🎯 ${t('captPrecise')}</span><small><bdi dir="ltr">+${SCORE.precise}</bdi></small></button><button class="capbtn net" id="tutNet" ${sel == null ? 'disabled' : ''}><span>🕸️ ${sel != null ? `<bdi dir="ltr">${net.join('·')}</bdi>` : t('captNet')}</span><small><bdi dir="ltr">+${SCORE.net}</bdi></small></button></div>`;
@@ -128,7 +127,7 @@ function tutorialView() {
     body = `<div class="hero-mascot small-mascot">${mascot('caught')}</div><div class="result-title">🎉 ${t('bravo')}</div><p>${t(g.tut.win === 'net' ? 'tutWinNet' : 'tutWin', { n: secret })}</p><div class="help-detail">${t('tut5')}</div>`;
     actions = `<button class="bigbtn green" id="tutPlay">▶ ${t('play')}</button><button class="bigbtn light" id="tutRestart">🔁 ${t('tutRestart')}</button>`;
   }
-  return `<div class="tut-head"><h2>🎓 ${t('tutTitle')}</h2><span class="rp-step">${t('rpStep', { i: g.tut.step + 1, n: TUT_STEPS.length })}</span></div><div class="tut-body">${body}</div>${actions}<button class="mini-btn" id="tutClose">${t('close')}</button>`;
+  return `<div class="tut-head"><h2>🎓 ${t('tutTitle')}</h2><span class="rp-step">${t('rpStep', { i: g.tut.step + 1, n: TUT_STEPS.length })}</span><button class="tut-close" id="tutClose" aria-label="${t('close')}">✕</button></div><div class="tut-body">${body}</div>${actions}`;
 }
 
 /** Fenêtre proposée au tout premier lancement : le tutoriel est conseillé, jamais imposé. */
