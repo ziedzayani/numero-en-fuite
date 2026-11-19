@@ -1,5 +1,9 @@
 # Historique des versions
 
+## V9.3.1
+
+- Accueil : les 4 tuiles du bas sont alignées (« Comment jouer ? » sur deux lignes ne décale plus son icône).
+
 ## V9.3 — illustrations des niveaux
 
 - Tuiles de niveau de l'accueil avec les illustrations de la maquette : poussin (Petit), cerveau (Moyen),

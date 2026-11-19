@@ -8327,6 +8327,20 @@ body.scr-home .start-panel .lvl-sub {
   animation: none;
   opacity: 0;
 }
+/* V9.3.1 : les 4 tuiles du bas alignées (icônes à la même hauteur, texte sur 2 lignes au plus) */
+.home-row.four .mini-btn {
+  justify-content: flex-start;
+  padding-top: 7px;
+  margin: 0; /* une ancienne règle décalait le 1er bouton de 8 px */
+}
+.home-row.four .hr-txt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.3em;
+  line-height: 1.1;
+  text-align: center;
+}
 
     </style>
   </head>
@@ -8417,7 +8431,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.3";
+const APP_VERSION = "9.3.1";
 
 /* ---- 01-i18n.js ---- */
 /*
