@@ -116,7 +116,7 @@ const STATES = {
     N.state.players = 3;
     N.start();
   },
-  'passe le téléphone + annonce de capture': N => {
+  'fin course 4 joueurs (victoire)': N => {
     N.state.players = 4;
     N.state.gameMode = 'race';
     N.start(true);

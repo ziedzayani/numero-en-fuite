@@ -9034,6 +9034,224 @@ body.scr-home .start-panel .lvl-sub {
     height: 60px;
   }
 }
+/* V9.7 : l'étiquette du saut (×2, ÷2…) reste toujours au-dessus du drap */
+.mv-drap .bj-label {
+  position: relative;
+  z-index: 3;
+  margin-bottom: 6px;
+}
+.mv-drap .blind-jump {
+  z-index: 1;
+}
+.mv-drap .blind-jump.grow .bj-token {
+  animation: drap-grow 1.1s ease-out 0.2s both;
+}
+@keyframes drap-grow {
+  0% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+}
+
+/* ===== V9.7 : écran de victoire de la Course (maquette) ===== */
+.race-hero {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0 8px;
+  text-align: center;
+}
+.race-hero .hero-mascot {
+  width: 132px;
+  height: 150px;
+  position: relative;
+  margin: 0;
+}
+.race-hero .hero-mascot .detective-scene {
+  position: absolute;
+  left: -20px;
+  top: 0;
+  transform: scale(1);
+  transform-origin: 0 0;
+}
+.race-hero .rh-side {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.rh-trophy {
+  font-size: 40px;
+  line-height: 1;
+  filter: drop-shadow(0 0 10px rgba(255, 214, 80, 0.9));
+  animation: fb-pop 0.6s ease-out;
+}
+.end-hero.race-hero h1 {
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: clamp(20px, 6.2vw, 26px);
+  line-height: 1.1;
+}
+.race-hero .intro {
+  margin: 0;
+  padding-bottom: 4px;
+  font-weight: 800;
+  background: linear-gradient(90deg, transparent, #ffc83d 20% 80%, transparent) center bottom / 80% 2px
+    no-repeat;
+}
+/* « le numéro se cachait… » : bandeau crème */
+body.scr-end > #app > .escaped-note,
+#app > .escaped-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fffaf0, #ffeec4);
+  border: 2px solid var(--hunt-gold);
+  color: #14205a;
+  font-weight: 800;
+}
+/* podium */
+.podium-panel .podium-label {
+  font-size: 15px;
+  padding: 2px 22px;
+}
+.podium-panel .podium-label::before,
+.podium-panel .podium-label::after {
+  content: '🌿';
+  margin: 0 6px;
+}
+.podium-panel .pod-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px dotted rgba(255, 255, 255, 0.45);
+  border-radius: 0;
+  color: #fff;
+}
+.podium-panel .pod-row.place-1 {
+  margin-bottom: 4px;
+  border: 2px solid var(--hunt-gold);
+  border-radius: 18px;
+  background: rgba(10, 30, 100, 0.45);
+  box-shadow: 0 0 12px rgba(255, 200, 61, 0.45);
+}
+.podium-panel .pod-row .medal {
+  flex: 0 0 auto;
+  font-size: 36px;
+  padding-inline-end: 12px;
+  border-inline-end: 2px solid rgba(255, 255, 255, 0.5);
+}
+.podium-panel .pod-row strong {
+  display: block;
+  font-size: 22px;
+  color: #fff;
+}
+.podium-panel .pod-row small {
+  color: var(--hunt-soft);
+  font-size: 13px;
+}
+.podium-panel .next-starter {
+  margin: 8px 0 10px;
+  color: #fff;
+  font-weight: 800;
+}
+.race-hero .rh-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.end-hero.race-hero h1 {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+.race-hero .rh-trophy {
+  align-self: center;
+  margin: 0 auto;
+}
+.race-hero {
+  margin-top: 10px;
+}
+.podium-panel .pod-row {
+  padding: 12px;
+}
+/* podium à 3 ou 4 joueurs : lignes plus compactes */
+.podium-panel:has(.pod-row:nth-of-type(3)) .pod-row {
+  padding: 4px 10px;
+  gap: 10px;
+}
+.podium-panel:has(.pod-row:nth-of-type(3)) .pod-row strong {
+  font-size: 17px;
+  line-height: 1.15;
+}
+.podium-panel:has(.pod-row:nth-of-type(3)) .pod-row small {
+  font-size: 11.5px;
+  line-height: 1.15;
+}
+.podium-panel:has(.pod-row:nth-of-type(3)) .pod-row .medal {
+  font-size: 26px;
+  padding-inline-end: 8px;
+}
+@media (max-height: 760px) {
+  .race-hero .hero-mascot {
+    height: 120px;
+  }
+  .race-hero .hero-mascot .detective-scene {
+    transform: scale(0.8);
+  }
+  .rh-trophy {
+    font-size: 30px;
+  }
+}
+.podium-panel .pod-row.no-win {
+  border: 0;
+  border-bottom: 2px dotted rgba(255, 255, 255, 0.45);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
+}
+.podium-panel .pod-row .value {
+  margin-inline-start: auto;
+}
+.podium-panel > .escaped-note {
+  margin: 0 0 6px;
+  padding: 6px 10px;
+}
+body.scr-end .podium-panel .pod-row {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+body.scr-end .podium-panel:has(.pod-row.no-win) > .banner {
+  display: none; /* « 0 numéro attrapé » : déjà dit par « Personne ne l'a attrapé… » */
+}
+body.scr-end .podium-panel > .escaped-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 10px;
+}
+body.scr-end .podium-panel > .escaped-note .rp-open {
+  margin: 0;
+}
 
     </style>
   </head>
@@ -9124,7 +9342,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.6";
+const APP_VERSION = "9.7";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -9297,7 +9515,7 @@ const dictionaries = {
   "levelBadge": "Niveau",
   "levelExpert": "Grand",
   "levelGenius": "Génie",
-  "levelJunior": "Petit",
+  "levelJunior": "Facile",
   "levelMalin": "Moyen",
   "levels": "Choisis ton niveau, à tout âge",
   "levelsFree": "Les niveaux ne dépendent pas de l’âge : choisis selon ton envie et ton expérience. On peut commencer par le plus simple à tout âge.",
@@ -9336,7 +9554,7 @@ const dictionaries = {
   "mission_winLevel": "Gagne une enquête au niveau {level}",
   "missionsIntro": "Pas de chrono : prends ton temps. Chaque mission réussie rapporte +{xp} XP et une nouvelle arrive.",
   "modeRace": "Course",
-  "modeRaceSub": "Le 1er qui l’attrape gagne, les autres jouent pour le podium. Personne ? Les points départagent.",
+  "modeRaceSub": "Le premier qui attrape le numéro gagne : la partie s’arrête. Personne ? Les points départagent.",
   "modeScore": "Points",
   "modeScoreSub": "{n} tours. Capture +10, filet +4 (3 filets chacun). Le meilleur score gagne.",
   "modeTitle": "Mode de jeu",
@@ -9579,7 +9797,7 @@ const dictionaries = {
   "ruleCard2Title": "Il s’enfuit",
   "ruleCard3": "Devine le bon numéro, ou lance ton filet sur quelques cases voisines.",
   "ruleCard3Title": "Attrape-le",
-  "ruleExample": "Le numéro bouge toujours : de 1 case au niveau Petit, de 1 ou 2 cases aux niveaux Moyen et Grand, à gauche ou à droite. Après le maximum, on revient à 1. Niveau Génie : il saute de ±3 ou ±5, double (×2) ou passe dans le miroir (1 ↔ 50, 2 ↔ 49…).",
+  "ruleExample": "Le numéro bouge toujours : de 1 case au niveau Facile, de 1 ou 2 cases aux niveaux Moyen et Grand, à gauche ou à droite. Après le maximum, on revient à 1. Niveau Génie : il saute de ±3 ou ±5, double (×2) ou passe dans le miroir (1 ↔ 50, 2 ↔ 49…).",
   "ruleMovesTitle": "Comment bouge le numéro ?",
   "rulePoints": "Course : le premier qui attrape le numéro gagne ; les points servent seulement à départager. Points : capture précise +10, filet +4, −1 par numéro raté, et chaque ⭐ (calcul juste) vaut +1.",
   "rulePointsTitle": "Points et victoire",
@@ -9635,7 +9853,7 @@ const dictionaries = {
   "timerAnswer": "Réponse",
   "timerDetails": "Durées des chronos",
   "timerGlobal": "Tour",
-  "timerHint": "Chrono global du tour : Petit 75 s, Moyen 70 s, Grand 90 s, Génie 100 s. Chrono de réponse : question 25 / 20 / 20 / 20 s, calcul 30 / 30 / 45 / 45 s. Le bouton ⏸ met tout en pause.",
+  "timerHint": "Chrono global du tour : Facile 75 s, Moyen 70 s, Grand 90 s, Génie 100 s. Chrono de réponse : question 25 / 20 / 20 / 20 s, calcul 30 / 30 / 45 / 45 s. Le bouton ⏸ met tout en pause.",
   "timerLabel": "Temps restant",
   "timerLong": "Plus de temps",
   "timerMathLabel": "Calcul",
@@ -9669,7 +9887,7 @@ const dictionaries = {
   "tut1": "Pose une question pour l’encercler : la réponse est toujours oui ou non.",
   "tut2": "Il n’est pas plus grand que {k} : tous les numéros au-dessus sont <b>rayés</b> de ton carnet.",
   "tut3": "Après chaque indice, le numéro <b>s’enfuit</b> : ici +1, il passe du {from} au {to}. Tout ton carnet se décale avec lui, d’une case !",
-  "tut4": "À toi ! Touche un numéro, puis 🎯 <b>capture précise</b> (1 numéro, +10) ou 🕸️ <b>filet</b> (2 voisins au niveau Petit, +4).",
+  "tut4": "À toi ! Touche un numéro, puis 🎯 <b>capture précise</b> (1 numéro, +10) ou 🕸️ <b>filet</b> (2 voisins au niveau Facile, +4).",
   "tut5": "En vraie partie, le numéro est invisible : sers-toi des questions, des calculs (⭐ + un indice) et de ton carnet 📓, sans oublier de tout décaler quand il s’enfuit. <b>Course</b> : le premier qui l’attrape gagne. <b>Points</b> : le meilleur score après plusieurs tours.",
   "tutBtn": "Tutoriel",
   "tutInviteText": "Le tutoriel montre en une minute comment poser une question, suivre le numéro qui s’enfuit et l’attraper. Tu peux aussi le lancer plus tard depuis l’accueil.",
@@ -9865,7 +10083,7 @@ const dictionaries = {
   "levelBadge": "Level",
   "levelExpert": "Big",
   "levelGenius": "Genius",
-  "levelJunior": "Little",
+  "levelJunior": "Easy",
   "levelMalin": "Medium",
   "levels": "Choose a level, at any age",
   "levelsFree": "Levels have nothing to do with age: choose by mood and experience. Anyone can start with the easiest one.",
@@ -9904,7 +10122,7 @@ const dictionaries = {
   "mission_winLevel": "Win a case at {level} level",
   "missionsIntro": "No timer: take your time. Each mission gives +{xp} XP and a new one arrives.",
   "modeRace": "Race",
-  "modeRaceSub": "First to catch it wins, the others play for the podium. Nobody? Points decide.",
+  "modeRaceSub": "First to catch the number wins: the game stops. Nobody? Points decide.",
   "modeScore": "Points",
   "modeScoreSub": "{n} turns. Catch +10, net +4 (3 nets each). Best score wins.",
   "modeTitle": "Game mode",
@@ -10147,7 +10365,7 @@ const dictionaries = {
   "ruleCard2Title": "It runs away",
   "ruleCard3": "Guess the exact number, or throw your net over a few neighbours.",
   "ruleCard3Title": "Catch it",
-  "ruleExample": "The number always moves: 1 step on Little, 1 or 2 steps on Medium and Big, left or right. After the maximum, it wraps to 1. Genius level: it jumps ±3 or ±5, doubles (×2) or goes through the mirror (1 ↔ 50, 2 ↔ 49…).",
+  "ruleExample": "The number always moves: 1 step on Easy, 1 or 2 steps on Medium and Big, left or right. After the maximum, it wraps to 1. Genius level: it jumps ±3 or ±5, doubles (×2) or goes through the mirror (1 ↔ 50, 2 ↔ 49…).",
   "ruleMovesTitle": "How does the number move?",
   "rulePoints": "Race: the first to catch the number wins; points only break ties. Points: exact catch +10, net +4, −1 per missed number, and each ⭐ (correct sum) is worth +1.",
   "rulePointsTitle": "Points and winning",
@@ -10203,7 +10421,7 @@ const dictionaries = {
   "timerAnswer": "Answer",
   "timerDetails": "Timer lengths",
   "timerGlobal": "Turn",
-  "timerHint": "Global turn timer: Little 75 s, Medium 70 s, Big 90 s, Genius 100 s. Answer timer: question 25 / 20 / 20 / 20 s, maths 30 / 30 / 45 / 45 s. The ⏸ button pauses everything.",
+  "timerHint": "Global turn timer: Easy 75 s, Medium 70 s, Big 90 s, Genius 100 s. Answer timer: question 25 / 20 / 20 / 20 s, maths 30 / 30 / 45 / 45 s. The ⏸ button pauses everything.",
   "timerLabel": "Time left",
   "timerLong": "More time",
   "timerMathLabel": "Maths",
@@ -10237,7 +10455,7 @@ const dictionaries = {
   "tut1": "Ask a question to close in on it: the answer is always yes or no.",
   "tut2": "It is not greater than {k}: every number above is <b>crossed out</b> in your notebook.",
   "tut3": "After every clue, the number <b>runs away</b>: here +1, it goes from {from} to {to}. Your whole notebook shifts with it, by one step!",
-  "tut4": "Your turn! Tap a number, then 🎯 <b>precise capture</b> (1 number, +10) or 🕸️ <b>net</b> (2 neighbours on Little, +4).",
+  "tut4": "Your turn! Tap a number, then 🎯 <b>precise capture</b> (1 number, +10) or 🕸️ <b>net</b> (2 neighbours on Easy, +4).",
   "tut5": "In a real game the number is invisible: use questions, maths (⭐ + a clue) and your notebook 📓, and remember to shift everything when it runs away. <b>Race</b>: first to catch it wins. <b>Points</b>: best score after several turns.",
   "tutBtn": "Tutorial",
   "tutInviteText": "The tutorial shows in one minute how to ask a question, follow the number as it runs away and catch it. You can also start it later from the home screen.",
@@ -10433,7 +10651,7 @@ const dictionaries = {
   "levelBadge": "المستوى",
   "levelExpert": "كبير",
   "levelGenius": "عبقري",
-  "levelJunior": "صغير",
+  "levelJunior": "سهل",
   "levelMalin": "متوسط",
   "levels": "اختر المستوى، في أي عمر",
   "levelsFree": "المستويات لا تتعلق بالعمر: اختر حسب رغبتك وخبرتك. يمكن البدء بالأسهل في أي عمر.",
@@ -10472,7 +10690,7 @@ const dictionaries = {
   "mission_winLevel": "اربح تحقيقًا في مستوى {level}",
   "missionsIntro": "لا يوجد وقت محدد: خذ وقتك. كل مهمة ناجحة تمنح ‎+{xp} XP وتأتي مهمة جديدة.",
   "modeRace": "سباق",
-  "modeRaceSub": "الأول يفوز، والآخرون يلعبون من أجل المنصة. لا أحد؟ النقاط تحسم.",
+  "modeRaceSub": "أول من يمسك الرقم يفوز وتنتهي اللعبة. لا أحد؟ النقاط تحسم.",
   "modeScore": "نقاط",
   "modeScoreSub": "{n} دورًا. الإمساك +10، الشبكة +4 (3 شباك لكل لاعب). أعلى نتيجة تفوز.",
   "modeTitle": "طريقة اللعب",
@@ -10715,7 +10933,7 @@ const dictionaries = {
   "ruleCard2Title": "إنه يهرب",
   "ruleCard3": "خمّن الرقم الصحيح، أو ارمِ شبكتك على بضعة أرقام متجاورة.",
   "ruleCard3Title": "أمسِك به",
-  "ruleExample": "الرقم يتحرك دائمًا: خانة واحدة في المستوى الصغير، وخانة أو خانتين في المستويين المتوسط والكبير، يمينًا أو يسارًا. وبعد الرقم الأخير نعود إلى 1. مستوى العبقري: يقفز ±3 أو ±5، أو يتضاعف (×2)، أو يمر في المرآة (1 ↔ 50، 2 ↔ 49…).",
+  "ruleExample": "الرقم يتحرك دائمًا: خانة واحدة في المستوى السهل، وخانة أو خانتين في المستويين المتوسط والكبير، يمينًا أو يسارًا. وبعد الرقم الأخير نعود إلى 1. مستوى العبقري: يقفز ±3 أو ±5، أو يتضاعف (×2)، أو يمر في المرآة (1 ↔ 50، 2 ↔ 49…).",
   "ruleMovesTitle": "كيف يتحرك الرقم؟",
   "rulePoints": "السباق: أول من يمسك الرقم يفوز، والنقاط للفصل عند التعادل فقط. النقاط: إمساك دقيق ‎+10، الشبكة ‎+4، ‎−1 لكل رقم خاطئ، وكل ⭐ (حساب صحيح) تساوي ‎+1.",
   "rulePointsTitle": "النقاط والفوز",
@@ -10771,7 +10989,7 @@ const dictionaries = {
   "timerAnswer": "الإجابة",
   "timerDetails": "مدد المؤقّتات",
   "timerGlobal": "الدور",
-  "timerHint": "المؤقّت العام للدور: صغير 75 ث، متوسط 70 ث، كبير 90 ث، عبقري 100 ث. مؤقّت الإجابة: السؤال 25 / 20 / 20 / 20 ث، الحساب 30 / 30 / 45 / 45 ث. زر ⏸ يوقف كل شيء مؤقتًا.",
+  "timerHint": "المؤقّت العام للدور: سهل 75 ث، متوسط 70 ث، كبير 90 ث، عبقري 100 ث. مؤقّت الإجابة: السؤال 25 / 20 / 20 / 20 ث، الحساب 30 / 30 / 45 / 45 ث. زر ⏸ يوقف كل شيء مؤقتًا.",
   "timerLabel": "الوقت المتبقي",
   "timerLong": "وقت أطول",
   "timerMathLabel": "الحساب",
@@ -10805,7 +11023,7 @@ const dictionaries = {
   "tut1": "اطرح سؤالًا لتحاصره: الجواب دائمًا نعم أو لا.",
   "tut2": "ليس أكبر من {k}: كل الأرقام الأكبر <b>تُشطب</b> من دفترك.",
   "tut3": "بعد كل تلميح <b>يهرب</b> الرقم: هنا +1، ينتقل من {from} إلى {to}. ودفترك كله يُزاح معه بخانة واحدة!",
-  "tut4": "دورك! المس رقمًا، ثم 🎯 <b>إمساك دقيق</b> (رقم واحد، +10) أو 🕸️ <b>شبكة</b> (رقمان متجاوران في المستوى الصغير، +4).",
+  "tut4": "دورك! المس رقمًا، ثم 🎯 <b>إمساك دقيق</b> (رقم واحد، +10) أو 🕸️ <b>شبكة</b> (رقمان متجاوران في المستوى السهل، +4).",
   "tut5": "في اللعبة الحقيقية يكون الرقم مخفيًا: استعمل الأسئلة والحساب (⭐ + تلميح) ودفترك 📓، ولا تنسَ إزاحة كل شيء عندما يهرب. <b>السباق</b>: أول من يمسكه يفوز. <b>النقاط</b>: أفضل نتيجة بعد عدة أدوار.",
   "tutBtn": "تدريب",
   "tutInviteText": "يعرض التدريب في دقيقة واحدة كيف تطرح سؤالًا وتتبع الرقم الهارب وتمسكه. يمكنك أيضًا تشغيله لاحقًا من الشاشة الرئيسية.",
@@ -11001,7 +11219,7 @@ const dictionaries = {
   "levelBadge": "Nivel",
   "levelExpert": "Grande",
   "levelGenius": "Genio",
-  "levelJunior": "Pequeño",
+  "levelJunior": "Fácil",
   "levelMalin": "Medio",
   "levels": "Elige un nivel, a cualquier edad",
   "levelsFree": "Los niveles no dependen de la edad: elige según tus ganas y tu experiencia. Cualquiera puede empezar por el más fácil.",
@@ -11040,7 +11258,7 @@ const dictionaries = {
   "mission_winLevel": "Gana un caso en el nivel {level}",
   "missionsIntro": "Sin reloj: tómate tu tiempo. Cada misión da +{xp} XP y llega otra nueva.",
   "modeRace": "Carrera",
-  "modeRaceSub": "El primero que lo atrapa gana, los demás juegan por el podio. ¿Nadie? Deciden los puntos.",
+  "modeRaceSub": "El primero que atrapa el número gana: la partida termina. ¿Nadie? Deciden los puntos.",
   "modeScore": "Puntos",
   "modeScoreSub": "{n} turnos. Captura +10, red +4 (3 redes cada uno). Gana la mejor puntuación.",
   "modeTitle": "Modo de juego",
@@ -11283,7 +11501,7 @@ const dictionaries = {
   "ruleCard2Title": "Se escapa",
   "ruleCard3": "Adivina el número exacto o lanza tu red sobre unos vecinos.",
   "ruleCard3Title": "Atrápalo",
-  "ruleExample": "El número siempre se mueve: 1 casilla en Pequeño, 1 o 2 en Medio y Grande, a la izquierda o a la derecha. Después del máximo, vuelve al 1. Nivel Genio: salta ±3 o ±5, se duplica (×2) o pasa por el espejo (1 ↔ 50, 2 ↔ 49…).",
+  "ruleExample": "El número siempre se mueve: 1 casilla en Fácil, 1 o 2 en Medio y Grande, a la izquierda o a la derecha. Después del máximo, vuelve al 1. Nivel Genio: salta ±3 o ±5, se duplica (×2) o pasa por el espejo (1 ↔ 50, 2 ↔ 49…).",
   "ruleMovesTitle": "¿Cómo se mueve el número?",
   "rulePoints": "Carrera: gana el primero que atrapa el número; los puntos solo sirven para desempatar. Puntos: captura exacta +10, red +4, −1 por número fallado, y cada ⭐ (cálculo correcto) vale +1.",
   "rulePointsTitle": "Puntos y victoria",
@@ -11339,7 +11557,7 @@ const dictionaries = {
   "timerAnswer": "Respuesta",
   "timerDetails": "Duración de los cronómetros",
   "timerGlobal": "Turno",
-  "timerHint": "Cronómetro del turno: Pequeño 75 s, Medio 70 s, Grande 90 s, Genio 100 s. Cronómetro de respuesta: pregunta 25 / 20 / 20 / 20 s, cálculo 30 / 30 / 45 / 45 s. El botón ⏸ lo detiene todo.",
+  "timerHint": "Cronómetro del turno: Fácil 75 s, Medio 70 s, Grande 90 s, Genio 100 s. Cronómetro de respuesta: pregunta 25 / 20 / 20 / 20 s, cálculo 30 / 30 / 45 / 45 s. El botón ⏸ lo detiene todo.",
   "timerLabel": "Tiempo restante",
   "timerLong": "Más tiempo",
   "timerMathLabel": "Cálculo",
@@ -11373,7 +11591,7 @@ const dictionaries = {
   "tut1": "Haz una pregunta para acercarte: la respuesta siempre es sí o no.",
   "tut2": "No es mayor que {k}: todos los números de arriba quedan <b>tachados</b> en tu cuaderno.",
   "tut3": "Tras cada pista, el número <b>huye</b>: aquí +1, pasa del {from} al {to}. ¡Todo tu cuaderno se desplaza con él, una casilla!",
-  "tut4": "¡Te toca! Toca un número y luego 🎯 <b>captura exacta</b> (1 número, +10) o 🕸️ <b>red</b> (2 vecinos en Pequeño, +4).",
+  "tut4": "¡Te toca! Toca un número y luego 🎯 <b>captura exacta</b> (1 número, +10) o 🕸️ <b>red</b> (2 vecinos en Fácil, +4).",
   "tut5": "En una partida de verdad el número es invisible: usa preguntas, cálculos (⭐ + una pista) y tu cuaderno 📓, y acuérdate de desplazarlo todo cuando huye. <b>Carrera</b>: gana el primero que lo atrapa. <b>Puntos</b>: la mejor puntuación tras varios turnos.",
   "tutBtn": "Tutorial",
   "tutInviteText": "El tutorial enseña en un minuto cómo hacer una pregunta, seguir al número cuando huye y atraparlo. También puedes empezarlo más tarde desde la pantalla de inicio.",
@@ -11569,7 +11787,7 @@ const dictionaries = {
   "levelBadge": "Livello",
   "levelExpert": "Grande",
   "levelGenius": "Genio",
-  "levelJunior": "Piccolo",
+  "levelJunior": "Facile",
   "levelMalin": "Medio",
   "levels": "Scegli un livello, a ogni età",
   "levelsFree": "I livelli non dipendono dall’età: scegli in base alla voglia e all’esperienza. Chiunque può cominciare dal più facile.",
@@ -11608,7 +11826,7 @@ const dictionaries = {
   "mission_winLevel": "Vinci un caso al livello {level}",
   "missionsIntro": "Nessun cronometro: prenditi il tuo tempo. Ogni missione dà +{xp} XP e ne arriva una nuova.",
   "modeRace": "Corsa",
-  "modeRaceSub": "Il primo che lo cattura vince, gli altri giocano per il podio. Nessuno? Decidono i punti.",
+  "modeRaceSub": "Il primo che cattura il numero vince: la partita finisce. Nessuno? Decidono i punti.",
   "modeScore": "Punti",
   "modeScoreSub": "{n} turni. Cattura +10, rete +4 (3 reti a testa). Vince il punteggio migliore.",
   "modeTitle": "Modalità di gioco",
@@ -11851,7 +12069,7 @@ const dictionaries = {
   "ruleCard2Title": "Scappa",
   "ruleCard3": "Indovina il numero esatto o lancia la rete su qualche vicino.",
   "ruleCard3Title": "Catturalo",
-  "ruleExample": "Il numero si muove sempre: 1 casella in Piccolo, 1 o 2 in Medio e Grande, a sinistra o a destra. Dopo il massimo, riparte da 1. Livello Genio: salta ±3 o ±5, raddoppia (×2) o passa allo specchio (1 ↔ 50, 2 ↔ 49…).",
+  "ruleExample": "Il numero si muove sempre: 1 casella in Facile, 1 o 2 in Medio e Grande, a sinistra o a destra. Dopo il massimo, riparte da 1. Livello Genio: salta ±3 o ±5, raddoppia (×2) o passa allo specchio (1 ↔ 50, 2 ↔ 49…).",
   "ruleMovesTitle": "Come si muove il numero?",
   "rulePoints": "Corsa: vince il primo che cattura il numero; i punti servono solo per gli spareggi. Punti: cattura esatta +10, rete +4, −1 per numero mancato, e ogni ⭐ (calcolo giusto) vale +1.",
   "rulePointsTitle": "Punti e vittoria",
@@ -11907,7 +12125,7 @@ const dictionaries = {
   "timerAnswer": "Risposta",
   "timerDetails": "Durata dei cronometri",
   "timerGlobal": "Turno",
-  "timerHint": "Cronometro del turno: Piccolo 75 s, Medio 70 s, Grande 90 s, Genio 100 s. Cronometro di risposta: domanda 25 / 20 / 20 / 20 s, calcolo 30 / 30 / 45 / 45 s. Il pulsante ⏸ ferma tutto.",
+  "timerHint": "Cronometro del turno: Facile 75 s, Medio 70 s, Grande 90 s, Genio 100 s. Cronometro di risposta: domanda 25 / 20 / 20 / 20 s, calcolo 30 / 30 / 45 / 45 s. Il pulsante ⏸ ferma tutto.",
   "timerLabel": "Tempo rimasto",
   "timerLong": "Più tempo",
   "timerMathLabel": "Calcolo",
@@ -11941,7 +12159,7 @@ const dictionaries = {
   "tut1": "Fai una domanda per avvicinarti: la risposta è sempre sì o no.",
   "tut2": "Non è maggiore di {k}: tutti i numeri sopra sono <b>cancellati</b> nel taccuino.",
   "tut3": "Dopo ogni indizio, il numero <b>scappa</b>: qui +1, passa dal {from} al {to}. Tutto il taccuino si sposta con lui, di una casella!",
-  "tut4": "Tocca a te! Tocca un numero, poi 🎯 <b>cattura esatta</b> (1 numero, +10) o 🕸️ <b>rete</b> (2 vicini in Piccolo, +4).",
+  "tut4": "Tocca a te! Tocca un numero, poi 🎯 <b>cattura esatta</b> (1 numero, +10) o 🕸️ <b>rete</b> (2 vicini in Facile, +4).",
   "tut5": "In una vera partita il numero è invisibile: usa domande, calcoli (⭐ + un indizio) e il taccuino 📓, e ricordati di spostare tutto quando scappa. <b>Corsa</b>: vince il primo che lo cattura. <b>Punti</b>: il miglior punteggio dopo diversi turni.",
   "tutBtn": "Tutorial",
   "tutInviteText": "Il tutorial mostra in un minuto come fare una domanda, seguire il numero quando scappa e catturarlo. Puoi anche avviarlo più tardi dalla schermata iniziale.",
@@ -12137,7 +12355,7 @@ const dictionaries = {
   "levelBadge": "Stufe",
   "levelExpert": "Groß",
   "levelGenius": "Genie",
-  "levelJunior": "Klein",
+  "levelJunior": "Leicht",
   "levelMalin": "Mittel",
   "levels": "Wähle eine Stufe, in jedem Alter",
   "levelsFree": "Die Stufen haben nichts mit dem Alter zu tun: Wähle nach Lust und Erfahrung. Jeder kann mit der leichtesten anfangen.",
@@ -12176,7 +12394,7 @@ const dictionaries = {
   "mission_winLevel": "Gewinne einen Fall auf Stufe {level}",
   "missionsIntro": "Keine Uhr: Lass dir Zeit. Jede Mission bringt +{xp} XP und eine neue kommt.",
   "modeRace": "Rennen",
-  "modeRaceSub": "Wer sie zuerst fängt, gewinnt; die anderen spielen um das Podium. Niemand? Dann entscheiden die Punkte.",
+  "modeRaceSub": "Wer die Zahl zuerst fängt, gewinnt: Das Spiel endet. Niemand? Die Punkte entscheiden.",
   "modeScore": "Punkte",
   "modeScoreSub": "{n} Runden. Fang +10, Netz +4 (3 Netze pro Person). Die meisten Punkte gewinnen.",
   "modeTitle": "Spielmodus",
@@ -12419,7 +12637,7 @@ const dictionaries = {
   "ruleCard2Title": "Sie entwischt",
   "ruleCard3": "Rate die genaue Zahl oder wirf dein Netz über ein paar Nachbarn.",
   "ruleCard3Title": "Fang sie",
-  "ruleExample": "Die Zahl bewegt sich immer: 1 Feld auf Klein, 1 oder 2 Felder auf Mittel und Groß, nach links oder rechts. Nach dem Maximum geht es bei 1 weiter. Stufe Genie: Sie springt ±3 oder ±5, verdoppelt sich (×2) oder geht durch den Spiegel (1 ↔ 50, 2 ↔ 49 …).",
+  "ruleExample": "Die Zahl bewegt sich immer: 1 Feld auf Leicht, 1 oder 2 Felder auf Mittel und Groß, nach links oder rechts. Nach dem Maximum geht es bei 1 weiter. Stufe Genie: Sie springt ±3 oder ±5, verdoppelt sich (×2) oder geht durch den Spiegel (1 ↔ 50, 2 ↔ 49 …).",
   "ruleMovesTitle": "Wie bewegt sich die Zahl?",
   "rulePoints": "Rennen: Wer die Zahl zuerst fängt, gewinnt; Punkte entscheiden nur bei Gleichstand. Punkte: genauer Fang +10, Netz +4, −1 pro verfehlter Zahl, und jeder ⭐ (richtige Rechnung) zählt +1.",
   "rulePointsTitle": "Punkte und Sieg",
@@ -12475,7 +12693,7 @@ const dictionaries = {
   "timerAnswer": "Antwort",
   "timerDetails": "Dauer der Uhren",
   "timerGlobal": "Runde",
-  "timerHint": "Rundenuhr: Klein 75 s, Mittel 70 s, Groß 90 s, Genie 100 s. Antwortuhr: Frage 25 / 20 / 20 / 20 s, Rechnung 30 / 30 / 45 / 45 s. Die Taste ⏸ hält alles an.",
+  "timerHint": "Rundenuhr: Leicht 75 s, Mittel 70 s, Groß 90 s, Genie 100 s. Antwortuhr: Frage 25 / 20 / 20 / 20 s, Rechnung 30 / 30 / 45 / 45 s. Die Taste ⏸ hält alles an.",
   "timerLabel": "Restzeit",
   "timerLong": "Mehr Zeit",
   "timerMathLabel": "Rechnen",
@@ -12509,7 +12727,7 @@ const dictionaries = {
   "tut1": "Stell eine Frage, um ihr näherzukommen: Die Antwort ist immer ja oder nein.",
   "tut2": "Sie ist nicht größer als {k}: Alle Zahlen darüber sind in deinem Notizbuch <b>gestrichen</b>.",
   "tut3": "Nach jedem Hinweis <b>flüchtet</b> die Zahl: hier +1, sie geht von {from} nach {to}. Dein ganzes Notizbuch rückt mit, um ein Feld!",
-  "tut4": "Du bist dran! Tippe eine Zahl, dann 🎯 <b>genauer Fang</b> (1 Zahl, +10) oder 🕸️ <b>Netz</b> (2 Nachbarn auf Klein, +4).",
+  "tut4": "Du bist dran! Tippe eine Zahl, dann 🎯 <b>genauer Fang</b> (1 Zahl, +10) oder 🕸️ <b>Netz</b> (2 Nachbarn auf Leicht, +4).",
   "tut5": "Im echten Spiel ist die Zahl unsichtbar: Nutze Fragen, Rechnungen (⭐ + ein Hinweis) und dein Notizbuch 📓 und verschiebe alles, wenn sie flüchtet. <b>Rennen</b>: Wer sie zuerst fängt, gewinnt. <b>Punkte</b>: die meisten Punkte nach mehreren Runden.",
   "tutBtn": "Tutorial",
   "tutInviteText": "Das Tutorial zeigt in einer Minute, wie man eine Frage stellt, der flüchtenden Zahl folgt und sie fängt. Du kannst es auch später vom Startbildschirm aus starten.",
@@ -12705,7 +12923,7 @@ const dictionaries = {
   "levelBadge": "难度",
   "levelExpert": "大",
   "levelGenius": "天才",
-  "levelJunior": "小",
+  "levelJunior": "简单",
   "levelMalin": "中",
   "levels": "选择难度，不分年龄",
   "levelsFree": "难度和年龄无关：按心情和经验来选。谁都可以从最简单的开始。",
@@ -12744,7 +12962,7 @@ const dictionaries = {
   "mission_winLevel": "在{level}难度赢下一个案件",
   "missionsIntro": "不计时：慢慢来。每完成一个任务得 +{xp} XP，并出现新任务。",
   "modeRace": "竞速",
-  "modeRaceSub": "谁先抓到谁赢，其他人争夺领奖台。没人抓到？比分数。",
+  "modeRaceSub": "谁先抓到数字谁赢，游戏结束。没人抓到？比分数。",
   "modeScore": "积分",
   "modeScoreSub": "{n} 回合。捕捉 +10，网 +4（每人 3 张网）。分数最高者获胜。",
   "modeTitle": "游戏模式",
@@ -12987,7 +13205,7 @@ const dictionaries = {
   "ruleCard2Title": "它会逃跑",
   "ruleCard3": "猜出确切的数字，或者向几个相邻数字撒网。",
   "ruleCard3Title": "抓住它",
-  "ruleExample": "数字总会移动：小难度 1 格，中、大难度 1 或 2 格，向左或向右。超过最大值后回到 1。天才难度：它会跳 ±3 或 ±5、翻倍（×2）或穿过镜子（1 ↔ 50、2 ↔ 49……）。",
+  "ruleExample": "数字总会移动：简单难度 1 格，中、大难度 1 或 2 格，向左或向右。超过最大值后回到 1。天才难度：它会跳 ±3 或 ±5、翻倍（×2）或穿过镜子（1 ↔ 50、2 ↔ 49……）。",
   "ruleMovesTitle": "数字怎么移动？",
   "rulePoints": "竞速：谁先抓到数字谁赢；分数只用于平局时比较。积分：精准捕捉 +10，网 +4，每个失手的数字 −1，每颗 ⭐（算对）+1。",
   "rulePointsTitle": "得分与胜利",
@@ -13043,7 +13261,7 @@ const dictionaries = {
   "timerAnswer": "回答",
   "timerDetails": "计时时长",
   "timerGlobal": "回合",
-  "timerHint": "回合计时：小 75 秒，中 70 秒，大 90 秒，天才 100 秒。回答计时：问题 25 / 20 / 20 / 20 秒，算术 30 / 30 / 45 / 45 秒。⏸ 按钮会暂停一切。",
+  "timerHint": "回合计时：简单 75 秒，中 70 秒，大 90 秒，天才 100 秒。回答计时：问题 25 / 20 / 20 / 20 秒，算术 30 / 30 / 45 / 45 秒。⏸ 按钮会暂停一切。",
   "timerLabel": "剩余时间",
   "timerLong": "更多时间",
   "timerMathLabel": "算术",
@@ -13077,7 +13295,7 @@ const dictionaries = {
   "tut1": "问个问题来接近它：答案总是“是”或“否”。",
   "tut2": "它不大于 {k}：笔记本里所有更大的数字都被<b>划掉</b>了。",
   "tut3": "每条线索之后，数字都会<b>逃跑</b>：这里 +1，它从 {from} 到了 {to}。你的整个笔记本也跟着挪一格！",
-  "tut4": "轮到你了！点一个数字，再选 🎯 <b>精准捕捉</b>（1 个数字，+10）或 🕸️ <b>网</b>（小难度罩 2 个相邻数字，+4）。",
+  "tut4": "轮到你了！点一个数字，再选 🎯 <b>精准捕捉</b>（1 个数字，+10）或 🕸️ <b>网</b>（简单难度罩 2 个相邻数字，+4）。",
   "tut5": "真正的游戏里数字是看不见的：用问题、算术（⭐ + 一条线索）和你的笔记本 📓，它逃跑时记得把一切都挪一挪。<b>竞速</b>：先抓到的人赢。<b>积分</b>：几回合后分数最高者赢。",
   "tutBtn": "教程",
   "tutInviteText": "教程用一分钟教你怎么提问、跟踪逃跑的数字并抓住它。你也可以之后从首页开始。",
@@ -13273,7 +13491,7 @@ const dictionaries = {
   "levelBadge": "レベル",
   "levelExpert": "大",
   "levelGenius": "天才",
-  "levelJunior": "小",
+  "levelJunior": "かんたん",
   "levelMalin": "中",
   "levels": "レベルを選ぼう、年齢は関係なし",
   "levelsFree": "レベルは年齢と関係ありません：気分と経験で選ぼう。だれでもいちばんかんたんなレベルから始められます。",
@@ -13312,7 +13530,7 @@ const dictionaries = {
   "mission_winLevel": "{level}レベルで事件に勝つ",
   "missionsIntro": "時間制限なし：ゆっくりどうぞ。ミッション 1 つにつき +{xp} XP、そして新しいミッションが登場。",
   "modeRace": "レース",
-  "modeRaceSub": "最初につかまえた人が勝ち、ほかの人は表彰台へ。だれもいなければ点数で決着。",
+  "modeRaceSub": "最初につかまえた人の勝ちでゲーム終了。だれもいなければ点数で決着。",
   "modeScore": "ポイント",
   "modeScoreSub": "{n} ターン。捕獲 +10、網 +4（1 人 3 枚）。最高得点で勝ち。",
   "modeTitle": "ゲームモード",
@@ -13555,7 +13773,7 @@ const dictionaries = {
   "ruleCard2Title": "数字は逃げる",
   "ruleCard3": "ぴったりの数字を当てるか、となり合う数字に網をかけよう。",
   "ruleCard3Title": "つかまえろ",
-  "ruleExample": "数字はいつも動く：小レベルは 1 マス、中・大レベルは 1 か 2 マス、左か右へ。最大をこえたら 1 に戻る。天才レベル：±3 や ±5 のジャンプ、2 倍（×2）、または鏡を通る（1 ↔ 50、2 ↔ 49……）。",
+  "ruleExample": "数字はいつも動く：かんたんレベルは 1 マス、中・大レベルは 1 か 2 マス、左か右へ。最大をこえたら 1 に戻る。天才レベル：±3 や ±5 のジャンプ、2 倍（×2）、または鏡を通る（1 ↔ 50、2 ↔ 49……）。",
   "ruleMovesTitle": "数字はどう動く？",
   "rulePoints": "レース：最初に数字をつかまえた人の勝ち。点数は引き分けのときだけ使う。ポイント：ピタリ捕獲 +10、網 +4、はずれた数字 1 個につき −1、⭐（計算正解）1 つにつき +1。",
   "rulePointsTitle": "点数と勝ち方",
@@ -13611,7 +13829,7 @@ const dictionaries = {
   "timerAnswer": "回答",
   "timerDetails": "制限時間",
   "timerGlobal": "ターン",
-  "timerHint": "ターン時間：小 75 秒、中 70 秒、大 90 秒、天才 100 秒。回答時間：質問 25 / 20 / 20 / 20 秒、計算 30 / 30 / 45 / 45 秒。⏸ ボタンですべて止まる。",
+  "timerHint": "ターン時間：かんたん 75 秒、中 70 秒、大 90 秒、天才 100 秒。回答時間：質問 25 / 20 / 20 / 20 秒、計算 30 / 30 / 45 / 45 秒。⏸ ボタンですべて止まる。",
   "timerLabel": "残り時間",
   "timerLong": "時間多め",
   "timerMathLabel": "計算",
@@ -13645,7 +13863,7 @@ const dictionaries = {
   "tut1": "質問して近づこう：答えはいつも「はい」か「いいえ」。",
   "tut2": "{k} より大きくない：ノートでそれより大きい数字はすべて<b>消えた</b>。",
   "tut3": "ヒントのたびに数字は<b>逃げる</b>：ここでは +1、{from} から {to} へ。ノート全体も 1 マスずれる！",
-  "tut4": "きみの番！数字をタップして、🎯 <b>ピタリ捕獲</b>（数字 1 個、+10）か 🕸️ <b>網</b>（小レベルはとなり合う 2 個、+4）を選ぼう。",
+  "tut4": "きみの番！数字をタップして、🎯 <b>ピタリ捕獲</b>（数字 1 個、+10）か 🕸️ <b>網</b>（かんたんレベルはとなり合う 2 個、+4）を選ぼう。",
   "tut5": "本番では数字は見えない：質問、計算（⭐ + ヒント）、ノート 📓 を使って、逃げたらすべてをずらそう。<b>レース</b>：最初につかまえた人の勝ち。<b>ポイント</b>：数ターンのあと最高得点の人の勝ち。",
   "tutBtn": "チュートリアル",
   "tutInviteText": "1 分のチュートリアルで、質問のしかた、逃げる数字の追い方、つかまえ方がわかるよ。あとでホームから始めることもできる。",
@@ -15757,8 +15975,11 @@ function nextTurn() {
     return;
   }
   if (isRace() && g.players > 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
-    // Course : le joueur monte sur le podium (un nouveau numéro a déjà été tiré pour les autres).
+    // Course (V9.7) : le premier qui attrape le numéro gagne, la partie s'arrête (pas de main aux autres).
     g.placed.push({ player: g.last.player, round: raceRound(), turn: g.turn + 1, seen: [g.last.player] });
+    finishRace(false);
+    render();
+    return;
   }
   if (g.mode !== 'challenge' && g.players === 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
     g.soloWon = true;
@@ -16261,7 +16482,7 @@ function resultView() {
   const head = top
     ? `${fbTop}<div class="catch-head">${top}<div>${titleHtml}<p class="result-desc">${desc}</p>${scoreChip}</div></div>${racePodiumNote(x)}`
     : `${fbTop}${titleHtml}${points}${desc ? `<p class="result-desc">${desc}</p>` : ''}${scoreChip}`;
-  return `<div class="result-card ${tone}${fb ? ' fb-card fb-' + fb : ''}">${head}${extra}${move}${clue && !x.pick ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${(g.net && !myTurn()) || x.pick ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
+  return `<div class="result-card ${tone}${fb ? ' fb-card fb-' + fb : ''}">${head}${extra}${move}${clue && !x.pick ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${(g.net && !myTurn()) || x.pick ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('seeResults') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {
@@ -16369,7 +16590,7 @@ function end() {
   const soloLost = g.players === 1 && g.soloWon === false;
   // V9.4 : personne n'a trouvé le numéro → pas de fête (même si quelqu'un a plus de points)
   const noCatch = g.players > 1 && (isRace() || !g.captures);
-  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
+  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {
@@ -16380,10 +16601,8 @@ function raceNewsFor(i) {
   return `<div class="podium-note race-news">${news.map(p => t('raceNewsFound', { medal: medal(placeFor(p.round)), player: pname(p.player) })).join('<br>')}<small>${t('raceNewsNext', { n: placeFor(raceRound()) })}</small></div>`;
 }
 /** Course : après une capture, place obtenue et annonce du nouveau numéro pour les autres. */
-function racePodiumNote(x) {
-  if (!isRace() || g.players < 2) return '';
-  const place = placeFor(raceRound());
-  return `<div class="podium-note">${t('racePlace', { medal: ['🥇', '🥈', '🥉', '🎖️'][place - 1], player: pname(x.player), n: place })}<small>${t('raceNewNumber')}</small></div>`;
+function racePodiumNote() {
+  return ''; // V9.7 : la Course s'arrête à la première capture, plus d'annonce « nouveau numéro »
 }
 /** Classement final de la Course : podium (ordre des captures, ex aequo dans un même tour), puis les autres aux points. */
 function raceRanking() {
@@ -16407,15 +16626,15 @@ function endRace() {
   const rows = [
     ...placed.map(
       p =>
-        `<div class="finalscore"><div class="medal">${medal(p.place)}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('podiumCaught', { turn: p.turn })}</small></div></div>`
+        `<div class="finalscore pod-row place-${p.place}"><div class="medal">${medal(p.place)}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('podiumCaught', { turn: p.turn })}</small></div></div>`
     ),
     ...others.map(
       o =>
-        `<div class="finalscore"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}</strong><small>${t('podiumNotCaught', { n: o.v })}</small></div></div>`
+        `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}</strong><small>${t('podiumNotCaught', { n: o.v })}</small></div></div>`
     )
   ].join('');
-  return `${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win"><div class="hero-mascot">${mascot('caught')}</div><h1>🏆 ${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro">${t('raceWinDesc', { turns: g.raceTurns })}</p></section>
- <section class="panel">${escapedNote(true)}<div class="label centered">${t('podiumTitle')}</div>${rows}<p class="sub centered">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
+  return `${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot">${mascot('caught')}</div><div class="rh-side"><div class="rh-trophy" aria-hidden="true">🏆</div><h1>${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro">${t('raceWinDesc', { turns: g.raceTurns })}</p></div></section>
+ ${escapedNote(true)}<section class="panel podium-panel"><div class="label centered podium-label">${t('podiumTitle')}</div>${rows}<p class="sub centered next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
 }
 /**
  * Fin de partie alors que le numéro courait encore : « il était sur le 23 » et le film de son évasion.

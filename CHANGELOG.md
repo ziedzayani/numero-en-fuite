@@ -1,5 +1,14 @@
 # Historique des versions
 
+## V9.7
+
+- Le niveau **« Petit » s'appelle « Facile »** (8 langues : Easy, Fácil, Facile, Leicht, سهل, 简单, かんたん).
+- **Course à plusieurs : la première capture termine la partie** (plus de main donnée aux autres joueurs) ;
+  les autres sont classés aux points. Bouton « 🏆 Voir les résultats » après la capture.
+- **Écran de victoire de la Course refait** (maquette) : détective pouce levé, trophée, bandeau vert « X gagne la
+  course ! », podium avec médailles, le gagnant encadré d'or.
+- **« ×2 » n'est plus caché par le drap** : l'étiquette du saut reste au-dessus, le drap grossit moins.
+
 ## V9.6 — Mon bureau ne mélange plus les niveaux
 
 - **XP selon le niveau** : victoire 10 / 15 / 20 / 30 XP (Petit / Moyen / Grand / Génie), défaite 2 / 3 / 4 / 5,

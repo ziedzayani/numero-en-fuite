@@ -411,8 +411,11 @@ function nextTurn() {
     return;
   }
   if (isRace() && g.players > 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
-    // Course : le joueur monte sur le podium (un nouveau numéro a déjà été tiré pour les autres).
+    // Course (V9.7) : le premier qui attrape le numéro gagne, la partie s'arrête (pas de main aux autres).
     g.placed.push({ player: g.last.player, round: raceRound(), turn: g.turn + 1, seen: [g.last.player] });
+    finishRace(false);
+    render();
+    return;
   }
   if (g.mode !== 'challenge' && g.players === 1 && g.last && ['found', 'netHit'].includes(g.last.type)) {
     g.soloWon = true;
