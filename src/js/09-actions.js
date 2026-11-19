@@ -198,8 +198,21 @@ const raceNewsUnseen = i => (g.placed || []).filter(p => !(p.seen || []).include
 function markRaceNewsSeen(i) {
   for (const p of raceNewsUnseen(i)) (p.seen = p.seen || []).push(i);
 }
-/** Fin de la course : premier(s) du podium vainqueur(s). */
-function finishRace() {
+/**
+ * Fin de partie alors que le numéro court toujours : on révèle où il était et on prépare
+ * le film de son évasion (bouton 🎬 sur l'écran de fin).
+ */
+function revealEscaped() {
+  g.escaped = { n: g.secret };
+  // pas un seul saut depuis le dernier numéro : rien à montrer (et surtout pas le film d'une capture précédente)
+  g.lastHunt =
+    g.hunt && g.hunt.steps.length
+      ? { start: g.hunt.start, steps: g.hunt.steps, end: { type: 'escaped', n: g.secret }, max: maxN() }
+      : null;
+}
+/** Fin de la course : premier(s) du podium vainqueur(s) ; `escaped` : des joueurs cherchaient encore. */
+function finishRace(escaped = false) {
+  if (escaped) revealEscaped();
   const first = g.placed[0];
   g.raceWinner = first ? first.player : null;
   g.raceTurns = first ? first.turn : g.turn;
@@ -299,7 +312,7 @@ function advanceTurn() {
       left = present.filter(i => !isPlaced(i));
     // fin : tout le monde est placé, ou un tour complet est fini et il reste au plus un chercheur
     if (!left.length || (roundEnded && left.length <= 1) || g.turn >= g.limit) {
-      finishRace();
+      finishRace(left.length > 0);
       render();
       return;
     }
@@ -308,6 +321,7 @@ function advanceTurn() {
     g.raceWinner = null;
     g.soloWon = false;
     g.soloSecret = g.secret;
+    revealEscaped();
     if (g.players === 1 && g.mode !== 'challenge') settleSolo(false); // 12 tours joués : +10 XP
     g.screen = 'end';
     g.inGame = false;

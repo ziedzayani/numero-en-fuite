@@ -124,7 +124,8 @@ function start(skipHandoff = false) {
     chDiffPref,
     tutSeen,
     lastMulti,
-    tipsSeen
+    tipsSeen,
+    myName
   } = g;
   g = initial();
   g.players = players;
@@ -139,6 +140,7 @@ function start(skipHandoff = false) {
   g.showInfo = !!showInfo;
   g.tutSeen = !!tutSeen;
   g.lastMulti = lastMulti;
+  g.myName = typeof myName === 'string' ? myName : ''; // prénom de CE téléphone en Wi-Fi
   g.tipsSeen = tipsSeen && typeof tipsSeen === 'object' ? tipsSeen : {};
   g.chDiffPref = chDiffPref in CHALLENGE_DIFFS ? chDiffPref : 'medium';
   g.gameMode = gameMode === 'score' ? 'score' : 'race';
@@ -150,7 +152,7 @@ function start(skipHandoff = false) {
   g.screen = 'game';
   g.inGame = true;
   g.modal = players > 1 && skipHandoff !== true ? 'handoff' : null;
-  g.limit = [0, 12, 16, 18, 20][players];
+  g.limit = TURN_LIMITS[players]; // V8.14 : 10 essais chacun à 2 (au lieu de 8)
   g.secret = 1 + rnd(maxN());
   g.scores = Array(players).fill(0);
   g.stars = Array(players).fill(0);

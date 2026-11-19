@@ -5596,9 +5596,6 @@ body.scr-end .finalscore {
 .net-spectator .capture-row {
   opacity: 0.6;
 }
-.net-client #again {
-  display: none;
-}
 /* l'attribut hidden l'emporte toujours sur le display des boutons */
 [hidden] {
   display: none !important;
@@ -5815,6 +5812,188 @@ body.scr-end .finalscore {
   font-size: 18px;
 }
 
+/* V8.14 : carnet « à la main » — l'enfant barre lui-même */
+.nb-tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 0 0 10px;
+}
+.nb-tab {
+  flex: 1;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 5px 4px;
+  min-height: 40px;
+  box-shadow: 0 3px 0 #cfd7fb;
+}
+.nb-tab.is-selected {
+  background: var(--purple);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--purpleDark);
+}
+.nb-grid.mine {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+.nb-grid.mine.dense {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+}
+.nb-grid.mine .nb-cell {
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 0;
+  border: 2px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+}
+.nb-grid.mine .nb-cell.no {
+  background: #e6e9f3;
+  color: #9aa1bd;
+  border-color: #c5cbe0;
+  position: relative;
+}
+.nb-cell.no::after,
+.nb-range.no::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 50%;
+  border-top: 3px solid var(--pink);
+  transform: rotate(-35deg);
+  border-radius: 2px;
+}
+.nb-ranges,
+.nb-tiles {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 auto 8px;
+  max-width: 330px;
+}
+.nb-range {
+  position: relative;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: #fff6cf;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 4px 2px;
+  min-height: 36px;
+}
+.nb-range small {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--greenDark);
+}
+.nb-range.no {
+  background: #e6e9f3;
+  color: #9aa1bd;
+}
+.nb-range.no small {
+  color: var(--pinkDark);
+}
+.nb-range.is-open {
+  background: var(--blue);
+  color: #fff;
+}
+.nb-range.is-open small {
+  color: #fff;
+}
+.nb-shift {
+  margin: 0 0 10px;
+}
+.nb-shift p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.nb-shift .bigbtn {
+  font-size: 17px;
+  padding: 8px;
+  min-height: 0;
+}
+.nb-ok {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.nb-clear,
+.nb-rangebtn {
+  margin: 0 4px 10px;
+}
+.nb-count {
+  font-size: 16px;
+}
+.nb-clues {
+  text-align: start;
+  margin-bottom: 12px;
+}
+
+/* V8.14 : fin de partie quand le numéro court encore (« il était sur le … » + film) */
+.escaped-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin: 6px 0 0;
+  font-weight: 700;
+  font-size: 15px;
+}
+.escaped-note .mini-btn {
+  margin: 0;
+}
+/* défaite solo : loupe à côté du texte et du bouton film (tient sans défilement) */
+.solo-reveal.with-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: start;
+}
+.reveal-side .escaped-note {
+  justify-content: flex-start;
+}
+/* V8.14 : marge de sécurité sur les Réglages (les polices de la CI rendent quelques pixels plus haut) */
+.compact-settings .lang-choice {
+  padding: 4px;
+}
+.compact-settings .lang-choice .flag {
+  font-size: 17px;
+}
+.compact-settings .choice-row .mini-btn {
+  min-height: 36px;
+}
+.compact-settings .toggle-row {
+  margin-top: 8px;
+  padding: 3px 10px;
+}
+.compact-settings .tr-text small {
+  font-size: 11px;
+  line-height: 1.2;
+}
+.compact-settings .lang-list {
+  margin-bottom: 8px;
+}
+
 </style>
 </head>
 <body><main id="app" aria-live="polite"></main>
@@ -5866,6 +6045,8 @@ const LEVELS = {
 /** Le défi solo se joue toujours de 1 à 100. */
 const CHALLENGE_MAX = 100;
 /** Plus grand numéro possible pour un mode ('normal' | 'challenge') et un niveau. */
+/** Nombre de tours d'une partie selon le nombre de joueurs (solo : 12 ; à 2 : 10 essais chacun). */
+const TURN_LIMITS = [0, 12, 20, 24, 24];
 const maxFor = (mode, level) => (mode === 'challenge' ? CHALLENGE_MAX : (LEVELS[level] || LEVELS.expert).max);
 
 /**
@@ -5901,7 +6082,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "8.13";
+const APP_VERSION = "8.14";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -5999,6 +6180,7 @@ const dictionaries = {
   "endTitle": "Bravo !",
   "endTitleSolo": "Bien joué !",
   "endWinner": "{player} remporte la partie !",
+  "escapedWas": "Le numéro se cachait sur le {n}.",
   "eyebrow": "LE PETIT JEU MALIN",
   "footerGame": "1 aide maximum, puis il faut tenter un numéro.",
   "found": "ATTRAPÉ !",
@@ -6089,16 +6271,31 @@ const dictionaries = {
   "namesGo": "C’est parti !",
   "namesHint": "Écris vos prénoms (facultatif).",
   "namesTitle": "Qui joue ?",
+  "nbClear": "Tout effacer",
   "nbCount": "{count} possible(s) sur {max}",
+  "nbCrossRange": "Barrer {a}–{b}",
   "nbEliminated": "éliminé",
   "nbEvents": "Mon enquête",
+  "nbMineCount": "Encore possibles : {count} / {max}",
   "nbMoves": "Le carnet suit chaque déplacement du numéro.",
   "nbOff": "Aide désactivée : à toi de déduire !",
   "nbPossible": "possible",
+  "nbRestoreRange": "Rétablir {a}–{b}",
+  "nbShift": "Décaler mes marques",
+  "nbShiftHint": "Le numéro a bougé ! Barre d’abord selon l’indice, puis décale.",
+  "nbTabAuto": "Détective",
+  "nbTabClues": "Indices",
+  "nbTabMine": "Mes marques",
+  "nbTapHint": "Touche un numéro pour le barrer (ou le rétablir).",
+  "nbUpToDate": "Tes marques suivent le numéro.",
+  "nbZoomHint": "Touche une plage pour barrer ses numéros.",
+  "netAgainSent": "Demande envoyée : la partie va repartir.",
   "netCodeLabel": "Code de la partie (4 chiffres)",
   "netConnected": "Connecté à la partie !",
   "netCreate": "Créer une partie",
   "netDefaultName": "Détective",
+  "netEndedText": "La partie est finie et l’hôte a quitté. Pour rejouer, rejoins sa nouvelle partie avec son nouveau code.",
+  "netEndedTitle": "L’hôte a quitté",
   "netErr_code": "Le code doit avoir 4 chiffres.",
   "netErr_full": "La partie est complète (4 joueurs).",
   "netErr_host": "Impossible de créer la partie : vérifie que le Wi-Fi est activé.",
@@ -6114,6 +6311,8 @@ const dictionaries = {
   "netHitLog": "{player} · filet {nums} → attrapé (+4)",
   "netHomeBtn": "Partie Wi-Fi (un téléphone chacun)",
   "netHost": "hôte",
+  "netHostLostText": "Le Wi-Fi de ce téléphone s’est coupé : la partie Wi-Fi est arrêtée.",
+  "netHostLostTitle": "Wi-Fi coupé",
   "netIntro": "Chacun joue sur son téléphone. Un joueur crée la partie, les autres la rejoignent avec son code.",
   "netJoin": "Rejoindre avec un code",
   "netJoinGo": "Rejoindre",
@@ -6126,6 +6325,7 @@ const dictionaries = {
   "netMissLog": "{player} · filet {nums} vide (−{p}) · {shift}",
   "netQuit": "Quitter la partie",
   "netRetry": "Réessayer",
+  "netRetryFailed": "Partie introuvable : l’hôte a peut-être quitté ou créé une nouvelle partie.",
   "netSameWifi": "Tous les téléphones doivent être sur le même Wi-Fi (ou sur le partage de connexion de l’un d’eux).",
   "netSearching": "Recherche de la partie sur le Wi-Fi…",
   "netTitle": "Partie Wi-Fi",
@@ -6246,6 +6446,7 @@ const dictionaries = {
   "rpAuto": "Automatique",
   "rpButton": "Revoir son parcours",
   "rpCaught": "Attrapé sur le <b>{n}</b> par {player} !",
+  "rpEscaped": "Personne ne l’a attrapé : il était sur le {n}.",
   "rpFrozen": "Gelé : il reste sur le {n}.",
   "rpJump": "Il saute du {from} au {to}",
   "rpManual": "Avec les boutons",
@@ -6479,6 +6680,7 @@ const dictionaries = {
   "endTitle": "Hooray!",
   "endTitleSolo": "Well done!",
   "endWinner": "{player} wins!",
+  "escapedWas": "The number was hiding on {n}.",
   "eyebrow": "A CLEVER LITTLE GAME",
   "footerGame": "One hint max, then you must guess a number.",
   "found": "CAUGHT!",
@@ -6569,16 +6771,31 @@ const dictionaries = {
   "namesGo": "Let’s go!",
   "namesHint": "Type your names (optional).",
   "namesTitle": "Who’s playing?",
+  "nbClear": "Clear all",
   "nbCount": "{count} possible out of {max}",
+  "nbCrossRange": "Cross out {a}–{b}",
   "nbEliminated": "ruled out",
   "nbEvents": "My investigation",
+  "nbMineCount": "Still possible: {count} / {max}",
   "nbMoves": "The notebook follows every move of the number.",
   "nbOff": "Help is off: work it out yourself!",
   "nbPossible": "possible",
+  "nbRestoreRange": "Bring back {a}–{b}",
+  "nbShift": "Shift my marks",
+  "nbShiftHint": "The number moved! Cross out by the clue first, then shift.",
+  "nbTabAuto": "Detective",
+  "nbTabClues": "Clues",
+  "nbTabMine": "My marks",
+  "nbTapHint": "Tap a number to cross it out (or bring it back).",
+  "nbUpToDate": "Your marks follow the number.",
+  "nbZoomHint": "Tap a range to cross out its numbers.",
+  "netAgainSent": "Request sent: the game is restarting.",
   "netCodeLabel": "Game code (4 digits)",
   "netConnected": "Connected to the game!",
   "netCreate": "Create a game",
   "netDefaultName": "Detective",
+  "netEndedText": "The game is over and the host left. To play again, join their new game with the new code.",
+  "netEndedTitle": "The host left",
   "netErr_code": "The code must have 4 digits.",
   "netErr_full": "The game is full (4 players).",
   "netErr_host": "Could not create the game: check that Wi-Fi is on.",
@@ -6594,6 +6811,8 @@ const dictionaries = {
   "netHitLog": "{player} · net {nums} → caught (+4)",
   "netHomeBtn": "Wi-Fi game (one phone each)",
   "netHost": "host",
+  "netHostLostText": "This phone lost its Wi-Fi: the Wi-Fi game has stopped.",
+  "netHostLostTitle": "Wi-Fi lost",
   "netIntro": "Everyone plays on their own phone. One player creates the game, the others join with its code.",
   "netJoin": "Join with a code",
   "netJoinGo": "Join",
@@ -6606,6 +6825,7 @@ const dictionaries = {
   "netMissLog": "{player} · net {nums} empty (−{p}) · {shift}",
   "netQuit": "Leave the game",
   "netRetry": "Try again",
+  "netRetryFailed": "Game not found: the host may have left or started a new game.",
   "netSameWifi": "All phones must be on the same Wi-Fi (or on one phone’s hotspot).",
   "netSearching": "Looking for the game on the Wi-Fi…",
   "netTitle": "Wi-Fi game",
@@ -6726,6 +6946,7 @@ const dictionaries = {
   "rpAuto": "Automatic",
   "rpButton": "Watch its route",
   "rpCaught": "Caught on <b>{n}</b> by {player}!",
+  "rpEscaped": "Nobody caught it: it was on {n}.",
   "rpFrozen": "Frozen: it stays on {n}.",
   "rpJump": "It jumps from {from} to {to}",
   "rpManual": "With the buttons",
@@ -6959,6 +7180,7 @@ const dictionaries = {
   "endTitle": "رائع!",
   "endTitleSolo": "أحسنت!",
   "endWinner": "الفائز هو {player}!",
+  "escapedWas": "كان الرقم مختبئًا عند {n}.",
   "eyebrow": "لعبة ذكاء ممتعة",
   "footerGame": "تلميح واحد كحد أقصى، ثم يجب عليك تخمين رقم.",
   "found": "أمسكته!",
@@ -7049,16 +7271,31 @@ const dictionaries = {
   "namesGo": "هيا بنا!",
   "namesHint": "اكتبوا أسماءكم (اختياري).",
   "namesTitle": "من يلعب؟",
+  "nbClear": "امسح الكل",
   "nbCount": "{count} محتمل من {max}",
+  "nbCrossRange": "اشطب {a}–{b}",
   "nbEliminated": "مستبعد",
   "nbEvents": "تحقيقي",
+  "nbMineCount": "ما زال ممكنًا: {count} / {max}",
   "nbMoves": "الدفتر يتابع كل حركة للرقم.",
   "nbOff": "المساعدة متوقفة: استنتج بنفسك!",
   "nbPossible": "محتمل",
+  "nbRestoreRange": "أرجِع {a}–{b}",
+  "nbShift": "أزِح علاماتي",
+  "nbShiftHint": "تحرك الرقم! اشطب أولًا حسب الدليل، ثم أزِح.",
+  "nbTabAuto": "المحقق",
+  "nbTabClues": "الأدلة",
+  "nbTabMine": "علاماتي",
+  "nbTapHint": "المس رقمًا لشطبه (أو لإرجاعه).",
+  "nbUpToDate": "علاماتك تتبع الرقم.",
+  "nbZoomHint": "المس مجالًا لشطب أرقامه.",
+  "netAgainSent": "تم إرسال الطلب: اللعبة ستبدأ من جديد.",
   "netCodeLabel": "رمز اللعبة (4 أرقام)",
   "netConnected": "متصل باللعبة!",
   "netCreate": "إنشاء لعبة",
   "netDefaultName": "المحقق",
+  "netEndedText": "انتهت اللعبة وغادر المضيف. لتلعب مجددًا، انضم إلى لعبته الجديدة بالرمز الجديد.",
+  "netEndedTitle": "غادر المضيف",
   "netErr_code": "يجب أن يتكون الرمز من 4 أرقام.",
   "netErr_full": "اللعبة ممتلئة (4 لاعبين).",
   "netErr_host": "تعذّر إنشاء اللعبة: تحقق من تشغيل الواي فاي.",
@@ -7074,6 +7311,8 @@ const dictionaries = {
   "netHitLog": "{player} · شبكة {nums} ← أمسكه (+4)",
   "netHomeBtn": "لعبة واي فاي (هاتف لكل لاعب)",
   "netHost": "المضيف",
+  "netHostLostText": "انقطع الواي فاي في هذا الهاتف: توقفت لعبة الواي فاي.",
+  "netHostLostTitle": "انقطع الواي فاي",
   "netIntro": "كل لاعب يلعب على هاتفه. لاعب ينشئ اللعبة والآخرون ينضمون برمزها.",
   "netJoin": "انضم برمز",
   "netJoinGo": "انضم",
@@ -7086,6 +7325,7 @@ const dictionaries = {
   "netMissLog": "{player} · شبكة {nums} فارغة (−{p}) · {shift}",
   "netQuit": "غادر اللعبة",
   "netRetry": "أعد المحاولة",
+  "netRetryFailed": "لم يتم العثور على اللعبة: ربما غادر المضيف أو أنشأ لعبة جديدة.",
   "netSameWifi": "يجب أن تكون كل الهواتف على نفس شبكة الواي فاي (أو على نقطة اتصال أحدها).",
   "netSearching": "جارٍ البحث عن اللعبة على الواي فاي…",
   "netTitle": "لعبة واي فاي",
@@ -7206,6 +7446,7 @@ const dictionaries = {
   "rpAuto": "تلقائي",
   "rpButton": "شاهد مساره",
   "rpCaught": "أُمسك عند <b>{n}</b> بواسطة {player}!",
+  "rpEscaped": "لم يمسكه أحد: كان عند {n}.",
   "rpFrozen": "متجمد: يبقى عند {n}.",
   "rpJump": "يقفز من {from} إلى {to}",
   "rpManual": "بالأزرار",
@@ -7425,6 +7666,8 @@ const initial = () => ({
   gameMode: 'race',
   chDiffPref: 'medium',
   placed: [], // Course : podium [{ player, round, turn }]
+  myName: '', // Wi-Fi : prénom de ce téléphone (jamais celui reçu des autres)
+  marks: [], // carnet « à la main » de chaque joueur (voir 08b-marks.js)
   net: null, // multijoueur Wi-Fi : { role: 'host' | 'client', seat }
   lan: null, // écran « Partie Wi-Fi » : { view, error }
   absent: [], // Wi-Fi : joueurs partis (tours sautés)
@@ -8009,7 +8252,8 @@ function start(skipHandoff = false) {
     chDiffPref,
     tutSeen,
     lastMulti,
-    tipsSeen
+    tipsSeen,
+    myName
   } = g;
   g = initial();
   g.players = players;
@@ -8024,6 +8268,7 @@ function start(skipHandoff = false) {
   g.showInfo = !!showInfo;
   g.tutSeen = !!tutSeen;
   g.lastMulti = lastMulti;
+  g.myName = typeof myName === 'string' ? myName : ''; // prénom de CE téléphone en Wi-Fi
   g.tipsSeen = tipsSeen && typeof tipsSeen === 'object' ? tipsSeen : {};
   g.chDiffPref = chDiffPref in CHALLENGE_DIFFS ? chDiffPref : 'medium';
   g.gameMode = gameMode === 'score' ? 'score' : 'race';
@@ -8035,7 +8280,7 @@ function start(skipHandoff = false) {
   g.screen = 'game';
   g.inGame = true;
   g.modal = players > 1 && skipHandoff !== true ? 'handoff' : null;
-  g.limit = [0, 12, 16, 18, 20][players];
+  g.limit = TURN_LIMITS[players]; // V8.14 : 10 essais chacun à 2 (au lieu de 8)
   g.secret = 1 + rnd(maxN());
   g.scores = Array(players).fill(0);
   g.stars = Array(players).fill(0);
@@ -8581,6 +8826,100 @@ function afterClue(test) {
   return nextMove();
 }
 
+/* ---- 08b-marks.js ---- */
+/*
+ * Carnet d'enquête « à la main » (V8.14) : c'est l'ENFANT qui barre les numéros.
+ *
+ * Le carnet automatique (g.candidates) existe toujours pour l'aide « numéros possibles » ;
+ * ici, rien n'est barré tout seul. Chaque joueur a ses propres marques :
+ *   g.marks[joueur] = { gid, cap, step, out: [numéros barrés] }
+ *     gid  : partie à laquelle appartiennent les marques (nouvelle partie → carnet vierge) ;
+ *     cap  : nombre de captures au moment des marques (Course : nouveau numéro → carnet vierge) ;
+ *     step : nombre de déplacements du parcours déjà appliqués aux marques.
+ * Quand le numéro bouge, les marques NE bougent PAS d'elles-mêmes : le bouton « Décaler mes marques »
+ * applique les sauts en attente (±k, ×2, ÷2, miroir) exactement comme pour le vrai numéro.
+ * En Wi-Fi, les marques restent sur le téléphone de chacun (NET_LOCAL_KEYS).
+ */
+
+/** Joueur dont on affiche le carnet : celui de CE téléphone en Wi-Fi, sinon celui dont c'est le tour. */
+const marksOwner = () => (g.net && Number.isInteger(g.net.seat) ? g.net.seat : active());
+/**
+ * Sauts du numéro en cours : g.hunt chez l'arbitre (solo, un téléphone, hôte Wi-Fi) ;
+ * g.huntPublic chez un joueur Wi-Fi (seulement le type de saut, jamais la position).
+ */
+const publicSteps = () =>
+  g.hunt && Array.isArray(g.hunt.steps) ? g.hunt.steps : Array.isArray(g.huntPublic) ? g.huntPublic : [];
+const huntSteps = () => publicSteps().length;
+
+/** Marques du joueur pour le numéro EN COURS (remises à zéro si la partie ou le numéro a changé). */
+function marksOf(p = marksOwner()) {
+  if (!Array.isArray(g.marks)) g.marks = [];
+  const m = g.marks[p];
+  if (!m || m.gid !== g.gameId || m.cap !== g.captures || !Array.isArray(m.out) || m.step > huntSteps())
+    g.marks[p] = { gid: g.gameId, cap: g.captures, step: huntSteps(), out: [] };
+  return g.marks[p];
+}
+/** Sauts que le joueur n'a pas encore appliqués à ses marques (le « gel » du Défi ne compte pas). */
+function pendingMoves(p = marksOwner()) {
+  const m = marksOf(p);
+  return publicSteps()
+    .slice(m.step)
+    .map(s => s.shift)
+    .filter(s => s !== 0);
+}
+/**
+ * Point de départ d'un carnet vierge : l'étape du DERNIER indice (ou tentative ratée).
+ * Un indice décrit la place du numéro AVANT le saut qui le suit : ce saut reste donc à appliquer.
+ */
+function lastClueStep() {
+  const steps = publicSteps();
+  for (let i = steps.length - 1; i >= 0; i--) if (steps[i].ev) return i;
+  return steps.length;
+}
+/** Numéros que le joueur considère encore possibles. */
+function marksPossible(p = marksOwner()) {
+  const out = new Set(marksOf(p).out);
+  return all(maxN()).filter(n => !out.has(n));
+}
+/** Barre / rétablit des numéros. Premières marques : elles partent du dernier indice. */
+function toggleMarks(nums, cross) {
+  const m = marksOf(),
+    out = new Set(m.out);
+  if (!out.size) m.step = lastClueStep();
+  for (const n of nums) {
+    if (n < 1 || n > maxN()) continue;
+    if (cross) out.add(n);
+    else out.delete(n);
+  }
+  m.out = [...out].sort((a, b) => a - b);
+}
+function toggleMark(n) {
+  toggleMarks([n], !marksOf().out.includes(n));
+}
+/** Plage a–b : tout barrer, ou tout rétablir si elle l'est déjà entièrement. */
+function toggleRange(a, b) {
+  const nums = all(maxN()).filter(n => n >= a && n <= b),
+    out = new Set(marksOf().out);
+  toggleMarks(nums, !nums.every(n => out.has(n)));
+}
+/** « Décaler mes marques » : applique les sauts en attente aux numéros encore possibles. */
+function shiftMarks() {
+  const m = marksOf(),
+    moves = pendingMoves();
+  if (!moves.length) return false;
+  let possible = marksPossible();
+  for (const mv of moves) possible = [...new Set(possible.map(moveFn(mv)))];
+  const keep = new Set(possible);
+  m.out = all(maxN()).filter(n => !keep.has(n));
+  m.step = huntSteps();
+  return true;
+}
+function clearMarks() {
+  const m = marksOf();
+  m.out = [];
+  m.step = huntSteps();
+}
+
 /* ---- 09-actions.js ---- */
 /*
  * Actions du joueur. Chacune vérifie qu'elle est permise (écran, phase, aide déjà utilisée…)
@@ -8782,8 +9121,21 @@ const raceNewsUnseen = i => (g.placed || []).filter(p => !(p.seen || []).include
 function markRaceNewsSeen(i) {
   for (const p of raceNewsUnseen(i)) (p.seen = p.seen || []).push(i);
 }
-/** Fin de la course : premier(s) du podium vainqueur(s). */
-function finishRace() {
+/**
+ * Fin de partie alors que le numéro court toujours : on révèle où il était et on prépare
+ * le film de son évasion (bouton 🎬 sur l'écran de fin).
+ */
+function revealEscaped() {
+  g.escaped = { n: g.secret };
+  // pas un seul saut depuis le dernier numéro : rien à montrer (et surtout pas le film d'une capture précédente)
+  g.lastHunt =
+    g.hunt && g.hunt.steps.length
+      ? { start: g.hunt.start, steps: g.hunt.steps, end: { type: 'escaped', n: g.secret }, max: maxN() }
+      : null;
+}
+/** Fin de la course : premier(s) du podium vainqueur(s) ; `escaped` : des joueurs cherchaient encore. */
+function finishRace(escaped = false) {
+  if (escaped) revealEscaped();
   const first = g.placed[0];
   g.raceWinner = first ? first.player : null;
   g.raceTurns = first ? first.turn : g.turn;
@@ -8883,7 +9235,7 @@ function advanceTurn() {
       left = present.filter(i => !isPlaced(i));
     // fin : tout le monde est placé, ou un tour complet est fini et il reste au plus un chercheur
     if (!left.length || (roundEnded && left.length <= 1) || g.turn >= g.limit) {
-      finishRace();
+      finishRace(left.length > 0);
       render();
       return;
     }
@@ -8892,6 +9244,7 @@ function advanceTurn() {
     g.raceWinner = null;
     g.soloWon = false;
     g.soloSecret = g.secret;
+    revealEscaped();
     if (g.players === 1 && g.mode !== 'challenge') settleSolo(false); // 12 tours joués : +10 XP
     g.screen = 'end';
     g.inGame = false;
@@ -9352,7 +9705,7 @@ function end() {
     champions = tot.map((s, i) => (s === best ? pname(i) : null)).filter(Boolean),
     order = tot.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
   const soloLost = g.players === 1 && g.soloWon === false;
-  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel"><div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${escapedNote(g.players > 1)}</section><section class="panel"><div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {
@@ -9397,8 +9750,20 @@ function endRace() {
         `<div class="finalscore"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}</strong><small>${t('podiumNotCaught', { n: o.v })}</small></div></div>`
     )
   ].join('');
-  return `${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot('caught')}</div><h1>🏆 ${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro">${t('raceWinDesc', { turns: g.raceTurns })}</p></section>
+  return `${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot('caught')}</div><h1>🏆 ${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro">${t('raceWinDesc', { turns: g.raceTurns })}</p>${escapedNote(true)}</section>
  <section class="panel"><div class="label centered">${t('podiumTitle')}</div>${rows}<p class="sub centered">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}<button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></section>`;
+}
+/**
+ * Fin de partie alors que le numéro courait encore : « il était sur le 23 » et le film de son évasion.
+ * `withText` : faux en solo, où la phrase de défaite donne déjà le numéro.
+ */
+function escapedNote(withText) {
+  if (!g.escaped) return '';
+  const film = g.lastHunt
+    ? `<button class="mini-btn rp-open" id="openReplay">🎬 ${t('rpButton')}</button>`
+    : '';
+  if (!withText && !film) return '';
+  return `<div class="escaped-note">${withText ? `<span>🏃 ${t('escapedWas', { n: g.escaped.n })}</span>` : ''}${film}</div>`;
 }
 /** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */
 function endSolo() {
@@ -9432,7 +9797,7 @@ function endSoloCareer(res) {
  <section class="panel centered solo-card career-card">${
    won
      ? `<div class="solo-stars" aria-label="${res.stars}/3">${[1, 2, 3].map(i => `<span class="${i <= res.stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div>`
-     : `<div class="solo-reveal"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><small>${t('soloLoseEncourage')}</small></div>`
+     : `<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('soloLoseEncourage')}</small>${escapedNote(false)}</div></div>`
  }<div class="label">${t('soloScoreTitle')}</div><div class="solo-score" dir="ltr">${res.score}<small> ${t('pts')}</small></div>${record}${
    lines
      ? `<details class="score-lines"${res.lines.length <= 3 ? ' open' : ''}><summary>${t('scoreDetail')}</summary><ul>${lines}</ul></details>`
@@ -9448,7 +9813,7 @@ function endSoloLegacy() {
     misses = h.filter(e => e.type === 'wrong' || e.type === 'netMiss').length,
     clues = h.filter(e => e.type === 'question' || e.type === 'math').length,
     stars = won ? (turns <= 3 ? 3 : turns <= 6 ? 2 : 1) : 0;
-  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></section>
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p>${escapedNote(false)}</section>
  <section class="panel centered solo-card">${won ? `<div class="solo-stars" aria-label="${stars}/3">${[1, 2, 3].map(i => `<span class="${i <= stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div><div class="solo-rate">${t(['', 'soloRate1', 'soloRate2', 'soloRate3'][stars])}</div>` : `<div class="solo-reveal"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><small>${t('soloReveal')}</small></div>`}
  <div class="solo-stats"><div><b>${turns}</b><small>${t('statTurns')}</small></div><div><b>${clues}</b><small>${t('statClues')}</small></div><div><b>${misses}</b><small>${t('statMisses')}</small></div></div>
  ${won ? (g.soloNewRecord ? `<div class="ch-new">${t('soloNewRecord')}</div>` : g.soloBest ? `<p class="sub">${t('soloBest', { n: g.soloBest })}</p>` : '') : ''}
@@ -9516,7 +9881,11 @@ function replayView() {
                 : 'rp-hop';
   let cap = '';
   if (f.k === 'start') cap = '🕵️ ' + t('rpStart', { n: f.n });
-  else if (f.k === 'end') cap = '🎉 ' + t('rpCaught', { n: f.n, player: pname(f.ev.player) });
+  else if (f.k === 'end')
+    cap =
+      f.ev.type === 'escaped'
+        ? '🏃 ' + t('rpEscaped', { n: f.n }) // personne ne l'a attrapé
+        : '🎉 ' + t('rpCaught', { n: f.n, player: pname(f.ev.player) });
   else {
     let ht = f.ev ? historyText(f.ev) : '';
     const sym = f.ev && f.ev.shift != null ? ' · ' + shiftSymbol(f.ev.shift) : '';
@@ -9569,7 +9938,7 @@ function replayView() {
     : '';
   const pickCells = new Set(pk ? pk.cells : []);
   return `<div class="rp-head"><h2>🎬 ${t('rpTitle')}</h2><span class="rp-step">${t('rpStep', { i: i + 1, n: fr.length })}</span></div>
- <div class="rp-stage ${f.k === 'end' ? 'win' : ''} ${g.reduceMotion ? 'still' : ''}">${f.k === 'move' && !g.reduceMotion ? `<div class="rp-from ${dir < 0 ? 'go-left' : dir > 0 ? 'go-right' : 'go-up'}" dir="ltr">${f.from}</div><div class="rp-trail ${dir < 0 ? 'left' : 'right'}" aria-hidden="true">👣</div>` : ''}<div class="rp-num ${g.reduceMotion ? '' : anim + ' delayed'}" dir="ltr" data-i="${i}">${cur}</div>${pickHTML}${f.k === 'end' && !g.reduceMotion ? confetti() : ''}${g.rpPlaying && i < fr.length - 1 ? `<i class="rp-bar" style="animation-duration:${RP_STEP}ms"></i>` : ''}</div>
+ <div class="rp-stage ${f.k === 'end' ? 'win' : ''} ${g.reduceMotion ? 'still' : ''}">${f.k === 'move' && !g.reduceMotion ? `<div class="rp-from ${dir < 0 ? 'go-left' : dir > 0 ? 'go-right' : 'go-up'}" dir="ltr">${f.from}</div><div class="rp-trail ${dir < 0 ? 'left' : 'right'}" aria-hidden="true">👣</div>` : ''}<div class="rp-num ${g.reduceMotion ? '' : anim + ' delayed'}" dir="ltr" data-i="${i}">${cur}</div>${pickHTML}${f.k === 'end' && f.ev.type !== 'escaped' && !g.reduceMotion ? confetti() : ''}${g.rpPlaying && i < fr.length - 1 ? `<i class="rp-bar" style="animation-duration:${RP_STEP}ms"></i>` : ''}</div>
  ${mv}<p class="rp-cap">${cap}</p>
  <div class="rp-track ${max > 15 ? 'dense' : ''} ${max > 50 ? 'xdense' : ''}" dir="ltr">${all(max)
    .map(
@@ -9667,18 +10036,19 @@ function modalView() {
   }
   if (g.modal === 'names' && g.screen === 'home') {
     const multi = g.players > 1,
-      lim = [0, 12, 16, 18, 20][g.players];
+      lim = TURN_LIMITS[g.players];
     return wrapM(
       `<h2>${multi ? '👥 ' + t('namesTitle') : '🕵️ ' + t('readyTitle')}</h2>${multi ? `<p>${t('namesHint')}</p>` : ''}<div class="names">${Array.from({ length: g.players }, (_, i) => `<div class="name-row"><i class="player-dot" style="background:${colors[i]}"></i>${multi ? `<input id="name${i}" data-name="${i}" type="text" maxlength="12" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('player', { n: i + 1 }))}" value="${esc(g.names[i] || '')}">` : `<strong class="solo-name">${t('you')}</strong>`}<button type="button" class="help-chip ${g.playerHelp[i] ? 'on' : ''}" data-phelp="${i}" role="switch" aria-checked="${!!g.playerHelp[i]}">💡 ${t('helpPlayer')}</button></div>`).join('')}</div><p class="help-note">${t('helpPlayerHint')}</p>${multi ? `<div class="label">${t('modeTitle')}</div><div class="mode-pick" role="radiogroup"><button type="button" role="radio" class="mode-card ${g.gameMode !== 'score' ? 'on' : ''}" data-gmode="race" aria-checked="${g.gameMode !== 'score'}"><b>🏁 ${t('modeRace')}</b><small>${t('modeRaceSub')}</small></button><button type="button" role="radio" class="mode-card ${g.gameMode === 'score' ? 'on' : ''}" data-gmode="score" aria-checked="${g.gameMode === 'score'}"><b>🏆 ${t('modeScore')}</b><small>${t('modeScoreSub', { n: lim })}</small></button></div>` : ''}<div class="modal-actions"><button class="bigbtn green" id="namesGo">▶ ${t('namesGo')}</button><button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
     );
   }
+  // film : en partie, ou depuis l'écran de fin quand le numéro s'est échappé (V8.14)
+  if (g.modal === 'replay' && g.lastHunt)
+    return `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal replay">${replayView()}</div></div>`;
   if (g.screen !== 'game') return '';
   if (g.modal === 'replayAsk')
     return wrapM(
       `<div class="hero-mascot small-mascot">${mascot('aim')}</div><h2>🎬 ${t('rpAskTitle')}</h2><p>${t('rpAskText')}</p><div class="modal-actions"><button class="bigbtn green" id="rpYes">▶ ${t('rpYes')}</button><button class="bigbtn light" id="rpNo">${t('rpNo')}</button><button class="mini-btn" id="rpNever">${t('rpNever')}</button></div>`
     );
-  if (g.modal === 'replay' && g.lastHunt)
-    return `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal replay">${replayView()}</div></div>`;
   if (g.modal === 'quit')
     return wrapM(
       `<h2>🏠 ${t('quitTitle')}</h2><p>${t('quitText')}</p><div class="modal-actions"><button class="bigbtn pink" id="quitYes">${t('yes')}</button><button class="bigbtn light" id="quitNo">${t('no')}</button></div>`
@@ -9687,39 +10057,7 @@ function modalView() {
     return wrapM(
       `<div class="hero-mascot small-mascot">${mascot()}</div><h2>⏸ ${t('pauseTitle')}</h2><p>${t('pauseText')}</p><div class="modal-actions"><button class="bigbtn green" id="resumeGame">▶ ${t('resumeBtn')}</button><button class="bigbtn light" id="pauseSettings" ${g.net ? 'hidden' : ''}>⚙️ ${t('settings')}</button><button class="bigbtn pink" id="askQuit">🏠 ${t('askQuit')}</button></div>`
     );
-  if (g.modal === 'notebook') {
-    const max = maxN(),
-      icon = {
-        question: '💡',
-        math: '🧮',
-        found: '🎉',
-        wrong: '🎯',
-        netHit: '🕸️',
-        netMiss: '🕸️',
-        timeout: '⏱'
-      };
-    return wrapM(
-      `<h2>📓 ${t('notebook')}</h2>${
-        helpMode() === 'off'
-          ? `<div class="banner slim">🙈 ${t('nbOff')}</div>`
-          : `<div class="nb-count">${t('nbCount', { count: g.candidates.length, max })}</div><div class="nb-grid ${max > 15 ? 'dense' : ''}" dir="ltr">${all(
-              max
-            )
-              .map(n => `<span class="${g.candidates.includes(n) ? 'ok' : 'no'}">${n}</span>`)
-              .join(
-                ''
-              )}</div><div class="nb-legend"><span><i class="ok"></i>${t('nbPossible')}</span><span><i class="no"></i>${t('nbEliminated')}</span></div><p class="nb-note">👣 ${t('nbMoves')}</p>`
-      }<h3 class="nb-h">🔎 ${t('nbEvents')}</h3><div class="history-items">${
-        g.history.length
-          ? g.history
-              .slice(-12)
-              .reverse()
-              .map(h => `<div><span class="hi">${icon[h.type] || '•'}</span> ${historyText(h)}</div>`)
-              .join('')
-          : `<div>${t('emptyHistory')}</div>`
-      }</div><button class="bigbtn light" id="closeModal">${t('close')}</button>`
-    );
-  }
+  if (g.modal === 'notebook') return wrapM(notebookView());
   const p = active();
   return wrapM(
     `<div class="hero-mascot">${mascot('hop')}</div><h2>${t('handoffTitle', { player: pname(p) })}</h2><p><span class="player-chip" style="background:${colors[p]}">${esc(pname(p))}</span></p>${raceNewsFor(p)}<p>${t('handoffText')}</p><button class="bigbtn green" id="handoffGo">${t('handoffGo')} ${arrow()}</button>`
@@ -9741,6 +10079,116 @@ function backupView() {
   }
   if (b.view === 'done') return `<h2>✅ ${t('backupDone')}</h2><p>${sum(b.summary)}</p>${close}`;
   return `<h2>💾 ${t('backupTitle')}</h2><p>${t('backupIntro')}</p><button class="bigbtn" id="backupExport">📤 ${t('backupExportTitle')}</button><button class="bigbtn green" id="backupImport">📥 ${t('backupImportTitle')}</button>${close}`;
+}
+
+/*
+ * Carnet (V8.14) en 3 onglets :
+ *   ✏️ Mes marques : l'enfant barre lui-même (grille, ou plages de 10 en Défi 1–100) ;
+ *   🔎 Indices    : ce qu'on a appris, du plus récent au plus ancien ;
+ *   🤖 Détective  : le carnet automatique, seulement si l'aide « numéros possibles » est activée.
+ */
+function notebookView() {
+  const auto = helpMode() !== 'off',
+    tab = g.nbTab === 'clues' || (g.nbTab === 'auto' && auto) ? g.nbTab : 'mine';
+  const tabs = [
+    ['mine', '✏️', 'nbTabMine'],
+    ['clues', '🔎', 'nbTabClues'],
+    ...(auto ? [['auto', '🤖', 'nbTabAuto']] : [])
+  ]
+    .map(
+      ([id, icon, k]) =>
+        `<button class="nb-tab ${tab === id ? 'is-selected' : ''}" data-nbtab="${id}" aria-pressed="${tab === id}">${icon} ${t(k)}</button>`
+    )
+    .join('');
+  const body = tab === 'mine' ? marksView() : tab === 'clues' ? cluesView() : autoNotebookView();
+  return `<h2>📓 ${t('notebook')}</h2><div class="nb-tabs">${tabs}</div>${body}<button class="bigbtn light" id="closeModal">${t('close')}</button>`;
+}
+/** Grille (ou plages) que l'enfant barre lui-même, et le bouton « Décaler mes marques ». */
+function marksView() {
+  const max = maxN(),
+    out = new Set(marksOf().out),
+    left = max - out.size,
+    moves = pendingMoves();
+  const cell = n =>
+    `<button class="nb-cell ${out.has(n) ? 'no' : ''}" data-mark="${n}" aria-pressed="${out.has(n)}">${n}</button>`;
+  let grid;
+  if (max <= 50) {
+    // Génie (1–50) : en plus de la grille, des plages de 10 pour barrer vite
+    const ranges =
+      max > 30
+        ? `<div class="nb-ranges" dir="ltr">${[0, 1, 2, 3, 4]
+            .map(d => {
+              const a = d * 10 + 1,
+                b = a + 9,
+                full = all(max)
+                  .filter(n => n >= a && n <= b)
+                  .every(n => out.has(n));
+              return `<button class="nb-range ${full ? 'no' : ''}" data-range="${a}-${b}">${a}–${b}</button>`;
+            })
+            .join('')}</div>`
+        : '';
+    grid = `${ranges}<div class="nb-grid mine ${max > 15 ? 'dense' : ''}" dir="ltr">${all(max).map(cell).join('')}</div>`;
+  } else {
+    // Défi (1–100) : 10 plages ; on en ouvre une pour barrer ses numéros un par un
+    const zoom = Number.isInteger(g.nbZoom) && g.nbZoom >= 0 && g.nbZoom < max / 10 ? g.nbZoom : null;
+    const tiles = Array.from({ length: max / 10 }, (_, d) => {
+      const a = d * 10 + 1,
+        b = a + 9,
+        n = all(max).filter(x => x >= a && x <= b && !out.has(x)).length;
+      return `<button class="nb-range ${n ? '' : 'no'} ${zoom === d ? 'is-open' : ''}" data-zoom="${d}" aria-pressed="${zoom === d}">${a}–${b}<small>${n ? '✔ ' + n : '✖'}</small></button>`;
+    }).join('');
+    const a = zoom * 10 + 1;
+    const row =
+      zoom === null
+        ? `<p class="nb-note">${t('nbZoomHint')}</p>`
+        : `<div class="nb-grid mine dense" dir="ltr">${all(max)
+            .filter(n => n >= a && n <= a + 9)
+            .map(cell)
+            .join('')}</div><button class="mini-btn nb-rangebtn" data-range="${a}-${a + 9}">${
+            all(max)
+              .filter(n => n >= a && n <= a + 9)
+              .every(n => out.has(n))
+              ? '↺ ' + t('nbRestoreRange', { a, b: a + 9 })
+              : '✖ ' + t('nbCrossRange', { a, b: a + 9 })
+          }</button>`;
+    grid = `<div class="nb-tiles" dir="ltr">${tiles}</div>${row}`;
+  }
+  const shift = moves.length
+    ? `<div class="nb-shift"><p>👣 ${t('nbShiftHint')}</p><button class="bigbtn" id="shiftMarks"><span dir="ltr">${moves.map(shiftSymbol).join(' · ')}</span> ${t('nbShift')}</button></div>`
+    : `<p class="nb-ok">${out.size ? '✅ ' + t('nbUpToDate') : '✏️ ' + t('nbTapHint')}</p>`;
+  return `<div class="nb-count">${t('nbMineCount', { count: left, max })}</div>${shift}${grid}${out.size ? `<button class="mini-btn nb-clear" id="clearMarks">🧽 ${t('nbClear')}</button>` : ''}`;
+}
+/** Indices déjà obtenus (et tentatives), du plus récent au plus ancien. */
+function cluesView() {
+  const icon = {
+    question: '💡',
+    math: '🧮',
+    found: '🎉',
+    wrong: '🎯',
+    netHit: '🕸️',
+    netMiss: '🕸️',
+    timeout: '⏱'
+  };
+  return `<div class="history-items nb-clues">${
+    g.history.length
+      ? g.history
+          .slice(-8)
+          .reverse()
+          .map(h => `<div><span class="hi">${icon[h.type] || '•'}</span> ${historyText(h)}</div>`)
+          .join('')
+      : `<div>${t('emptyHistory')}</div>`
+  }</div>`;
+}
+/** Carnet automatique (aide « numéros possibles » activée) : il suit chaque déplacement tout seul. */
+function autoNotebookView() {
+  const max = maxN();
+  return `<div class="nb-count">${t('nbCount', { count: g.candidates.length, max })}</div><div class="nb-grid ${max > 15 ? 'dense' : ''} ${max > 50 ? 'huge' : ''}" dir="ltr">${all(
+    max
+  )
+    .map(n => `<span class="${g.candidates.includes(n) ? 'ok' : 'no'}">${n}</span>`)
+    .join(
+      ''
+    )}</div><div class="nb-legend"><span><i class="ok"></i>${t('nbPossible')}</span><span><i class="no"></i>${t('nbEliminated')}</span></div><p class="nb-note">👣 ${t('nbMoves')}</p>`;
 }
 
 /* ---- 14-tutorial.js ---- */
@@ -9910,7 +10358,12 @@ const NET_LOCAL_KEYS = [
   'showHistory',
   'rpAuto',
   'rpIdx',
-  'rpPlaying'
+  'rpPlaying',
+  'myName', // prénom de CE téléphone (sinon celui de l'hôte s'affichait la fois suivante)
+  'netLostInfo',
+  'marks', // carnet « à la main » : chacun barre sur son téléphone
+  'nbTab',
+  'nbZoom'
 ];
 /** Fenêtres partagées par tous (les autres, comme le carnet ou le film, restent locales). */
 const NET_SHARED_MODALS = ['pause', 'netWait'];
@@ -9940,10 +10393,14 @@ function act(name, ...args) {
 
 function netSend(peer, msg) {
   const tr = netTransport();
-  if (tr) tr.send(peer, JSON.stringify(msg));
+  try {
+    if (tr) tr.send(peer, JSON.stringify(msg));
+  } catch (e) {
+    // pont réseau indisponible : la coupure sera signalée par un événement
+  }
 }
 const newToken = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
-const netName = () => (g.names[0] || '').trim() || t('netDefaultName');
+const netName = () => (g.myName || '').trim() || t('netDefaultName');
 
 /* ---------- Hôte ---------- */
 
@@ -9964,12 +10421,26 @@ function netCreate() {
   render();
 }
 
-/** Lance la partie avec les joueurs de la salle d'attente (2 à 4). */
-function netLaunch() {
+/**
+ * Lance la partie avec les joueurs de la salle d'attente (2 à 4).
+ * Première partie : le premier joueur est tiré au sort (avant, c'était toujours l'hôte).
+ * « Rejouer » (relaunch) : le premier joueur a déjà tourné ; s'il ne reste personne,
+ * l'hôte revient à la salle d'attente, avec le même code, pour que les autres reviennent.
+ */
+function netLaunch(relaunch = false) {
   if (net.role !== 'host') return;
   const seats = net.lobby.filter(p => p.connected);
-  if (seats.length < 2) return;
+  if (seats.length < 2) {
+    if (!relaunch) return;
+    net.lobby = seats.map((p, i) => ({ ...p, seat: i }));
+    Object.assign(g, { net: null, screen: 'lan', inGame: false, modal: null, absent: [] });
+    g.lan = { view: 'hostLobby', error: null };
+    render();
+    netBroadcastLobby();
+    return;
+  }
   net.lobby = seats.map((p, i) => ({ ...p, seat: i }));
+  if (!relaunch || g.players !== seats.length) g.starter = rnd(seats.length);
   g.players = seats.length;
   g.names = net.lobby.map(p => p.name);
   g.playerHelp = [false, false, false, false];
@@ -9982,13 +10453,16 @@ function netLaunch() {
 }
 
 /** « Rejouer » de l'hôte : même salle, joueurs encore connectés (le premier joueur tourne). */
-const netRelaunch = () => netLaunch();
+const netRelaunch = () => netLaunch(true);
 
 /** Copie de l'état envoyée aux autres : sans secret, sans parcours, sans la réponse du calcul en cours. */
 function redactState(seat) {
   const s = JSON.parse(JSON.stringify(g));
   delete s.secret;
   delete s.hunt;
+  // Le carnet « à la main » des joueurs a besoin des sauts (publics : chacun les voit annoncés),
+  // jamais des positions : on n'envoie que le type de chaque saut.
+  s.huntPublic = g.hunt ? g.hunt.steps.map(x => ({ shift: x.shift, ev: x.ev ? 1 : 0 })) : null;
   delete s.soloSecret;
   if (s.math) s.math = { ...s.math, result: null };
   if (!NET_SHARED_MODALS.includes(s.modal)) s.modal = null;
@@ -10051,6 +10525,14 @@ function hostOnMessage(peer, m) {
     netSend(peer, { t: 'welcome', seat: p.seat, token: p.token });
     netBroadcastLobby();
     render();
+    return;
+  }
+  if (m.t === 'again') {
+    // « Rejouer » demandé depuis le téléphone d'un invité : même effet que le bouton de l'hôte
+    const p = net.lobby.find(x => x.peer === peer && x.connected);
+    if (!p || !g.net || g.screen !== 'end') return;
+    if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
+    netRelaunch();
     return;
   }
   if (m.t === 'action') {
@@ -10125,6 +10607,13 @@ function clientOnMessage(m) {
   if (m.t === 'welcome') {
     net.seat = m.seat;
     net.token = m.token;
+    if (g.net) {
+      // retour dans une partie en cours après une coupure : l'état complet suit
+      g.modal = g.modal === 'netLost' ? null : g.modal;
+      g.netLostInfo = null;
+      render();
+      return;
+    }
     g.lan = { view: 'clientLobby', error: null };
     render();
   } else if (m.t === 'lobby') {
@@ -10171,8 +10660,12 @@ window.__netEvent = raw => {
       net.address = e.ip && e.port ? `${e.ip}:${e.port}` : null;
       render();
     } else if (e.type === 'error') {
-      g.lan = { view: 'menu', error: 'host' };
       netStop();
+      if (g.net) {
+        // le Wi-Fi de l'hôte a lâché en pleine partie : on le dit, avec un bouton pour sortir
+        g.modal = 'netLost';
+        g.netLostInfo = { host: true };
+      } else g.lan = { view: 'menu', error: 'host' };
       render();
     }
     return;
@@ -10181,11 +10674,17 @@ window.__netEvent = raw => {
   if (e.type === 'connected')
     netSend('host', { t: 'hello', v: NET_PROTOCOL, code: net.code, name: netName(), token: net.token });
   else if (e.type === 'error') {
-    g.lan = { view: 'join', error: e.code || 'notFound' };
+    if (g.net) {
+      // nouvelle tentative ratée (l'hôte a quitté ou relancé une autre partie) : on reste dans la
+      // fenêtre « connexion perdue », jamais sur un écran de jeu figé
+      g.modal = 'netLost';
+      g.netLostInfo = { failed: true };
+    } else g.lan = { view: 'join', error: e.code || 'notFound' };
     render();
   } else if (e.type === 'disconnected') {
-    if (g.net && g.screen !== 'end') {
+    if (g.net) {
       g.modal = 'netLost';
+      g.netLostInfo = { ended: g.screen === 'end' };
       render();
     } else if (g.lan) {
       g.lan = { view: 'join', error: 'lost' };
@@ -10197,9 +10696,12 @@ window.__netEvent = raw => {
 /** Coupe le réseau sur ce téléphone (garde le code et le jeton pour pouvoir revenir). */
 function netStop() {
   const tr = netTransport();
-  if (tr) {
+  if (!tr) return;
+  try {
     tr.stop();
     if (tr.keepAwake) tr.keepAwake(false);
+  } catch (e) {
+    // le pont est déjà arrêté : rien à faire, l'essentiel est de pouvoir quitter
   }
 }
 /** Quitte complètement le multijoueur et revient à l'accueil. */
@@ -10212,16 +10714,25 @@ function netLeave() {
   g.screen = 'home';
   g.inGame = false;
   g.modal = null;
+  g.netLostInfo = null;
   render();
 }
-/** Invité : nouvelle tentative après une coupure (même code, même jeton → même place). */
+/**
+ * Invité : nouvelle tentative après une coupure (même code, même jeton → même place).
+ * La fenêtre reste ouverte (« recherche… ») avec « Quitter » toujours actif.
+ */
 function netRetry() {
-  const { code, token } = net;
+  const { code, token } = net,
+    tr = netTransport();
   netStop();
   net = { role: 'client', code, token, seat: null, lobby: [] };
-  g.modal = null;
+  g.netLostInfo = { retrying: true };
   g.lan = g.net ? null : { view: 'joining', error: null };
-  netTransport().joinStart(code);
+  try {
+    tr.joinStart(code);
+  } catch (e) {
+    g.netLostInfo = { failed: true };
+  }
   render();
 }
 
@@ -10238,7 +10749,7 @@ function lanScreen() {
           `<li><i class="player-dot" style="background:${colors[p.seat] || colors[0]}"></i><b>${esc(p.name)}</b>${p.seat === 0 ? `<small>${t('netHost')}</small>` : ''}${p.connected === false ? '<small>📵</small>' : ''}</li>`
       )
       .join('')}</ul>`;
-  const nameField = `<label class="net-name">${t('netYourName')}<input id="netName" maxlength="14" value="${esc(g.names[0] || '')}" autocomplete="off"></label>`;
+  const nameField = `<label class="net-name">${t('netYourName')}<input id="netName" maxlength="14" value="${esc(g.myName || '')}" autocomplete="off"></label>`;
   let body;
   if (v === 'menu')
     body = `<p class="sub">${t('netIntro')}</p>${nameField}${err}<button class="bigbtn" id="netCreate">📶 ${t('netCreate')}</button><button class="bigbtn light" id="netGoJoin">🔑 ${t('netJoin')}</button><p class="sub small">${t('netSameWifi')}</p>`;
@@ -10260,14 +10771,25 @@ function netModalView() {
       host ? `<button class="bigbtn light" id="netWithout">${t('netWithout', { player: name })}</button>` : ''
     }`;
   }
-  if (g.modal === 'netLost')
-    return `<h2>📵 ${t('netLostTitle')}</h2><p>${t('netLostText')}</p><button class="bigbtn" id="netRetry">🔄 ${t('netRetry')}</button><button class="bigbtn light" id="netQuitGame">${t('netQuit')}</button>`;
+  if (g.modal === 'netLost') {
+    const info = g.netLostInfo || {},
+      quit = `<button class="bigbtn light" id="netQuitGame">⌂ ${t('menuBack')}</button>`;
+    if (info.host) return `<h2>📵 ${t('netHostLostTitle')}</h2><p>${t('netHostLostText')}</p>${quit}`;
+    if (info.ended) return `<h2>👋 ${t('netEndedTitle')}</h2><p>${t('netEndedText')}</p>${quit}`;
+    return `<h2>📵 ${t('netLostTitle')}</h2><p>${info.failed ? '⚠️ ' + t('netRetryFailed') : t('netLostText')}</p>${
+      info.retrying
+        ? `<p class="sub">⏳ ${t('netSearching')}</p>`
+        : `<button class="bigbtn" id="netRetry">🔄 ${t('netRetry')}</button>`
+    }${quit}`;
+  }
   return '';
 }
 
 /** Fin de partie sur un téléphone invité : c'est l'hôte qui relance. */
 const netEndNote = () =>
-  g.net && g.net.role === 'client' ? `<p class="sub centered">⏳ ${t('netWaitReplay')}</p>` : '';
+  g.net && g.net.role === 'client' && g.netAgainAsked
+    ? `<p class="sub centered">⏳ ${t('netAgainSent')}</p>`
+    : '';
 
 /** « Au tour de … » dans la bulle du détective, sur les téléphones qui regardent. */
 function netWatchBanner() {
@@ -10280,7 +10802,7 @@ function bindNet(click) {
   const nameInput = document.getElementById('netName');
   if (nameInput)
     nameInput.addEventListener('input', () => {
-      g.names[0] = nameInput.value;
+      g.myName = nameInput.value;
     });
   const openLan = () => {
     g.modal = null;
@@ -10514,6 +11036,12 @@ function bind() {
   click('again', () => {
     sfx('tap');
     if (g.mode === 'challenge') return startChallenge(g.chKind, g.chDiff);
+    if (g.net && g.net.role === 'client') {
+      // invité : on demande à l'hôte de relancer la partie pour tout le monde
+      netSend('host', { t: 'again' });
+      g.netAgainAsked = true;
+      return render();
+    }
     if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
     if (g.net) return netRelaunch();
     start();
@@ -10644,6 +11172,38 @@ function bind() {
     g.screen = 'settings';
     render();
   });
+  // Carnet « à la main » (V8.14) : onglets, numéros barrés par l'enfant, plages, décalage des marques
+  const nbDo = fn => () => {
+    fn();
+    sfx('tap');
+    render();
+  };
+  app.querySelectorAll('[data-nbtab]').forEach(b =>
+    b.addEventListener(
+      'click',
+      nbDo(() => (g.nbTab = b.dataset.nbtab))
+    )
+  );
+  app.querySelectorAll('[data-mark]').forEach(b =>
+    b.addEventListener(
+      'click',
+      nbDo(() => toggleMark(Number(b.dataset.mark)))
+    )
+  );
+  app.querySelectorAll('[data-range]').forEach(b =>
+    b.addEventListener(
+      'click',
+      nbDo(() => toggleRange(...b.dataset.range.split('-').map(Number)))
+    )
+  );
+  app.querySelectorAll('[data-zoom]').forEach(b =>
+    b.addEventListener(
+      'click',
+      nbDo(() => (g.nbZoom = g.nbZoom === Number(b.dataset.zoom) ? null : Number(b.dataset.zoom)))
+    )
+  );
+  click('shiftMarks', nbDo(shiftMarks));
+  click('clearMarks', nbDo(clearMarks));
   click('openNotebook', () => {
     g.modal = 'notebook';
     render();
@@ -10847,6 +11407,13 @@ window.__numero = {
   act,
   exportProgress,
   tipKeys: TIP_KEYS,
+  marksOf,
+  netLocalKeys: NET_LOCAL_KEYS,
+  toggleMark,
+  toggleRange,
+  shiftMarks,
+  pendingMoves,
+  clearMarks,
   readBackup,
   importProgress,
   netCreate,

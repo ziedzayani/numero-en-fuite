@@ -1335,9 +1335,6 @@ body.scr-end .finalscore {
 .net-spectator .capture-row {
   opacity: 0.6;
 }
-.net-client #again {
-  display: none;
-}
 /* l'attribut hidden l'emporte toujours sur le display des boutons */
 [hidden] {
   display: none !important;
@@ -1552,4 +1549,186 @@ body.scr-end .finalscore {
 }
 .move-line .bj-label {
   font-size: 18px;
+}
+
+/* V8.14 : carnet « à la main » — l'enfant barre lui-même */
+.nb-tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 0 0 10px;
+}
+.nb-tab {
+  flex: 1;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 5px 4px;
+  min-height: 40px;
+  box-shadow: 0 3px 0 #cfd7fb;
+}
+.nb-tab.is-selected {
+  background: var(--purple);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--purpleDark);
+}
+.nb-grid.mine {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+.nb-grid.mine.dense {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+}
+.nb-grid.mine .nb-cell {
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 0;
+  border: 2px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+}
+.nb-grid.mine .nb-cell.no {
+  background: #e6e9f3;
+  color: #9aa1bd;
+  border-color: #c5cbe0;
+  position: relative;
+}
+.nb-cell.no::after,
+.nb-range.no::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 50%;
+  border-top: 3px solid var(--pink);
+  transform: rotate(-35deg);
+  border-radius: 2px;
+}
+.nb-ranges,
+.nb-tiles {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 auto 8px;
+  max-width: 330px;
+}
+.nb-range {
+  position: relative;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: #fff6cf;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 4px 2px;
+  min-height: 36px;
+}
+.nb-range small {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--greenDark);
+}
+.nb-range.no {
+  background: #e6e9f3;
+  color: #9aa1bd;
+}
+.nb-range.no small {
+  color: var(--pinkDark);
+}
+.nb-range.is-open {
+  background: var(--blue);
+  color: #fff;
+}
+.nb-range.is-open small {
+  color: #fff;
+}
+.nb-shift {
+  margin: 0 0 10px;
+}
+.nb-shift p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.nb-shift .bigbtn {
+  font-size: 17px;
+  padding: 8px;
+  min-height: 0;
+}
+.nb-ok {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.nb-clear,
+.nb-rangebtn {
+  margin: 0 4px 10px;
+}
+.nb-count {
+  font-size: 16px;
+}
+.nb-clues {
+  text-align: start;
+  margin-bottom: 12px;
+}
+
+/* V8.14 : fin de partie quand le numéro court encore (« il était sur le … » + film) */
+.escaped-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin: 6px 0 0;
+  font-weight: 700;
+  font-size: 15px;
+}
+.escaped-note .mini-btn {
+  margin: 0;
+}
+/* défaite solo : loupe à côté du texte et du bouton film (tient sans défilement) */
+.solo-reveal.with-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: start;
+}
+.reveal-side .escaped-note {
+  justify-content: flex-start;
+}
+/* V8.14 : marge de sécurité sur les Réglages (les polices de la CI rendent quelques pixels plus haut) */
+.compact-settings .lang-choice {
+  padding: 4px;
+}
+.compact-settings .lang-choice .flag {
+  font-size: 17px;
+}
+.compact-settings .choice-row .mini-btn {
+  min-height: 36px;
+}
+.compact-settings .toggle-row {
+  margin-top: 8px;
+  padding: 3px 10px;
+}
+.compact-settings .tr-text small {
+  font-size: 11px;
+  line-height: 1.2;
+}
+.compact-settings .lang-list {
+  margin-bottom: 8px;
 }

@@ -68,6 +68,8 @@ const initial = () => ({
   gameMode: 'race',
   chDiffPref: 'medium',
   placed: [], // Course : podium [{ player, round, turn }]
+  myName: '', // Wi-Fi : prénom de ce téléphone (jamais celui reçu des autres)
+  marks: [], // carnet « à la main » de chaque joueur (voir 08b-marks.js)
   net: null, // multijoueur Wi-Fi : { role: 'host' | 'client', seat }
   lan: null, // écran « Partie Wi-Fi » : { view, error }
   absent: [], // Wi-Fi : joueurs partis (tours sautés)

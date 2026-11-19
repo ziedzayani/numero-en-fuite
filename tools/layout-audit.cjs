@@ -152,6 +152,70 @@ const STATES = {
     N.state.netWaitSeat = 1;
     N.state.modal = 'netWait';
   },
+  'carnet à la main (décaler)': N => {
+    N.state.players = 1;
+    N.state.level = 'expert';
+    N.start(true);
+    N.ask(N.state.choices[0]);
+    [3, 4, 5, 20, 21].forEach(n => N.toggleMark(n));
+    N.state.modal = 'notebook';
+  },
+  'carnet Génie': N => {
+    N.state.players = 1;
+    N.state.level = 'genius';
+    N.start(true);
+    N.ask(N.state.choices[0]);
+    N.toggleRange(1, 10);
+    N.state.modal = 'notebook';
+  },
+  'carnet Défi (plage ouverte)': N => {
+    N.startChallenge('endless');
+    N.ask(N.state.choices[0]);
+    N.toggleMark(35);
+    N.state.nbZoom = 3;
+    N.state.modal = 'notebook';
+  },
+  'carnet indices': N => {
+    N.state.players = 2;
+    N.state.level = 'genius';
+    N.start(true);
+    for (let i = 0; i < 6; i++) N.ask(N.state.choices[0]);
+    N.state.nbTab = 'clues';
+    N.state.modal = 'notebook';
+  },
+  'carnet détective (aide)': N => {
+    N.state.players = 1;
+    N.state.level = 'expert';
+    N.state.playerHelp = [true, false, false, false];
+    N.start(true);
+    N.state.nbTab = 'auto';
+    N.state.modal = 'notebook';
+  },
+  'fin sans capture (points)': N => {
+    N.state.players = 2;
+    N.state.gameMode = 'score';
+    N.start(true);
+    N.ask(N.state.choices[0]);
+    N.state.turn = N.state.limit - 1;
+    N.state.phase = 'result';
+    N.state.last = { type: 'wrong', n: 1, player: 1 };
+    N.nextTurn();
+  },
+  'wifi hôte parti (fin)': N => {
+    N.state.players = 2;
+    N.start(true);
+    N.state.screen = 'end';
+    N.state.net = { role: 'client', seat: 1 };
+    N.state.netLostInfo = { ended: true };
+    N.state.modal = 'netLost';
+  },
+  'wifi réessayer raté': N => {
+    N.state.players = 2;
+    N.start(true);
+    N.state.net = { role: 'client', seat: 1 };
+    N.state.netLostInfo = { failed: true };
+    N.state.modal = 'netLost';
+  },
   'wifi connexion perdue': N => {
     N.state.players = 3;
     N.start(true);
@@ -309,7 +373,7 @@ const STATES = {
               vis(e) &&
               (!modal || modal.contains(e)) &&
               !e.closest(
-                '.keypad, .tut-grid, .grid, .numgrid, .selector, .levels, .tabs, .actiontabs, .ch-diffs, .lang-grid, .seg-row, .rp-controls, .timer-modes'
+                '.keypad, .tut-grid, .grid, .numgrid, .nb-grid, .nb-ranges, .nb-tiles, .selector, .levels, .tabs, .actiontabs, .ch-diffs, .lang-grid, .seg-row, .rp-controls, .timer-modes'
               )
           );
           for (let i = 0; i < btns.length; i++)

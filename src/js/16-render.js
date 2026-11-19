@@ -206,6 +206,12 @@ function bind() {
   click('again', () => {
     sfx('tap');
     if (g.mode === 'challenge') return startChallenge(g.chKind, g.chDiff);
+    if (g.net && g.net.role === 'client') {
+      // invité : on demande à l'hôte de relancer la partie pour tout le monde
+      netSend('host', { t: 'again' });
+      g.netAgainAsked = true;
+      return render();
+    }
     if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
     if (g.net) return netRelaunch();
     start();
@@ -336,6 +342,38 @@ function bind() {
     g.screen = 'settings';
     render();
   });
+  // Carnet « à la main » (V8.14) : onglets, numéros barrés par l'enfant, plages, décalage des marques
+  const nbDo = fn => () => {
+    fn();
+    sfx('tap');
+    render();
+  };
+  app.querySelectorAll('[data-nbtab]').forEach(b =>
+    b.addEventListener(
+      'click',
+      nbDo(() => (g.nbTab = b.dataset.nbtab))
+    )
+  );
+  app.querySelectorAll('[data-mark]').forEach(b =>
+    b.addEventListener(
+      'click',
+      nbDo(() => toggleMark(Number(b.dataset.mark)))
+    )
+  );
+  app.querySelectorAll('[data-range]').forEach(b =>
+    b.addEventListener(
+      'click',
+      nbDo(() => toggleRange(...b.dataset.range.split('-').map(Number)))
+    )
+  );
+  app.querySelectorAll('[data-zoom]').forEach(b =>
+    b.addEventListener(
+      'click',
+      nbDo(() => (g.nbZoom = g.nbZoom === Number(b.dataset.zoom) ? null : Number(b.dataset.zoom)))
+    )
+  );
+  click('shiftMarks', nbDo(shiftMarks));
+  click('clearMarks', nbDo(clearMarks));
   click('openNotebook', () => {
     g.modal = 'notebook';
     render();

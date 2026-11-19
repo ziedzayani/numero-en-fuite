@@ -53,7 +53,11 @@ function replayView() {
                 : 'rp-hop';
   let cap = '';
   if (f.k === 'start') cap = '🕵️ ' + t('rpStart', { n: f.n });
-  else if (f.k === 'end') cap = '🎉 ' + t('rpCaught', { n: f.n, player: pname(f.ev.player) });
+  else if (f.k === 'end')
+    cap =
+      f.ev.type === 'escaped'
+        ? '🏃 ' + t('rpEscaped', { n: f.n }) // personne ne l'a attrapé
+        : '🎉 ' + t('rpCaught', { n: f.n, player: pname(f.ev.player) });
   else {
     let ht = f.ev ? historyText(f.ev) : '';
     const sym = f.ev && f.ev.shift != null ? ' · ' + shiftSymbol(f.ev.shift) : '';
@@ -106,7 +110,7 @@ function replayView() {
     : '';
   const pickCells = new Set(pk ? pk.cells : []);
   return `<div class="rp-head"><h2>🎬 ${t('rpTitle')}</h2><span class="rp-step">${t('rpStep', { i: i + 1, n: fr.length })}</span></div>
- <div class="rp-stage ${f.k === 'end' ? 'win' : ''} ${g.reduceMotion ? 'still' : ''}">${f.k === 'move' && !g.reduceMotion ? `<div class="rp-from ${dir < 0 ? 'go-left' : dir > 0 ? 'go-right' : 'go-up'}" dir="ltr">${f.from}</div><div class="rp-trail ${dir < 0 ? 'left' : 'right'}" aria-hidden="true">👣</div>` : ''}<div class="rp-num ${g.reduceMotion ? '' : anim + ' delayed'}" dir="ltr" data-i="${i}">${cur}</div>${pickHTML}${f.k === 'end' && !g.reduceMotion ? confetti() : ''}${g.rpPlaying && i < fr.length - 1 ? `<i class="rp-bar" style="animation-duration:${RP_STEP}ms"></i>` : ''}</div>
+ <div class="rp-stage ${f.k === 'end' ? 'win' : ''} ${g.reduceMotion ? 'still' : ''}">${f.k === 'move' && !g.reduceMotion ? `<div class="rp-from ${dir < 0 ? 'go-left' : dir > 0 ? 'go-right' : 'go-up'}" dir="ltr">${f.from}</div><div class="rp-trail ${dir < 0 ? 'left' : 'right'}" aria-hidden="true">👣</div>` : ''}<div class="rp-num ${g.reduceMotion ? '' : anim + ' delayed'}" dir="ltr" data-i="${i}">${cur}</div>${pickHTML}${f.k === 'end' && f.ev.type !== 'escaped' && !g.reduceMotion ? confetti() : ''}${g.rpPlaying && i < fr.length - 1 ? `<i class="rp-bar" style="animation-duration:${RP_STEP}ms"></i>` : ''}</div>
  ${mv}<p class="rp-cap">${cap}</p>
  <div class="rp-track ${max > 15 ? 'dense' : ''} ${max > 50 ? 'xdense' : ''}" dir="ltr">${all(max)
    .map(

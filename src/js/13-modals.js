@@ -61,18 +61,19 @@ function modalView() {
   }
   if (g.modal === 'names' && g.screen === 'home') {
     const multi = g.players > 1,
-      lim = [0, 12, 16, 18, 20][g.players];
+      lim = TURN_LIMITS[g.players];
     return wrapM(
       `<h2>${multi ? '👥 ' + t('namesTitle') : '🕵️ ' + t('readyTitle')}</h2>${multi ? `<p>${t('namesHint')}</p>` : ''}<div class="names">${Array.from({ length: g.players }, (_, i) => `<div class="name-row"><i class="player-dot" style="background:${colors[i]}"></i>${multi ? `<input id="name${i}" data-name="${i}" type="text" maxlength="12" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('player', { n: i + 1 }))}" value="${esc(g.names[i] || '')}">` : `<strong class="solo-name">${t('you')}</strong>`}<button type="button" class="help-chip ${g.playerHelp[i] ? 'on' : ''}" data-phelp="${i}" role="switch" aria-checked="${!!g.playerHelp[i]}">💡 ${t('helpPlayer')}</button></div>`).join('')}</div><p class="help-note">${t('helpPlayerHint')}</p>${multi ? `<div class="label">${t('modeTitle')}</div><div class="mode-pick" role="radiogroup"><button type="button" role="radio" class="mode-card ${g.gameMode !== 'score' ? 'on' : ''}" data-gmode="race" aria-checked="${g.gameMode !== 'score'}"><b>🏁 ${t('modeRace')}</b><small>${t('modeRaceSub')}</small></button><button type="button" role="radio" class="mode-card ${g.gameMode === 'score' ? 'on' : ''}" data-gmode="score" aria-checked="${g.gameMode === 'score'}"><b>🏆 ${t('modeScore')}</b><small>${t('modeScoreSub', { n: lim })}</small></button></div>` : ''}<div class="modal-actions"><button class="bigbtn green" id="namesGo">▶ ${t('namesGo')}</button><button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
     );
   }
+  // film : en partie, ou depuis l'écran de fin quand le numéro s'est échappé (V8.14)
+  if (g.modal === 'replay' && g.lastHunt)
+    return `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal replay">${replayView()}</div></div>`;
   if (g.screen !== 'game') return '';
   if (g.modal === 'replayAsk')
     return wrapM(
       `<div class="hero-mascot small-mascot">${mascot('aim')}</div><h2>🎬 ${t('rpAskTitle')}</h2><p>${t('rpAskText')}</p><div class="modal-actions"><button class="bigbtn green" id="rpYes">▶ ${t('rpYes')}</button><button class="bigbtn light" id="rpNo">${t('rpNo')}</button><button class="mini-btn" id="rpNever">${t('rpNever')}</button></div>`
     );
-  if (g.modal === 'replay' && g.lastHunt)
-    return `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal replay">${replayView()}</div></div>`;
   if (g.modal === 'quit')
     return wrapM(
       `<h2>🏠 ${t('quitTitle')}</h2><p>${t('quitText')}</p><div class="modal-actions"><button class="bigbtn pink" id="quitYes">${t('yes')}</button><button class="bigbtn light" id="quitNo">${t('no')}</button></div>`
@@ -81,39 +82,7 @@ function modalView() {
     return wrapM(
       `<div class="hero-mascot small-mascot">${mascot()}</div><h2>⏸ ${t('pauseTitle')}</h2><p>${t('pauseText')}</p><div class="modal-actions"><button class="bigbtn green" id="resumeGame">▶ ${t('resumeBtn')}</button><button class="bigbtn light" id="pauseSettings" ${g.net ? 'hidden' : ''}>⚙️ ${t('settings')}</button><button class="bigbtn pink" id="askQuit">🏠 ${t('askQuit')}</button></div>`
     );
-  if (g.modal === 'notebook') {
-    const max = maxN(),
-      icon = {
-        question: '💡',
-        math: '🧮',
-        found: '🎉',
-        wrong: '🎯',
-        netHit: '🕸️',
-        netMiss: '🕸️',
-        timeout: '⏱'
-      };
-    return wrapM(
-      `<h2>📓 ${t('notebook')}</h2>${
-        helpMode() === 'off'
-          ? `<div class="banner slim">🙈 ${t('nbOff')}</div>`
-          : `<div class="nb-count">${t('nbCount', { count: g.candidates.length, max })}</div><div class="nb-grid ${max > 15 ? 'dense' : ''}" dir="ltr">${all(
-              max
-            )
-              .map(n => `<span class="${g.candidates.includes(n) ? 'ok' : 'no'}">${n}</span>`)
-              .join(
-                ''
-              )}</div><div class="nb-legend"><span><i class="ok"></i>${t('nbPossible')}</span><span><i class="no"></i>${t('nbEliminated')}</span></div><p class="nb-note">👣 ${t('nbMoves')}</p>`
-      }<h3 class="nb-h">🔎 ${t('nbEvents')}</h3><div class="history-items">${
-        g.history.length
-          ? g.history
-              .slice(-12)
-              .reverse()
-              .map(h => `<div><span class="hi">${icon[h.type] || '•'}</span> ${historyText(h)}</div>`)
-              .join('')
-          : `<div>${t('emptyHistory')}</div>`
-      }</div><button class="bigbtn light" id="closeModal">${t('close')}</button>`
-    );
-  }
+  if (g.modal === 'notebook') return wrapM(notebookView());
   const p = active();
   return wrapM(
     `<div class="hero-mascot">${mascot('hop')}</div><h2>${t('handoffTitle', { player: pname(p) })}</h2><p><span class="player-chip" style="background:${colors[p]}">${esc(pname(p))}</span></p>${raceNewsFor(p)}<p>${t('handoffText')}</p><button class="bigbtn green" id="handoffGo">${t('handoffGo')} ${arrow()}</button>`
@@ -135,4 +104,114 @@ function backupView() {
   }
   if (b.view === 'done') return `<h2>✅ ${t('backupDone')}</h2><p>${sum(b.summary)}</p>${close}`;
   return `<h2>💾 ${t('backupTitle')}</h2><p>${t('backupIntro')}</p><button class="bigbtn" id="backupExport">📤 ${t('backupExportTitle')}</button><button class="bigbtn green" id="backupImport">📥 ${t('backupImportTitle')}</button>${close}`;
+}
+
+/*
+ * Carnet (V8.14) en 3 onglets :
+ *   ✏️ Mes marques : l'enfant barre lui-même (grille, ou plages de 10 en Défi 1–100) ;
+ *   🔎 Indices    : ce qu'on a appris, du plus récent au plus ancien ;
+ *   🤖 Détective  : le carnet automatique, seulement si l'aide « numéros possibles » est activée.
+ */
+function notebookView() {
+  const auto = helpMode() !== 'off',
+    tab = g.nbTab === 'clues' || (g.nbTab === 'auto' && auto) ? g.nbTab : 'mine';
+  const tabs = [
+    ['mine', '✏️', 'nbTabMine'],
+    ['clues', '🔎', 'nbTabClues'],
+    ...(auto ? [['auto', '🤖', 'nbTabAuto']] : [])
+  ]
+    .map(
+      ([id, icon, k]) =>
+        `<button class="nb-tab ${tab === id ? 'is-selected' : ''}" data-nbtab="${id}" aria-pressed="${tab === id}">${icon} ${t(k)}</button>`
+    )
+    .join('');
+  const body = tab === 'mine' ? marksView() : tab === 'clues' ? cluesView() : autoNotebookView();
+  return `<h2>📓 ${t('notebook')}</h2><div class="nb-tabs">${tabs}</div>${body}<button class="bigbtn light" id="closeModal">${t('close')}</button>`;
+}
+/** Grille (ou plages) que l'enfant barre lui-même, et le bouton « Décaler mes marques ». */
+function marksView() {
+  const max = maxN(),
+    out = new Set(marksOf().out),
+    left = max - out.size,
+    moves = pendingMoves();
+  const cell = n =>
+    `<button class="nb-cell ${out.has(n) ? 'no' : ''}" data-mark="${n}" aria-pressed="${out.has(n)}">${n}</button>`;
+  let grid;
+  if (max <= 50) {
+    // Génie (1–50) : en plus de la grille, des plages de 10 pour barrer vite
+    const ranges =
+      max > 30
+        ? `<div class="nb-ranges" dir="ltr">${[0, 1, 2, 3, 4]
+            .map(d => {
+              const a = d * 10 + 1,
+                b = a + 9,
+                full = all(max)
+                  .filter(n => n >= a && n <= b)
+                  .every(n => out.has(n));
+              return `<button class="nb-range ${full ? 'no' : ''}" data-range="${a}-${b}">${a}–${b}</button>`;
+            })
+            .join('')}</div>`
+        : '';
+    grid = `${ranges}<div class="nb-grid mine ${max > 15 ? 'dense' : ''}" dir="ltr">${all(max).map(cell).join('')}</div>`;
+  } else {
+    // Défi (1–100) : 10 plages ; on en ouvre une pour barrer ses numéros un par un
+    const zoom = Number.isInteger(g.nbZoom) && g.nbZoom >= 0 && g.nbZoom < max / 10 ? g.nbZoom : null;
+    const tiles = Array.from({ length: max / 10 }, (_, d) => {
+      const a = d * 10 + 1,
+        b = a + 9,
+        n = all(max).filter(x => x >= a && x <= b && !out.has(x)).length;
+      return `<button class="nb-range ${n ? '' : 'no'} ${zoom === d ? 'is-open' : ''}" data-zoom="${d}" aria-pressed="${zoom === d}">${a}–${b}<small>${n ? '✔ ' + n : '✖'}</small></button>`;
+    }).join('');
+    const a = zoom * 10 + 1;
+    const row =
+      zoom === null
+        ? `<p class="nb-note">${t('nbZoomHint')}</p>`
+        : `<div class="nb-grid mine dense" dir="ltr">${all(max)
+            .filter(n => n >= a && n <= a + 9)
+            .map(cell)
+            .join('')}</div><button class="mini-btn nb-rangebtn" data-range="${a}-${a + 9}">${
+            all(max)
+              .filter(n => n >= a && n <= a + 9)
+              .every(n => out.has(n))
+              ? '↺ ' + t('nbRestoreRange', { a, b: a + 9 })
+              : '✖ ' + t('nbCrossRange', { a, b: a + 9 })
+          }</button>`;
+    grid = `<div class="nb-tiles" dir="ltr">${tiles}</div>${row}`;
+  }
+  const shift = moves.length
+    ? `<div class="nb-shift"><p>👣 ${t('nbShiftHint')}</p><button class="bigbtn" id="shiftMarks"><span dir="ltr">${moves.map(shiftSymbol).join(' · ')}</span> ${t('nbShift')}</button></div>`
+    : `<p class="nb-ok">${out.size ? '✅ ' + t('nbUpToDate') : '✏️ ' + t('nbTapHint')}</p>`;
+  return `<div class="nb-count">${t('nbMineCount', { count: left, max })}</div>${shift}${grid}${out.size ? `<button class="mini-btn nb-clear" id="clearMarks">🧽 ${t('nbClear')}</button>` : ''}`;
+}
+/** Indices déjà obtenus (et tentatives), du plus récent au plus ancien. */
+function cluesView() {
+  const icon = {
+    question: '💡',
+    math: '🧮',
+    found: '🎉',
+    wrong: '🎯',
+    netHit: '🕸️',
+    netMiss: '🕸️',
+    timeout: '⏱'
+  };
+  return `<div class="history-items nb-clues">${
+    g.history.length
+      ? g.history
+          .slice(-8)
+          .reverse()
+          .map(h => `<div><span class="hi">${icon[h.type] || '•'}</span> ${historyText(h)}</div>`)
+          .join('')
+      : `<div>${t('emptyHistory')}</div>`
+  }</div>`;
+}
+/** Carnet automatique (aide « numéros possibles » activée) : il suit chaque déplacement tout seul. */
+function autoNotebookView() {
+  const max = maxN();
+  return `<div class="nb-count">${t('nbCount', { count: g.candidates.length, max })}</div><div class="nb-grid ${max > 15 ? 'dense' : ''} ${max > 50 ? 'huge' : ''}" dir="ltr">${all(
+    max
+  )
+    .map(n => `<span class="${g.candidates.includes(n) ? 'ok' : 'no'}">${n}</span>`)
+    .join(
+      ''
+    )}</div><div class="nb-legend"><span><i class="ok"></i>${t('nbPossible')}</span><span><i class="no"></i>${t('nbEliminated')}</span></div><p class="nb-note">👣 ${t('nbMoves')}</p>`;
 }

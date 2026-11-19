@@ -1,5 +1,32 @@
 # Historique des versions
 
+## V8.14
+
+**Carnet d'enquête « à la main »** (📓) : c'est l'enfant qui barre les numéros lui-même.
+- Onglets ✏️ Mes marques · 🔎 Indices · 🤖 Détective (seulement si l'aide « numéros possibles » est activée).
+- Toucher un numéro le barre / le rétablit ; en Génie, plages de 10 en plus de la grille ; en Défi (1–100),
+  10 plages qu'on ouvre pour barrer leurs numéros un par un ou tous ensemble.
+- Quand le numéro saute, les marques ne bougent pas toutes seules : bouton **« Décaler mes marques »** qui applique
+  le(s) saut(s) (±k, ×2, ÷2, miroir) exactement comme pour le vrai numéro. Chaque joueur a son carnet, sauvegardé
+  avec la partie, vierge à chaque nouveau numéro. En Wi-Fi, chacun barre sur son téléphone (seul le type des sauts
+  est envoyé, jamais les positions).
+
+**Wi-Fi — retours du premier essai sur téléphones**
+- Le premier joueur est tiré au sort (avant : toujours l'hôte), puis tourne à chaque « Rejouer ».
+- Chaque téléphone garde SON prénom (le champ affichait le prénom de l'hôte).
+- « Rejouer » marche aussi depuis un invité ; si l'hôte est seul, retour à la salle d'attente avec le même code.
+- Bug « Connexion perdue » bloquante : « Réessayer » sans hôte laisse la fenêtre ouverte avec un message clair et
+  « Revenir à l'accueil » marche toujours ; fin de partie puis départ de l'hôte : message « L'hôte a quitté ».
+  Appels au pont Android protégés (une erreur ne peut plus figer les boutons).
+
+**Fin de partie sans capture** : « Le numéro se cachait sur le … » et 🎬 film de son évasion (dernière image
+« Personne ne l'a attrapé »), à un téléphone comme en Wi-Fi.
+
+**Partie plus longue à plusieurs** : 20 tours à 2 joueurs (10 essais chacun, au lieu de 16), 24 à 3 et à 4 ;
+solo inchangé (12).
+
+- Réglages : marge de sécurité (la CI de la V8.13 voyait 7 px de trop).
+
 ## V8.13
 
 - **Accueil simplifié** : 👤 Solo (par défaut au premier lancement) ou 👥 À plusieurs (2 / 3 / 4 joueurs, raccourci

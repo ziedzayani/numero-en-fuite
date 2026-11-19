@@ -26,7 +26,12 @@ const NET_LOCAL_KEYS = [
   'showHistory',
   'rpAuto',
   'rpIdx',
-  'rpPlaying'
+  'rpPlaying',
+  'myName', // prénom de CE téléphone (sinon celui de l'hôte s'affichait la fois suivante)
+  'netLostInfo',
+  'marks', // carnet « à la main » : chacun barre sur son téléphone
+  'nbTab',
+  'nbZoom'
 ];
 /** Fenêtres partagées par tous (les autres, comme le carnet ou le film, restent locales). */
 const NET_SHARED_MODALS = ['pause', 'netWait'];
@@ -56,10 +61,14 @@ function act(name, ...args) {
 
 function netSend(peer, msg) {
   const tr = netTransport();
-  if (tr) tr.send(peer, JSON.stringify(msg));
+  try {
+    if (tr) tr.send(peer, JSON.stringify(msg));
+  } catch (e) {
+    // pont réseau indisponible : la coupure sera signalée par un événement
+  }
 }
 const newToken = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
-const netName = () => (g.names[0] || '').trim() || t('netDefaultName');
+const netName = () => (g.myName || '').trim() || t('netDefaultName');
 
 /* ---------- Hôte ---------- */
 
@@ -80,12 +89,26 @@ function netCreate() {
   render();
 }
 
-/** Lance la partie avec les joueurs de la salle d'attente (2 à 4). */
-function netLaunch() {
+/**
+ * Lance la partie avec les joueurs de la salle d'attente (2 à 4).
+ * Première partie : le premier joueur est tiré au sort (avant, c'était toujours l'hôte).
+ * « Rejouer » (relaunch) : le premier joueur a déjà tourné ; s'il ne reste personne,
+ * l'hôte revient à la salle d'attente, avec le même code, pour que les autres reviennent.
+ */
+function netLaunch(relaunch = false) {
   if (net.role !== 'host') return;
   const seats = net.lobby.filter(p => p.connected);
-  if (seats.length < 2) return;
+  if (seats.length < 2) {
+    if (!relaunch) return;
+    net.lobby = seats.map((p, i) => ({ ...p, seat: i }));
+    Object.assign(g, { net: null, screen: 'lan', inGame: false, modal: null, absent: [] });
+    g.lan = { view: 'hostLobby', error: null };
+    render();
+    netBroadcastLobby();
+    return;
+  }
   net.lobby = seats.map((p, i) => ({ ...p, seat: i }));
+  if (!relaunch || g.players !== seats.length) g.starter = rnd(seats.length);
   g.players = seats.length;
   g.names = net.lobby.map(p => p.name);
   g.playerHelp = [false, false, false, false];
@@ -98,13 +121,16 @@ function netLaunch() {
 }
 
 /** « Rejouer » de l'hôte : même salle, joueurs encore connectés (le premier joueur tourne). */
-const netRelaunch = () => netLaunch();
+const netRelaunch = () => netLaunch(true);
 
 /** Copie de l'état envoyée aux autres : sans secret, sans parcours, sans la réponse du calcul en cours. */
 function redactState(seat) {
   const s = JSON.parse(JSON.stringify(g));
   delete s.secret;
   delete s.hunt;
+  // Le carnet « à la main » des joueurs a besoin des sauts (publics : chacun les voit annoncés),
+  // jamais des positions : on n'envoie que le type de chaque saut.
+  s.huntPublic = g.hunt ? g.hunt.steps.map(x => ({ shift: x.shift, ev: x.ev ? 1 : 0 })) : null;
   delete s.soloSecret;
   if (s.math) s.math = { ...s.math, result: null };
   if (!NET_SHARED_MODALS.includes(s.modal)) s.modal = null;
@@ -167,6 +193,14 @@ function hostOnMessage(peer, m) {
     netSend(peer, { t: 'welcome', seat: p.seat, token: p.token });
     netBroadcastLobby();
     render();
+    return;
+  }
+  if (m.t === 'again') {
+    // « Rejouer » demandé depuis le téléphone d'un invité : même effet que le bouton de l'hôte
+    const p = net.lobby.find(x => x.peer === peer && x.connected);
+    if (!p || !g.net || g.screen !== 'end') return;
+    if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
+    netRelaunch();
     return;
   }
   if (m.t === 'action') {
@@ -241,6 +275,13 @@ function clientOnMessage(m) {
   if (m.t === 'welcome') {
     net.seat = m.seat;
     net.token = m.token;
+    if (g.net) {
+      // retour dans une partie en cours après une coupure : l'état complet suit
+      g.modal = g.modal === 'netLost' ? null : g.modal;
+      g.netLostInfo = null;
+      render();
+      return;
+    }
     g.lan = { view: 'clientLobby', error: null };
     render();
   } else if (m.t === 'lobby') {
@@ -287,8 +328,12 @@ window.__netEvent = raw => {
       net.address = e.ip && e.port ? `${e.ip}:${e.port}` : null;
       render();
     } else if (e.type === 'error') {
-      g.lan = { view: 'menu', error: 'host' };
       netStop();
+      if (g.net) {
+        // le Wi-Fi de l'hôte a lâché en pleine partie : on le dit, avec un bouton pour sortir
+        g.modal = 'netLost';
+        g.netLostInfo = { host: true };
+      } else g.lan = { view: 'menu', error: 'host' };
       render();
     }
     return;
@@ -297,11 +342,17 @@ window.__netEvent = raw => {
   if (e.type === 'connected')
     netSend('host', { t: 'hello', v: NET_PROTOCOL, code: net.code, name: netName(), token: net.token });
   else if (e.type === 'error') {
-    g.lan = { view: 'join', error: e.code || 'notFound' };
+    if (g.net) {
+      // nouvelle tentative ratée (l'hôte a quitté ou relancé une autre partie) : on reste dans la
+      // fenêtre « connexion perdue », jamais sur un écran de jeu figé
+      g.modal = 'netLost';
+      g.netLostInfo = { failed: true };
+    } else g.lan = { view: 'join', error: e.code || 'notFound' };
     render();
   } else if (e.type === 'disconnected') {
-    if (g.net && g.screen !== 'end') {
+    if (g.net) {
       g.modal = 'netLost';
+      g.netLostInfo = { ended: g.screen === 'end' };
       render();
     } else if (g.lan) {
       g.lan = { view: 'join', error: 'lost' };
@@ -313,9 +364,12 @@ window.__netEvent = raw => {
 /** Coupe le réseau sur ce téléphone (garde le code et le jeton pour pouvoir revenir). */
 function netStop() {
   const tr = netTransport();
-  if (tr) {
+  if (!tr) return;
+  try {
     tr.stop();
     if (tr.keepAwake) tr.keepAwake(false);
+  } catch (e) {
+    // le pont est déjà arrêté : rien à faire, l'essentiel est de pouvoir quitter
   }
 }
 /** Quitte complètement le multijoueur et revient à l'accueil. */
@@ -328,16 +382,25 @@ function netLeave() {
   g.screen = 'home';
   g.inGame = false;
   g.modal = null;
+  g.netLostInfo = null;
   render();
 }
-/** Invité : nouvelle tentative après une coupure (même code, même jeton → même place). */
+/**
+ * Invité : nouvelle tentative après une coupure (même code, même jeton → même place).
+ * La fenêtre reste ouverte (« recherche… ») avec « Quitter » toujours actif.
+ */
 function netRetry() {
-  const { code, token } = net;
+  const { code, token } = net,
+    tr = netTransport();
   netStop();
   net = { role: 'client', code, token, seat: null, lobby: [] };
-  g.modal = null;
+  g.netLostInfo = { retrying: true };
   g.lan = g.net ? null : { view: 'joining', error: null };
-  netTransport().joinStart(code);
+  try {
+    tr.joinStart(code);
+  } catch (e) {
+    g.netLostInfo = { failed: true };
+  }
   render();
 }
 
@@ -354,7 +417,7 @@ function lanScreen() {
           `<li><i class="player-dot" style="background:${colors[p.seat] || colors[0]}"></i><b>${esc(p.name)}</b>${p.seat === 0 ? `<small>${t('netHost')}</small>` : ''}${p.connected === false ? '<small>📵</small>' : ''}</li>`
       )
       .join('')}</ul>`;
-  const nameField = `<label class="net-name">${t('netYourName')}<input id="netName" maxlength="14" value="${esc(g.names[0] || '')}" autocomplete="off"></label>`;
+  const nameField = `<label class="net-name">${t('netYourName')}<input id="netName" maxlength="14" value="${esc(g.myName || '')}" autocomplete="off"></label>`;
   let body;
   if (v === 'menu')
     body = `<p class="sub">${t('netIntro')}</p>${nameField}${err}<button class="bigbtn" id="netCreate">📶 ${t('netCreate')}</button><button class="bigbtn light" id="netGoJoin">🔑 ${t('netJoin')}</button><p class="sub small">${t('netSameWifi')}</p>`;
@@ -376,14 +439,25 @@ function netModalView() {
       host ? `<button class="bigbtn light" id="netWithout">${t('netWithout', { player: name })}</button>` : ''
     }`;
   }
-  if (g.modal === 'netLost')
-    return `<h2>📵 ${t('netLostTitle')}</h2><p>${t('netLostText')}</p><button class="bigbtn" id="netRetry">🔄 ${t('netRetry')}</button><button class="bigbtn light" id="netQuitGame">${t('netQuit')}</button>`;
+  if (g.modal === 'netLost') {
+    const info = g.netLostInfo || {},
+      quit = `<button class="bigbtn light" id="netQuitGame">⌂ ${t('menuBack')}</button>`;
+    if (info.host) return `<h2>📵 ${t('netHostLostTitle')}</h2><p>${t('netHostLostText')}</p>${quit}`;
+    if (info.ended) return `<h2>👋 ${t('netEndedTitle')}</h2><p>${t('netEndedText')}</p>${quit}`;
+    return `<h2>📵 ${t('netLostTitle')}</h2><p>${info.failed ? '⚠️ ' + t('netRetryFailed') : t('netLostText')}</p>${
+      info.retrying
+        ? `<p class="sub">⏳ ${t('netSearching')}</p>`
+        : `<button class="bigbtn" id="netRetry">🔄 ${t('netRetry')}</button>`
+    }${quit}`;
+  }
   return '';
 }
 
 /** Fin de partie sur un téléphone invité : c'est l'hôte qui relance. */
 const netEndNote = () =>
-  g.net && g.net.role === 'client' ? `<p class="sub centered">⏳ ${t('netWaitReplay')}</p>` : '';
+  g.net && g.net.role === 'client' && g.netAgainAsked
+    ? `<p class="sub centered">⏳ ${t('netAgainSent')}</p>`
+    : '';
 
 /** « Au tour de … » dans la bulle du détective, sur les téléphones qui regardent. */
 function netWatchBanner() {
@@ -396,7 +470,7 @@ function bindNet(click) {
   const nameInput = document.getElementById('netName');
   if (nameInput)
     nameInput.addEventListener('input', () => {
-      g.names[0] = nameInput.value;
+      g.myName = nameInput.value;
     });
   const openLan = () => {
     g.modal = null;

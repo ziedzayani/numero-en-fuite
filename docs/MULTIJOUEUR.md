@@ -73,12 +73,24 @@ Fourni par `NetBridge.java` (Android) ; simulé par les tests (`tests/game.test.
 
 Changer un message ⇒ incrémenter `NET_PROTOCOL` : deux versions différentes refusent alors de jouer ensemble.
 
+## Rejouer, premier joueur, prénom (V8.14)
+
+- Premier joueur tiré au sort au lancement, puis rotation à chaque « Rejouer ».
+- « Rejouer » : bouton de l'hôte, ou message `{ t: 'again' }` d'un invité (accepté seulement sur l'écran de fin).
+  S'il ne reste personne de connecté, l'hôte revient à la salle d'attente avec le même code.
+- Le prénom saisi est `g.myName`, propre au téléphone (dans `NET_LOCAL_KEYS`), jamais écrasé par l'état reçu.
+- Carnet « à la main » : `g.marks` reste local ; l'hôte envoie `huntPublic` = le type de chaque saut
+  (`{ shift, ev }`), jamais les positions, pour que chacun puisse « Décaler ses marques ».
+
 ## Coupures
 
 - **Un invité se déconnecte** : il garde sa place ; s'il revient (« Réessayer », même code), son `token` lui rend
   la même place. Si c'était son tour, tout le monde voit « En attente de … » ; l'hôte peut **continuer sans lui**
   (ses tours sont sautés). Moins de deux joueurs présents : fin de partie.
 - **L'hôte se déconnecte** : « Connexion perdue » chez les invités (Réessayer / Quitter). Pas de changement d'hôte en V1.
+  Si « Réessayer » échoue (hôte parti ou nouvelle partie créée), la fenêtre reste ouverte avec « Partie introuvable »
+  et « Revenir à l'accueil » ; jamais d'écran de jeu figé. Sur l'écran de fin : « L'hôte a quitté ».
+- **Le Wi-Fi de l'hôte lâche** (événement `error` en partie) : fenêtre « Wi-Fi coupé » avec retour à l'accueil.
 
 ## Autorisations Android
 

@@ -12,7 +12,7 @@ const SHOTS = process.argv[3] ? path.resolve(process.argv[3]) : null;
 const URL = 'file://' + FILE;
 const MAX = { junior: 9, malin: 15, expert: 30, genius: 50 };
 const RANGE = { junior: 1, malin: 2, expert: 2, genius: 5 };
-const LIMIT = [0, 12, 16, 18, 20];
+const LIMIT = [0, 12, 20, 24, 24]; // V8.14 : 10 essais chacun à 2 joueurs
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -289,7 +289,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(handled && (await S(page)).modal === 'pause', 'Retour en partie : met le jeu en pause (fenêtre du jeu, pas de boîte native)');
     await page.click('#resumeGame');
     check((await S(page)).screen === 'game' && !(await S(page)).modal, 'Pause → Reprendre : on revient dans la partie');
-    await page.click('#openNotebook'); check(await page.isVisible('.modal .history-items'), 'Carnet d’indices dans une fenêtre'); await page.click('#closeModal');
+    await page.click('#openNotebook'); await page.click('[data-nbtab="clues"]'); check(await page.isVisible('.modal .history-items'), 'Carnet d’indices dans une fenêtre (onglet « Indices »)'); await page.click('#closeModal');
     await page.click('#pause'); await page.click('#askQuit');
     check((await S(page)).modal === 'quit', 'Quitter : confirmation demandée');
     await page.click('#quitNo');
@@ -502,13 +502,15 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click('[data-tab="guess"]');
     check(await page.$$eval('.numtile.possible', e => e.length) === 0, 'Aide par joueur : joueur 1 sans aide → pas de vert');
     await page.click('#openNotebook');
-    check(!(await page.$('.nb-grid')) && await page.isVisible('.modal .history-items'), 'Sans aide : le carnet garde l’historique mais ne déduit rien');
+    check(!(await page.$('[data-nbtab="auto"]')) && (await page.$$('.nb-cell.no')).length === 0 && await page.isVisible('.nb-grid.mine'), 'Sans aide : seul le carnet « à la main » (rien de barré tout seul)');
+    await page.click('[data-nbtab="clues"]');
+    check(await page.isVisible('.modal .history-items'), 'Sans aide : le carnet garde l’historique des indices');
     await page.click('#closeModal');
     await page.evaluate(() => { const N = window.__numero; N.guess(N.state.secret % 15 + 1); N.nextTurn(); N.state.modal = null; N.render(); });
     await page.click('[data-tab="guess"]');
     check(await page.$$eval('.numtile.possible', e => e.length) > 0 && !(await page.$('.banner.slim')), 'Aide par joueur : joueur 2 avec aide → numéros possibles en vert');
-    await page.click('#openNotebook');
-    check(await page.isVisible('.nb-grid') && (await page.textContent('.nb-count')).includes('15'), 'Avec aide : le carnet montre la grille des possibles');
+    await page.click('#openNotebook'); await page.click('[data-nbtab="auto"]');
+    check(await page.isVisible('.nb-grid:not(.mine)') && (await page.textContent('.nb-count')).includes('15'), 'Avec aide : onglet « Détective » avec la grille des possibles');
     await page.click('#closeModal');
     // Encourager les questions : avantages/inconvénients + bonus +1
     await fresh2('malin');
@@ -627,7 +629,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const t0 = await page.textContent('.bubble b');
     check(t0.includes(`<b>Al'i</b>`) && !(await page.$('.modal-back')), 'Prénom avec caractères spéciaux affiché tel quel, partie lancée en un seul appui');
     await page.tap('[data-tab="question"]'); await page.tap('[data-question]');
-    await page.tap('#openNotebook');
+    await page.tap('#openNotebook'); await page.tap('[data-nbtab="clues"]');
     check((await page.textContent('.modal .history-items')).includes(`<b>Al'i</b>`), 'Prénom correct dans le carnet');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (accueil/réglages/prénoms) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} Accueil sans défilement, réglages au toucher sans clignotement, prénoms`);
@@ -1111,6 +1113,12 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(hostList === 'Léa,Omar,Zoé' && (await p3.textContent('.net-panel')).includes('En attente') && !(await host.isDisabled('#netLaunch')), 'Salle d’attente : Léa (hôte), Omar, Zoé — invités en attente, « Lancer » actif (' + hostList + ')');
     // lancement
     await host.click('#netLaunch'); await wait(300);
+    // V8.14 : le premier joueur est tiré au sort (avant : toujours l'hôte). On le fixe ensuite pour la suite du test.
+    {
+      const st0 = (await SN(host)).starter;
+      check(Number.isInteger(st0) && st0 >= 0 && st0 < 3, `Wi-Fi : premier joueur tiré au sort (${st0})`);
+      await host.evaluate(() => { const N = window.__numero; N.state.starter = 0; N.state.turn = 0; N.render(); }); await wait(200);
+    }
     let [h, s2, s3] = [await SN(host), await SN(p2), await SN(p3)];
     check(h.screen === 'game' && s2.screen === 'game' && s3.screen === 'game' && h.players === 3 && s2.names.join() === 'Léa,Omar,Zoé', 'Partie lancée sur les 3 téléphones avec les 3 prénoms');
     check(s2.secret === undefined && s3.secret === undefined && (s2.math || {}).result === null && !s2.hunt && h.secret >= 1, 'Le numéro secret, son parcours et la réponse du calcul ne sont jamais envoyés aux autres téléphones');
@@ -1127,6 +1135,15 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await host.click(`[data-guess="${miss}"]`); await host.click('#capPrecise'); await wait(150); await host.click('#next'); await wait(250);
     [h, s2] = [await SN(host), await SN(p2)];
     check(h.turn === 1 && !(await p2.$('.net-watch')) && (await host.textContent('.net-watch')).includes('Omar'), 'Tour suivant : à Omar de jouer, Léa regarde');
+    // V8.14 : carnet « à la main » sur le téléphone d'Omar (sauts reçus, jamais les positions)
+    check(Array.isArray(s2.huntPublic) && s2.huntPublic.length === 2 && s2.huntPublic.every(x => !('from' in x) && !('to' in x)), 'Wi-Fi : seuls les types de saut sont envoyés (pas les positions)');
+    await p2.click('#openNotebook'); await p2.click('[data-mark="1"]');
+    check(await p2.isVisible('#shiftMarks'), 'Wi-Fi : Omar barre sur son téléphone, « Décaler mes marques » proposé');
+    await p2.click('#shiftMarks');
+    const om = JSON.stringify((await SN(p2)).marks[1].out);
+    await host.evaluate(() => window.__numero.render()); await wait(150);
+    check(JSON.stringify((await SN(p2)).marks[1].out) === om && !(await SN(host)).marks.some(m => m && m.out && m.out.length), 'Wi-Fi : les marques d’Omar restent chez lui (ni écrasées, ni envoyées)');
+    await p2.click('#closeModal');
     // Omar joue sur SON téléphone : choisit un numéro (sélection locale), capture → arbitrée par l'hôte
     await p2.click('[data-tab="guess"]'); await wait(150);
     const sec = (await SN(host)).secret;
@@ -1157,15 +1174,38 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await host.click('#netWithout'); await wait(250);
     h = await SN(host);
     check(h.absent.includes(2) && h.modal === null && h.screen === 'end' && (await SN(p2)).screen === 'end', 'Continuer sans Zoé : Omar déjà sur le podium, Léa seule à chercher → fin de partie et podium chez tous');
-    // fin : seul l'hôte relance ; « Rejouer » garde les joueurs encore connectés
-    check(!(await p2.isVisible('#again')) && (await p2.textContent('#app')).includes('hôte qui peut relancer'), 'Fin de partie : les invités attendent que l’hôte relance');
-    await host.click('#again'); await wait(300);
+    // V8.14 : le numéro que Léa cherchait encore est révélé, avec le film de son évasion
+    check((await p2.textContent('.escaped-note')).includes(String(h.escaped.n)), `Fin sans capture : « le numéro se cachait sur le ${h.escaped.n} », chez tous`);
+    check(!h.lastHunt || h.lastHunt.end.type === 'escaped', 'Fin sans capture : jamais le film d’une capture précédente');
+    // V8.14 : « Rejouer » marche aussi depuis le téléphone d'un invité (l'hôte relance pour tous)
+    check(await p2.isVisible('#again'), 'Fin de partie : « Rejouer » aussi chez les invités');
+    await p2.click('#again'); await wait(400);
     [h, s2] = [await SN(host), await SN(p2)];
-    check(h.screen === 'game' && s2.screen === 'game' && h.players === 2 && s2.names.join() === 'Léa,Omar', 'Rejouer (hôte) : nouvelle partie à 2 avec les joueurs encore connectés');
+    check(h.screen === 'game' && s2.screen === 'game' && h.players === 2 && s2.names.join() === 'Léa,Omar', 'Rejouer (depuis Omar) : nouvelle partie à 2 pour tous');
+    // l'hôte rejoue alors qu'il est seul : retour à la salle d'attente (même code) au lieu de ne rien faire
+    { const [X] = [await phone()]; const solo = X.page;
+      await solo.evaluate(() => { const N = window.__numero; N.state.screen = 'lan'; N.state.lan = { view: 'menu' }; N.render(); });
+      await solo.fill('#netName', 'Nour'); await solo.click('#netCreate'); await wait(100);
+      const c2 = (await solo.textContent('.net-code')).trim();
+      await p3.evaluate(() => window.__numero.netLeave());
+      await p3.evaluate(() => { const N = window.__numero; N.state.screen = 'lan'; N.state.lan = { view: 'menu' }; N.render(); });
+      check(await p3.inputValue('#netName') === 'Zoé', 'Wi-Fi : le champ prénom garde SON prénom (pas celui de l’hôte)');
+      await p3.click('#netGoJoin'); await p3.fill('#netCode', c2); await p3.click('#netJoinGo'); await wait(250);
+      await solo.click('#netLaunch'); await wait(250);
+      netOp(p3, 'stop'); await wait(250);
+      await solo.evaluate(() => { const N = window.__numero; N.state.screen = 'end'; N.state.modal = null; N.render(); });
+      await solo.click('#again'); await wait(250);
+      const so = await SN(solo);
+      check(so.screen === 'lan' && so.lan.view === 'hostLobby' && (await solo.textContent('.net-code')).trim() === c2, 'Rejouer alors que l’autre est parti : retour à la salle d’attente, même code');
+      await solo.evaluate(() => window.__numero.netLeave()); await X.ctx.close(); }
     // l'hôte quitte en pleine partie → les invités sont prévenus
     await host.evaluate(() => window.__numero.netLeave()); await wait(250);
     s2 = await SN(p2);
     check(s2.modal === 'netLost' && await p2.isVisible('#netRetry'), 'L’hôte quitte : « Connexion perdue » chez Omar, avec Réessayer / Quitter');
+    // V8.14 (bug signalé) : « Réessayer » alors que l'hôte est parti → la fenêtre reste, « Quitter » marche
+    await p2.click('#netRetry'); await wait(300);
+    s2 = await SN(p2);
+    check(s2.modal === 'netLost' && s2.netLostInfo.failed && await p2.isVisible('#netQuitGame') && (await p2.textContent('.modal')).includes('introuvable'), 'Réessayer sans hôte : message clair, jamais d’écran figé');
     await p2.click('#netQuitGame');
     check((await SN(p2)).screen === 'home' && !(await SN(p2)).net, 'Quitter : retour à l’accueil, mode réseau fermé');
     // relance après fermeture de l'application : jamais de partie réseau fantôme
@@ -1265,6 +1305,82 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check((await S(page)).tipsSeen.net === true, 'Astuces vues : conservées après redémarrage');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (accueil V8.13) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} V8.13 : accueil simplifié, menu Plus, règles en cartes, astuces`);
+    await ctx.close();
+  }
+
+  // 3n) V8.14 : carnet « à la main » — l'enfant barre lui-même, « Décaler mes marques »
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser, { width: 360, height: 735 });
+    let st;
+    const solo = (level, extra = '') => page.evaluate(([lv, ex]) => { const N = window.__numero; Object.assign(N.state, { players: 1, level: lv, mode: 'normal', reduceMotion: true, modal: null }); N.start(true); N.state.modal = null; (0, eval)(ex); N.render(); }, [level, extra]);
+    await solo('expert');
+    await page.click('#openNotebook');
+    check(await page.isVisible('.nb-grid.mine') && (await page.$$('.nb-cell')).length === 30 && (await page.$$('.nb-cell.no')).length === 0, 'Carnet : grille 1–30 vierge, rien n’est barré tout seul');
+    await page.click('[data-mark="7"]'); await page.click('[data-mark="8"]'); await page.click('[data-mark="8"]');
+    check(JSON.stringify((await S(page)).marks[0].out) === '[7]', 'Carnet : toucher barre, toucher à nouveau rétablit');
+    await page.click('#closeModal');
+    // un indice, le numéro bouge : les marques NE bougent PAS toutes seules
+    await page.evaluate(() => { const N = window.__numero; N.ask(N.state.choices[0]); });
+    const shift = (await S(page)).last.shift;
+    await page.click('#openNotebook');
+    check(JSON.stringify((await S(page)).marks[0].out) === '[7]' && await page.isVisible('#shiftMarks'), 'Après un saut : marques inchangées, bouton « Décaler mes marques » proposé');
+    await page.click('[data-mark="1"]');
+    await page.click('#shiftMarks');
+    const expected = await page.evaluate(sh => { const N = window.__numero, f = N.moveFn(sh); const keep = new Set([...Array(30)].map((_, i) => i + 1).filter(n => n !== 7 && n !== 1).map(f)); return [...Array(30)].map((_, i) => i + 1).filter(n => !keep.has(n)); }, shift);
+    st = await S(page);
+    check(JSON.stringify(st.marks[0].out) === JSON.stringify(expected) && !(await page.$('#shiftMarks')) && (await page.textContent('.modal')).includes('suivent le numéro'), `Décaler (${JSON.stringify(shift)}) : les marques suivent exactement le saut`);
+    // sauvegardé avec la partie
+    await page.reload();
+    check(JSON.stringify((await S(page)).marks[0].out) === JSON.stringify(expected), 'Carnet : marques conservées après redémarrage');
+    // sauts spéciaux : miroir, ×2, ÷2
+    const special = await page.evaluate(() => {
+      const N = window.__numero, r = {};
+      const run = (mode, level, out, mv) => { Object.assign(N.state, { players: 1, level, mode }); N.start(true); N.state.hunt = { start: 1, steps: [] }; N.state.marks = []; N.toggleRange(...out); N.state.hunt.steps.push({ shift: mv, ev: null }); N.shiftMarks(); return N.marksOf().out; };
+      r.mirror = run('normal', 'genius', [1, 10], { op: 'mirror' });
+      r.double = run('normal', 'genius', [26, 50], { op: '×', k: 2 });
+      N.state.modal = null; N.startChallenge('endless');
+      N.state.hunt = { start: 1, steps: [] }; N.state.marks = []; N.toggleMark(100); N.state.hunt.steps.push({ shift: { op: '÷', k: 2 }, ev: null }); N.shiftMarks(); r.half = N.marksOf().out;
+      return r;
+    });
+    const range = (a, b) => [...Array(b - a + 1)].map((_, i) => a + i);
+    check(JSON.stringify(special.mirror) === JSON.stringify(range(41, 50)), 'Décaler 🪞 miroir : 1–10 barrés → 41–50 barrés');
+    check(JSON.stringify(special.double) === JSON.stringify(range(1, 50).filter(n => n % 2)), 'Décaler ×2 : seuls les nombres pairs restent possibles');
+    check(JSON.stringify(special.half) === JSON.stringify(range(51, 100)), 'Décaler ÷2 (Défi) : 51–100 deviennent impossibles');
+    // Génie : plages de 10 en plus de la grille
+    await solo('genius');
+    await page.click('#openNotebook');
+    await page.click('[data-range="11-20"]');
+    check((await page.$$('.nb-cell.no')).length === 10 && await page.isVisible('.nb-range.no'), 'Génie : une plage barre 10 numéros d’un coup');
+    await page.click('[data-range="11-20"]');
+    check((await page.$$('.nb-cell.no')).length === 0, 'Génie : toucher la plage à nouveau la rétablit');
+    await page.click('#closeModal');
+    // Défi 1–100 : 10 plages, on en ouvre une
+    await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.startChallenge('endless'); N.state.modal = null; N.render(); });
+    await page.click('#openNotebook');
+    check((await page.$$('.nb-tiles .nb-range')).length === 10 && !(await page.$('.nb-cell')), 'Défi : 10 plages de 10 (pas 100 cases)');
+    await page.click('[data-zoom="9"]'); await page.click('[data-mark="95"]'); await page.click('.nb-rangebtn');
+    check((await S(page)).marks[0].out.length === 10 && (await page.textContent('.nb-zoom-btn, .nb-rangebtn')).includes('91–100'), 'Défi : plage ouverte, numéros barrés un par un ou tous ensemble');
+    check(await page.evaluate(() => document.scrollingElement.scrollHeight - innerHeight) <= 0 && await page.evaluate(() => { const m = document.querySelector('.modal'); return m.scrollHeight <= m.clientHeight + 1; }), 'Défi : carnet sans défilement');
+    await page.click('#closeModal');
+    // chacun son carnet ; nouveau numéro (Course) → carnet vierge
+    await page.evaluate(() => { const N = window.__numero; Object.assign(N.state, { players: 2, level: 'malin', mode: 'normal', gameMode: 'race', starter: 0 }); N.start(true); N.state.modal = null; N.toggleMark(3); N.toggleMark(4); N.render(); });
+    st = await page.evaluate(() => { const N = window.__numero; N.state.turn = 1; return [N.marksOf(1).out.length, N.marksOf(0).out.length]; });
+    check(st[0] === 0 && st[1] === 2, 'Chaque joueur a son propre carnet');
+    st = await page.evaluate(() => { const N = window.__numero; N.state.captures++; return N.marksOf(0).out.length; });
+    check(st === 0, 'Nouveau numéro (après une capture) : carnet vierge');
+    st = await page.evaluate(() => window.__numero.netLocalKeys.includes('marks'));
+    check(st === true, 'Wi-Fi : les marques restent sur le téléphone de chacun (jamais envoyées)');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (carnet à la main) ' + page.errors.join(' | '));
+    // V8.14 : fin de partie sans capture → le numéro est révélé, avec le film de son évasion
+    st = await page.evaluate(() => { const N = window.__numero; Object.assign(N.state, { players: 2, level: 'junior', gameMode: 'score', modal: null }); N.start(true); N.state.modal = null;
+      for (let i = 0; i < 3; i++) N.ask(N.state.choices[0]);
+      N.state.turn = N.state.limit - 1; N.state.phase = 'result'; N.state.last = { type: 'wrong', n: 1, player: 1 }; N.nextTurn(); return N.state; });
+    check(st.screen === 'end' && (await page.textContent('.escaped-note')).includes('sur le ' + st.escaped.n) && await page.isVisible('#openReplay'), `Personne ne trouve : « le numéro se cachait sur le ${st.escaped.n} » + bouton film`);
+    await page.click('#openReplay'); await page.evaluate(() => { const N = window.__numero; N.state.rpIdx = 99; N.render(); });
+    check((await page.textContent('.rp-cap')).includes('il était sur le ' + st.escaped.n), 'Film de l’évasion : dernière image « personne ne l’a attrapé »');
+    await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.render(); });
+    console.log(`${failed === before ? '✓' : '✗'} V8.14 : carnet « à la main », décaler mes marques`);
     await ctx.close();
   }
 

@@ -4,7 +4,7 @@
  * puis fonctionne hors ligne. Le nom du cache contient la version (remplacée par
  * tools/build.mjs) : chaque nouvelle version vide l'ancien cache.
  */
-const CACHE = 'numero-en-fuite-v8.13';
+const CACHE = 'numero-en-fuite-v8.14';
 const ASSETS = ['./', './index.html', './icon-192.png', './icon-512.png', './manifest.webmanifest'];
 
 self.addEventListener('install', e =>
