@@ -1434,6 +1434,27 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
+  // 3p) V8.16 : retours sur téléphone (Génie à 4, écran utile court 360×690)
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser, { width: 360, height: 690 });
+    const scroll = () => page.evaluate(() => Math.max(document.scrollingElement.scrollHeight - innerHeight, ...[...document.querySelectorAll('.turn-body')].map(e => e.scrollHeight - e.clientHeight)));
+    await page.evaluate(() => { const N = window.__numero; Object.assign(N.state, { players: 4, names: ['Zied', 'Assya', '', ''], level: 'genius', mode: 'normal', gameMode: 'race', replayAsk: false, reduceMotion: true, timerMode: 'normal' }); N.start(true); N.state.modal = null; N.render(); N.act('tab', 'guess'); N.pressKey('3'); N.pressKey('8'); });
+    const kp = await page.evaluate(() => { const d = document.querySelector('.kp-display').getBoundingClientRect(), s = document.querySelector('.kp-display small').getBoundingClientRect(); return d.bottom - s.bottom; });
+    check(await scroll() <= 0 && kp >= 5 && await page.isVisible('#capNet'), `Génie à 4 : clavier, aperçu du filet DANS le champ (${Math.round(kp)} px du bord), boutons de capture visibles sans défiler`);
+    await page.evaluate(() => { const N = window.__numero; N.act('tab', 'question'); N.ask(N.state.choices[0]); N.nextTurn(); N.state.secret = 25; N.netCapture(25); N.state.modal = null; N.render(); });
+    check(await scroll() <= 0 && await page.isVisible('.catch-head') && await page.isVisible('.podium-note'), 'Filet réussi (Course, bonus déduction) : carte compacte, sans défilement');
+    await page.evaluate(() => { const N = window.__numero; N.nextTurn(); N.state.modal = null; N.state.reduceMotion = false; N.render(); const s = N.state.secret; N.netCapture(s > 40 ? 2 : 48); N.state.modal = null; N.render(); });
+    await page.waitForTimeout(1500);
+    const out = await page.evaluate(() => { const box = document.querySelector('.move-line').getBoundingClientRect(), tok = document.querySelector('.bj-token').getBoundingClientRect(); return tok.left >= box.left && tok.right <= box.right; });
+    check(out && await scroll() <= 0, 'Filet vide : le pion « ? » du saut reste dans sa boîte');
+    await page.evaluate(() => { const N = window.__numero; N.state.reduceMotion = true; let k = 0; while (N.state.screen === 'game' && k++ < 300) { N.state.modal = null; if (N.state.phase === 'result') { N.nextTurn(); continue; } const s = N.state.secret; N.guess(s === 1 ? 2 : 1); } N.state.modal = null; N.render(); });
+    check((await S(page)).screen === 'end' && await scroll() <= 0 && await page.isVisible('.panel > .escaped-note') && !(await page.$('.end-hero .escaped-note')), 'Fin de Course à 4 : « le numéro se cachait… » dans le cadre, sans défilement');
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (V8.16) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V8.16 : Génie à 4 sur écran court`);
+    await ctx.close();
+  }
+
   // 4) Rendu sur petits écrans + captures
   for (const vp of [{ width: 320, height: 568, tag: '320' }, { width: 360, height: 740, tag: '360' }]) {
     const before = failed;

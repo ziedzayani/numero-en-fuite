@@ -1,5 +1,19 @@
 # Historique des versions
 
+## V8.16
+
+Retours d'un essai sur téléphone (Génie, 4 joueurs, Course) :
+- **Barres système comptées deux fois** : l'application appliquait déjà les marges des barres d'état et de
+  navigation, puis les transmettait à la WebView qui les recomptait (`env(safe-area-inset-*)`) : ~40 dp perdus,
+  d'où un défilement pour atteindre « Attraper » / « Filet ». Les marges ne sont plus transmises.
+- Écrans courts (≤ 720 px utiles) : détective, onglets et pavé plus compacts ; vérifié en 360 × 690 à 4 joueurs.
+- Pavé Génie : l'aperçu du filet (« 37·38·39 ») n'est plus collé au bas du champ.
+- **Filet réussi / Numéro attrapé** : loupe à côté du titre, annonce du podium plus serrée, sans défilement.
+- **Filet vide** : le pion « ? » du saut sortait de sa boîte (régression V8.13) ; il reste dans sa piste.
+- **Fin de Course** : « Le numéro se cachait sur le … » et le film sont dans le cadre du podium (et non plus sous
+  le détective) ; boutons Rejouer · ⌂ sur une rangée.
+- Règle du filet inchangée : 3 numéros au plus, 3 filets par partie.
+
 ## V8.15
 
 **Mon bureau** (étape 4) — 4 onglets : 🕵️ Rang · 📂 Records · 🏅 Badges · 🎯 Missions.

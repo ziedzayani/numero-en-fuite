@@ -54,7 +54,11 @@ public class MainActivity extends Activity {
                     bottom = insets.getSystemWindowInsetBottom();
                 }
                 v.setPadding(left, top, right, bottom);
-                return insets;
+                // Les marges sont déjà appliquées ici : on ne les transmet PAS à la WebView.
+                // Sinon les WebView récentes les recomptent (env(safe-area-inset-*) dans le CSS) :
+                // ~40 dp perdus en haut et en bas, d'où un défilement en partie sur téléphone (V8.16).
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) return WindowInsets.CONSUMED;
+                return insets.consumeSystemWindowInsets();
             }
         });
 
