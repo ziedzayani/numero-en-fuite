@@ -42,12 +42,12 @@ function modalView() {
       diff = g.chDiffPref in CHALLENGE_DIFFS ? g.chDiffPref : 'medium',
       rec = kind =>
         r[chRecordKey(kind, diff)] ? t('chRecord', { n: r[chRecordKey(kind, diff)] }) : t('chNoRecord'),
-      // records V8.3 (ancien barème, non comparables) : affichés pour mémoire, jamais effacés
-      old = ['timed', 'endless']
+      // records des anciennes règles (V8.3, puis V8.4–8.17, non comparables) : affichés pour mémoire, jamais effacés
+      old = ['timed', 'endless', `timed-${diff}`, `endless-${diff}`]
         .filter(k => r[k])
-        .map(k => `${t(k === 'timed' ? 'chTimed' : 'chEndless')} ${r[k]}`);
+        .map(k => `${t(k.startsWith('timed') ? 'chTimed' : 'chEndless')} ${r[k]}`);
     return wrapM(
-      `<h2>🏆 ${t('chTitle')}</h2><p>${t('chDesc')}</p><div class="label">${t('chDiffTitle')}</div><div class="ch-diffs" role="radiogroup">${Object.keys(
+      `<h2>🏆 ${t('chTitle')}</h2><div class="label">${t('chDiffTitle')}</div><div class="ch-diffs" role="radiogroup">${Object.keys(
         CHALLENGE_DIFFS
       )
         .map(
@@ -56,7 +56,7 @@ function modalView() {
         )
         .join(
           ''
-        )}</div><div class="modal-actions"><button class="bigbtn pink ch-opt" id="chTimed">⏱ ${t('chTimed')}<small>${t('chTimedSub')} · ${rec('timed')}</small></button><button class="bigbtn ch-opt" id="chEndless">♾️ ${t('chEndless')}<small>${t('chEndlessSub')} · ${rec('endless')}</small></button><details class="help-fold"><summary>📊 ${t('chFormulaTitle')}</summary><p class="sub small">⏱ ${t('chFormulaTimed')}</p><p class="sub small">♾️ ${t('chFormulaEndless')}</p></details>${old.length ? `<p class="sub small ch-old">${t('chOldRecords', { list: old.join(' · ') })}</p>` : ''}<button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
+        )}</div><div class="modal-actions"><button class="bigbtn pink ch-opt" id="chTimed">⏱ ${t('chTimed')}<small>${t('chTimedSub')} · ${rec('timed')}</small></button><button class="bigbtn ch-opt" id="chEndless">♾️ ${t('chEndless')}<small>${t('chEndlessSub')} · ${rec('endless')}</small></button><details class="help-fold"><summary>📏 ${t('chRulesTitle')}</summary><p class="sub small">${t('chDesc')}</p><p class="sub small">${t('chRules_' + diff)}</p><p class="sub small">🏃 ${t('chRulesPass')}</p></details><details class="help-fold"><summary>📊 ${t('chFormulaTitle')}</summary><p class="sub small">⏱ ${t('chFormulaTimed')}</p><p class="sub small">♾️ ${t('chFormulaEndless')}</p></details>${old.length ? `<p class="sub small ch-old">${t('chOldRecords', { list: old.join(' · ') })}</p>` : ''}<button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
     );
   }
   if (g.modal === 'names' && g.screen === 'home') {
@@ -192,7 +192,8 @@ function cluesView() {
     wrong: '🎯',
     netHit: '🕸️',
     netMiss: '🕸️',
-    timeout: '⏱'
+    timeout: '⏱',
+    pass: '🏃'
   };
   return `<div class="history-items nb-clues">${
     g.history.length

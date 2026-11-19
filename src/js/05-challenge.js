@@ -14,7 +14,8 @@ function records() {
   }
 }
 /** Clé des records d'un défi : un record par variante et par difficulté. */
-const chRecordKey = (kind = g.chKind, diff = g.chDiff) => `${kind}-${diff}`;
+// V8.18 : nouvelles règles → nouveaux records (« -v2 ») ; les anciens restent affichés pour mémoire
+const chRecordKey = (kind = g.chKind, diff = g.chDiff) => `${kind}-${diff}-v2`;
 /**
  * Score du défi (voir CHALLENGE_SCORE). withBonus ajoute les éléments de fin de partie :
  * pénalité de victoire au filet et bonus des secondes restantes.
@@ -62,6 +63,7 @@ function startChallenge(kind, diff = g.chDiffPref) {
   g.limit = 0;
   g.chElapsed = 0;
   g.chStreak = 0;
+  g.chFreezes = chRules().freezes; // null : un gel à chaque calcul juste (Facile)
   g.netsLeft = [NETS_MAX];
   g.modal = null;
   g.secret = 1 + rnd(100);

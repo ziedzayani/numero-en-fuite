@@ -73,7 +73,7 @@ const CHALLENGE_SCORE = {
   netMiss: 40,
   netWin: 50, // victoire au filet (moins méritoire qu'une capture précise)
   perSecond: 2, // par seconde restante, contre la montre
-  timeRefundMs: 15000 // calcul juste en contre la montre
+  timeRefundMs: 8000 // calcul juste en contre la montre (V8.18 : 8 s au lieu de 15, sinon calculer ne coûtait presque rien)
 };
 /** Difficultés du défi → niveau utilisé pour les calculs, les questions et le filet (numéros toujours 1–100). */
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };

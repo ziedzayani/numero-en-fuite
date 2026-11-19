@@ -3,30 +3,90 @@
  * Après chaque indice ou tentative ratée, le numéro bouge. Le carnet (g.candidates)
  * subit EXACTEMENT le même déplacement : il reste toujours juste.
  */
-const CH_MOVES = [
-  { op: '+', k: 7 },
-  { op: '+', k: -7 },
-  { op: '+', k: 11 },
-  { op: '+', k: -13 },
-  { op: '+', k: 9 },
-  { op: '×', k: 2 },
-  { op: '÷', k: 2 },
-  { op: 'mirror' }
-];
-/** Fonction de déplacement : nombre (décalage) ou { op: '+', k } | { op: '×', k } | { op: '÷', k } | { op: 'mirror' }. */
+/**
+ * Défi (V8.18) : règles par difficulté, choisies par simulation (voir docs/DEFI.md).
+ *   moves    sauts possibles, tirés au hasard
+ *   hidden   part des décalages dont le SENS est caché (« un saut de 7… mais vers où ? »)
+ *   double   part des tours où le numéro fait deux sauts d'affilée (annoncés tous les deux)
+ *   freezes  gels disponibles par partie (null : un gel à chaque calcul juste)
+ *   pickClue un calcul juste laisse CHOISIR sa question parmi 3 (au lieu du meilleur seuil)
+ * ×2 et ×3 sont « modulo 101 » : au-delà de 100 on retire 101. Deux numéros n'arrivent jamais sur la
+ * même case (l'ancien ×2 et ÷2 en fusionnaient, ce qui facilitait le jeu au lieu de le compliquer).
+ */
+const pm = ks =>
+  ks.flatMap(k => [
+    { op: '+', k },
+    { op: '+', k: -k }
+  ]);
+const CH_RULES = {
+  easy: { moves: pm([3, 5, 7]), hidden: 0, double: 0, freezes: null, pickClue: false },
+  medium: {
+    moves: [...pm([7, 9, 11, 13]), { op: 'mirror' }, { op: '×m', k: 2 }],
+    hidden: 0.2,
+    double: 0,
+    freezes: 3,
+    pickClue: false
+  },
+  hard: {
+    moves: [...pm([7, 9, 11, 13]), { op: 'mirror' }, { op: '×m', k: 2 }, { op: '×m', k: 3 }],
+    hidden: 0.3,
+    double: 0.1,
+    freezes: 1,
+    pickClue: true
+  }
+};
+const chRules = () => CH_RULES[g.chDiff] || CH_RULES.medium;
+/**
+ * Fonction de déplacement : nombre (décalage) ou { op: '+', k } | { op: '×', k } | { op: '÷', k } | { op: 'mirror' }
+ * | { op: '×m', k } (× k modulo 101) | { op: '±', k, dir } (sens caché ; dir = vrai sens) | { op: 'seq', steps }.
+ */
 function moveFn(m) {
   const max = maxN();
   if (typeof m === 'number') return n => wrap(n + m, max);
   if (m.op === '+') return n => wrap(n + m.k, max);
+  if (m.op === '±') return n => wrap(n + m.k * (m.dir || 1), max);
+  if (m.op === '×m') return n => (n * m.k) % (max + 1) || max;
+  if (m.op === 'seq') {
+    const fs = m.steps.map(moveFn);
+    return n => fs.reduce((x, f) => f(x), n);
+  }
   if (m.op === '×') return n => wrap(n * m.k, max);
   if (m.op === '÷') return n => Math.ceil(n / m.k);
   return n => max + 1 - n;
 }
+/**
+ * Image d'un ensemble de numéros par un saut, tel que le JOUEUR le connaît : pour un sens caché,
+ * les deux sens restent possibles (union). Sert au carnet automatique et à « Décaler mes marques ».
+ */
+function moveImage(set, m) {
+  if (m && m.op === 'seq') return m.steps.reduce((s, st) => moveImage(s, st), set);
+  if (m && m.op === '±') {
+    const max = maxN();
+    return [...new Set(set.flatMap(n => [wrap(n + m.k, max), wrap(n - m.k, max)]))].sort((a, b) => a - b);
+  }
+  const f = moveFn(m);
+  return [...new Set(set.map(f))].sort((a, b) => a - b);
+}
+/** Saut tel qu'on peut le montrer : jamais le vrai sens d'un saut caché. */
+const publicShift = m =>
+  m && m.op === '±'
+    ? { op: '±', k: m.k }
+    : m && m.op === 'seq'
+      ? { op: 'seq', steps: m.steps.map(publicShift) }
+      : m;
 /** Déplace le secret et tous les candidats. */
 function applyMove(m) {
-  const f = moveFn(m);
-  g.secret = f(g.secret);
-  g.candidates = [...new Set(g.candidates.map(f))].sort((a, b) => a - b);
+  g.secret = moveFn(m)(g.secret);
+  g.candidates = moveImage(g.candidates, m);
+}
+/** Défi : tire un saut selon la difficulté (sens parfois caché, parfois deux sauts). */
+function drawChallengeMove() {
+  const R = chRules();
+  const one = () => {
+    const m = { ...pick(R.moves) };
+    return m.op === '+' && Math.random() < R.hidden ? { op: '±', k: Math.abs(m.k), dir: Math.sign(m.k) } : m;
+  };
+  return Math.random() < R.double ? { op: 'seq', steps: [one(), one()] } : one();
 }
 const GENIUS_MOVES = [
   { op: '+', k: 3 },
@@ -44,9 +104,8 @@ function nextMove() {
   if (g.mode === 'challenge' || g.level === 'genius') {
     // Un saut annoncé doit vraiment déplacer le numéro : ÷2 sur 1 (1 → 1) ou ×2 sur le maximum
     // (50 → 50) le laisseraient sur place ; on tire alors un autre saut.
-    const moves = g.mode === 'challenge' ? CH_MOVES : GENIUS_MOVES;
     for (let tries = 0; tries < 20; tries++) {
-      m = { ...pick(moves) };
+      m = g.mode === 'challenge' ? drawChallengeMove() : { ...pick(GENIUS_MOVES) };
       if (moveFn(m)(g.secret) !== g.secret) break;
     }
     applyMove(m);

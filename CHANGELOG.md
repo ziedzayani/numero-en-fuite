@@ -1,5 +1,23 @@
 # Historique des versions
 
+## V8.18 — nouveau mode Défi
+
+Analyse et simulations : voir `docs/DEFI.md`. Avant, un joueur « calculatrice » attrapait le numéro en ~4,4 tours
+quelle que soit la difficulté ; maintenant 5 / 7 / 9 tours (médianes), sans victoire due à la chance.
+- **Sauts par difficulté** : Facile ±3/±5/±7 ; Moyen ±7…±13, miroir, ×2 ; Difficile + ×3 et doubles sauts.
+  ×2 / ×3 « modulo 101 » (au-delà de 100 on retire 101) : plus de numéros qui fusionnent ; ÷2 retiré.
+- **Sens caché** (Moyen 20 %, Difficile 30 %) : « saut de 7… mais vers où ? » ; le carnet garde les deux sens.
+- **Gels comptés** : Facile à chaque calcul juste, Moyen 3, Difficile 1.
+- **Difficile** : un calcul juste laisse **choisir sa question** parmi 3 (au lieu du meilleur seuil).
+- **« Laisser filer »** : capture facultative en Défi (aucune pénalité, le numéro bouge).
+- Contre la montre : +8 s par calcul juste (au lieu de 15).
+- Nouveaux records (règles différentes) ; les anciens restent affichés pour mémoire.
+- Carnet › Indices : l'indice gagné par un calcul juste est noté. Règles de chaque difficulté dans la fenêtre
+  du Défi ; astuces « sens caché » et « ×2 modulo 101 ». FR / EN / AR.
+- Outils : `tools/defi/` (modèle validé contre le moteur, comparaison ancien / nouveau).
+- Audit : l'état « ℹ️ avantages / risques » ne fuit plus d'un écran audité à l'autre ; boutons de questions et
+  onglets un peu plus bas sous 760 px.
+
 ## V8.17
 
 - **Une question ne suffit jamais au filet** (tous les niveaux) : chaque question proposée laisse, quelle que

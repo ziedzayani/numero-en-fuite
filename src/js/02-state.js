@@ -101,33 +101,26 @@ const netAvailable = () => netsLeft() > 0;
 /** Nom affiché du joueur i (« Toi » en solo). */
 const pname = i => (g.players === 1 ? t('you') : (g.names && g.names[i]) || t('player', { n: i + 1 }));
 /** Symbole court d'un déplacement : nombre (±1, ±2) ou objet { op: '+' | '×' | '÷' | 'mirror', k }. */
-const shiftSymbol = s =>
-  typeof s === 'object' && s
-    ? s.op === '+'
-      ? s.k < 0
-        ? '⬅ ' + s.k
-        : '➡ +' + s.k
-      : s.op === '×'
-        ? '✖️ ×' + s.k
-        : s.op === '÷'
-          ? '➗ ÷' + s.k
-          : '🪞'
-    : s < 0
-      ? '⬅ ' + s
-      : s > 0
-        ? '➡ +' + s
-        : '⏸ 0';
-/** Explication d'un déplacement spécial (double, moitié, miroir), vide pour un simple décalage. */
-const moveHint = s =>
-  typeof s === 'object' && s
-    ? s.op === '×'
-      ? t('mvDouble', { max: maxN() })
-      : s.op === '÷'
-        ? t('mvHalf')
-        : s.op === 'mirror'
-          ? t('mvMirror', { max: maxN(), max1: maxN() - 1, ex: maxN() + 1 - 10 })
-          : ''
-    : '';
+const shiftSymbol = s => {
+  if (!(typeof s === 'object' && s)) return s < 0 ? '⬅ ' + s : s > 0 ? '➡ +' + s : '⏸ 0';
+  if (s.op === '+') return s.k < 0 ? '⬅ ' + s.k : '➡ +' + s.k;
+  if (s.op === '±') return '↔ ±' + s.k; // sens caché (V8.18) : jamais le vrai sens
+  if (s.op === '×' || s.op === '×m') return '✖️ ×' + s.k;
+  if (s.op === '÷') return '➗ ÷' + s.k;
+  if (s.op === 'seq') return s.steps.map(shiftSymbol).join(' · ');
+  return '🪞';
+};
+/** Explication d'un déplacement spécial (double, moitié, miroir, sens caché…), vide pour un simple décalage. */
+const moveHint = s => {
+  if (!(typeof s === 'object' && s)) return '';
+  if (s.op === '×') return t('mvDouble', { max: maxN() });
+  if (s.op === '×m') return t('mvMulMod', { k: s.k, a: 60, b: (60 * s.k) % (maxN() + 1) });
+  if (s.op === '÷') return t('mvHalf');
+  if (s.op === '±') return t('mvHidden', { k: s.k });
+  if (s.op === 'mirror') return t('mvMirror', { max: maxN(), max1: maxN() - 1, ex: maxN() + 1 - 10 });
+  if (s.op === 'seq') return t('mvDoubleJump'); // les deux symboles sont déjà sur l'étiquette
+  return '';
+};
 /** Flèche dans le sens de lecture (RTL en arabe). */
 const arrow = () => (g.lang === 'ar' ? '←' : '→');
 /** Sauvegarde `g` (appelée à chaque render()). Les erreurs (stockage plein ou interdit) sont ignorées. */

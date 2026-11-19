@@ -79,7 +79,7 @@ function shiftMarks() {
     moves = pendingMoves();
   if (!moves.length) return false;
   let possible = marksPossible();
-  for (const mv of moves) possible = [...new Set(possible.map(moveFn(mv)))];
+  for (const mv of moves) possible = moveImage(possible, mv); // sens caché : les deux sens restent possibles
   const keep = new Set(possible);
   m.out = all(maxN()).filter(n => !keep.has(n));
   m.step = huntSteps();

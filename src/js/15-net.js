@@ -130,7 +130,7 @@ function redactState(seat) {
   delete s.hunt;
   // Le carnet « à la main » des joueurs a besoin des sauts (publics : chacun les voit annoncés),
   // jamais des positions : on n'envoie que le type de chaque saut.
-  s.huntPublic = g.hunt ? g.hunt.steps.map(x => ({ shift: x.shift, ev: x.ev ? 1 : 0 })) : null;
+  s.huntPublic = g.hunt ? g.hunt.steps.map(x => ({ shift: publicShift(x.shift), ev: x.ev ? 1 : 0 })) : null;
   delete s.soloSecret;
   if (s.math) s.math = { ...s.math, result: null };
   if (!NET_SHARED_MODALS.includes(s.modal)) s.modal = null;

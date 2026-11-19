@@ -6513,6 +6513,57 @@ body.scr-end .finalscore {
   }
 }
 
+/* V8.18 : saut au sens caché — le pion hésite d'un côté puis de l'autre */
+.blind-jump.unsure .bj-token {
+  animation: bj-unsure 1.4s ease-in-out 0.2s both;
+}
+@keyframes bj-unsure {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translate(-16px, -10px);
+  }
+  50% {
+    transform: translateX(0);
+  }
+  75% {
+    transform: translate(16px, -10px);
+  }
+}
+/* V8.18 : question offerte par le calcul (Difficile) ; questions un peu plus basses sous 760 px */
+.pick-clue {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  text-align: start;
+}
+.pick-clue > b {
+  font-size: 14px;
+}
+.pick-clue .qbtn {
+  min-height: 48px;
+  padding: 5px 10px;
+}
+.pass-btn {
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+@media (max-height: 760px) {
+  .qbtn {
+    min-height: 52px;
+    padding: 5px 10px;
+  }
+}
+@media (max-height: 760px) {
+  .actiontab {
+    min-height: 44px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+}
+
 </style>
 </head>
 <body><main id="app" aria-live="polite"></main>
@@ -6595,13 +6646,13 @@ const CHALLENGE_SCORE = {
   netMiss: 40,
   netWin: 50, // victoire au filet (moins méritoire qu'une capture précise)
   perSecond: 2, // par seconde restante, contre la montre
-  timeRefundMs: 15000 // calcul juste en contre la montre
+  timeRefundMs: 8000 // calcul juste en contre la montre (V8.18 : 8 s au lieu de 15, sinon calculer ne coûtait presque rien)
 };
 /** Difficultés du défi → niveau utilisé pour les calculs, les questions et le filet (numéros toujours 1–100). */
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "8.17";
+const APP_VERSION = "8.18";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -6663,11 +6714,11 @@ const dictionaries = {
   "capturesSummary": "{count} numéro(s) attrapé(s) en {turns} tours.",
   "chBtn": "Défi solo",
   "chCombo": " · combo 🔥×{n}",
-  "chDesc": "Numéros de 1 à 100. Le numéro fait des sauts fous : +7, −13, ×2, ÷2, miroir… Trouve-le en un minimum de tours ! Filet : 3 numéros, 3 fois.",
-  "chDiffSub_easy": "+ et − jusqu’à 10",
-  "chDiffSub_hard": "Priorités, 6 choix",
-  "chDiffSub_medium": "Retenues, tables",
-  "chDiffTitle": "Calculs et indices",
+  "chDesc": "Numéros de 1 à 100. Le numéro fait des sauts : ±7, miroir, ×2… parfois sans dire dans quel sens ! Raisonne, note dans ton carnet, et attrape-le en un minimum de tours. Filet : 3 numéros, 3 fois.",
+  "chDiffSub_easy": "Sauts ±3, ±5, ±7 · calculs simples",
+  "chDiffSub_hard": "×3, doubles sauts, sens caché · 1 gel",
+  "chDiffSub_medium": "Miroir, ×2, sens parfois caché · 3 gels",
+  "chDiffTitle": "Difficulté",
   "chDiff_easy": "Facile",
   "chDiff_hard": "Difficile",
   "chDiff_medium": "Moyen",
@@ -6681,15 +6732,23 @@ const dictionaries = {
   "chFormulaTitle": "Comment est calculé le score ?",
   "chMathBonus": "🧊 +{p} points",
   "chMathGood": "{equation} = <b>{result}</b>. Le numéro est gelé et tu gagnes un indice !",
+  "chMathGoodMoved": "{equation} = <b>{result}</b>. Tu gagnes un indice, mais plus de gel : le numéro a bougé.",
+  "chMathGoodPick": "{equation} = <b>{result}</b>. Choisis la question qui t’aide le plus !",
   "chMissNet": "raté : −40 · trouvé : −50",
   "chMissPrecise": "raté : −20",
   "chNewRecord": "🎉 Nouveau record !",
   "chNoRecord": "Pas encore de record",
-  "chOldRecords": "Anciens records (V8.3, ancien barème) : {list}",
+  "chOldRecords": "Anciens records (anciennes règles) : {list}",
+  "chPickTitle": "Ta question offerte :",
   "chRecord": "Record : {n}",
+  "chRulesPass": "Pas sûr ? « Laisser filer » : tu ne tentes pas de capture ce tour-ci (aucune pénalité), mais le numéro bouge.",
+  "chRulesTitle": "Les règles de cette difficulté",
+  "chRules_easy": "Sauts de 3, 5 ou 7 cases, toujours annoncés. Chaque calcul juste gèle le numéro et donne le meilleur indice.",
+  "chRules_hard": "Comme Moyen, plus ×3 et parfois deux sauts d’affilée. 3 sauts sur 10 cachent leur sens. Un calcul juste te laisse CHOISIR ta question parmi 3. 1 seul gel par partie.",
+  "chRules_medium": "Sauts de 7 à 13, miroir et ×2 (au-delà de 100, on retire 101). 1 saut sur 5 cache son sens : le numéro peut être des deux côtés ! 3 gels par partie ; ensuite un calcul juste donne l’indice mais le numéro bouge.",
   "chSeeScore": "Voir mon score",
   "chStats": "Trouvé en {turns} tour(s) · {time}",
-  "chTimeBonus": " · +15 s",
+  "chTimeBonus": " · +8 s",
   "chTimed": "Contre la montre",
   "chTimedSub": "3 minutes pour le trouver",
   "chTitle": "Défi du super détective",
@@ -6718,6 +6777,7 @@ const dictionaries = {
   "found": "ATTRAPÉ !",
   "foundDesc": "Tu as choisi <b>{n}</b> : c’est gagné ! <b>+10 points</b> pour {player}.",
   "foundLog": "{player} · capture précise {n} (+10)",
+  "freezesLeft": "(gels restants : {n})",
   "frozen": "🧊 Gelé ! Le numéro n’a pas bougé.",
   "guessDesc": "Touche un numéro pour tenter ta chance. Trouvé : +3 · Raté : −1.",
   "guessNow": "Je tente ma chance !",
@@ -6760,10 +6820,10 @@ const dictionaries = {
   "levels": "Choisis ton niveau, à tout âge",
   "levelsFree": "Les niveaux ne dépendent pas de l’âge : choisis selon ton envie et ton expérience. On peut commencer par le plus simple à tout âge.",
   "m1": "Bonne réponse : un indice + 1 ⭐",
-  "m1ch": "Juste : le numéro est <b>gelé 🧊</b> (il ne saute pas) + un indice.",
+  "m1ch": "Juste : un indice (et le numéro est <b>gelé 🧊</b> s’il te reste un gel).",
   "m2": "Chaque ⭐ = <b>+1 point</b> à la fin de la partie.",
   "m2ch": "<b>+10 points</b>. Les bonnes réponses d’affilée font un combo 🔥.",
-  "m2chT": "<b>+10 points</b> et <b>+15 s</b> au chrono.",
+  "m2chT": "<b>+10 points</b> et <b>+8 s</b> au chrono.",
   "m3": "Temps limité, et le numéro bouge.",
   "m3ch": "Faux : −10 points et il fait un saut fou.",
   "mainInstruction": "Choisis un numéro à chaque tour !",
@@ -6804,8 +6864,11 @@ const dictionaries = {
   "moved": "Le numéro s’échappe !",
   "multiplayer": "joueurs",
   "mvDouble": "×2 : le 7 devient 14 (après {max}, on repart à 1)",
+  "mvDoubleJump": "Deux sauts d’affilée !",
   "mvHalf": "÷2 (arrondi au-dessus)",
+  "mvHidden": "Saut de {k}, sens inconnu : il peut être des deux côtés !",
   "mvMirror": "🪞 Miroir : 1 ↔ {max}, 2 ↔ {max1}… (le 10 devient {ex})",
+  "mvMulMod": "×{k} : au-delà de 100, on retire 101 ({a} → {b})",
   "mvWrapDown": "🔄 Après 1, il repart de {max}",
   "mvWrapUp": "🔄 Après {max}, il repart de 1",
   "nPlayers": "{n} joueurs",
@@ -6909,6 +6972,11 @@ const dictionaries = {
   "oldClue": "L’indice concerne sa position <b>avant</b> le déplacement.",
   "oneCandidate": "Il ne reste qu’un numéro possible : tente-le !",
   "onePlayer": "Solo",
+  "passBtn": "Laisser filer",
+  "passDesc": "Pas de capture ce tour-ci. Le numéro en profite pour bouger…",
+  "passHint": "Pas de capture ce tour-ci : aucune pénalité, mais le numéro bouge.",
+  "passLog": "{player} · laisse filer · {shift}",
+  "passTitle": "Tu le laisses filer",
   "pause": "Pause",
   "pauseText": "Le chrono est arrêté. Reprends quand tu veux !",
   "pauseTitle": "Pause",
@@ -7096,9 +7164,11 @@ const dictionaries = {
   "tipThreeStars": "encore {n} tour(s) de moins pour obtenir trois étoiles !",
   "tipTitle": "Astuce du détective",
   "tipTwoStars": "essaie de finir en 6 tours ou moins pour gagner deux étoiles !",
-  "tip_chFreeze": "Bravo ! En Défi, un calcul juste gèle le numéro : il n’a pas bougé ce tour-ci.",
+  "tip_chFreeze": "Bravo ! Un calcul juste gèle le numéro : il n’a pas bougé ce tour-ci. (Moyen : 3 gels par partie, Difficile : 1.)",
   "tip_double": "Il a sauté avec ×2 ou ÷2 ! Pense à multiplier ou diviser ce que tu sais.",
+  "tip_hidden": "Je n’ai pas vu le sens du saut ! Le numéro est peut-être à gauche, peut-être à droite : garde les deux possibilités dans ton carnet (« Décaler mes marques » le fait pour toi).",
   "tip_mirror": "Le miroir ! Le numéro passe de l’autre côté : 1 devient {max}, 2 devient {max}−1…",
+  "tip_mod101": "×2 (ou ×3) en Défi : on multiplie, et si on dépasse 100 on retire 101. Exemple : 60 × 2 = 120, 120 − 101 = 19.",
   "tip_moved": "Le numéro vient de bouger ! Ce que tu savais a glissé avec lui : décale tes idées avant de deviner.",
   "tip_net": "Pas sûr ? Le filet attrape plusieurs numéros voisins d’un coup, mais rapporte moins de points.",
   "title": "Le Numéro en fuite",
@@ -7195,11 +7265,11 @@ const dictionaries = {
   "capturesSummary": "{count} number(s) caught in {turns} turns.",
   "chBtn": "Solo challenge",
   "chCombo": " · combo 🔥×{n}",
-  "chDesc": "Numbers 1 to 100. The number makes crazy jumps: +7, −13, ×2, ÷2, mirror… Find it in as few turns as possible! Net: 3 numbers, 3 times.",
-  "chDiffSub_easy": "+ and − up to 10",
-  "chDiffSub_hard": "Order of operations, 6 choices",
-  "chDiffSub_medium": "Carrying, tables",
-  "chDiffTitle": "Maths and clues",
+  "chDesc": "Numbers 1 to 100. The number jumps: ±7, mirror, ×2… sometimes without saying which way! Reason, use your notebook, and catch it in as few turns as possible. Net: 3 numbers, 3 times.",
+  "chDiffSub_easy": "Jumps ±3, ±5, ±7 · simple sums",
+  "chDiffSub_hard": "×3, double jumps, hidden direction · 1 freeze",
+  "chDiffSub_medium": "Mirror, ×2, direction sometimes hidden · 3 freezes",
+  "chDiffTitle": "Difficulty",
   "chDiff_easy": "Easy",
   "chDiff_hard": "Hard",
   "chDiff_medium": "Medium",
@@ -7213,15 +7283,23 @@ const dictionaries = {
   "chFormulaTitle": "How is the score calculated?",
   "chMathBonus": "🧊 +{p} points",
   "chMathGood": "{equation} = <b>{result}</b>. The number is frozen and you get a hint!",
+  "chMathGoodMoved": "{equation} = <b>{result}</b>. You get a clue, but no freeze left: the number moved.",
+  "chMathGoodPick": "{equation} = <b>{result}</b>. Choose the question that helps you most!",
   "chMissNet": "miss: −40 · catch: −50",
   "chMissPrecise": "miss: −20",
   "chNewRecord": "🎉 New record!",
   "chNoRecord": "No record yet",
-  "chOldRecords": "Old records (V8.3, old scoring): {list}",
+  "chOldRecords": "Old records (old rules): {list}",
+  "chPickTitle": "Your free question:",
   "chRecord": "Best: {n}",
+  "chRulesPass": "Not sure? “Let it go”: no catch this turn (no penalty), but the number moves.",
+  "chRulesTitle": "The rules of this level",
+  "chRules_easy": "Jumps of 3, 5 or 7, always announced. Each correct sum freezes the number and gives the best clue.",
+  "chRules_hard": "Like Medium, plus ×3 and sometimes two jumps in a row. 3 jumps in 10 hide their direction. A correct sum lets you CHOOSE your question among 3. Only 1 freeze per game.",
+  "chRules_medium": "Jumps of 7 to 13, mirror and ×2 (above 100, take away 101). 1 jump in 5 hides its direction: the number may be on either side! 3 freezes per game; after that a correct sum gives the clue but the number moves.",
   "chSeeScore": "See my score",
   "chStats": "Found in {turns} turn(s) · {time}",
-  "chTimeBonus": " · +15 s",
+  "chTimeBonus": " · +8 s",
   "chTimed": "Against the clock",
   "chTimedSub": "3 minutes to find it",
   "chTitle": "Super detective challenge",
@@ -7250,6 +7328,7 @@ const dictionaries = {
   "found": "CAUGHT!",
   "foundDesc": "You picked <b>{n}</b> — that’s right! <b>+10 points</b> for {player}.",
   "foundLog": "{player} · precise capture {n} (+10)",
+  "freezesLeft": "(freezes left: {n})",
   "frozen": "🧊 Frozen! The number didn’t move.",
   "guessDesc": "Tap a number to try your luck. Correct: +3 · Wrong: −1.",
   "guessNow": "I’ll take a guess!",
@@ -7292,10 +7371,10 @@ const dictionaries = {
   "levels": "Choose a level, at any age",
   "levelsFree": "Levels have nothing to do with age: choose by mood and experience. Anyone can start with the easiest one.",
   "m1": "Right answer: a hint + 1 ⭐",
-  "m1ch": "Right: the number is <b>frozen 🧊</b> (no jump) + a hint.",
+  "m1ch": "Right: a clue (and the number is <b>frozen 🧊</b> if you have a freeze left).",
   "m2": "Each ⭐ = <b>+1 point</b> at the end of the game.",
   "m2ch": "<b>+10 points</b>. Right answers in a row make a combo 🔥.",
-  "m2chT": "<b>+10 points</b> and <b>+15 s</b> on the clock.",
+  "m2chT": "<b>+10 points</b> and <b>+8 s</b> on the clock.",
   "m3": "Time limit, and the number moves.",
   "m3ch": "Wrong: −10 points and it makes a crazy jump.",
   "mainInstruction": "Choose a number every turn!",
@@ -7336,8 +7415,11 @@ const dictionaries = {
   "moved": "The number is escaping!",
   "multiplayer": "players",
   "mvDouble": "×2: 7 becomes 14 (after {max}, back to 1)",
+  "mvDoubleJump": "Two jumps in a row!",
   "mvHalf": "÷2 (rounded up)",
+  "mvHidden": "Jump of {k}, direction unknown: it may be on either side!",
   "mvMirror": "🪞 Mirror: 1 ↔ {max}, 2 ↔ {max1}… (10 becomes {ex})",
+  "mvMulMod": "×{k}: above 100, take away 101 ({a} → {b})",
   "mvWrapDown": "🔄 After 1, it wraps around to {max}",
   "mvWrapUp": "🔄 After {max}, it wraps around to 1",
   "nPlayers": "{n} players",
@@ -7441,6 +7523,11 @@ const dictionaries = {
   "oldClue": "The clue describes its position <b>before</b> moving.",
   "oneCandidate": "Only one number left! Give it a try.",
   "onePlayer": "Solo",
+  "passBtn": "Let it go",
+  "passDesc": "No catch this turn. The number takes the chance to move…",
+  "passHint": "No catch this turn: no penalty, but the number moves.",
+  "passLog": "{player} · lets it go · {shift}",
+  "passTitle": "You let it go",
   "pause": "Pause",
   "pauseText": "The timer is stopped. Resume whenever you’re ready!",
   "pauseTitle": "Paused",
@@ -7628,9 +7715,11 @@ const dictionaries = {
   "tipThreeStars": "{n} turn(s) fewer to get three stars!",
   "tipTitle": "Detective tip",
   "tipTwoStars": "try to finish in 6 turns or fewer for two stars!",
-  "tip_chFreeze": "Well done! In Challenge, a correct sum freezes the number: it did not move this turn.",
+  "tip_chFreeze": "Well done! A correct sum freezes the number: it did not move this turn. (Medium: 3 freezes per game, Hard: 1.)",
   "tip_double": "It jumped with ×2 or ÷2! Remember to multiply or divide what you know.",
+  "tip_hidden": "I didn’t see which way it jumped! The number may be left or right: keep both possibilities in your notebook (“Shift my marks” does it for you).",
   "tip_mirror": "The mirror! The number jumps to the other side: 1 becomes {max}, 2 becomes {max}−1…",
+  "tip_mod101": "×2 (or ×3) in Challenge: multiply, and if you go over 100 take away 101. Example: 60 × 2 = 120, 120 − 101 = 19.",
   "tip_moved": "The number just moved! What you knew slid with it: shift your ideas before guessing.",
   "tip_net": "Not sure? The net catches several neighbouring numbers at once, but scores fewer points.",
   "title": "The Runaway Number",
@@ -7727,11 +7816,11 @@ const dictionaries = {
   "capturesSummary": "أمسكتم {count} من الأرقام في {turns} دورًا.",
   "chBtn": "تحدٍّ فردي",
   "chCombo": " · سلسلة 🔥×{n}",
-  "chDesc": "أرقام من 1 إلى 100. الرقم يقفز قفزات مجنونة: +7، −13، ×2، ÷2، مرآة… اعثر عليه بأقل عدد من الأدوار! الشبكة: 3 أرقام، 3 مرات.",
-  "chDiffSub_easy": "+ و − حتى 10",
-  "chDiffSub_hard": "أولوية العمليات، 6 خيارات",
-  "chDiffSub_medium": "الحمل، جداول الضرب",
-  "chDiffTitle": "الحساب والتلميحات",
+  "chDesc": "أرقام من 1 إلى 100. يقفز الرقم: ±7، مرآة، ×2… وأحيانًا دون أن يُعرف الاتجاه! فكّر، دوّن في دفترك، وأمسكه في أقل عدد من الأدوار. الشبكة: 3 أرقام، 3 مرات.",
+  "chDiffSub_easy": "قفزات ±3، ±5، ±7 · عمليات بسيطة",
+  "chDiffSub_hard": "×3، قفزتان، اتجاه مخفي · تجميد واحد",
+  "chDiffSub_medium": "مرآة، ×2، اتجاه مخفي أحيانًا · 3 تجميدات",
+  "chDiffTitle": "الصعوبة",
   "chDiff_easy": "سهل",
   "chDiff_hard": "صعب",
   "chDiff_medium": "متوسط",
@@ -7745,15 +7834,23 @@ const dictionaries = {
   "chFormulaTitle": "كيف تُحسب النتيجة؟",
   "chMathBonus": "🧊 +{p} نقطة",
   "chMathGood": "{equation} = <b>{result}</b>. تجمّد الرقم وحصلت على تلميح!",
+  "chMathGoodMoved": "{equation} = <b>{result}</b>. ربحت دليلًا، لكن لا تجميد متبقٍّ: تحرك الرقم.",
+  "chMathGoodPick": "{equation} = <b>{result}</b>. اختر السؤال الذي يساعدك أكثر!",
   "chMissNet": "خطأ: −40 · نجاح: −50",
   "chMissPrecise": "خطأ: −20",
   "chNewRecord": "🎉 رقم قياسي جديد!",
   "chNoRecord": "لا يوجد رقم قياسي بعد",
-  "chOldRecords": "أرقام قياسية قديمة (V8.3، النظام القديم): {list}",
+  "chOldRecords": "أرقام قياسية قديمة (قواعد قديمة): {list}",
+  "chPickTitle": "سؤالك المجاني:",
   "chRecord": "الرقم القياسي: {n}",
+  "chRulesPass": "لست متأكدًا؟ «دعه يفلت»: لا محاولة إمساك هذا الدور (بلا عقوبة)، لكن الرقم يتحرك.",
+  "chRulesTitle": "قواعد هذا المستوى",
+  "chRules_easy": "قفزات من 3 أو 5 أو 7، معلنة دائمًا. كل عملية صحيحة تجمّد الرقم وتعطي أفضل دليل.",
+  "chRules_hard": "مثل المتوسط، مع ×3 وأحيانًا قفزتين متتاليتين. 3 قفزات من 10 تخفي اتجاهها. العملية الصحيحة تتيح لك اختيار سؤالك من بين 3. تجميد واحد فقط.",
+  "chRules_medium": "قفزات من 7 إلى 13، مرآة و×2 (فوق 100 نطرح 101). قفزة من كل 5 تخفي اتجاهها: قد يكون الرقم في الجهتين! 3 تجميدات في اللعبة؛ بعدها تعطي العملية الصحيحة الدليل لكن الرقم يتحرك.",
   "chSeeScore": "عرض نتيجتي",
   "chStats": "وجدته في {turns} دور · {time}",
-  "chTimeBonus": " · +15 ث",
+  "chTimeBonus": " · ‎+8 ث",
   "chTimed": "سباق مع الوقت",
   "chTimedSub": "3 دقائق للعثور عليه",
   "chTitle": "تحدّي المحقق الخارق",
@@ -7782,6 +7879,7 @@ const dictionaries = {
   "found": "أمسكته!",
   "foundDesc": "اخترت <b>{n}</b>، وهذا هو الرقم الصحيح! <b>+10 نقاط</b> لـ {player}.",
   "foundLog": "{player} · إمساك دقيق {n} (+10)",
+  "freezesLeft": "(التجميدات المتبقية: {n})",
   "frozen": "🧊 متجمد! لم يتحرك الرقم.",
   "guessDesc": "اضغط على رقم لتجربة حظك. صحيح: +3 · خطأ: −1.",
   "guessNow": "سأجرّب حظي!",
@@ -7824,10 +7922,10 @@ const dictionaries = {
   "levels": "اختر المستوى، في أي عمر",
   "levelsFree": "المستويات لا تتعلق بالعمر: اختر حسب رغبتك وخبرتك. يمكن البدء بالأسهل في أي عمر.",
   "m1": "إجابة صحيحة: تلميح + 1 ⭐",
-  "m1ch": "صحيح: الرقم <b>يتجمد 🧊</b> (لا يقفز) + تلميح.",
+  "m1ch": "صحيح: دليل (ويُجمَّد الرقم <b>🧊</b> إن بقي لديك تجميد).",
   "m2": "كل ⭐ = <b>+1 نقطة</b> في نهاية اللعبة.",
   "m2ch": "<b>+10 نقاط</b>. الإجابات الصحيحة المتتالية تصنع سلسلة 🔥.",
-  "m2chT": "<b>+10 نقاط</b> و<b>+15 ث</b> للمؤقّت.",
+  "m2chT": "<b>‎+10 نقاط</b> و<b>‎+8 ث</b> على المؤقت.",
   "m3": "وقت محدود، والرقم يتحرك.",
   "m3ch": "خطأ: −10 نقاط ويقفز قفزة مجنونة.",
   "mainInstruction": "اختر رقمًا في كل دور!",
@@ -7868,8 +7966,11 @@ const dictionaries = {
   "moved": "الرقم يهرب!",
   "multiplayer": "لاعبين",
   "mvDouble": "×2: 7 يصبح 14 (بعد {max} نعود إلى 1)",
+  "mvDoubleJump": "قفزتان متتاليتان!",
   "mvHalf": "÷2 (تقريب للأعلى)",
+  "mvHidden": "قفزة بـ {k}، الاتجاه مجهول: قد يكون في الجهتين!",
   "mvMirror": "🪞 مرآة: 1 ↔ {max}، 2 ↔ {max1}… (10 يصبح {ex})",
+  "mvMulMod": "×{k}: فوق 100 نطرح 101 ({a} → {b})",
   "mvWrapDown": "🔄 بعد 1، يعود إلى {max}",
   "mvWrapUp": "🔄 بعد {max}، يعود إلى 1",
   "nPlayers": "{n} لاعبين",
@@ -7973,6 +8074,11 @@ const dictionaries = {
   "oldClue": "التلميح يصف موقعه <b>قبل</b> الحركة.",
   "oneCandidate": "لم يبقَ سوى رقم واحد محتمل. جرّبه!",
   "onePlayer": "فردي",
+  "passBtn": "دعه يفلت",
+  "passDesc": "لا محاولة إمساك هذا الدور. الرقم يستغل الفرصة ليتحرك…",
+  "passHint": "لا إمساك هذا الدور: بلا عقوبة، لكن الرقم يتحرك.",
+  "passLog": "{player} · يدعه يفلت · {shift}",
+  "passTitle": "تركته يفلت",
   "pause": "إيقاف مؤقت",
   "pauseText": "المؤقّت متوقف. تابع متى شئت!",
   "pauseTitle": "إيقاف مؤقت",
@@ -8160,9 +8266,11 @@ const dictionaries = {
   "tipThreeStars": "أقل بـ {n} دور للحصول على ثلاث نجوم!",
   "tipTitle": "نصيحة المحقق",
   "tipTwoStars": "حاول أن تنتهي في 6 أدوار أو أقل لتربح نجمتين!",
-  "tip_chFreeze": "أحسنت! في التحدي، الحساب الصحيح يجمّد الرقم: لم يتحرك في هذا الدور.",
+  "tip_chFreeze": "أحسنت! العملية الصحيحة تجمّد الرقم: لم يتحرك في هذا الدور. (المتوسط: 3 تجميدات، الصعب: 1.)",
   "tip_double": "قفز بـ ×2 أو ÷2! تذكّر أن تضرب أو تقسم ما تعرفه.",
+  "tip_hidden": "لم أرَ اتجاه القفزة! قد يكون الرقم يسارًا أو يمينًا: احتفظ بالاحتمالين في دفترك («أزِح علاماتي» يفعل ذلك لك).",
   "tip_mirror": "المرآة! ينتقل الرقم إلى الجهة الأخرى: 1 يصبح {max}، و2 يصبح {max}−1…",
+  "tip_mod101": "×2 (أو ×3) في التحدي: نضرب، وإذا تجاوزنا 100 نطرح 101. مثال: 60 × 2 = 120، و120 − 101 = 19.",
   "tip_moved": "تحرك الرقم للتو! ما كنت تعرفه انزاح معه: أزِح أفكارك قبل التخمين.",
   "tip_net": "لست متأكدًا؟ الشبكة تمسك عدة أرقام متجاورة دفعة واحدة، لكنها تمنح نقاطًا أقل.",
   "title": "الرقم الهارب",
@@ -8314,33 +8422,26 @@ const netAvailable = () => netsLeft() > 0;
 /** Nom affiché du joueur i (« Toi » en solo). */
 const pname = i => (g.players === 1 ? t('you') : (g.names && g.names[i]) || t('player', { n: i + 1 }));
 /** Symbole court d'un déplacement : nombre (±1, ±2) ou objet { op: '+' | '×' | '÷' | 'mirror', k }. */
-const shiftSymbol = s =>
-  typeof s === 'object' && s
-    ? s.op === '+'
-      ? s.k < 0
-        ? '⬅ ' + s.k
-        : '➡ +' + s.k
-      : s.op === '×'
-        ? '✖️ ×' + s.k
-        : s.op === '÷'
-          ? '➗ ÷' + s.k
-          : '🪞'
-    : s < 0
-      ? '⬅ ' + s
-      : s > 0
-        ? '➡ +' + s
-        : '⏸ 0';
-/** Explication d'un déplacement spécial (double, moitié, miroir), vide pour un simple décalage. */
-const moveHint = s =>
-  typeof s === 'object' && s
-    ? s.op === '×'
-      ? t('mvDouble', { max: maxN() })
-      : s.op === '÷'
-        ? t('mvHalf')
-        : s.op === 'mirror'
-          ? t('mvMirror', { max: maxN(), max1: maxN() - 1, ex: maxN() + 1 - 10 })
-          : ''
-    : '';
+const shiftSymbol = s => {
+  if (!(typeof s === 'object' && s)) return s < 0 ? '⬅ ' + s : s > 0 ? '➡ +' + s : '⏸ 0';
+  if (s.op === '+') return s.k < 0 ? '⬅ ' + s.k : '➡ +' + s.k;
+  if (s.op === '±') return '↔ ±' + s.k; // sens caché (V8.18) : jamais le vrai sens
+  if (s.op === '×' || s.op === '×m') return '✖️ ×' + s.k;
+  if (s.op === '÷') return '➗ ÷' + s.k;
+  if (s.op === 'seq') return s.steps.map(shiftSymbol).join(' · ');
+  return '🪞';
+};
+/** Explication d'un déplacement spécial (double, moitié, miroir, sens caché…), vide pour un simple décalage. */
+const moveHint = s => {
+  if (!(typeof s === 'object' && s)) return '';
+  if (s.op === '×') return t('mvDouble', { max: maxN() });
+  if (s.op === '×m') return t('mvMulMod', { k: s.k, a: 60, b: (60 * s.k) % (maxN() + 1) });
+  if (s.op === '÷') return t('mvHalf');
+  if (s.op === '±') return t('mvHidden', { k: s.k });
+  if (s.op === 'mirror') return t('mvMirror', { max: maxN(), max1: maxN() - 1, ex: maxN() + 1 - 10 });
+  if (s.op === 'seq') return t('mvDoubleJump'); // les deux symboles sont déjà sur l'étiquette
+  return '';
+};
 /** Flèche dans le sens de lecture (RTL en arabe). */
 const arrow = () => (g.lang === 'ar' ? '←' : '→');
 /** Sauvegarde `g` (appelée à chaque render()). Les erreurs (stockage plein ou interdit) sont ignorées. */
@@ -8775,7 +8876,8 @@ function records() {
   }
 }
 /** Clé des records d'un défi : un record par variante et par difficulté. */
-const chRecordKey = (kind = g.chKind, diff = g.chDiff) => `${kind}-${diff}`;
+// V8.18 : nouvelles règles → nouveaux records (« -v2 ») ; les anciens restent affichés pour mémoire
+const chRecordKey = (kind = g.chKind, diff = g.chDiff) => `${kind}-${diff}-v2`;
 /**
  * Score du défi (voir CHALLENGE_SCORE). withBonus ajoute les éléments de fin de partie :
  * pénalité de victoire au filet et bonus des secondes restantes.
@@ -8823,6 +8925,7 @@ function startChallenge(kind, diff = g.chDiffPref) {
   g.limit = 0;
   g.chElapsed = 0;
   g.chStreak = 0;
+  g.chFreezes = chRules().freezes; // null : un gel à chaque calcul juste (Facile)
   g.netsLeft = [NETS_MAX];
   g.modal = null;
   g.secret = 1 + rnd(100);
@@ -9525,30 +9628,90 @@ document.addEventListener('visibilitychange', () => {
  * Après chaque indice ou tentative ratée, le numéro bouge. Le carnet (g.candidates)
  * subit EXACTEMENT le même déplacement : il reste toujours juste.
  */
-const CH_MOVES = [
-  { op: '+', k: 7 },
-  { op: '+', k: -7 },
-  { op: '+', k: 11 },
-  { op: '+', k: -13 },
-  { op: '+', k: 9 },
-  { op: '×', k: 2 },
-  { op: '÷', k: 2 },
-  { op: 'mirror' }
-];
-/** Fonction de déplacement : nombre (décalage) ou { op: '+', k } | { op: '×', k } | { op: '÷', k } | { op: 'mirror' }. */
+/**
+ * Défi (V8.18) : règles par difficulté, choisies par simulation (voir docs/DEFI.md).
+ *   moves    sauts possibles, tirés au hasard
+ *   hidden   part des décalages dont le SENS est caché (« un saut de 7… mais vers où ? »)
+ *   double   part des tours où le numéro fait deux sauts d'affilée (annoncés tous les deux)
+ *   freezes  gels disponibles par partie (null : un gel à chaque calcul juste)
+ *   pickClue un calcul juste laisse CHOISIR sa question parmi 3 (au lieu du meilleur seuil)
+ * ×2 et ×3 sont « modulo 101 » : au-delà de 100 on retire 101. Deux numéros n'arrivent jamais sur la
+ * même case (l'ancien ×2 et ÷2 en fusionnaient, ce qui facilitait le jeu au lieu de le compliquer).
+ */
+const pm = ks =>
+  ks.flatMap(k => [
+    { op: '+', k },
+    { op: '+', k: -k }
+  ]);
+const CH_RULES = {
+  easy: { moves: pm([3, 5, 7]), hidden: 0, double: 0, freezes: null, pickClue: false },
+  medium: {
+    moves: [...pm([7, 9, 11, 13]), { op: 'mirror' }, { op: '×m', k: 2 }],
+    hidden: 0.2,
+    double: 0,
+    freezes: 3,
+    pickClue: false
+  },
+  hard: {
+    moves: [...pm([7, 9, 11, 13]), { op: 'mirror' }, { op: '×m', k: 2 }, { op: '×m', k: 3 }],
+    hidden: 0.3,
+    double: 0.1,
+    freezes: 1,
+    pickClue: true
+  }
+};
+const chRules = () => CH_RULES[g.chDiff] || CH_RULES.medium;
+/**
+ * Fonction de déplacement : nombre (décalage) ou { op: '+', k } | { op: '×', k } | { op: '÷', k } | { op: 'mirror' }
+ * | { op: '×m', k } (× k modulo 101) | { op: '±', k, dir } (sens caché ; dir = vrai sens) | { op: 'seq', steps }.
+ */
 function moveFn(m) {
   const max = maxN();
   if (typeof m === 'number') return n => wrap(n + m, max);
   if (m.op === '+') return n => wrap(n + m.k, max);
+  if (m.op === '±') return n => wrap(n + m.k * (m.dir || 1), max);
+  if (m.op === '×m') return n => (n * m.k) % (max + 1) || max;
+  if (m.op === 'seq') {
+    const fs = m.steps.map(moveFn);
+    return n => fs.reduce((x, f) => f(x), n);
+  }
   if (m.op === '×') return n => wrap(n * m.k, max);
   if (m.op === '÷') return n => Math.ceil(n / m.k);
   return n => max + 1 - n;
 }
+/**
+ * Image d'un ensemble de numéros par un saut, tel que le JOUEUR le connaît : pour un sens caché,
+ * les deux sens restent possibles (union). Sert au carnet automatique et à « Décaler mes marques ».
+ */
+function moveImage(set, m) {
+  if (m && m.op === 'seq') return m.steps.reduce((s, st) => moveImage(s, st), set);
+  if (m && m.op === '±') {
+    const max = maxN();
+    return [...new Set(set.flatMap(n => [wrap(n + m.k, max), wrap(n - m.k, max)]))].sort((a, b) => a - b);
+  }
+  const f = moveFn(m);
+  return [...new Set(set.map(f))].sort((a, b) => a - b);
+}
+/** Saut tel qu'on peut le montrer : jamais le vrai sens d'un saut caché. */
+const publicShift = m =>
+  m && m.op === '±'
+    ? { op: '±', k: m.k }
+    : m && m.op === 'seq'
+      ? { op: 'seq', steps: m.steps.map(publicShift) }
+      : m;
 /** Déplace le secret et tous les candidats. */
 function applyMove(m) {
-  const f = moveFn(m);
-  g.secret = f(g.secret);
-  g.candidates = [...new Set(g.candidates.map(f))].sort((a, b) => a - b);
+  g.secret = moveFn(m)(g.secret);
+  g.candidates = moveImage(g.candidates, m);
+}
+/** Défi : tire un saut selon la difficulté (sens parfois caché, parfois deux sauts). */
+function drawChallengeMove() {
+  const R = chRules();
+  const one = () => {
+    const m = { ...pick(R.moves) };
+    return m.op === '+' && Math.random() < R.hidden ? { op: '±', k: Math.abs(m.k), dir: Math.sign(m.k) } : m;
+  };
+  return Math.random() < R.double ? { op: 'seq', steps: [one(), one()] } : one();
 }
 const GENIUS_MOVES = [
   { op: '+', k: 3 },
@@ -9566,9 +9729,8 @@ function nextMove() {
   if (g.mode === 'challenge' || g.level === 'genius') {
     // Un saut annoncé doit vraiment déplacer le numéro : ÷2 sur 1 (1 → 1) ou ×2 sur le maximum
     // (50 → 50) le laisseraient sur place ; on tire alors un autre saut.
-    const moves = g.mode === 'challenge' ? CH_MOVES : GENIUS_MOVES;
     for (let tries = 0; tries < 20; tries++) {
-      m = { ...pick(moves) };
+      m = g.mode === 'challenge' ? drawChallengeMove() : { ...pick(GENIUS_MOVES) };
       if (moveFn(m)(g.secret) !== g.secret) break;
     }
     applyMove(m);
@@ -9693,7 +9855,7 @@ function shiftMarks() {
     moves = pendingMoves();
   if (!moves.length) return false;
   let possible = marksPossible();
-  for (const mv of moves) possible = [...new Set(possible.map(moveFn(mv)))];
+  for (const mv of moves) possible = moveImage(possible, mv); // sens caché : les deux sens restent possibles
   const keep = new Set(possible);
   m.out = all(maxN()).filter(n => !keep.has(n));
   m.step = huntSteps();
@@ -9726,6 +9888,55 @@ function ask(id) {
   sfx('move');
   g.last = { type: 'question', qid: id, answer, shift, player };
   pushHist();
+  g.phase = 'result';
+  g.showHints = false;
+  tipAfterMove(shift);
+  render();
+}
+/** Défi : utilise un gel s'il en reste (null = illimité). */
+function useFreeze() {
+  if (g.chFreezes == null) return true;
+  if (g.chFreezes <= 0) return false;
+  g.chFreezes--;
+  return true;
+}
+/**
+ * Défi Difficile : après un calcul juste, le joueur CHOISIT sa question parmi les 3 du tour
+ * (au lieu de recevoir le meilleur seuil). Puis gel s'il en reste, sinon le numéro bouge.
+ */
+function mathPick(id) {
+  const x = g.last;
+  if (
+    g.screen !== 'game' ||
+    g.phase !== 'result' ||
+    !x ||
+    x.type !== 'math' ||
+    !x.pick ||
+    !g.choices.includes(id)
+  )
+    return;
+  const q = qbyid(id);
+  if (!q) return;
+  const answer = !!q.test(g.secret);
+  g.candidates = g.candidates.filter(n => !!q.test(n) === answer);
+  const frozen = useFreeze(),
+    shift = frozen ? 0 : nextMove();
+  g.last = { ...x, pick: false, qid: id, answer, frozen, shift };
+  pushHist();
+  sfx('move');
+  if (frozen) maybeTip('chFreeze');
+  else tipAfterMove(shift);
+  render();
+}
+/** Défi : « Laisser filer » — pas de capture ce tour-ci (aucune pénalité), le numéro bouge. */
+function passTurn() {
+  if (g.screen !== 'game' || g.phase !== 'choose' || g.mode !== 'challenge') return;
+  g.sel = null;
+  g.capturing = null;
+  const shift = nextMove();
+  g.last = { type: 'pass', player: active(), shift };
+  pushHist();
+  sfx('move');
   g.phase = 'result';
   g.showHints = false;
   tipAfterMove(shift);
@@ -9848,19 +10059,23 @@ function mathAnswer(ans) {
   const player = active(),
     correct = ans === g.math.result;
   let answer = null;
+  const ch = g.mode === 'challenge',
+    choosing = ch && correct && chRules().pickClue; // Difficile : le joueur choisira sa question
   if (correct) {
     g.stars[player]++;
-    const c = [...g.candidates].sort((a, b) => a - b);
-    if (c.length > 1) g.math.threshold = c[Math.floor((c.length - 1) / 2)];
-    answer = g.secret > g.math.threshold;
-    g.candidates = g.candidates.filter(n => n > g.math.threshold === answer);
+    if (!choosing) {
+      const c = [...g.candidates].sort((a, b) => a - b);
+      if (c.length > 1) g.math.threshold = c[Math.floor((c.length - 1) / 2)];
+      answer = g.secret > g.math.threshold;
+      g.candidates = g.candidates.filter(n => n > g.math.threshold === answer);
+    }
   }
   g.helpUsed = true;
   g.helpKind = 'math';
   g.lastPick = ans;
   sfx(correct ? 'good' : 'bad');
-  const ch = g.mode === 'challenge',
-    frozen = ch && correct;
+  // Défi V8.18 : gels comptés en Moyen (3) et Difficile (1) ; sans gel, le numéro bouge quand même
+  const frozen = ch && correct && !choosing && useFreeze();
   let chBonus = 0;
   if (ch) {
     if (correct) {
@@ -9868,6 +10083,23 @@ function mathAnswer(ans) {
       chBonus = CHALLENGE_SCORE.goodMath; // le combo (g.chStreak) n'est qu'un effet visuel
       if (g.chKind === 'timed') g.chElapsed = Math.max(0, g.chElapsed - CHALLENGE_SCORE.timeRefundMs);
     } else g.chStreak = 0;
+  }
+  if (choosing) {
+    // le saut (ou le gel) attend que le joueur ait choisi sa question : voir mathPick()
+    g.last = {
+      type: 'math',
+      player,
+      picked: ans,
+      correct,
+      pick: true,
+      chBonus,
+      streak: g.chStreak || 0,
+      math: { ...g.math }
+    };
+    g.phase = 'result';
+    g.showHints = false;
+    render();
+    return;
   }
   const shift = frozen ? 0 : nextMove();
   g.last = {
@@ -9935,7 +10167,7 @@ function finishRace(escaped = false) {
  * UNE seule fois par appareil (g.tipsSeen, conservé d'une partie à l'autre). Pendant l'astuce,
  * les chronos sont en pause (c'est une fenêtre). Jamais en multijoueur Wi-Fi.
  */
-const TIP_KEYS = ['moved', 'net', 'chFreeze', 'mirror', 'double'];
+const TIP_KEYS = ['moved', 'net', 'chFreeze', 'mirror', 'double', 'hidden', 'mod101'];
 function maybeTip(key) {
   if (g.net || g.screen !== 'game' || g.modal || (g.tipsSeen || {})[key]) return;
   g.tipsSeen = { ...(g.tipsSeen || {}), [key]: true };
@@ -9944,8 +10176,11 @@ function maybeTip(key) {
 }
 /** Après un déplacement : astuce sur le miroir / le double (Génie, Défi), sinon sur la fuite elle-même. */
 function tipAfterMove(shift) {
-  if (shift && shift.op === 'mirror') maybeTip('mirror');
-  else if (shift && (shift.op === '×' || shift.op === '÷')) maybeTip('double');
+  const ops = shift && shift.op === 'seq' ? shift.steps.map(x => x.op) : [shift && shift.op];
+  if (ops.includes('±')) maybeTip('hidden');
+  else if (ops.includes('mirror')) maybeTip('mirror');
+  else if (ops.includes('×m')) maybeTip('mod101');
+  else if (ops.includes('×') || ops.includes('÷')) maybeTip('double');
   else if (shift) maybeTip('moved');
 }
 
@@ -10046,7 +10281,7 @@ function advanceTurn() {
 }
 /** Bouton « Continuer » : après une aide on reste dans le tour, sinon victoire / fin / joueur suivant. */
 function nextTurn() {
-  if (g.phase !== 'result') return;
+  if (g.phase !== 'result' || (g.last && g.last.pick)) return; // Difficile : question à choisir d'abord
   if (g.last && ['question', 'math'].includes(g.last.type)) {
     g.phase = 'choose';
     g.tab = 'guess';
@@ -10305,8 +10540,8 @@ function questionView() {
     gridclass = maxN() === 30 ? 'expert' : maxN() === 15 ? 'wide' : '';
   return `<div class="actiontabs" role="tablist"><button class="actiontab ${g.tab === 'question' ? 'selected' : ''}" data-tab="question" ${locked || mathOn ? 'disabled' : ''}>💡 ${t('tabQuestion')}</button><button class="actiontab ${g.tab === 'math' ? 'selected' : ''}" data-tab="math" ${locked ? 'disabled' : ''}>🧮 ${t('tabMath')}</button><button class="actiontab ${g.tab === 'guess' ? 'selected' : ''}" data-tab="guess">🎯 ${t('tabGuess')}</button></div>
  <div class="actionpane ${g.tab === 'question' ? 'selected' : ''}"><div class="q-head">${g.showInfo ? `<ul class="tradeoff"><li class="up">👍 ${t('q1')}</li>${g.mode === 'challenge' ? '' : `<li class="gift">🎁 ${t('q2')}</li>`}<li class="down">👎 ${t(g.mode === 'challenge' ? 'q3ch' : g.level === 'genius' ? 'q3g' : 'q3')}</li></ul>` : `<p class="q-title">${t('chooseQuestionShort')}</p>`}<button class="mini-btn small info-btn ${g.showInfo ? 'on' : ''}" data-info aria-pressed="${!!g.showInfo}" aria-label="${t('infoBtn')}" title="${t('infoBtn')}">ℹ️</button><button class="mini-btn small reroll" id="reroll" ${g.rerolled ? 'disabled' : ''} aria-label="${t('changeQuestions')}" title="${t('changeQuestions')}">🔀</button></div><div class="questions">${options.map(q => `<button class="qbtn" data-question="${q.id}"><span class="qicon">${q.icon}</span><span class="qtext">${esc(q.text)}<small>${esc(q.type)}</small></span></button>`).join('')}</div>${miniNotebook()}</div>
- <div class="actionpane ${g.tab === 'math' ? 'selected' : ''}"><div class="mathbox"><div class="math-title"><b dir="ltr" class="${mathText(g.math).length > 12 ? 'long' : ''}">${mathText(g.math)} = ?</b>${g.math.options.length > 3 ? `<small class="prio">${t('mathRewardSix')}</small>` : ''}</div>${!g.showInfo ? `<button class="info-link" data-info>ℹ️ ${t('infoBtn')}</button>` : g.mode === 'challenge' ? `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1ch')}</li><li class="gift">🎁 ${t(g.chKind === 'timed' ? 'm2chT' : 'm2ch')}</li><li class="down">👎 ${t('m3ch')}</li></ul>` : `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1')}</li><li class="gift">${t('m2')}</li><li class="down">👎 ${t('m3')}</li></ul>`}<div class="mathform ${g.math.options.length > 3 ? 'six' : ''}" dir="ltr">${g.math.options.map(n => `<button class="mathbtn" data-math="${n}">${n}</button>`).join('')}</div></div></div>
- <div class="actionpane ${g.tab === 'guess' ? 'selected' : ''} ${maxN() > 30 ? 'with-keypad' : ''}"><div class="pane-head"><p class="pick-hint">${g.answerLost ? t('answerTimeUp') : maxN() > 30 ? t('keypadHint', { max: maxN() }) : g.helpUsed ? t('captPick', { max: maxN() }) : t('proGuess')}</p>${helpMode() === 'ask' ? `<button class="mini-btn small ${g.showHints ? 'is-on' : ''}" id="hints" aria-pressed="${g.showHints}">💡 ${t('hintsOn')}</button>` : ''}</div>${
+ <div class="actionpane ${g.tab === 'math' ? 'selected' : ''}"><div class="mathbox"><div class="math-title"><b dir="ltr" class="${mathText(g.math).length > 12 ? 'long' : ''}">${mathText(g.math)} = ?</b>${g.math.options.length > 3 ? `<small class="prio">${t('mathRewardSix')}</small>` : ''}${g.mode === 'challenge' && g.chFreezes != null ? `<small class="prio freeze-left">🧊 ${t('freezesLeft', { n: g.chFreezes })}</small>` : ''}</div>${!g.showInfo ? `<button class="info-link" data-info>ℹ️ ${t('infoBtn')}</button>` : g.mode === 'challenge' ? `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1ch')}</li><li class="gift">🎁 ${t(g.chKind === 'timed' ? 'm2chT' : 'm2ch')}</li><li class="down">👎 ${t('m3ch')}</li></ul>` : `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1')}</li><li class="gift">${t('m2')}</li><li class="down">👎 ${t('m3')}</li></ul>`}<div class="mathform ${g.math.options.length > 3 ? 'six' : ''}" dir="ltr">${g.math.options.map(n => `<button class="mathbtn" data-math="${n}">${n}</button>`).join('')}</div></div></div>
+ <div class="actionpane ${g.tab === 'guess' ? 'selected' : ''} ${maxN() > 30 ? 'with-keypad' : ''}"><div class="pane-head"><p class="pick-hint">${g.answerLost ? t('answerTimeUp') : maxN() > 30 ? t('keypadHint', { max: maxN() }) : g.helpUsed ? t('captPick', { max: maxN() }) : t('proGuess')}</p>${helpMode() === 'ask' ? `<button class="mini-btn small ${g.showHints ? 'is-on' : ''}" id="hints" aria-pressed="${g.showHints}">💡 ${t('hintsOn')}</button>` : ''}${g.mode === 'challenge' ? `<button class="mini-btn small pass-btn" id="passTurn" title="${esc(t('passHint'))}">🏃 ${t('passBtn')}</button>` : ''}</div>${
    maxN() > 30
      ? keypadHTML()
      : `<div class="numbergrid ${gridclass}" dir="ltr">${all(maxN())
@@ -10347,8 +10582,18 @@ function miniNotebook() {
  * sans numéros, pour ne jamais révéler où se cache le numéro.
  */
 function blindJump(shift) {
-  const s = typeof shift === 'number' ? { op: '+', k: shift } : shift || { op: '+', k: 0 };
-  const kind = s.op === '+' ? 'hop' : s.op === '×' ? 'grow' : s.op === '÷' ? 'shrink' : 'mirror';
+  let s = typeof shift === 'number' ? { op: '+', k: shift } : shift || { op: '+', k: 0 };
+  if (s.op === 'seq') s = s.steps[0]; // double saut : on anime le premier, l'étiquette montre les deux
+  const kind =
+    s.op === '+'
+      ? 'hop'
+      : s.op === '±'
+        ? 'unsure' // sens caché : le pion hésite à gauche et à droite
+        : s.op === '×' || s.op === '×m'
+          ? 'grow'
+          : s.op === '÷'
+            ? 'shrink'
+            : 'mirror';
   // le pion reste DANS sa piste (64 px) : au plus 17 px de chaque côté du centre, plus loin si le saut est grand
   const dx = s.op === '+' ? Math.round(Math.sign(s.k) * (5 + 2.4 * Math.min(Math.abs(s.k), 5))) : 0;
   return `<span class="blind-jump ${kind}" dir="ltr" aria-hidden="true" style="--dx:${dx}px"><span class="bj-track">${'<i></i>'.repeat(11)}</span><b class="bj-token">?</b></span><b dir="ltr" class="bj-label">${shiftSymbol(shift)}</b>`;
@@ -10413,6 +10658,10 @@ function resultView() {
     title = '🕸️ ' + t('netMiss');
     desc = t('netMissDesc', { nums: x.nums.join('·'), p: x.nums.length });
     tone = 'bad';
+  } else if (x.type === 'pass') {
+    title = '🏃 ' + t('passTitle');
+    desc = t('passDesc');
+    tone = 'neutral';
   } else if (x.type === 'timeout') {
     title = '⏱ ' + t('turnTimeUp');
     desc = t('turnTimeoutDesc');
@@ -10422,7 +10671,11 @@ function resultView() {
     desc = t(
       x.correct
         ? g.mode === 'challenge'
-          ? 'chMathGood'
+          ? x.pick
+            ? 'chMathGoodPick'
+            : x.frozen
+              ? 'chMathGood'
+              : 'chMathGoodMoved'
           : 'mathGood'
         : x.timeout
           ? 'mathTimeout'
@@ -10430,19 +10683,31 @@ function resultView() {
       { equation: mathText(x.math), result: x.math.result }
     );
     tone = x.correct ? 'good' : 'bad';
-    if (x.correct)
+    if (x.correct && x.pick)
+      // Défi Difficile : le joueur choisit la question que le calcul lui offre
+      extra = `<div class="pick-clue"><b>🎁 ${t('chPickTitle')}</b>${g.choices
+        .map(id => {
+          const q = qbyid(id);
+          return q
+            ? `<button class="qbtn" data-mpick="${id}"><span class="qicon">${q.icon}</span><span>${esc(q.text)}</span></button>`
+            : '';
+        })
+        .join('')}</div>`;
+    else if (x.correct)
       extra =
         (x.frozen
           ? `<div class="ch-bonus">${t('chMathBonus', { p: x.chBonus })}${g.chKind === 'timed' ? t('chTimeBonus') : ''}${x.streak > 1 ? t('chCombo', { n: x.streak }) : ''}</div>`
           : '') +
-        `<div class="move-line bonus"><span>${t('bonusClue')} :</span> <strong>${t('qGreater', { k: x.math.threshold })} <span class="answer-pill">${x.answer ? t('yesAnswer') : t('noAnswer')}</span></strong></div>`;
+        `<div class="move-line bonus"><span>${t('bonusClue')} :</span> <strong>${x.qid ? esc(qbyid(x.qid)?.text || '') : t('qGreater', { k: x.math.threshold })} <span class="answer-pill">${x.answer ? t('yesAnswer') : t('noAnswer')}</span></strong></div>`;
   }
   const clue = ['question', 'math'].includes(x.type);
-  const move = x.frozen
-    ? `<div class="move-line frozen"><b>🧊</b><span>${t('frozen')}</span></div>`
-    : !['found', 'netHit'].includes(x.type)
-      ? `<div class="move-line">${blindJump(x.shift)}<span>${t('moved')}${moveHint(x.shift) ? ' <b class="mv-op">' + moveHint(x.shift) + '</b>' : ''}${clue ? '<br><small>' + t('oldClue') + '</small>' : ''}</span></div>`
-      : '';
+  const move = x.pick
+    ? ''
+    : x.frozen
+      ? `<div class="move-line frozen"><b>🧊</b><span>${t('frozen')}${g.mode === 'challenge' && g.chFreezes != null ? ' ' + t('freezesLeft', { n: g.chFreezes }) : ''}</span></div>`
+      : !['found', 'netHit'].includes(x.type)
+        ? `<div class="move-line">${blindJump(x.shift)}<span>${t('moved')}${moveHint(x.shift) ? ' <b class="mv-op">' + moveHint(x.shift) + '</b>' : ''}${clue ? '<br><small>' + t('oldClue') + '</small>' : ''}</span></div>`
+        : '';
   const top = ['found', 'netHit'].includes(x.type) ? extra : '';
   if (top)
     extra = g.lastHunt ? `<button class="mini-btn rp-open" id="openReplay">🎬 ${t('rpButton')}</button>` : '';
@@ -10450,7 +10715,7 @@ function resultView() {
   const head = top
     ? `<div class="catch-head">${top}<div><div class="result-title">${title}</div><p class="result-desc">${desc}</p></div></div>${racePodiumNote(x)}`
     : `<div class="result-title">${title}</div><p class="result-desc">${desc}</p>`;
-  return `<div class="result-card ${tone}">${head}${extra}${move}${clue ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${g.net && !myTurn() ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
+  return `<div class="result-card ${tone}">${head}${extra}${move}${clue && !x.pick ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${(g.net && !myTurn()) || x.pick ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {
@@ -10467,10 +10732,16 @@ function historyText(x) {
       player: p,
       equation: mathText(x.math),
       result: x.math.result,
-      outcome: t(x.correct ? 'mathSuccessLog' : x.timeout ? 'mathTimeoutLog' : 'mathFailureLog'),
+      outcome:
+        t(x.correct ? 'mathSuccessLog' : x.timeout ? 'mathTimeoutLog' : 'mathFailureLog') +
+        // V8.18 : l'indice gagné est noté dans le carnet (seuil, ou question choisie en Difficile)
+        (x.correct && x.answer != null
+          ? ` · ${x.qid ? qbyid(x.qid)?.text || '' : t('qGreater', { k: x.math.threshold })} ${x.answer ? t('yesAnswer') : t('noAnswer')}`
+          : ''),
       shift: shiftSymbol(x.shift)
     });
   if (x.type === 'found') return t('foundLog', { player: p, n: x.n });
+  if (x.type === 'pass') return t('passLog', { player: p, shift: shiftSymbol(x.shift) });
   if (x.type === 'timeout') return t('timeoutLog', { player: p, shift: shiftSymbol(x.shift) });
   if (x.type === 'netHit') return t('netHitLog', { player: p, nums: x.nums.join('·') });
   if (x.type === 'netMiss')
@@ -10875,12 +11146,12 @@ function modalView() {
       diff = g.chDiffPref in CHALLENGE_DIFFS ? g.chDiffPref : 'medium',
       rec = kind =>
         r[chRecordKey(kind, diff)] ? t('chRecord', { n: r[chRecordKey(kind, diff)] }) : t('chNoRecord'),
-      // records V8.3 (ancien barème, non comparables) : affichés pour mémoire, jamais effacés
-      old = ['timed', 'endless']
+      // records des anciennes règles (V8.3, puis V8.4–8.17, non comparables) : affichés pour mémoire, jamais effacés
+      old = ['timed', 'endless', `timed-${diff}`, `endless-${diff}`]
         .filter(k => r[k])
-        .map(k => `${t(k === 'timed' ? 'chTimed' : 'chEndless')} ${r[k]}`);
+        .map(k => `${t(k.startsWith('timed') ? 'chTimed' : 'chEndless')} ${r[k]}`);
     return wrapM(
-      `<h2>🏆 ${t('chTitle')}</h2><p>${t('chDesc')}</p><div class="label">${t('chDiffTitle')}</div><div class="ch-diffs" role="radiogroup">${Object.keys(
+      `<h2>🏆 ${t('chTitle')}</h2><div class="label">${t('chDiffTitle')}</div><div class="ch-diffs" role="radiogroup">${Object.keys(
         CHALLENGE_DIFFS
       )
         .map(
@@ -10889,7 +11160,7 @@ function modalView() {
         )
         .join(
           ''
-        )}</div><div class="modal-actions"><button class="bigbtn pink ch-opt" id="chTimed">⏱ ${t('chTimed')}<small>${t('chTimedSub')} · ${rec('timed')}</small></button><button class="bigbtn ch-opt" id="chEndless">♾️ ${t('chEndless')}<small>${t('chEndlessSub')} · ${rec('endless')}</small></button><details class="help-fold"><summary>📊 ${t('chFormulaTitle')}</summary><p class="sub small">⏱ ${t('chFormulaTimed')}</p><p class="sub small">♾️ ${t('chFormulaEndless')}</p></details>${old.length ? `<p class="sub small ch-old">${t('chOldRecords', { list: old.join(' · ') })}</p>` : ''}<button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
+        )}</div><div class="modal-actions"><button class="bigbtn pink ch-opt" id="chTimed">⏱ ${t('chTimed')}<small>${t('chTimedSub')} · ${rec('timed')}</small></button><button class="bigbtn ch-opt" id="chEndless">♾️ ${t('chEndless')}<small>${t('chEndlessSub')} · ${rec('endless')}</small></button><details class="help-fold"><summary>📏 ${t('chRulesTitle')}</summary><p class="sub small">${t('chDesc')}</p><p class="sub small">${t('chRules_' + diff)}</p><p class="sub small">🏃 ${t('chRulesPass')}</p></details><details class="help-fold"><summary>📊 ${t('chFormulaTitle')}</summary><p class="sub small">⏱ ${t('chFormulaTimed')}</p><p class="sub small">♾️ ${t('chFormulaEndless')}</p></details>${old.length ? `<p class="sub small ch-old">${t('chOldRecords', { list: old.join(' · ') })}</p>` : ''}<button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
     );
   }
   if (g.modal === 'names' && g.screen === 'home') {
@@ -11025,7 +11296,8 @@ function cluesView() {
     wrong: '🎯',
     netHit: '🕸️',
     netMiss: '🕸️',
-    timeout: '⏱'
+    timeout: '⏱',
+    pass: '🏃'
   };
   return `<div class="history-items nb-clues">${
     g.history.length
@@ -11320,7 +11592,7 @@ function redactState(seat) {
   delete s.hunt;
   // Le carnet « à la main » des joueurs a besoin des sauts (publics : chacun les voit annoncés),
   // jamais des positions : on n'envoie que le type de chaque saut.
-  s.huntPublic = g.hunt ? g.hunt.steps.map(x => ({ shift: x.shift, ev: x.ev ? 1 : 0 })) : null;
+  s.huntPublic = g.hunt ? g.hunt.steps.map(x => ({ shift: publicShift(x.shift), ev: x.ev ? 1 : 0 })) : null;
   delete s.soloSecret;
   if (s.math) s.math = { ...s.math, result: null };
   if (!NET_SHARED_MODALS.includes(s.modal)) s.modal = null;
@@ -12031,6 +12303,11 @@ function bind() {
     sfx('tap');
     render();
   });
+  // Défi V8.18 : question offerte par le calcul (Difficile) et « Laisser filer »
+  app
+    .querySelectorAll('[data-mpick]')
+    .forEach(b => b.addEventListener('click', () => mathPick(b.dataset.mpick)));
+  click('passTurn', passTurn);
   click('tipOk', () => {
     g.modal = null;
     lastTick = Date.now(); // le temps passé à lire l'astuce n'est pas décompté
@@ -12324,6 +12601,10 @@ window.__numero = {
   chScore,
   pressKey,
   moveFn,
+  moveImage,
+  CH_RULES,
+  passTurn,
+  mathPick,
   nextMove,
   records,
   netCapture,

@@ -23,14 +23,20 @@ function check(cond, msg) {
 const S = page => page.evaluate(() => JSON.parse(JSON.stringify(window.__numero.state)));
 /* Recalcule, indépendamment du jeu, l'ensemble exact des positions possibles à partir de l'historique :
    on essaie chaque position de départ et on rejoue questions, réponses, éliminations et déplacements. */
+// Carnet de référence, écrit indépendamment du moteur : on part de tous les numéros, on applique chaque
+// indice puis chaque saut. Saut au sens caché (V8.18) : les deux sens restent possibles.
 const EXPECTED_FN = `function(N){const s=N.state,max=N.maxN(),h=s.history;let from=0;for(let i=h.length-1;i>=0;i--)if(h[i].type==='found'||h[i].type==='netHit'){from=i+1;break}
- const res=new Set();for(let s0=1;s0<=max;s0++){let p=s0,ok=true;for(const e of h.slice(from)){
-  if(e.type==='question'){if(!!N.qbyid(e.qid).test(p)!==e.answer){ok=false;break}}
-  else if(e.type==='math'&&e.correct){if((p>e.math.threshold)!==e.answer){ok=false;break}}
-  else if(e.type==='wrong'){if(p===e.n){ok=false;break}}
-  else if(e.type==='netMiss'){if(e.nums.includes(p)){ok=false;break}}
-  const W=n=>((n-1)%max+max)%max+1;const m=e.shift;p=typeof m==='number'?W(p+m):m.op==='+'?W(p+m.k):m.op==='×'?W(p*m.k):m.op==='÷'?Math.ceil(p/m.k):max+1-p}
- if(ok)res.add(p)}return [...res].sort((a,b)=>a-b)}`;
+ const W=n=>((n-1)%max+max)%max+1;
+ const step=(p,m)=>typeof m==='number'?[W(p+m)]:m.op==='+'?[W(p+m.k)]:m.op==='±'?[W(p+m.k),W(p-m.k)]:m.op==='×'?[W(p*m.k)]:m.op==='×m'?[(p*m.k)%(max+1)]:m.op==='÷'?[Math.ceil(p/m.k)]:m.op==='seq'?m.steps.reduce((a,st)=>a.flatMap(x=>step(x,st)),[p]):[max+1-p];
+ let S=Array.from({length:max},(_,k)=>k+1);
+ for(const e of h.slice(from)){
+  if(e.type==='question')S=S.filter(p=>!!N.qbyid(e.qid).test(p)===e.answer);
+  else if(e.type==='math'&&e.correct&&e.qid)S=S.filter(p=>!!N.qbyid(e.qid).test(p)===e.answer);
+  else if(e.type==='math'&&e.correct)S=S.filter(p=>(p>e.math.threshold)===e.answer);
+  else if(e.type==='wrong')S=S.filter(p=>p!==e.n);
+  else if(e.type==='netMiss')S=S.filter(p=>!e.nums.includes(p));
+  S=[...new Set(S.flatMap(p=>step(p,e.shift)))];}
+ return S.sort((a,b)=>a-b)}`;
 const notebookOK = page => page.evaluate(src => { const f = eval('(' + src + ')'), N = window.__numero, exp = f(N), got = [...N.state.candidates].sort((a, b) => a - b); return { ok: exp.join() === got.join() && got.includes(N.state.secret), exp: exp.join(), got: got.join() }; }, EXPECTED_FN);
 
 async function fresh(browser, viewport = { width: 360, height: 740 }) {
@@ -390,16 +396,17 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check((await S(page)).sel === 100 && (await page.textContent('#capNet')).includes('98·99·100'), 'Pavé : 100, filet sans dépasser 100 (98·99·100)');
     // sauts fous + carnet exact sur de nombreux tours
     const sim = await page.evaluate(src => { const EXP = eval('(' + src + ')'), N = window.__numero, errs = [], ops = new Set();
-      for (let game = 0; game < 40; game++) { N.startChallenge('endless');
+      for (let game = 0; game < 60; game++) { N.startChallenge('endless', ['easy', 'medium', 'hard'][game % 3]);
         for (let i = 0; i < 25 && N.state.screen === 'game'; i++) { const s = N.state;
-          const rr = Math.random(); if (rr < .35) N.ask(s.choices[0]); else if (rr < .7) N.mathAnswer(Math.random() < .6 ? s.math.result : s.math.options[0]); if (N.state.phase === 'result') { const m = N.state.last.shift; if (N.state.last.frozen ? m !== 0 : typeof m !== 'object') errs.push('mouvement incohérent en défi'); else if (!N.state.last.frozen) ops.add(m.op === '+' ? (m.k > 0 ? '+' : '−') : m.op); N.nextTurn(); }
+          const rr = Math.random(); if (rr < .35) N.ask(s.choices[0]); else if (rr < .7) N.mathAnswer(Math.random() < .6 ? s.math.result : s.math.options[0]); if (N.state.last && N.state.last.pick) N.mathPick(N.state.choices[Math.floor(Math.random() * 3)]); if (rr > .9 && N.state.phase === 'choose') { N.passTurn(); } if (N.state.phase === 'result') { const m = N.state.last.shift; if (N.state.last.frozen ? m !== 0 : typeof m !== 'object') errs.push('mouvement incohérent en défi'); else if (!N.state.last.frozen) ops.add(m.op === '+' ? (m.k > 0 ? '+' : '−') : m.op); N.nextTurn(); }
           const e1 = EXP(N); if (e1.join() !== [...N.state.candidates].sort((a, b) => a - b).join()) errs.push('carnet faux (aide)');
           const c = N.state.candidates; const n = c[Math.floor(Math.random() * c.length)];
           if (Math.random() < .5) N.guess(Math.random() < .2 ? n : 1 + Math.floor(Math.random() * 100)); else N.netCapture(1 + Math.floor(Math.random() * 100));
           if (N.state.screen === 'game' && N.state.phase === 'result' && !['found', 'netHit'].includes(N.state.last.type)) { const e2 = EXP(N); if (e2.join() !== [...N.state.candidates].sort((a, b) => a - b).join()) errs.push('carnet faux (capture)'); }
           N.nextTurn(); } }
+      N.state.chDiffPref = 'medium'; // la suite du test joue en Moyen (difficulté par défaut)
       return { errs: [...new Set(errs)], ops: [...ops].sort().join(' ') }; }, EXPECTED_FN);
-    check(sim.errs.length === 0, 'Défi : 40 parties simulées, carnet exact malgré ×2, ÷2, miroir, +7… ' + sim.errs.join(', '));
+    check(sim.errs.length === 0, 'Défi : 60 parties simulées (3 difficultés), carnet exact malgré sens caché, ×2/×3 modulo 101, miroir, doubles sauts, « laisser filer »… ' + sim.errs.join(', '));
     check(sim.ops.split(' ').length >= 5, 'Défi : sauts variés observés (' + sim.ops + ')');
     // Calcul juste en défi : gel, +10 (combo seulement visuel), +15 s ; faux : −10 et saut
     const mres = await page.evaluate(() => { const N = window.__numero; N.startChallenge('timed'); const s = N.state; s.chElapsed = 60000;
@@ -409,7 +416,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       N.nextTurn(); N.guess(s.secret % 100 + 1); N.nextTurn();
       const sc2 = N.chScore(); N.mathAnswer(s.math.options.find(o => o !== s.math.result)); const c = { frozen: s.last.frozen, moved: typeof s.last.shift === 'object', d: N.chScore() - sc2, streak: s.chStreak };
       return { a, b, c }; });
-    check(mres.a.frozen && mres.a.same && mres.a.shift === 0 && mres.a.bonus === 10 && mres.a.d === 10 && mres.a.time === 45000, 'Défi : calcul juste → numéro gelé 🧊, +10 points, +15 s au chrono');
+    check(mres.a.frozen && mres.a.same && mres.a.shift === 0 && mres.a.bonus === 10 && mres.a.d === 10 && mres.a.time === 52000, 'Défi : calcul juste → numéro gelé 🧊, +10 points, +8 s au chrono (V8.18)');
     check(mres.b.bonus === 10 && mres.b.streak === 2 && mres.b.same && mres.b.d === 10, 'Défi : 2e calcul juste d’affilée → combo ×2 affiché, toujours +10 (pas de bonus croissant)');
     check(!mres.c.frozen && mres.c.moved && mres.c.d === -10 && mres.c.streak === 0, 'Défi : calcul faux → −10 et saut fou, combo remis à zéro');
     await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless'); N.ask(N.state.choices[0]); N.nextTurn(); N.mathAnswer; });
@@ -431,7 +438,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click('#next');
     st = await S(page);
     check(st.screen === 'end' && st.chWon && st.chFinal === 995 && await page.isVisible('.ch-score') && await page.isVisible('.ch-new'), `Défi réussi au 1er tour avec 1 question : score 995, nouveau record (${st.chFinal})`);
-    check((await page.evaluate(() => window.__numero.records()))['endless-medium'] === 995, 'Record enregistré pour « sans limite / moyen »');
+    check((await page.evaluate(() => window.__numero.records()))['endless-medium-v2'] === 995, 'Record enregistré pour « sans limite / moyen » (règles V8.18)');
     // contre la montre : échec quand le temps est écoulé
     await page.click('#again');
     await page.evaluate(() => { const N = window.__numero; N.startChallenge('timed'); });
@@ -754,7 +761,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       const run = (kind, diff, plan) => {
         N.startChallenge(kind, diff); const s = N.state; s.chElapsed = 60000;
         for (const a of plan) {
-          if (a === 'calc') N.mathAnswer(s.math.result); else if (a === 'q') N.ask(s.choices[0]); else if (a === 'badcalc') N.mathAnswer(s.math.options.find(o => o !== s.math.result));
+          if (a === 'calc') { N.mathAnswer(s.math.result); if (N.state.last && N.state.last.pick) N.mathPick(N.state.choices[0]); } else if (a === 'q') N.ask(s.choices[0]); else if (a === 'badcalc') N.mathAnswer(s.math.options.find(o => o !== s.math.result));
           if (s.phase === 'result') N.nextTurn();
           if (a === 'net') N.netCapture(s.secret > 50 ? 1 : 100); else N.guess(s.secret === 1 ? 2 : s.secret - 1);
           N.nextTurn();
@@ -797,7 +804,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const hard = await page.evaluate(() => { const N = window.__numero; N.startChallenge('timed', 'hard'); return [N.state.level, N.state.math.options.length, N.state.chDiffPref].join(); });
     check(hard === 'expert,6,hard', 'Défi difficile : calculs à priorités, 6 propositions, choix mémorisé (' + hard + ')');
     const recs = await page.evaluate(() => { localStorage.removeItem('numeroEnFuiteRecords'); const N = window.__numero; N.startChallenge('endless', 'easy'); N.guess(N.state.secret); N.nextTurn(); N.startChallenge('endless', 'hard'); N.ask(N.state.choices[0]); N.nextTurn(); N.guess(N.state.secret); N.nextTurn(); return N.records(); });
-    check(recs['endless-easy'] === 1000 && recs['endless-hard'] === 995 && !('endless' in recs), 'Défi : un record par difficulté ' + JSON.stringify(recs));
+    check(recs['endless-easy-v2'] === 1000 && recs['endless-hard-v2'] === 995 && !('endless' in recs), 'Défi : un record par difficulté ' + JSON.stringify(recs));
     // sauts spéciaux : jamais sur place (÷2 sur 1, ×2 sur le maximum)
     const still = await page.evaluate(() => {
       const N = window.__numero; let same = 0, n = 0;
@@ -917,7 +924,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(nets === '3,3,3', 'Défi : le filet couvre 3 numéros dans les 3 difficultés (' + nets + ')');
     await page.evaluate(() => { localStorage.setItem('numeroEnFuiteRecords', JSON.stringify({ timed: 1205, endless: 990 })); const N = window.__numero; N.state.mode = 'normal'; N.state.screen = 'home'; N.state.modal = 'challenge'; N.render(); });
     const chTxt = await page.textContent('.modal');
-    check(chTxt.includes('Calculs et indices') && /Filet\s:\s3 numéros/.test(chTxt), 'Défi : « Calculs et indices », filet annoncé');
+    check(chTxt.includes('Difficulté') && /Filet\s:\s3 numéros/.test(chTxt), 'Défi : « Difficulté », filet annoncé');
     check(/Anciens records.*1205.*990/.test(chTxt), 'Défi : anciens records V8.3 affichés pour mémoire');
     const fl = await page.$$eval('.modal .sub.small', e => e.map(x => x.textContent));
     check(fl.some(x => x.startsWith('⏱') && x.includes('seconde restante')) && fl.some(x => x.startsWith('♾️') && !x.includes('seconde restante') && x.includes('Pas de bonus de temps')), 'Défi : barème propre à chaque variante (bonus temps seulement contre la montre)');
@@ -1471,6 +1478,99 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     });
     for (const [lv, r] of Object.entries(qs)) check(r.tot > 200 && r.bad === 0 && r.narrow === 0, `Questions ${lv} : chacune laisse au moins 2 × filet numéros possibles (${r.tot} questions vérifiées)`);
     console.log(`${failed === before ? '✓' : '✗'} V8.16 : Génie à 4 sur écran court`);
+    await ctx.close();
+  }
+
+  // 3q) V8.18 : nouveau mode Défi (sauts par difficulté, sens caché, gels comptés, question au choix, laisser filer)
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser, { width: 360, height: 740 });
+    const ops = await page.evaluate(() => {
+      const N = window.__numero, out = {};
+      for (const d of ['easy', 'medium', 'hard']) {
+        N.startChallenge('endless', d); const seen = new Set();
+        for (let i = 0; i < 600; i++) { const m = N.nextMove(); const add = x => seen.add(x.op === '+' ? '±' + Math.abs(x.k) + (x.k > 0 ? '+' : '-') : x.op === '±' ? 'caché' : x.op === '×m' ? '×' + x.k : x.op); if (m.op === 'seq') { seen.add('double'); m.steps.forEach(add); } else add(m); }
+        out[d] = [...seen].sort().join(' ');
+      }
+      const bij = [2, 3].every(k => N.moveImage(Array.from({ length: 100 }, (_, i) => i + 1), { op: '×m', k }).length === 100);
+      return { ...out, bij };
+    });
+    check(/^(±[357][+-] ?){6}$/.test(ops.easy), `Défi Facile : seulement ±3, ±5, ±7 (${ops.easy})`);
+    check(['caché', 'mirror', '×2', '±13+', '±7-'].every(x => ops.medium.includes(x)) && !ops.medium.includes('÷') && !ops.medium.includes('×3') && !ops.medium.includes('double'), `Défi Moyen : ±7…±13, miroir, ×2, sens parfois caché, pas de ÷2 (${ops.medium})`);
+    check(['caché', 'mirror', '×2', '×3', 'double'].every(x => ops.hard.includes(x)), `Défi Difficile : + ×3 et doubles sauts (${ops.hard})`);
+    check(ops.bij, '×2 et ×3 « modulo 101 » : 100 numéros → 100 cases (deux numéros ne fusionnent jamais)');
+    // sens caché : jamais révélé, les deux sens restent possibles
+    const hid = await page.evaluate(() => {
+      const N = window.__numero; N.startChallenge('endless', 'medium'); const s = N.state; s.modal = null;
+      s.candidates = [50]; s.secret = 50; s.hunt = { start: 50, steps: [] };
+      // on force un saut caché de 7
+      let m; for (let i = 0; i < 400; i++) { s.secret = 50; s.candidates = [50]; m = N.nextMove(); if (m.op === '±') break; }
+      s.last = { type: 'pass', player: 0, shift: m }; s.phase = 'result'; N.render();
+      const card = document.querySelector('.result-card').textContent;
+      return { op: m.op, k: m.k, cands: s.candidates.join(','), secret: s.secret, card, label: document.querySelector('.bj-label').textContent };
+    });
+    check(hid.op === '±' && hid.cands === [50 - hid.k, 50 + hid.k].join(',') && hid.label.includes('↔ ±' + hid.k) && hid.card.includes('sens inconnu'), `Sens caché : « saut de ${hid.k}… » sans le sens ; possibles ${hid.cands} (vrai : ${hid.secret})`);
+    // gels comptés : Facile illimité, Moyen 3, Difficile 1
+    const fr = await page.evaluate(() => {
+      const N = window.__numero, out = {};
+      for (const d of ['easy', 'medium']) { N.startChallenge('endless', d); const r = [];
+        for (let i = 0; i < 5; i++) { const s = N.state; s.modal = null; s.phase = 'choose'; s.helpUsed = false; N.mathAnswer(s.math.result); r.push(s.last.frozen ? 'G' : 'm'); s.phase = 'choose'; s.helpUsed = false; s.math = { ...s.math }; }
+        out[d] = r.join(''); }
+      return out;
+    });
+    check(fr.easy === 'GGGGG' && fr.medium === 'GGGmm', `Gels : Facile à chaque calcul juste (${fr.easy}), Moyen 3 puis le numéro bouge (${fr.medium})`);
+    // Difficile : le calcul juste laisse choisir sa question
+    await page.evaluate(() => { const N = window.__numero; N.startChallenge('endless', 'hard'); N.state.modal = null; N.render(); });
+    await page.click('[data-tab="math"]');
+    await page.click(`[data-math="${(await S(page)).math.result}"]`);
+    st = await S(page);
+    check(st.last.pick && (await page.$$('[data-mpick]')).length === 3 && await page.isHidden('#next'), 'Difficile : calcul juste → 3 questions au choix, « Suivant » caché tant qu’on n’a pas choisi');
+    const nb0 = st.candidates.length, qid = st.choices[1];
+    await page.click(`[data-mpick="${qid}"]`);
+    st = await S(page);
+    check(!st.last.pick && st.last.qid === qid && st.last.frozen && st.chFreezes === 0 && st.candidates.length < nb0 && await page.isVisible('#next') && (await page.textContent('.move-line.frozen')).includes('0'), 'Difficile : question choisie appliquée, unique gel utilisé (0 restant)');
+    const hist = await page.evaluate(() => { const N = window.__numero; N.state.modal = 'notebook'; N.state.nbTab = 'clues'; N.render(); return document.querySelector('.nb-clues').textContent; });
+    check(hist.includes(await page.evaluate(id => window.__numero.qbyid(id).text, qid)), 'Carnet › Indices : la question gagnée par le calcul est notée');
+    await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.render(); });
+    // laisser filer : aucune pénalité, le numéro bouge
+    await page.click('#next');
+    const sc0 = await page.evaluate(() => window.__numero.chScore());
+    check(await page.isVisible('#passTurn'), 'Défi : bouton « Laisser filer » sur l’onglet Deviner');
+    await page.click('#passTurn');
+    st = await S(page);
+    const sc1 = await page.evaluate(() => window.__numero.chScore());
+    check(st.last.type === 'pass' && typeof st.last.shift === 'object' && sc1 === sc0 && (await page.textContent('.result-card')).includes('laisses filer'), `Laisser filer : pas de capture, aucune pénalité (${sc0} → ${sc1}), le numéro bouge`);
+    await page.click('#next');
+    check((await S(page)).turn === st.turn + 1 && (await S(page)).phase === 'choose', 'Laisser filer : on passe au tour suivant');
+    // carnet à la main : « Décaler mes marques » garde les deux sens d'un saut caché
+    const mk = await page.evaluate(() => { const N = window.__numero, s = N.state; s.marks = []; s.hunt = { start: 50, steps: [] }; for (let n = 1; n <= 100; n++) if (n !== 50) N.toggleMark(n); s.hunt.steps.push({ from: 50, to: 57, shift: { op: '±', k: 7, dir: 1 }, ev: null }); N.shiftMarks(); return 100 - N.marksOf().out.length + ':' + [43, 57].every(n => !N.marksOf().out.includes(n)); });
+    check(mk === '2:true', 'Carnet : décaler un saut caché de 7 garde 43 ET 57 (' + mk + ')');
+    // anciens records gardés et affichés
+    await page.evaluate(() => { localStorage.setItem('numeroEnFuiteRecords', JSON.stringify({ 'endless-medium': 870, 'endless-medium-v2': 640 })); const N = window.__numero; Object.assign(N.state, { screen: 'home', mode: 'normal', modal: 'challenge', chDiffPref: 'medium' }); N.render(); });
+    const mt = await page.textContent('.modal');
+    check(mt.includes('640') && /Anciens records[\s\S]*870/.test(mt) && await page.isVisible('.modal details summary'), 'Défi : nouveaux records (640) ; anciens gardés pour mémoire (870) ; règles de la difficulté');
+    // équilibrage (joueur « calculatrice » qui suit parfaitement les possibles) : 3 difficultés distinctes
+    const bal = await page.evaluate(() => {
+      const N = window.__numero, G = () => N.state, med = a => { const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+      const cover = (C, n) => N.netRange(n).filter(x => C.includes(x)).length, out = {};
+      for (const d of ['easy', 'medium', 'hard']) { const turns = []; let lucky = 0;
+        for (let k = 0; k < 150; k++) { N.startChallenge('endless', d); let t = 0;
+          while (G().screen === 'game' && t < 40) { G().modal = null;
+            if (G().phase === 'result') { N.nextTurn(); continue; }
+            const C0 = G().candidates;
+            const fits = C0.length === 1 || (N.netsLeft() && C0.some(n => cover(C0, n) === C0.length));
+            if (!fits && !G().helpUsed) { N.mathAnswer(G().math.result); if (G().last.pick) { const C = G().candidates; const best = G().choices.reduce((b, id) => { const q = N.qbyid(id), y = C.filter(n => q.test(n)).length, s = Math.min(y, C.length - y); return s > b.s ? { id, s } : b; }, { id: G().choices[0], s: -1 }).id; N.mathPick(best); } N.nextTurn(); G().modal = null; }
+            const C = G().candidates; t++;
+            if (C.length === 1) N.guess(C[0]);
+            else { const n = C.find(x => cover(C, x) === C.length); if (n != null && N.netsLeft()) N.netCapture(n); else N.passTurn(); }
+            N.nextTurn(); }
+          turns.push(t); }
+        out[d] = med(turns); }
+      return out;
+    });
+    check(bal.easy <= 6 && bal.medium >= bal.easy + 1 && bal.hard >= bal.medium + 1 && bal.hard <= 12, `Équilibrage (150 parties « calculatrice ») : médianes Facile ${bal.easy} < Moyen ${bal.medium} < Difficile ${bal.hard} tours`);
+    check(page.errors.length === 0, 'Aucune erreur JavaScript (Défi V8.18) ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V8.18 : nouveau mode Défi`);
     await ctx.close();
   }
 

@@ -168,8 +168,8 @@ function questionView() {
     gridclass = maxN() === 30 ? 'expert' : maxN() === 15 ? 'wide' : '';
   return `<div class="actiontabs" role="tablist"><button class="actiontab ${g.tab === 'question' ? 'selected' : ''}" data-tab="question" ${locked || mathOn ? 'disabled' : ''}>💡 ${t('tabQuestion')}</button><button class="actiontab ${g.tab === 'math' ? 'selected' : ''}" data-tab="math" ${locked ? 'disabled' : ''}>🧮 ${t('tabMath')}</button><button class="actiontab ${g.tab === 'guess' ? 'selected' : ''}" data-tab="guess">🎯 ${t('tabGuess')}</button></div>
  <div class="actionpane ${g.tab === 'question' ? 'selected' : ''}"><div class="q-head">${g.showInfo ? `<ul class="tradeoff"><li class="up">👍 ${t('q1')}</li>${g.mode === 'challenge' ? '' : `<li class="gift">🎁 ${t('q2')}</li>`}<li class="down">👎 ${t(g.mode === 'challenge' ? 'q3ch' : g.level === 'genius' ? 'q3g' : 'q3')}</li></ul>` : `<p class="q-title">${t('chooseQuestionShort')}</p>`}<button class="mini-btn small info-btn ${g.showInfo ? 'on' : ''}" data-info aria-pressed="${!!g.showInfo}" aria-label="${t('infoBtn')}" title="${t('infoBtn')}">ℹ️</button><button class="mini-btn small reroll" id="reroll" ${g.rerolled ? 'disabled' : ''} aria-label="${t('changeQuestions')}" title="${t('changeQuestions')}">🔀</button></div><div class="questions">${options.map(q => `<button class="qbtn" data-question="${q.id}"><span class="qicon">${q.icon}</span><span class="qtext">${esc(q.text)}<small>${esc(q.type)}</small></span></button>`).join('')}</div>${miniNotebook()}</div>
- <div class="actionpane ${g.tab === 'math' ? 'selected' : ''}"><div class="mathbox"><div class="math-title"><b dir="ltr" class="${mathText(g.math).length > 12 ? 'long' : ''}">${mathText(g.math)} = ?</b>${g.math.options.length > 3 ? `<small class="prio">${t('mathRewardSix')}</small>` : ''}</div>${!g.showInfo ? `<button class="info-link" data-info>ℹ️ ${t('infoBtn')}</button>` : g.mode === 'challenge' ? `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1ch')}</li><li class="gift">🎁 ${t(g.chKind === 'timed' ? 'm2chT' : 'm2ch')}</li><li class="down">👎 ${t('m3ch')}</li></ul>` : `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1')}</li><li class="gift">${t('m2')}</li><li class="down">👎 ${t('m3')}</li></ul>`}<div class="mathform ${g.math.options.length > 3 ? 'six' : ''}" dir="ltr">${g.math.options.map(n => `<button class="mathbtn" data-math="${n}">${n}</button>`).join('')}</div></div></div>
- <div class="actionpane ${g.tab === 'guess' ? 'selected' : ''} ${maxN() > 30 ? 'with-keypad' : ''}"><div class="pane-head"><p class="pick-hint">${g.answerLost ? t('answerTimeUp') : maxN() > 30 ? t('keypadHint', { max: maxN() }) : g.helpUsed ? t('captPick', { max: maxN() }) : t('proGuess')}</p>${helpMode() === 'ask' ? `<button class="mini-btn small ${g.showHints ? 'is-on' : ''}" id="hints" aria-pressed="${g.showHints}">💡 ${t('hintsOn')}</button>` : ''}</div>${
+ <div class="actionpane ${g.tab === 'math' ? 'selected' : ''}"><div class="mathbox"><div class="math-title"><b dir="ltr" class="${mathText(g.math).length > 12 ? 'long' : ''}">${mathText(g.math)} = ?</b>${g.math.options.length > 3 ? `<small class="prio">${t('mathRewardSix')}</small>` : ''}${g.mode === 'challenge' && g.chFreezes != null ? `<small class="prio freeze-left">🧊 ${t('freezesLeft', { n: g.chFreezes })}</small>` : ''}</div>${!g.showInfo ? `<button class="info-link" data-info>ℹ️ ${t('infoBtn')}</button>` : g.mode === 'challenge' ? `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1ch')}</li><li class="gift">🎁 ${t(g.chKind === 'timed' ? 'm2chT' : 'm2ch')}</li><li class="down">👎 ${t('m3ch')}</li></ul>` : `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1')}</li><li class="gift">${t('m2')}</li><li class="down">👎 ${t('m3')}</li></ul>`}<div class="mathform ${g.math.options.length > 3 ? 'six' : ''}" dir="ltr">${g.math.options.map(n => `<button class="mathbtn" data-math="${n}">${n}</button>`).join('')}</div></div></div>
+ <div class="actionpane ${g.tab === 'guess' ? 'selected' : ''} ${maxN() > 30 ? 'with-keypad' : ''}"><div class="pane-head"><p class="pick-hint">${g.answerLost ? t('answerTimeUp') : maxN() > 30 ? t('keypadHint', { max: maxN() }) : g.helpUsed ? t('captPick', { max: maxN() }) : t('proGuess')}</p>${helpMode() === 'ask' ? `<button class="mini-btn small ${g.showHints ? 'is-on' : ''}" id="hints" aria-pressed="${g.showHints}">💡 ${t('hintsOn')}</button>` : ''}${g.mode === 'challenge' ? `<button class="mini-btn small pass-btn" id="passTurn" title="${esc(t('passHint'))}">🏃 ${t('passBtn')}</button>` : ''}</div>${
    maxN() > 30
      ? keypadHTML()
      : `<div class="numbergrid ${gridclass}" dir="ltr">${all(maxN())
@@ -210,8 +210,18 @@ function miniNotebook() {
  * sans numéros, pour ne jamais révéler où se cache le numéro.
  */
 function blindJump(shift) {
-  const s = typeof shift === 'number' ? { op: '+', k: shift } : shift || { op: '+', k: 0 };
-  const kind = s.op === '+' ? 'hop' : s.op === '×' ? 'grow' : s.op === '÷' ? 'shrink' : 'mirror';
+  let s = typeof shift === 'number' ? { op: '+', k: shift } : shift || { op: '+', k: 0 };
+  if (s.op === 'seq') s = s.steps[0]; // double saut : on anime le premier, l'étiquette montre les deux
+  const kind =
+    s.op === '+'
+      ? 'hop'
+      : s.op === '±'
+        ? 'unsure' // sens caché : le pion hésite à gauche et à droite
+        : s.op === '×' || s.op === '×m'
+          ? 'grow'
+          : s.op === '÷'
+            ? 'shrink'
+            : 'mirror';
   // le pion reste DANS sa piste (64 px) : au plus 17 px de chaque côté du centre, plus loin si le saut est grand
   const dx = s.op === '+' ? Math.round(Math.sign(s.k) * (5 + 2.4 * Math.min(Math.abs(s.k), 5))) : 0;
   return `<span class="blind-jump ${kind}" dir="ltr" aria-hidden="true" style="--dx:${dx}px"><span class="bj-track">${'<i></i>'.repeat(11)}</span><b class="bj-token">?</b></span><b dir="ltr" class="bj-label">${shiftSymbol(shift)}</b>`;
@@ -276,6 +286,10 @@ function resultView() {
     title = '🕸️ ' + t('netMiss');
     desc = t('netMissDesc', { nums: x.nums.join('·'), p: x.nums.length });
     tone = 'bad';
+  } else if (x.type === 'pass') {
+    title = '🏃 ' + t('passTitle');
+    desc = t('passDesc');
+    tone = 'neutral';
   } else if (x.type === 'timeout') {
     title = '⏱ ' + t('turnTimeUp');
     desc = t('turnTimeoutDesc');
@@ -285,7 +299,11 @@ function resultView() {
     desc = t(
       x.correct
         ? g.mode === 'challenge'
-          ? 'chMathGood'
+          ? x.pick
+            ? 'chMathGoodPick'
+            : x.frozen
+              ? 'chMathGood'
+              : 'chMathGoodMoved'
           : 'mathGood'
         : x.timeout
           ? 'mathTimeout'
@@ -293,19 +311,31 @@ function resultView() {
       { equation: mathText(x.math), result: x.math.result }
     );
     tone = x.correct ? 'good' : 'bad';
-    if (x.correct)
+    if (x.correct && x.pick)
+      // Défi Difficile : le joueur choisit la question que le calcul lui offre
+      extra = `<div class="pick-clue"><b>🎁 ${t('chPickTitle')}</b>${g.choices
+        .map(id => {
+          const q = qbyid(id);
+          return q
+            ? `<button class="qbtn" data-mpick="${id}"><span class="qicon">${q.icon}</span><span>${esc(q.text)}</span></button>`
+            : '';
+        })
+        .join('')}</div>`;
+    else if (x.correct)
       extra =
         (x.frozen
           ? `<div class="ch-bonus">${t('chMathBonus', { p: x.chBonus })}${g.chKind === 'timed' ? t('chTimeBonus') : ''}${x.streak > 1 ? t('chCombo', { n: x.streak }) : ''}</div>`
           : '') +
-        `<div class="move-line bonus"><span>${t('bonusClue')} :</span> <strong>${t('qGreater', { k: x.math.threshold })} <span class="answer-pill">${x.answer ? t('yesAnswer') : t('noAnswer')}</span></strong></div>`;
+        `<div class="move-line bonus"><span>${t('bonusClue')} :</span> <strong>${x.qid ? esc(qbyid(x.qid)?.text || '') : t('qGreater', { k: x.math.threshold })} <span class="answer-pill">${x.answer ? t('yesAnswer') : t('noAnswer')}</span></strong></div>`;
   }
   const clue = ['question', 'math'].includes(x.type);
-  const move = x.frozen
-    ? `<div class="move-line frozen"><b>🧊</b><span>${t('frozen')}</span></div>`
-    : !['found', 'netHit'].includes(x.type)
-      ? `<div class="move-line">${blindJump(x.shift)}<span>${t('moved')}${moveHint(x.shift) ? ' <b class="mv-op">' + moveHint(x.shift) + '</b>' : ''}${clue ? '<br><small>' + t('oldClue') + '</small>' : ''}</span></div>`
-      : '';
+  const move = x.pick
+    ? ''
+    : x.frozen
+      ? `<div class="move-line frozen"><b>🧊</b><span>${t('frozen')}${g.mode === 'challenge' && g.chFreezes != null ? ' ' + t('freezesLeft', { n: g.chFreezes }) : ''}</span></div>`
+      : !['found', 'netHit'].includes(x.type)
+        ? `<div class="move-line">${blindJump(x.shift)}<span>${t('moved')}${moveHint(x.shift) ? ' <b class="mv-op">' + moveHint(x.shift) + '</b>' : ''}${clue ? '<br><small>' + t('oldClue') + '</small>' : ''}</span></div>`
+        : '';
   const top = ['found', 'netHit'].includes(x.type) ? extra : '';
   if (top)
     extra = g.lastHunt ? `<button class="mini-btn rp-open" id="openReplay">🎬 ${t('rpButton')}</button>` : '';
@@ -313,7 +343,7 @@ function resultView() {
   const head = top
     ? `<div class="catch-head">${top}<div><div class="result-title">${title}</div><p class="result-desc">${desc}</p></div></div>${racePodiumNote(x)}`
     : `<div class="result-title">${title}</div><p class="result-desc">${desc}</p>`;
-  return `<div class="result-card ${tone}">${head}${extra}${move}${clue ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${g.net && !myTurn() ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
+  return `<div class="result-card ${tone}">${head}${extra}${move}${clue && !x.pick ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${(g.net && !myTurn()) || x.pick ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {
@@ -330,10 +360,16 @@ function historyText(x) {
       player: p,
       equation: mathText(x.math),
       result: x.math.result,
-      outcome: t(x.correct ? 'mathSuccessLog' : x.timeout ? 'mathTimeoutLog' : 'mathFailureLog'),
+      outcome:
+        t(x.correct ? 'mathSuccessLog' : x.timeout ? 'mathTimeoutLog' : 'mathFailureLog') +
+        // V8.18 : l'indice gagné est noté dans le carnet (seuil, ou question choisie en Difficile)
+        (x.correct && x.answer != null
+          ? ` · ${x.qid ? qbyid(x.qid)?.text || '' : t('qGreater', { k: x.math.threshold })} ${x.answer ? t('yesAnswer') : t('noAnswer')}`
+          : ''),
       shift: shiftSymbol(x.shift)
     });
   if (x.type === 'found') return t('foundLog', { player: p, n: x.n });
+  if (x.type === 'pass') return t('passLog', { player: p, shift: shiftSymbol(x.shift) });
   if (x.type === 'timeout') return t('timeoutLog', { player: p, shift: shiftSymbol(x.shift) });
   if (x.type === 'netHit') return t('netHitLog', { player: p, nums: x.nums.join('·') });
   if (x.type === 'netMiss')

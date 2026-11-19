@@ -22,6 +22,55 @@ function ask(id) {
   tipAfterMove(shift);
   render();
 }
+/** Défi : utilise un gel s'il en reste (null = illimité). */
+function useFreeze() {
+  if (g.chFreezes == null) return true;
+  if (g.chFreezes <= 0) return false;
+  g.chFreezes--;
+  return true;
+}
+/**
+ * Défi Difficile : après un calcul juste, le joueur CHOISIT sa question parmi les 3 du tour
+ * (au lieu de recevoir le meilleur seuil). Puis gel s'il en reste, sinon le numéro bouge.
+ */
+function mathPick(id) {
+  const x = g.last;
+  if (
+    g.screen !== 'game' ||
+    g.phase !== 'result' ||
+    !x ||
+    x.type !== 'math' ||
+    !x.pick ||
+    !g.choices.includes(id)
+  )
+    return;
+  const q = qbyid(id);
+  if (!q) return;
+  const answer = !!q.test(g.secret);
+  g.candidates = g.candidates.filter(n => !!q.test(n) === answer);
+  const frozen = useFreeze(),
+    shift = frozen ? 0 : nextMove();
+  g.last = { ...x, pick: false, qid: id, answer, frozen, shift };
+  pushHist();
+  sfx('move');
+  if (frozen) maybeTip('chFreeze');
+  else tipAfterMove(shift);
+  render();
+}
+/** Défi : « Laisser filer » — pas de capture ce tour-ci (aucune pénalité), le numéro bouge. */
+function passTurn() {
+  if (g.screen !== 'game' || g.phase !== 'choose' || g.mode !== 'challenge') return;
+  g.sel = null;
+  g.capturing = null;
+  const shift = nextMove();
+  g.last = { type: 'pass', player: active(), shift };
+  pushHist();
+  sfx('move');
+  g.phase = 'result';
+  g.showHints = false;
+  tipAfterMove(shift);
+  render();
+}
 /** Tir précis sur le numéro n. */
 function guess(n) {
   if (g.screen !== 'game' || g.phase !== 'choose' || n < 1 || n > maxN()) return;
@@ -139,19 +188,23 @@ function mathAnswer(ans) {
   const player = active(),
     correct = ans === g.math.result;
   let answer = null;
+  const ch = g.mode === 'challenge',
+    choosing = ch && correct && chRules().pickClue; // Difficile : le joueur choisira sa question
   if (correct) {
     g.stars[player]++;
-    const c = [...g.candidates].sort((a, b) => a - b);
-    if (c.length > 1) g.math.threshold = c[Math.floor((c.length - 1) / 2)];
-    answer = g.secret > g.math.threshold;
-    g.candidates = g.candidates.filter(n => n > g.math.threshold === answer);
+    if (!choosing) {
+      const c = [...g.candidates].sort((a, b) => a - b);
+      if (c.length > 1) g.math.threshold = c[Math.floor((c.length - 1) / 2)];
+      answer = g.secret > g.math.threshold;
+      g.candidates = g.candidates.filter(n => n > g.math.threshold === answer);
+    }
   }
   g.helpUsed = true;
   g.helpKind = 'math';
   g.lastPick = ans;
   sfx(correct ? 'good' : 'bad');
-  const ch = g.mode === 'challenge',
-    frozen = ch && correct;
+  // Défi V8.18 : gels comptés en Moyen (3) et Difficile (1) ; sans gel, le numéro bouge quand même
+  const frozen = ch && correct && !choosing && useFreeze();
   let chBonus = 0;
   if (ch) {
     if (correct) {
@@ -159,6 +212,23 @@ function mathAnswer(ans) {
       chBonus = CHALLENGE_SCORE.goodMath; // le combo (g.chStreak) n'est qu'un effet visuel
       if (g.chKind === 'timed') g.chElapsed = Math.max(0, g.chElapsed - CHALLENGE_SCORE.timeRefundMs);
     } else g.chStreak = 0;
+  }
+  if (choosing) {
+    // le saut (ou le gel) attend que le joueur ait choisi sa question : voir mathPick()
+    g.last = {
+      type: 'math',
+      player,
+      picked: ans,
+      correct,
+      pick: true,
+      chBonus,
+      streak: g.chStreak || 0,
+      math: { ...g.math }
+    };
+    g.phase = 'result';
+    g.showHints = false;
+    render();
+    return;
   }
   const shift = frozen ? 0 : nextMove();
   g.last = {
@@ -226,7 +296,7 @@ function finishRace(escaped = false) {
  * UNE seule fois par appareil (g.tipsSeen, conservé d'une partie à l'autre). Pendant l'astuce,
  * les chronos sont en pause (c'est une fenêtre). Jamais en multijoueur Wi-Fi.
  */
-const TIP_KEYS = ['moved', 'net', 'chFreeze', 'mirror', 'double'];
+const TIP_KEYS = ['moved', 'net', 'chFreeze', 'mirror', 'double', 'hidden', 'mod101'];
 function maybeTip(key) {
   if (g.net || g.screen !== 'game' || g.modal || (g.tipsSeen || {})[key]) return;
   g.tipsSeen = { ...(g.tipsSeen || {}), [key]: true };
@@ -235,8 +305,11 @@ function maybeTip(key) {
 }
 /** Après un déplacement : astuce sur le miroir / le double (Génie, Défi), sinon sur la fuite elle-même. */
 function tipAfterMove(shift) {
-  if (shift && shift.op === 'mirror') maybeTip('mirror');
-  else if (shift && (shift.op === '×' || shift.op === '÷')) maybeTip('double');
+  const ops = shift && shift.op === 'seq' ? shift.steps.map(x => x.op) : [shift && shift.op];
+  if (ops.includes('±')) maybeTip('hidden');
+  else if (ops.includes('mirror')) maybeTip('mirror');
+  else if (ops.includes('×m')) maybeTip('mod101');
+  else if (ops.includes('×') || ops.includes('÷')) maybeTip('double');
   else if (shift) maybeTip('moved');
 }
 
@@ -337,7 +410,7 @@ function advanceTurn() {
 }
 /** Bouton « Continuer » : après une aide on reste dans le tour, sinon victoire / fin / joueur suivant. */
 function nextTurn() {
-  if (g.phase !== 'result') return;
+  if (g.phase !== 'result' || (g.last && g.last.pick)) return; // Difficile : question à choisir d'abord
   if (g.last && ['question', 'math'].includes(g.last.type)) {
     g.phase = 'choose';
     g.tab = 'guess';

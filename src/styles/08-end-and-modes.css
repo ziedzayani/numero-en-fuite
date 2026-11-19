@@ -2251,3 +2251,54 @@ body.scr-end .finalscore {
     gap: 5px;
   }
 }
+
+/* V8.18 : saut au sens caché — le pion hésite d'un côté puis de l'autre */
+.blind-jump.unsure .bj-token {
+  animation: bj-unsure 1.4s ease-in-out 0.2s both;
+}
+@keyframes bj-unsure {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translate(-16px, -10px);
+  }
+  50% {
+    transform: translateX(0);
+  }
+  75% {
+    transform: translate(16px, -10px);
+  }
+}
+/* V8.18 : question offerte par le calcul (Difficile) ; questions un peu plus basses sous 760 px */
+.pick-clue {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  text-align: start;
+}
+.pick-clue > b {
+  font-size: 14px;
+}
+.pick-clue .qbtn {
+  min-height: 48px;
+  padding: 5px 10px;
+}
+.pass-btn {
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+@media (max-height: 760px) {
+  .qbtn {
+    min-height: 52px;
+    padding: 5px 10px;
+  }
+}
+@media (max-height: 760px) {
+  .actiontab {
+    min-height: 44px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+}

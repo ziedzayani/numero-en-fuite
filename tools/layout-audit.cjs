@@ -231,6 +231,38 @@ const STATES = {
     N.guess(N.state.secret);
     N.nextTurn();
   },
+  'défi difficile : question offerte': N => {
+    N.startChallenge('endless', 'hard');
+    N.state.modal = null;
+    N.mathAnswer(N.state.math.result);
+  },
+  'défi : laisser filer': N => {
+    N.startChallenge('timed', 'medium');
+    N.state.modal = null;
+    N.passTurn();
+  },
+  'défi : saut caché': N => {
+    N.startChallenge('endless', 'hard');
+    N.state.modal = null;
+    N.ask(N.state.choices[0]);
+    N.state.last.shift = {
+      op: 'seq',
+      steps: [
+        { op: '±', k: 13 },
+        { op: '×m', k: 3 }
+      ]
+    };
+  },
+  'défi : calcul (gels restants)': N => {
+    N.startChallenge('endless', 'medium');
+    N.state.modal = null;
+    N.state.tab = 'math';
+    N.state.showInfo = true;
+  },
+  'défi : choix et règles': N => {
+    N.state.modal = 'challenge';
+    N.state.chDiffPref = 'hard';
+  },
   'wifi connexion perdue': N => {
     N.state.players = 3;
     N.start(true);
@@ -353,6 +385,7 @@ const STATES = {
               replayAsk: false,
               tutSeen: true,
               gameMode: 'race',
+              showInfo: false, // « ℹ️ avantages / risques » : ouvert seulement par l'état qui le demande
               tipsSeen: Object.fromEntries(N.tipKeys.map(k => [k, true])) // astuces auditées à part
             });
             (0, eval)('(' + src + ')')(N);

@@ -343,6 +343,11 @@ function bind() {
     sfx('tap');
     render();
   });
+  // Défi V8.18 : question offerte par le calcul (Difficile) et « Laisser filer »
+  app
+    .querySelectorAll('[data-mpick]')
+    .forEach(b => b.addEventListener('click', () => mathPick(b.dataset.mpick)));
+  click('passTurn', passTurn);
   click('tipOk', () => {
     g.modal = null;
     lastTick = Date.now(); // le temps passé à lire l'astuce n'est pas décompté
