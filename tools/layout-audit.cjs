@@ -285,16 +285,6 @@ const STATES = {
     N.state.modal = 'backup';
     N.state.backup = { view: 'import', input: 'xx', error: 'damaged' };
   },
-  'film (proposition)': N => {
-    N.state.players = 1;
-    N.state.level = 'junior';
-    N.start(true);
-    N.state.replayAsk = true;
-    N.ask(N.state.choices[0]);
-    N.nextTurn();
-    N.guess(N.state.secret);
-    N.state.modal = 'replayAsk';
-  },
   film: N => {
     N.state.players = 1;
     N.state.level = 'junior';

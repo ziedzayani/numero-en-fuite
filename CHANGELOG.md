@@ -1,5 +1,28 @@
 # Historique des versions
 
+## V9.4 — images définitives et déplacements plus clairs
+
+- **Nouvelles images en haute qualité** (fond transparent) : détective à la loupe (jeu), pouce levé (« Bravo ! »),
+  main sur la tête (« Oups ! ») ; poussin, cerveau, fusée, hibou des niveaux ; livre, cible, toque, bureau de
+  l'accueil ; drap qui cache le numéro.
+- **Déplacement bien visible** : l'étiquette du saut (« → +2 », « ✖️ ×2 », « 🪞 ») arrive en grand puis reprend sa
+  taille ; l'explication (×2, miroir…) est dans un encadré lisible.
+- **Miroir expliqué en 3 lignes** d'exemples (au niveau Génie : 50 → 1, 49 → 2, 10 → 41) ; le drap part d'un côté
+  de la ligne du miroir et réapparaît de l'autre, sans la toucher.
+- **Pas de fête quand personne n'a trouvé le numéro** (Course, ou Points sans aucune capture), même si un joueur
+  a plus de points : pas de confettis, bandeau bleu « Personne ne l'a attrapé… ».
+- **30 tours à 2 joueurs** (15 chacun) au lieu de 20.
+- **Film du parcours aussi quand on perd ou qu'on abandonne** : bouton « 🎬 Revoir son parcours » sur l'écran
+  du Défi perdu et dans « Quitter la partie ? » (on y revient après le film).
+- **Victoires « avec l'aide » notées dans Mon bureau** : « Gagnées · dont N avec aide 💡 », record marqué 💡 s'il a
+  été obtenu avec l'aide, pastille « 💡 Gagné avec l'aide » sur l'écran de victoire.
+- **Défi : calculs d'un cran plus difficiles** (Facile : retenues et tables ; Moyen / Difficile : priorités),
+  plus de « 5 + 2 » ; 45 s pour répondre en Moyen et Difficile.
+- **Plus de fenêtre « Revoir l'évasion du numéro ? »** après une capture : le bouton « Revoir son parcours » est déjà
+  dans le résultat (le réglage « Proposer le film » disparaît).
+- Tuile Génie choisie à nouveau lisible ; carte de résultat plus compacte (« Tu gardes ton tour » est dit par le
+  bouton « Choisir mon numéro »).
+
 ## V9.3.1
 
 - Accueil : les 4 tuiles du bas sont alignées (« Comment jouer ? » sur deux lignes ne décale plus son icône).

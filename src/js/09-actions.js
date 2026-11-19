@@ -141,26 +141,11 @@ function netCapture(n) {
   g.showHints = false;
   render();
 }
-/** Après une capture : propose de revoir le film du parcours (si le réglage le permet). */
-function offerReplay() {
-  if (g.replayAsk === false || g.net) return; // en Wi-Fi : bouton « Revoir son parcours » sur chaque téléphone
-  setTimeout(
-    () => {
-      if (
-        g.screen === 'game' &&
-        g.phase === 'result' &&
-        g.last &&
-        ['found', 'netHit'].includes(g.last.type) &&
-        !g.modal &&
-        g.lastHunt
-      ) {
-        g.modal = 'replayAsk';
-        render();
-      }
-    },
-    g.reduceMotion ? 60 : 1500
-  );
-}
+/**
+ * Après une capture : plus de fenêtre « Revoir l'évasion du numéro ? » (V9.4) — le bouton
+ * « Revoir son parcours » est déjà dans le résultat et sur l'écran de fin.
+ */
+function offerReplay() {}
 /** Bouton de capture : courte animation, puis guess() ou netCapture() sur le numéro sélectionné. */
 function launchCapture(mode) {
   if (mode === 'net' && !netAvailable()) return;

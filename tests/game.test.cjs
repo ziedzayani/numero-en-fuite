@@ -12,7 +12,7 @@ const SHOTS = process.argv[3] ? path.resolve(process.argv[3]) : null;
 const URL = 'file://' + FILE;
 const MAX = { junior: 9, malin: 15, expert: 30, genius: 50 };
 const RANGE = { junior: 1, malin: 2, expert: 2, genius: 5 };
-const LIMIT = [0, 12, 20, 24, 24]; // V8.14 : 10 essais chacun à 2 joueurs
+const LIMIT = [0, 12, 30, 24, 24]; // V8.14 : 10 essais chacun à 2 joueurs
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -621,7 +621,6 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       ['#soundToggle', st => st.sound === false, 'Son coupé'], ['#soundToggle', st => st.sound === true, 'Son activé'],
       ['[data-timer="long"]', st => st.timerMode === 'long', 'Plus de temps'], ['[data-timer="off"]', st => st.timerMode === 'off', 'Sans chrono'], ['[data-timer="normal"]', st => st.timerMode === 'normal', 'Chrono normal'],
       ['#motionToggle', st => st.reduceMotion === true, 'Animations réduites'], ['#motionToggle', st => st.reduceMotion === false, 'Animations normales'],
-      ['#replayToggle', st => st.replayAsk === true, 'Film du parcours activé'], ['#replayToggle', st => st.replayAsk === false, 'Film du parcours désactivé'],
     ];
     for (const [sel, ok, label] of taps) {
       if (sel.startsWith('[data-language')) await page.tap('#openLang');
@@ -677,9 +676,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.waitForTimeout(900);
     check(!(await S(page)).modal, 'La fenêtre attend la fin de l’animation de capture');
     await page.waitForTimeout(1700);
-    check((await S(page)).modal === 'replayAsk' && await page.isVisible('#rpYes'), 'Après la capture : popup « Revoir l’évasion du numéro ? »');
-    await page.click('#rpNo');
-    check(!(await S(page)).modal && await page.isVisible('#openReplay'), 'Non merci : fermé, bouton « Revoir son parcours » disponible');
+    check(!(await S(page)).modal && await page.isVisible('#openReplay'), 'Après la capture : pas de fenêtre « Revoir l’évasion ? » (V9.4), bouton « Revoir son parcours » dans le résultat');
     await page.click('#openReplay');
     const h = (await S(page)).lastHunt;
     const frames = 2 + h.steps.length;
@@ -724,13 +721,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click('#next');
     await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.state.lang = 'ar'; N.state.reduceMotion = true; N.guess(N.state.secret); });
     await page.waitForTimeout(300);
-    check((await S(page)).modal === 'replayAsk', 'Popup aussi en arabe');
-    await page.click('#rpNever');
-    check((await S(page)).replayAsk === false, '« Ne plus demander » enregistré');
-    await page.click('#next');
-    await page.evaluate(() => { const N = window.__numero; N.state.modal = null; N.guess(N.state.secret); });
-    await page.waitForTimeout(400);
-    check(!(await S(page)).modal, 'Plus de popup après « Ne plus demander » (le bouton reste dans le résultat)');
+    check(!(await S(page)).modal, 'Arabe : pas de fenêtre après la capture non plus');
     await page.click('#openReplay');
     check(await page.isVisible('.modal.replay'), 'Film disponible en arabe');
     await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.state.players = 1; N.start(); for (let i = 0; i < 40 && N.state.screen === 'game'; i++) { N.state.modal = null; N.guess(N.state.secret % N.maxN() + 1); N.nextTurn(); } });
@@ -801,8 +792,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click('#openChallenge');
     check((await page.$$('[data-chdiff]')).length === 3 && await page.isVisible('[data-chdiff="medium"].on'), 'Défi : 3 difficultés, « Moyen » par défaut');
     await page.click('[data-chdiff="easy"]'); await page.click('#chEndless');
-    const easy = await page.evaluate(() => { const N = window.__numero, r = []; for (let i = 0; i < 60; i++) { N.startChallenge('endless', 'easy'); r.push(N.state.math.result, ...N.state.math.options); } return { level: N.state.level, diff: N.state.chDiff, max: Math.max(...r), n: N.state.math.options.length, maxN: N.maxN() }; });
-    check(easy.level === 'junior' && easy.diff === 'easy' && easy.max <= 13 && easy.n === 3 && easy.maxN === 100, `Défi facile : calculs du niveau Petit, numéros 1–100 (max proposé ${easy.max})`);
+    const easy = await page.evaluate(() => { const N = window.__numero, r = []; let small = 0; for (let i = 0; i < 60; i++) { N.startChallenge('endless', 'easy'); const m = N.state.math; r.push(m.result, ...m.options); if (/^\d \+ \d$|^\d+ − \d$/.test(m.text || '') && m.result <= 10) small++; } return { level: N.state.level, diff: N.state.chDiff, small, n: N.state.math.options.length, maxN: N.maxN() }; });
+    check(easy.level === 'junior' && easy.diff === 'easy' && easy.small === 0 && easy.n === 3 && easy.maxN === 100, `Défi facile (V9.4) : calculs du niveau Moyen (retenues, tables), plus de « 5 + 2 » ; numéros 1–100`);
     const hard = await page.evaluate(() => { const N = window.__numero; N.startChallenge('timed', 'hard'); return [N.state.level, N.state.math.options.length, N.state.chDiffPref].join(); });
     check(hard === 'expert,6,hard', 'Défi difficile : calculs à priorités, 6 propositions, choix mémorisé (' + hard + ')');
     const recs = await page.evaluate(() => { localStorage.removeItem('numeroEnFuiteRecords'); const N = window.__numero; N.startChallenge('endless', 'easy'); N.guess(N.state.secret); N.nextTurn(); N.startChallenge('endless', 'hard'); N.ask(N.state.choices[0]); N.nextTurn(); N.guess(N.state.secret); N.nextTurn(); return N.records(); });

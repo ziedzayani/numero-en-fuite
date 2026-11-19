@@ -16,7 +16,11 @@ const LIMITS = {
 const limitOf = k =>
   k === 'challenge'
     ? CH_TIME
-    : LIMITS[g.level][k === 'turn' ? 'global' : k] * (g.timerMode === 'long' ? 1.5 : 1) * 1000;
+    : (k === 'math' && g.mode === 'challenge' && g.level !== 'junior' // Défi : calculs plus durs (V9.4)
+        ? 45
+        : LIMITS[g.level][k === 'turn' ? 'global' : k]) *
+      (g.timerMode === 'long' ? 1.5 : 1) *
+      1000;
 const mathLimit = () => limitOf('math');
 const mathLeft = () => Math.max(0, mathLimit() - g.mathElapsed);
 const turnLeft = () => Math.max(0, limitOf('global') - g.turnElapsed);

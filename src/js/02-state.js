@@ -117,7 +117,12 @@ const moveHint = s => {
   if (s.op === '×m') return t('mvMulMod', { k: s.k, a: 60, b: (60 * s.k) % (maxN() + 1) });
   if (s.op === '÷') return t('mvHalf');
   if (s.op === '±') return t('mvHidden', { k: s.k });
-  if (s.op === 'mirror') return t('mvMirror', { max: maxN(), max1: maxN() - 1, ex: maxN() + 1 - 10 });
+  if (s.op === 'mirror') {
+    // V9.4 : trois exemples, un par ligne (50 → 1, 49 → 2, 10 → 41 au niveau Génie)
+    const m = maxN(),
+      ex = (a, b) => `<span class="mv-ex" dir="ltr">${a} → ${b}</span>`;
+    return `🪞 ${t('mvMirrorTitle')}${ex(m, 1)}${ex(m - 1, 2)}${ex(10, m + 1 - 10)}`;
+  }
   if (s.op === 'seq') return t('mvDoubleJump'); // les deux symboles sont déjà sur l'étiquette
   return '';
 };

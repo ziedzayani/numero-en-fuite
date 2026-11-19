@@ -77,7 +77,7 @@ function modalView() {
     );
   if (g.modal === 'quit')
     return wrapM(
-      `<h2>🏠 ${t('quitTitle')}</h2><p>${t('quitText')}</p><div class="modal-actions"><button class="bigbtn pink" id="quitYes">${t('yes')}</button><button class="bigbtn light" id="quitNo">${t('no')}</button></div>`
+      `<h2>🏠 ${t('quitTitle')}</h2><p>${t('quitText')}</p>${g.hunt && g.hunt.steps && g.hunt.steps.length ? `<button class="mini-btn rp-open" id="quitFilm">🎬 ${t('rpButton')}</button>` : ''}<div class="modal-actions"><button class="bigbtn pink" id="quitYes">${t('yes')}</button><button class="bigbtn light" id="quitNo">${t('no')}</button></div>`
     );
   if (g.modal === 'pause')
     return wrapM(

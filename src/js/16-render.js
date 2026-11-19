@@ -169,9 +169,28 @@ function bind() {
     g.rpPlaying = false;
     render();
   });
+  // V9.4 : abandon → on peut revoir le parcours du numéro jusqu'ici, puis revenir à « Quitter la partie ? »
+  click('quitFilm', () => {
+    g.rpQuitHunt = g.lastHunt || null;
+    g.lastHunt = {
+      start: g.hunt.start,
+      steps: g.hunt.steps,
+      end: { type: 'escaped', n: g.secret },
+      max: maxN()
+    };
+    g.rpFromQuit = true;
+    sfx('tap');
+    openReplay();
+  });
   click('rpClose', () => {
     g.rpPlaying = false;
     g.modal = null;
+    if (g.rpFromQuit) {
+      g.rpFromQuit = false;
+      g.lastHunt = g.rpQuitHunt; // le film de la dernière capture reste disponible si on reprend
+      g.rpQuitHunt = null;
+      g.modal = 'quit';
+    }
     render();
   });
   click('rpRestart', () => {

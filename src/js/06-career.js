@@ -58,7 +58,15 @@ function rankOf(xp) {
   return { rank: i + 1, min, next, pct: next ? Math.round(((xp - min) / (next - min)) * 100) : 100 };
 }
 
-const emptyLevel = () => ({ bestScore: null, bestTurns: null, gamesPlayed: 0, wins: 0, stars: 0 });
+const emptyLevel = () => ({
+  bestScore: null,
+  bestTurns: null,
+  gamesPlayed: 0,
+  wins: 0,
+  stars: 0,
+  helpWins: 0,
+  bestHelped: false
+});
 function emptyCareer() {
   return {
     schemaVersion: 1,
@@ -68,6 +76,7 @@ function emptyCareer() {
         displayName: 'Détective',
         xpTotal: 0,
         totalWins: 0,
+        totalHelpWins: 0, // V9.4 : victoires avec l'aide (numéros possibles en vert)
         totalLosses: 0,
         totalStars: 0,
         levels: Object.fromEntries(Object.keys(LEVELS).map(l => [l, emptyLevel()])),
@@ -93,7 +102,7 @@ function loadCareer() {
     ...emptyCareer().profiles['local-default'],
     ...(c.profiles[c.activeProfileId] || {})
   });
-  for (const k of ['xpTotal', 'totalWins', 'totalLosses', 'totalStars'])
+  for (const k of ['xpTotal', 'totalWins', 'totalHelpWins', 'totalLosses', 'totalStars'])
     if (!Number.isFinite(p[k]) || p[k] < 0) p[k] = 0;
   if (!p.processed || typeof p.processed !== 'object') p.processed = {};
   p.levels = p.levels || {};
@@ -142,20 +151,29 @@ function settleSolo(won) {
     prevBest = lv.bestScore,
     newRecord = won && (prevBest == null || score.total > prevBest), // strictement meilleur
     xp = won ? SOLO_XP.win + (newRecord ? SOLO_XP.recordBonus : 0) : SOLO_XP.loss,
-    rankBefore = rankOf(p.xpTotal).rank;
+    rankBefore = rankOf(p.xpTotal).rank,
+    helped = !!(g.playerHelp && g.playerHelp[0]); // aide activée : victoire notée « avec aide » dans le bureau
   lv.gamesPlayed++;
   if (won) {
     lv.wins++;
     lv.stars += stars;
     p.totalWins++;
     p.totalStars += stars;
-    if (newRecord) lv.bestScore = score.total;
+    if (helped) {
+      lv.helpWins = (lv.helpWins || 0) + 1;
+      p.totalHelpWins = (p.totalHelpWins || 0) + 1;
+    }
+    if (newRecord) {
+      lv.bestScore = score.total;
+      lv.bestHelped = helped;
+    }
     if (lv.bestTurns == null || turns < lv.bestTurns) lv.bestTurns = turns;
   } else p.totalLosses++;
   p.xpTotal += xp;
   const rewards = settleOffice(p, gameFacts(won, turns, stars), lv); // badges, missions (+XP)
   const result = {
     won,
+    helped,
     turns,
     level: g.level,
     stars,

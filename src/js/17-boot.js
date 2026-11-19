@@ -20,6 +20,13 @@ function back() {
   if (g.screen === 'game' && ['replay', 'replayAsk'].includes(g.modal)) {
     g.rpPlaying = false;
     g.modal = null;
+    if (g.rpFromQuit) {
+      // film ouvert depuis « Quitter la partie ? » : on y revient
+      g.rpFromQuit = false;
+      g.lastHunt = g.rpQuitHunt;
+      g.rpQuitHunt = null;
+      g.modal = 'quit';
+    }
     render();
     return true;
   }

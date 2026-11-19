@@ -79,6 +79,7 @@ function finishChallenge(won) {
   g.inGame = false;
   g.modal = null;
   g.chWon = won;
+  if (!won) revealEscaped(); // V9.4 : film de l'évasion aussi quand le défi est perdu
   g.chSecret = g.last && won ? g.last.n : g.secret;
   g.chFinal = won ? chScore(true) : 0;
   g.chRecordNew = false;

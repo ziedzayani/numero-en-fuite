@@ -11,8 +11,14 @@ function mathText(m) {
 /** Crée le calcul du tour dans g.math : { text, result, options, threshold }. */
 function makeMath() {
   let text, result;
+  // V9.4 : en Défi (numéros 1 à 100), les calculs sont d'un cran plus difficiles que le niveau du saut :
+  // Facile → retenues et tables, Moyen et Difficile → priorités opératoires (plus de « 5 + 2 »).
+  const lv =
+    g.mode === 'challenge'
+      ? { junior: 'malin', malin: 'expert', expert: 'genius' }[g.level] || g.level
+      : g.level;
   const r = (a, b) => a + rnd(b - a + 1);
-  if (g.level === 'junior') {
+  if (lv === 'junior') {
     // 5–7 ans : + et − jusqu'à 10
     if (rnd(3) < 2) {
       const a = r(1, 9),
@@ -25,7 +31,7 @@ function makeMath() {
       text = `${a} − ${b}`;
       result = a - b;
     }
-  } else if (g.level === 'malin') {
+  } else if (lv === 'malin') {
     // 8–10 ans : retenues, tables de multiplication
     const m = rnd(3);
     if (m === 0) {
@@ -105,16 +111,16 @@ function makeMath() {
     g._lr = lr;
   }
   const deltas =
-    g.level === 'junior'
+    lv === 'junior'
       ? [1, -1, 2, -2, 3, -3]
-      : ['expert', 'genius'].includes(g.level)
+      : ['expert', 'genius'].includes(lv)
         ? [1, -1, 2, -2, 10, -10, 3, -3, 5, -5, 4, -4, 20, -20]
         : [1, -1, 2, -2, 10, -10, 3, -3];
-  const nWrong = ['expert', 'genius'].includes(g.level) ? 5 : 2;
+  const nWrong = ['expert', 'genius'].includes(lv) ? 5 : 2;
   const cands = shuffle(deltas).map(d => result + d);
   const sw = Number(String(result).split('').reverse().join(''));
   if (result >= 12 && sw !== result) cands.unshift(sw);
-  if (['expert', 'genius'].includes(g.level) && g._lr != null && g._lr >= 0 && g._lr !== result)
+  if (['expert', 'genius'].includes(lv) && g._lr != null && g._lr >= 0 && g._lr !== result)
     cands.unshift(g._lr);
   delete g._lr;
   const wrong = [];

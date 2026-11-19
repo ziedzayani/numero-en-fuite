@@ -43,7 +43,7 @@ const LEVELS = {
 const CHALLENGE_MAX = 100;
 /** Plus grand numéro possible pour un mode ('normal' | 'challenge') et un niveau. */
 /** Nombre de tours d'une partie selon le nombre de joueurs (solo : 12 ; à 2 : 10 essais chacun). */
-const TURN_LIMITS = [0, 12, 20, 24, 24];
+const TURN_LIMITS = [0, 12, 30, 24, 24]; // V9.4 : 30 tours à 2 joueurs (15 chacun)
 const maxFor = (mode, level) => (mode === 'challenge' ? CHALLENGE_MAX : (LEVELS[level] || LEVELS.expert).max);
 
 /**

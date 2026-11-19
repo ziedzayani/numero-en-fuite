@@ -99,7 +99,10 @@ function officeRank(p) {
     ['officeLosses', p.totalLosses],
     ['officeStars', p.totalStars]
   ]
-    .map(([k, n]) => `<div><b>${n}</b><small>${t(k)}</small></div>`)
+    .map(
+      ([k, n]) =>
+        `<div><b>${n}</b><small>${t(k)}</small>${k === 'officeWins' && p.totalHelpWins ? `<small class="help-wins">${t('officeHelpWins', { n: p.totalHelpWins })}</small>` : ''}</div>`
+    )
     .join('');
   return `<div class="office-rank"><span class="office-badge" aria-hidden="true">🕵️</span><div>${rankBar(p.xpTotal)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="office-tiles">${tiles}</div>`;
 }
@@ -116,12 +119,12 @@ function officeRecords(p) {
       const lv = p.levels[id] || {};
       return `<li><span>${emoji} ${t(k)}</span><span class="rec">${
         lv.bestScore != null
-          ? `<b dir="ltr">${lv.bestScore} ${t('pts')}</b>`
+          ? `<b dir="ltr">${lv.bestScore} ${t('pts')}${lv.bestHelped ? ' 💡' : ''}</b>`
           : `<i>${t('officeToDiscover')}</i>`
-      }${lv.bestTurns != null ? `<small>${t('officeBestTurns', { n: lv.bestTurns })}</small>` : ''}</span></li>`;
+      }${lv.bestTurns != null ? `<small>${t('officeBestTurns', { n: lv.bestTurns })}</small>` : ''}${lv.helpWins ? `<small class="help-wins">${t('officeHelpWins', { n: lv.helpWins })}</small>` : ''}</span></li>`;
     })
     .join('');
-  return `<div class="label">📂 ${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}</p>`;
+  return `<div class="label">📂 ${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}${levels.some(([id]) => (p.levels[id] || {}).bestHelped) ? ' ' + t('officeHelpNote') : ''}</p>`;
 }
 /** Onglet « Badges » : étagère des 6 badges ; ceux à gagner disent comment les obtenir. */
 function officeBadges(p) {
@@ -170,7 +173,7 @@ function settings() {
         `<button class="mini-btn ${g.timerMode === m ? 'is-selected' : ''}" data-timer="${m}" aria-pressed="${g.timerMode === m}">${t(k)}</button>`
     )
     .join('');
-  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1>${langs}<div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}${toggle('replayToggle', g.replayAsk !== false, '🎬', t('rpSettingLabel'), t('rpSettingHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">💾</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1>${langs}<div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">💾</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
 }
 /** Les trois onglets du tour : Indice, Calcul, Choisir un numéro (+ boutons de capture). */
 function questionView() {
@@ -486,7 +489,9 @@ function end() {
     champions = tot.map((s, i) => (s === best ? pname(i) : null)).filter(Boolean),
     order = tot.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
   const soloLost = g.players === 1 && g.soloWon === false;
-  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${g.players === 1 ? (soloLost ? 'lose' : 'win') : isRace() ? 'neutral' : 'win'}"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
+  // V9.4 : personne n'a trouvé le numéro → pas de fête (même si quelqu'un a plus de points)
+  const noCatch = g.players > 1 && (isRace() || !g.captures);
+  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {
@@ -559,7 +564,8 @@ function rewardLine(res, lead = '') {
       ? `<span class="reward-chip" title="${esc(done.map(missionText).join(' · '))}">${done.length === 1 ? t('rewardMission', { xp: MISSION_XP }) : t('rewardMissions', { n: done.length, xp: done.length * MISSION_XP })}</span>`
       : ''
   ].join('');
-  return chips || lead ? `<div class="reward-line">${lead}${chips}</div>` : '';
+  const help = res.won && res.helped ? `<span class="reward-chip help-chip">${t('helpedWin')}</span>` : '';
+  return chips || lead || help ? `<div class="reward-line">${lead}${help}${chips}</div>` : '';
 }
 /** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */
 function endSolo() {
@@ -616,5 +622,5 @@ function endSoloLegacy() {
 function endChallenge() {
   const r = records(),
     best = r[chRecordKey()] || 0;
-  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${g.chWon ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
+  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${g.chWon ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p>${g.lastHunt ? `<div class="escaped-note"><button class="mini-btn rp-open" id="openReplay">🎬 ${t('rpButton')}</button></div>` : ''}${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
 }
