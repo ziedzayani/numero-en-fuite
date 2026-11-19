@@ -1775,3 +1775,41 @@ body.scr-home .start-panel .lvl-sub {
   font-size: 12px;
   color: #ffe08a;
 }
+/* V9.5 : jeton « Ton score » (points), bien distinct de l'étiquette violette du déplacement */
+.fb-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 2px auto 6px;
+  padding: 3px 6px 3px 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #ffc83d;
+  color: #14205a;
+}
+.fb-score small {
+  font-size: 13px;
+  font-weight: 800;
+}
+.fb-score b {
+  padding: 1px 12px;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 900;
+  color: #fff;
+}
+.fb-score.neg b {
+  background: linear-gradient(180deg, #d13d2f, #a8261d);
+}
+.fb-score.pos b {
+  background: linear-gradient(180deg, #1f9e55, #137a3e);
+}
+.catch-head .fb-score {
+  margin-inline-start: 0;
+}
+.fb-score small,
+.fb-score b {
+  white-space: nowrap;
+}

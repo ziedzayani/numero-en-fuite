@@ -11,6 +11,8 @@
   « Œil de lynx ».
 - **Abandon et film** : revoir le parcours depuis « Quitter la partie ? » dévoile le numéro, donc la partie ne
   peut plus reprendre ; au retour du film, seul le bouton « Fermer » reste (Retour ferme aussi la partie).
+- **Capture ratée** : les points perdus sont dans un jeton « Ton score 🔻 −1 point » à part, pour ne plus les
+  confondre avec le déplacement du numéro (« ← −2 »).
 - Missions : intro avec le presse-papiers, une carte par mission avec la cible, progression en pastille verte.
 
 ## V9.4 — images définitives et déplacements plus clairs

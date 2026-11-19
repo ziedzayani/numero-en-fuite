@@ -113,6 +113,7 @@
   "fbGood": "回答正确！",
   "fbOups": "哎呀！",
   "fbRightWas": "正确答案是：",
+  "fbScore": "你的得分",
   "footerGame": "最多一条线索，然后必须猜一个数字。",
   "found": "抓到了！",
   "foundDesc": "你选了 <b>{n}</b>——猜对了！{player} <b>+10 分</b>。",

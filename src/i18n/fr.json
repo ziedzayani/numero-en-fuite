@@ -113,6 +113,7 @@
   "fbGood": "Bonne réponse !",
   "fbOups": "Oups !",
   "fbRightWas": "La bonne réponse était :",
+  "fbScore": "Ton score",
   "footerGame": "1 aide maximum, puis il faut tenter un numéro.",
   "found": "ATTRAPÉ !",
   "foundDesc": "Tu as choisi <b>{n}</b> : c’est gagné ! <b>+10 points</b> pour {player}.",

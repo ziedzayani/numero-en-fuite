@@ -113,6 +113,7 @@
   "fbGood": "Right answer!",
   "fbOups": "Oops!",
   "fbRightWas": "The right answer was:",
+  "fbScore": "Your score",
   "footerGame": "One hint max, then you must guess a number.",
   "found": "CAUGHT!",
   "foundDesc": "You picked <b>{n}</b> — that’s right! <b>+10 points</b> for {player}.",

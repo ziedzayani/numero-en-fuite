@@ -378,13 +378,24 @@ function resultView() {
         : `<div class="fb-hero"><span class="hp hp-${fb === 'good' ? 'bravo' : 'oups'}"></span></div>`)
     : '';
   const titleHtml = `<div class="result-title${fb ? ' fb-pill' : ''}">${fb ? `<i class="fb-mark">${fb === 'good' ? '✓' : '✕'}</i>` : ''}${title}</div>`;
+  // V9.5 : les points gagnés / perdus vont dans un jeton « Ton score » à part, pour ne pas les confondre
+  // avec le déplacement du numéro (« ← −2 »)
+  let scoreChip = '';
+  if (fb && ['wrong', 'netMiss'].includes(x.type)) {
+    const m = /\s*<b>([+−-]\s?[^<]*)<\/b>\s*[.。]?/.exec(desc);
+    if (m) {
+      desc = desc.replace(m[0], ' ').trim();
+      const neg = /^[−-]/.test(m[1]);
+      scoreChip = `<div class="fb-score ${neg ? 'neg' : 'pos'}"><small>${t('fbScore')}</small><b dir="ltr">${neg ? '🔻' : '🔺'} ${m[1]}</b></div>`;
+    }
+  }
   const points =
     x.type === 'math' && x.correct && !x.pick
       ? `<div class="fb-points">⭐ ${g.mode === 'challenge' ? '+10 ' + t('pts') : '+1'}</div>`
       : '';
   const head = top
-    ? `${fbTop}<div class="catch-head">${top}<div>${titleHtml}<p class="result-desc">${desc}</p></div></div>${racePodiumNote(x)}`
-    : `${fbTop}${titleHtml}${points}${desc ? `<p class="result-desc">${desc}</p>` : ''}`;
+    ? `${fbTop}<div class="catch-head">${top}<div>${titleHtml}<p class="result-desc">${desc}</p>${scoreChip}</div></div>${racePodiumNote(x)}`
+    : `${fbTop}${titleHtml}${points}${desc ? `<p class="result-desc">${desc}</p>` : ''}${scoreChip}`;
   return `<div class="result-card ${tone}${fb ? ' fb-card fb-' + fb : ''}">${head}${extra}${move}${clue && !x.pick ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${(g.net && !myTurn()) || x.pick ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */

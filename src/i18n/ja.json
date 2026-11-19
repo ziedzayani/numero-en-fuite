@@ -113,6 +113,7 @@
   "fbGood": "正解！",
   "fbOups": "おっと！",
   "fbRightWas": "正しい答えは：",
+  "fbScore": "きみの得点",
   "footerGame": "ヒントは最大 1 つ、そのあと数字を選ぶ。",
   "found": "つかまえた！",
   "foundDesc": "<b>{n}</b> を選んだ——大正解！{player} <b>+10 点</b>。",

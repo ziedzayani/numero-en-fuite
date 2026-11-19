@@ -8881,6 +8881,44 @@ body.scr-home .start-panel .lvl-sub {
   font-size: 12px;
   color: #ffe08a;
 }
+/* V9.5 : jeton « Ton score » (points), bien distinct de l'étiquette violette du déplacement */
+.fb-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 2px auto 6px;
+  padding: 3px 6px 3px 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #ffc83d;
+  color: #14205a;
+}
+.fb-score small {
+  font-size: 13px;
+  font-weight: 800;
+}
+.fb-score b {
+  padding: 1px 12px;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 900;
+  color: #fff;
+}
+.fb-score.neg b {
+  background: linear-gradient(180deg, #d13d2f, #a8261d);
+}
+.fb-score.pos b {
+  background: linear-gradient(180deg, #1f9e55, #137a3e);
+}
+.catch-head .fb-score {
+  margin-inline-start: 0;
+}
+.fb-score small,
+.fb-score b {
+  white-space: nowrap;
+}
 
     </style>
   </head>
@@ -9097,6 +9135,7 @@ const dictionaries = {
   "fbGood": "Bonne réponse !",
   "fbOups": "Oups !",
   "fbRightWas": "La bonne réponse était :",
+  "fbScore": "Ton score",
   "footerGame": "1 aide maximum, puis il faut tenter un numéro.",
   "found": "ATTRAPÉ !",
   "foundDesc": "Tu as choisi <b>{n}</b> : c’est gagné ! <b>+10 points</b> pour {player}.",
@@ -9659,6 +9698,7 @@ const dictionaries = {
   "fbGood": "Right answer!",
   "fbOups": "Oops!",
   "fbRightWas": "The right answer was:",
+  "fbScore": "Your score",
   "footerGame": "One hint max, then you must guess a number.",
   "found": "CAUGHT!",
   "foundDesc": "You picked <b>{n}</b> — that’s right! <b>+10 points</b> for {player}.",
@@ -10221,6 +10261,7 @@ const dictionaries = {
   "fbGood": "إجابة صحيحة!",
   "fbOups": "أوه لا!",
   "fbRightWas": "الإجابة الصحيحة كانت:",
+  "fbScore": "نقاطك",
   "footerGame": "تلميح واحد كحد أقصى، ثم يجب عليك تخمين رقم.",
   "found": "أمسكته!",
   "foundDesc": "اخترت <b>{n}</b>، وهذا هو الرقم الصحيح! <b>+10 نقاط</b> لـ {player}.",
@@ -10783,6 +10824,7 @@ const dictionaries = {
   "fbGood": "¡Respuesta correcta!",
   "fbOups": "¡Uy!",
   "fbRightWas": "La respuesta correcta era:",
+  "fbScore": "Tu puntuación",
   "footerGame": "Una pista como máximo y luego hay que adivinar un número.",
   "found": "¡ATRAPADO!",
   "foundDesc": "Elegiste el <b>{n}</b>: ¡correcto! <b>+10 puntos</b> para {player}.",
@@ -11345,6 +11387,7 @@ const dictionaries = {
   "fbGood": "Risposta giusta!",
   "fbOups": "Ops!",
   "fbRightWas": "La risposta giusta era:",
+  "fbScore": "Il tuo punteggio",
   "footerGame": "Al massimo un indizio, poi bisogna indovinare un numero.",
   "found": "PRESO!",
   "foundDesc": "Hai scelto <b>{n}</b>: giusto! <b>+10 punti</b> per {player}.",
@@ -11907,6 +11950,7 @@ const dictionaries = {
   "fbGood": "Richtige Antwort!",
   "fbOups": "Hoppla!",
   "fbRightWas": "Die richtige Antwort war:",
+  "fbScore": "Dein Punktestand",
   "footerGame": "Höchstens ein Hinweis, dann musst du eine Zahl raten.",
   "found": "GEFANGEN!",
   "foundDesc": "Du hast <b>{n}</b> gewählt – richtig! <b>+10 Punkte</b> für {player}.",
@@ -12469,6 +12513,7 @@ const dictionaries = {
   "fbGood": "回答正确！",
   "fbOups": "哎呀！",
   "fbRightWas": "正确答案是：",
+  "fbScore": "你的得分",
   "footerGame": "最多一条线索，然后必须猜一个数字。",
   "found": "抓到了！",
   "foundDesc": "你选了 <b>{n}</b>——猜对了！{player} <b>+10 分</b>。",
@@ -13031,6 +13076,7 @@ const dictionaries = {
   "fbGood": "正解！",
   "fbOups": "おっと！",
   "fbRightWas": "正しい答えは：",
+  "fbScore": "きみの得点",
   "footerGame": "ヒントは最大 1 つ、そのあと数字を選ぶ。",
   "found": "つかまえた！",
   "foundDesc": "<b>{n}</b> を選んだ——大正解！{player} <b>+10 点</b>。",
@@ -15974,13 +16020,24 @@ function resultView() {
         : `<div class="fb-hero"><span class="hp hp-${fb === 'good' ? 'bravo' : 'oups'}"></span></div>`)
     : '';
   const titleHtml = `<div class="result-title${fb ? ' fb-pill' : ''}">${fb ? `<i class="fb-mark">${fb === 'good' ? '✓' : '✕'}</i>` : ''}${title}</div>`;
+  // V9.5 : les points gagnés / perdus vont dans un jeton « Ton score » à part, pour ne pas les confondre
+  // avec le déplacement du numéro (« ← −2 »)
+  let scoreChip = '';
+  if (fb && ['wrong', 'netMiss'].includes(x.type)) {
+    const m = /\s*<b>([+−-]\s?[^<]*)<\/b>\s*[.。]?/.exec(desc);
+    if (m) {
+      desc = desc.replace(m[0], ' ').trim();
+      const neg = /^[−-]/.test(m[1]);
+      scoreChip = `<div class="fb-score ${neg ? 'neg' : 'pos'}"><small>${t('fbScore')}</small><b dir="ltr">${neg ? '🔻' : '🔺'} ${m[1]}</b></div>`;
+    }
+  }
   const points =
     x.type === 'math' && x.correct && !x.pick
       ? `<div class="fb-points">⭐ ${g.mode === 'challenge' ? '+10 ' + t('pts') : '+1'}</div>`
       : '';
   const head = top
-    ? `${fbTop}<div class="catch-head">${top}<div>${titleHtml}<p class="result-desc">${desc}</p></div></div>${racePodiumNote(x)}`
-    : `${fbTop}${titleHtml}${points}${desc ? `<p class="result-desc">${desc}</p>` : ''}`;
+    ? `${fbTop}<div class="catch-head">${top}<div>${titleHtml}<p class="result-desc">${desc}</p>${scoreChip}</div></div>${racePodiumNote(x)}`
+    : `${fbTop}${titleHtml}${points}${desc ? `<p class="result-desc">${desc}</p>` : ''}${scoreChip}`;
   return `<div class="result-card ${tone}${fb ? ' fb-card fb-' + fb : ''}">${head}${extra}${move}${clue && !x.pick ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${(g.net && !myTurn()) || x.pick ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */

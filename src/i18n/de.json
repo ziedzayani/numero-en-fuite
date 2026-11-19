@@ -113,6 +113,7 @@
   "fbGood": "Richtige Antwort!",
   "fbOups": "Hoppla!",
   "fbRightWas": "Die richtige Antwort war:",
+  "fbScore": "Dein Punktestand",
   "footerGame": "Höchstens ein Hinweis, dann musst du eine Zahl raten.",
   "found": "GEFANGEN!",
   "foundDesc": "Du hast <b>{n}</b> gewählt – richtig! <b>+10 Punkte</b> für {player}.",

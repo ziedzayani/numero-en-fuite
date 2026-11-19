@@ -113,6 +113,7 @@
   "fbGood": "Risposta giusta!",
   "fbOups": "Ops!",
   "fbRightWas": "La risposta giusta era:",
+  "fbScore": "Il tuo punteggio",
   "footerGame": "Al massimo un indizio, poi bisogna indovinare un numero.",
   "found": "PRESO!",
   "foundDesc": "Hai scelto <b>{n}</b>: giusto! <b>+10 punti</b> per {player}.",
