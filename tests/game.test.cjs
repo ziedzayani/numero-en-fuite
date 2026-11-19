@@ -61,7 +61,8 @@ async function pickPlayers(page, n, how = 'click') {
 }
 /** Accueil V8.13 : les règles, le tutoriel et le Wi-Fi sont dans le menu « Plus ». */
 async function viaMore(page, id) {
-  if (!(await page.$('#' + id))) await page.click('#openMore');
+  if (id === 'openLanMore') id = 'openLan'; // V9.2 : tuile Wi-Fi directement sur l'accueil
+  if (!(await page.$('#' + id)) && (await page.$('#openMore'))) await page.click('#openMore');
   await page.click('#' + id);
 }
 
@@ -587,7 +588,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click('#motionToggle');
     check(await page.evaluate(() => document.body.classList.contains('reduce-motion')), 'Option « Réduire les animations »');
     await page.evaluate(() => { const N = window.__numero; N.state.screen = 'game'; N.state.modal = null; N.render(); }); // le détective (V9 : SVG animé) est sur l'écran de jeu
-    const an = await page.evaluate(() => { const els = [...document.querySelectorAll('.detective-scene, .detective-scene *')]; return els.length > 5 && els.every(e => ['none', ''].includes(getComputedStyle(e).animationName)); });
+    const an = await page.evaluate(() => { const els = [...document.querySelectorAll('.detective-scene, .detective-scene *')]; return els.length >= 2 && els.every(e => ['none', ''].includes(getComputedStyle(e).animationName)); });
     check(an, 'Animations coupées quand l’option est active (détective compris)');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (captures/détective/aide/modes) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} Captures, détective, aide par joueur, modes Course / Points, boutons plats`);
@@ -1103,9 +1104,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const SN = p => S(p);
     const [A, B, C] = [await phone(), await phone(), await phone()];
     const host = A.page, p2 = B.page, p3 = C.page;
-    await host.click('#openMore'); check(await host.isVisible('#openLanMore'), 'Menu « Plus » : bouton « Partie Wi-Fi » quand le réseau est disponible (application Android)'); await host.click('#closeModal');
-    await host.click('#homeMulti'); check(await host.isVisible('#openLan'), 'Accueil « À plusieurs » : raccourci Wi-Fi'); await host.click('[data-players="1"]');
-    { const { ctx, page } = await fresh(browser); await page.click('#homeMulti'); await page.click('#openMore'); check(!(await page.$('#openLan')) && !(await page.$('#openLanMore')), 'Version navigateur sans réseau : pas de bouton Wi-Fi'); await ctx.close(); }
+    check(await host.isVisible('#openLan'), 'Accueil : tuile « Wi-Fi » quand le réseau est disponible (application Android)');
+    { const { ctx, page } = await fresh(browser); check(!(await page.$('#openLan')) && !(await page.$('#openLanMore')), 'Version navigateur sans réseau : pas de bouton Wi-Fi'); await ctx.close(); }
     // l'hôte crée la partie
     await viaMore(host, 'openLanMore'); await host.fill('#netName', 'Léa'); await host.click('#netCreate');
     const code = (await host.textContent('.net-code')).trim();
@@ -1266,12 +1266,10 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     const before = failed;
     const { ctx, page } = await fresh(browser, { width: 360, height: 640 });
     let st = await S(page);
-    check(st.players === 1 && await page.isVisible('[data-players="1"][aria-pressed="true"]') && !(await page.$('[data-players="2"]')), 'Accueil : Solo par défaut au premier lancement, pas de choix 2–4 joueurs affiché');
-    check(!(await page.$('#openRules')) && !(await page.$('#openTutorial')) && await page.isVisible('#openMore') && await page.isVisible('#openOffice2'), 'Accueil : règles et tutoriel rangés dans « Plus », rang cliquable');
-    await page.click('#homeMulti');
-    check((await S(page)).players === 2 && await page.isVisible('[data-players="4"]'), '« À plusieurs » : 2 joueurs par défaut, choix 2 / 3 / 4');
-    await page.click('[data-players="3"]'); await page.click('[data-players="1"]'); await page.click('#homeMulti');
-    check((await S(page)).players === 3, '« À plusieurs » : le dernier nombre de joueurs est retenu');
+    check(st.players === 1 && await page.isVisible('[data-players="1"][aria-pressed="true"]') && (await page.$$('.players-row [data-players]')).length === 4, 'Accueil (maquette V9.2) : Solo par défaut, 4 tuiles 1 à 4 joueurs');
+    check(await page.isVisible('#openRules') && await page.isVisible('#openChallenge') && await page.isVisible('#openTutorial') && await page.isVisible('#openOffice') && await page.isVisible('#openOffice2'), 'Accueil : Comment jouer, Défi solo, Tutoriel, Mon bureau en tuiles ; rang cliquable');
+    await page.click('[data-players="3"]');
+    check((await S(page)).players === 3 && await page.isVisible('[data-players="3"][aria-pressed="true"]'), 'Tuile « 3 joueurs » : choisie et cochée');
     await page.evaluate(() => { const N = window.__numero; N.state.lang = 'en'; N.render(); });
     await page.reload();
     st = await S(page);
@@ -1279,8 +1277,6 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     for (const lang of ['fr', 'en', 'ar']) {
       await page.evaluate(l => { const N = window.__numero; N.state.lang = l; N.state.modal = null; N.render(); }, lang);
       check(await page.evaluate(() => document.scrollingElement.scrollHeight - innerHeight) <= 0, `Accueil « À plusieurs » 360×640 (${lang}) sans défilement`);
-      await page.click('#openMore');
-      check(await page.isVisible('#openRules') && await page.isVisible('#openTutorial'), `Menu « Plus » (${lang}) : règles et tutoriel`);
       await page.click('#openRules');
       const txt = await page.textContent('.modal');
       check((await page.$$('.rule-card')).length === 3 && !/ruleCard|rulePoints/.test(txt) && await page.evaluate(() => { const m = document.querySelector('.modal'); return m.scrollHeight <= m.clientHeight + 1; }), `Règles (${lang}) : 3 cartes traduites, sans défilement`);
@@ -1288,8 +1284,8 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     }
     await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.render(); });
     check(await page.evaluate(() => window.__numero.back()) === false || (await S(page)).modal === null, 'Retour : rien à fermer');
-    await page.click('#openMore');
-    check(await page.evaluate(() => window.__numero.back()) && (await S(page)).modal === null, 'Bouton Retour : ferme le menu « Plus »');
+    await page.click('#openRules');
+    check(await page.evaluate(() => window.__numero.back()) && (await S(page)).modal === null, 'Bouton Retour : ferme « Comment jouer ? »');
     // astuces du détective : une seule fois, au moment utile
     await page.evaluate(() => { const N = window.__numero; N.state.players = 1; N.state.level = 'junior'; N.state.mode = 'normal'; N.state.tipsSeen = {}; N.state.reduceMotion = true; N.start(true); N.state.modal = null; N.render(); });
     st = await S(page); await page.waitForSelector(`[data-question="${st.choices[0]}"]`, { state: 'visible' });

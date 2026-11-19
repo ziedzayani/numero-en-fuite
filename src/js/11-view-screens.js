@@ -33,14 +33,18 @@ function settingsButton(compact = false) {
 /** Accueil : nombre de joueurs, niveau, Jouer, défi, règles. */
 function home() {
   // Accueil simplifié : Solo ou À plusieurs → niveau → JOUER ; le reste dans 3 boutons.
-  const multi = g.players > 1,
-    xp = careerProfile(loadCareer()).xpTotal,
+  const xp = careerProfile(loadCareer()).xpTotal,
     rank = rankOf(xp).rank;
-  const who = `<div class="who-row"><button class="seg who ${multi ? '' : 'is-selected'}" data-players="1" aria-pressed="${!multi}"><b>👤</b><small>${t('onePlayer')}</small></button><button class="seg who ${multi ? 'is-selected' : ''}" id="homeMulti" aria-pressed="${multi}"><b>👥</b><small>${t('homeMulti')}</small></button></div>${
-    multi
-      ? `<div class="multi-row">${[2, 3, 4].map(n => `<button class="chip-btn ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}">${t('nPlayers', { n })}</button>`).join('')}${netTransport() ? `<button class="chip-btn lan-chip" id="openLan">📶 ${t('homeWifi')}</button>` : ''}</div>`
-      : ''
-  }`;
+  // V9.2 (maquettes) : 4 tuiles 1 à 4 joueurs (+ Wi-Fi sur Android), le choix est coché
+  const icons = ['👤', '👥', '👥', '👥'];
+  const who = `<div class="label">👥 ${t('players')}</div><div class="who-row players-row">${[1, 2, 3, 4]
+    .map(
+      n =>
+        `<button class="seg who ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}"><b>${icons[n - 1]}</b><small>${n === 1 ? t('onePlayer') : t('nPlayers', { n })}</small></button>`
+    )
+    .join(
+      ''
+    )}${netTransport() ? `<button class="seg who lan-chip" id="openLan"><b>📶</b><small>${t('homeWifi')}</small></button>` : ''}</div>`;
   const levels = [
     ['junior', '🐣', 'levelJunior', 'levJuniorSub', '1–9'],
     ['malin', '🧠', 'levelMalin', 'levMalinSub', '1–15'],
@@ -53,7 +57,7 @@ function home() {
     )
     .join('');
   // V9 : le logo « The Number Hunt » remplace l'en-tête et la mascotte de l'accueil (il flotte doucement)
-  return `<header class="top home-top"><button class="rank-chip" id="openOffice2">🎖️ ${rankName(rank)}</button>${settingsButton(true)}</header><section class="hero home-logo"><h1 class="logo-art" role="img" aria-label="The Number Hunt"><span class="sr-only">The Number Hunt</span></h1><p class="tagline">${t('hero1')} ${t('hero2')}</p></section><section class="panel start-panel">${who}<div class="label">✨ ${t('levels')}</div><div class="difficulty">${levels}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn ch-btn" id="openChallenge"><span class="hr-ico" aria-hidden="true">🎯</span><span class="hr-txt">${t('chBtn')}</span></button><button class="mini-btn office-btn" id="openOffice"><span class="hr-ico" aria-hidden="true">📚</span><span class="hr-txt">${t('officeBtn')}</span></button><button class="mini-btn more-btn" id="openMore"><span class="hr-ico" aria-hidden="true">📖</span><span class="hr-txt">${t('more')}</span></button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
+  return `<header class="top home-top"><button class="rank-chip" id="openOffice2">🎖️ ${rankName(rank)}</button>${settingsButton(true)}</header><section class="hero home-logo"><h1 class="logo-art" role="img" aria-label="The Number Hunt"><span class="sr-only">The Number Hunt</span></h1><p class="tagline">${t('hero1')} ${t('hero2')}</p></section><section class="panel start-panel">${who}<div class="label">📊 ${t('levels')}</div><div class="difficulty">${levels}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row four"><button class="mini-btn rules-btn" id="openRules"><span class="hr-ico" aria-hidden="true">📖</span><span class="hr-txt">${t('rulesTitle')}</span></button><button class="mini-btn ch-btn" id="openChallenge"><span class="hr-ico" aria-hidden="true">🎯</span><span class="hr-txt">${t('chBtn')}</span></button><button class="mini-btn tut-btn" id="openTutorial"><span class="hr-ico" aria-hidden="true">🎓</span><span class="hr-txt">${t('tutBtn')}</span></button><button class="mini-btn office-btn" id="openOffice"><span class="hr-ico" aria-hidden="true">📚</span><span class="hr-txt">${t('officeBtn')}</span></button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
 }
 /** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
 function office() {
@@ -260,6 +264,13 @@ function pressKey(k) {
   sfx('select');
   render();
 }
+/** Écran « Bravo ! » (capture ou calcul réussi), « Oups ! » (raté, filet vide, temps écoulé) ou rien. */
+function fbKind(x) {
+  if (!x) return null;
+  if (['found', 'netHit'].includes(x.type) || (x.type === 'math' && x.correct)) return 'good';
+  if (['wrong', 'netMiss', 'timeout'].includes(x.type) || (x.type === 'math' && !x.correct)) return 'bad';
+  return null;
+}
 /** Carte de résultat du coup qui vient d'être joué (g.last). */
 function resultView() {
   const x = g.last;
@@ -348,10 +359,28 @@ function resultView() {
   if (top)
     extra = g.lastHunt ? `<button class="mini-btn rp-open" id="openReplay">🎬 ${t('rpButton')}</button>` : '';
   // capture : loupe à côté du titre (V8.16, plus compact), puis l'annonce du podium en Course
+  // V9.2 : écran « Bravo ! » / « Oups ! » des maquettes pour les captures et les calculs
+  const fb = fbKind(x);
+  if (fb) title = title.replace(/^\S+\s/u, ''); // l'icône ✓ / ✕ remplace l'émoji du titre
+  if (x.type === 'math' && !x.pick) title = t(x.correct ? 'fbGood' : x.timeout ? 'timeUp' : 'fbBad');
+  if (x.type === 'math' && x.correct && !x.pick && g.mode !== 'challenge') desc = ''; // « ⭐ +1 » le dit déjà
+  if (x.type === 'math' && !x.correct)
+    desc = `<span class="fb-answer"><small>${t('fbRightWas')}</small><b dir="ltr">${x.math.result}</b><small dir="ltr">${mathText(x.math)} = ${x.math.result}</small></span>`;
+  const fbTop = fb
+    ? `<div class="fb-top" aria-hidden="true">${fb === 'good' ? '<div class="fb-stars"><i>★</i><i>★</i><i>★</i></div>' : '<div class="fb-burst"></div>'}<div class="fb-ribbon">${fb === 'good' ? t('fbBravo') : t('fbOups')}</div></div>` +
+      (top
+        ? ''
+        : `<div class="fb-hero"><span class="hp hp-${fb === 'good' ? 'bravo' : 'oups'}"></span></div>`)
+    : '';
+  const titleHtml = `<div class="result-title${fb ? ' fb-pill' : ''}">${fb ? `<i class="fb-mark">${fb === 'good' ? '✓' : '✕'}</i>` : ''}${title}</div>`;
+  const points =
+    x.type === 'math' && x.correct && !x.pick
+      ? `<div class="fb-points">⭐ ${g.mode === 'challenge' ? '+10 ' + t('pts') : '+1'}</div>`
+      : '';
   const head = top
-    ? `<div class="catch-head">${top}<div><div class="result-title">${title}</div><p class="result-desc">${desc}</p></div></div>${racePodiumNote(x)}`
-    : `<div class="result-title">${title}</div><p class="result-desc">${desc}</p>`;
-  return `<div class="result-card ${tone}">${head}${extra}${move}${clue && !x.pick ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${(g.net && !myTurn()) || x.pick ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
+    ? `${fbTop}<div class="catch-head">${top}<div>${titleHtml}<p class="result-desc">${desc}</p></div></div>${racePodiumNote(x)}`
+    : `${fbTop}${titleHtml}${points}${desc ? `<p class="result-desc">${desc}</p>` : ''}`;
+  return `<div class="result-card ${tone}${fb ? ' fb-card fb-' + fb : ''}">${head}${extra}${move}${clue && !x.pick ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${(g.net && !myTurn()) || x.pick ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? t('raceContinue') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {
@@ -445,7 +474,7 @@ function game() {
         : result && ['found', 'netHit'].includes(x.type)
           ? 'cheer'
           : '';
-  return `<header class="gbar"><span class="brand-icon lvl-badge ${logo}" dir="ltr" aria-label="${t('levelBadge')} 1–${maxN()}"><span class="lvl-emo">${g.mode === 'challenge' ? '🏆' : { junior: '🐣', malin: '🧠', expert: '🚀', genius: '🦉' }[g.level]}</span><b class="lvl-range">1–${maxN()}</b>${logo === 'thinking' ? '<i class="logo-bubble">…</i>' : ''}</span><div class="gstatus">${g.mode === 'challenge' ? `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: '∞' })}</b><span>🏆 ${chScore()}</span></div>` : `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: g.limit })}</b><span>🎯 ${g.captures}</span></div><div class="gprogress" dir="ltr"><span style="width:${pct}%"></span></div>`}</div><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header>${scoreboard()}<section class="panel turn-card"><div class="turn-top"><div class="mini-mascot">${mascot(anim === 'worried' ? 'idle' : anim, party, anim === 'worried' ? 'worried' : null)}</div><div class="bubble"><b>${head}</b><span class="quip">${netWatchBanner() || quip(qk)}</span></div></div>${result && g.mode !== 'challenge' ? '' : timersHTML()}<div class="turn-body">${result ? resultView() : questionView()}</div></section>`;
+  return `<header class="gbar"><span class="brand-icon lvl-badge ${logo}" dir="ltr" aria-label="${t('levelBadge')} 1–${maxN()}"><span class="lvl-emo">${g.mode === 'challenge' ? '🏆' : { junior: '🐣', malin: '🧠', expert: '🚀', genius: '🦉' }[g.level]}</span><b class="lvl-range">1–${maxN()}</b>${logo === 'thinking' ? '<i class="logo-bubble">…</i>' : ''}</span><div class="gstatus">${g.mode === 'challenge' ? `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: '∞' })}</b><span>🏆 ${chScore()}</span></div>` : `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: g.limit })}</b><span>🎯 ${g.captures}</span></div><div class="gprogress" dir="ltr"><span style="width:${pct}%"></span></div>`}</div><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header>${scoreboard()}<section class="panel turn-card${result && fbKind(g.last) ? ' fb-mode' : ''}"><div class="turn-top"><div class="mini-mascot">${mascot(anim === 'worried' ? 'idle' : anim, party, anim === 'worried' ? 'worried' : null)}</div><div class="bubble"><b>${head}</b><span class="quip">${netWatchBanner() || quip(qk)}</span></div></div>${result && g.mode !== 'challenge' ? '' : timersHTML()}<div class="turn-body">${result ? resultView() : questionView()}</div></section>`;
 }
 /** Écran de fin : choisit entre défi, solo, course et points. */
 function end() {

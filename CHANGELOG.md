@@ -1,5 +1,19 @@
 # Historique des versions
 
+## V9.2 — écrans « Bravo ! » / « Oups ! » et détective du logo (maquettes)
+
+- **Le détective du logo** remplace le petit personnage dessiné : en jeu, le détective à la loupe des maquettes
+  (plus grand, avec ses « ? ») ; après une erreur il se tient la tête, après une réussite il lève le pouce.
+- **Écran « Oups ! »** (capture ratée, filet vide, temps écoulé, calcul faux) : bandeau rouge, détective, bandeau
+  « ✕ Mauvaise réponse ! » et, pour un calcul, **« La bonne réponse était : 7 »** dans une case verte.
+- **Écran « Bravo ! »** (numéro attrapé, calcul juste) : trois étoiles, bandeau vert, rayons dorés,
+  « ✓ Bonne réponse ! » et « ⭐ +1 ».
+- **Accueil comme la maquette** : tuiles 1 à 4 joueurs (+ Wi-Fi sur Android), tuiles de niveau avec seulement le
+  nom et la plage, rangée du bas « Comment jouer ? », « Défi solo », « Tutoriel », « Mon bureau ».
+- **Jeu comme la maquette** : onglets bleu nuit, l'onglet choisi en jaune, « Capture précise » jaune, pause
+  orange, bulle en italique.
+- 8 langues pour les nouveaux textes ; audit 3 tailles × 8 langues sans problème.
+
 ## V9.1 — tous les écrans au nouveau design
 
 D'après les maquettes : le style seul change, les règles du jeu restent les mêmes.

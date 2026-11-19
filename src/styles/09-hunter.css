@@ -348,3 +348,41 @@
   color: var(--yellow);
   -webkit-text-stroke: 1px var(--line);
 }
+
+/* ===== V9.2 : le détective du logo dans un médaillon doré (remplace le dessin SVG) ===== */
+.detective-scene .dt-rig {
+  display: grid;
+  place-items: center;
+}
+.detective-scene .hp {
+  display: block;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  border: 5px solid var(--hat-top, #ffc83d); /* liseré aux couleurs du rang (or au rang 1) */
+  box-shadow:
+    0 0 0 3px #0e2462,
+    0 0 18px rgba(255, 200, 61, 0.55);
+  background: #16214a center / cover no-repeat;
+}
+.detective-scene .hp-main {
+  background-image: url(img/hunter-main.webp);
+  background-position: 8% 30%;
+}
+.detective-scene .hp-bravo {
+  background-image: url(img/hunter-bravo.webp);
+  background-position: 45% 30%;
+  box-shadow:
+    0 0 0 3px #0c5a2c,
+    0 0 22px rgba(80, 220, 120, 0.75);
+}
+.detective-scene .hp-oups {
+  background-image: url(img/hunter-oups.webp);
+  background-position: 55% 30%;
+  box-shadow:
+    0 0 0 3px #7a1a12,
+    0 0 22px rgba(255, 90, 70, 0.7);
+}
+.hat-r1 .hp {
+  border-color: #ffc83d;
+}

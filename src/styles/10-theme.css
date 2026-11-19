@@ -571,3 +571,389 @@ body::before {
 .nb-rangebtn {
   margin-inline: 6px;
 }
+
+/* ===== V9.2 : écrans « Bravo ! » / « Oups ! » (maquettes) ===== */
+.result-card.fb-card {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  border: 2px solid var(--hunt-edge);
+  text-align: center;
+}
+.result-card.fb-good {
+  background: radial-gradient(
+      circle at 50% 38%,
+      rgba(255, 214, 80, 0.45) 0,
+      rgba(255, 170, 30, 0.35) 28%,
+      transparent 55%
+    ),
+    repeating-conic-gradient(from 0deg at 50% 38%, rgba(255, 220, 120, 0.22) 0 8deg, transparent 8deg 22deg),
+    linear-gradient(180deg, #1e4ab8, #142f80);
+}
+.result-card.fb-bad {
+  background: radial-gradient(
+      circle at 50% 38%,
+      rgba(255, 90, 70, 0.45) 0,
+      rgba(200, 40, 40, 0.35) 30%,
+      transparent 58%
+    ),
+    linear-gradient(180deg, #1e4ab8, #142f80);
+}
+.fb-top {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  margin: -2px 0 4px;
+}
+.fb-stars {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  color: #ffc83d;
+  font-size: 22px;
+  line-height: 1;
+  text-shadow:
+    0 2px 0 #a86d00,
+    0 0 10px rgba(255, 200, 61, 0.8);
+}
+.fb-stars i {
+  font-style: normal;
+}
+.fb-stars i:nth-child(2) {
+  font-size: 30px;
+}
+.fb-ribbon {
+  margin-top: 2px;
+  padding: 2px 22px 4px;
+  border-radius: 16px;
+  border: 3px solid #fff;
+  font-size: 30px;
+  font-weight: 800;
+  font-style: italic;
+  font-synthesis: style;
+  line-height: 1.1;
+  color: #fff;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+  transform: rotate(-3deg);
+  animation: fb-pop 0.4s ease-out;
+}
+:lang(ar) .fb-ribbon,
+:lang(zh) .fb-ribbon,
+:lang(ja) .fb-ribbon {
+  font-style: normal;
+}
+.fb-good .fb-ribbon {
+  background: linear-gradient(0deg, #137a3e 0%, #24a75b 55%, #4fd17f 100%);
+  box-shadow: 0 0 0 3px #0c5a2c;
+}
+.fb-bad .fb-ribbon {
+  background: linear-gradient(0deg, #a8261d 0%, #d13d2f 55%, #f06a4a 100%);
+  box-shadow: 0 0 0 3px #7a1a12;
+}
+@keyframes fb-pop {
+  0% {
+    transform: rotate(-3deg) scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: rotate(-3deg) scale(1.08);
+  }
+}
+.fb-hero {
+  display: grid;
+  place-items: center;
+  margin: 2px 0 -14px;
+}
+.fb-hero .hp {
+  display: block;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: center / cover no-repeat;
+}
+.fb-hero .hp-bravo {
+  background-image: url(img/hunter-bravo.webp);
+  background-position: 45% 30%;
+  box-shadow: 0 0 22px rgba(255, 214, 80, 0.9);
+}
+.fb-hero .hp-oups {
+  background-image: url(img/hunter-oups.webp);
+  background-position: 55% 30%;
+  box-shadow: 0 0 22px rgba(255, 90, 70, 0.85);
+}
+.result-card .result-title.fb-pill {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+  margin: 0 0 6px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  border: 3px solid #fff;
+  font-style: italic;
+  font-synthesis: style;
+  font-size: 20px;
+}
+.fb-good .result-title.fb-pill {
+  background: linear-gradient(0deg, #137a3e 0%, #24a75b 55%, #4fd17f 100%);
+  box-shadow: 0 0 0 2px #0c5a2c;
+}
+.fb-bad .result-title.fb-pill {
+  background: linear-gradient(0deg, #a8261d 0%, #d13d2f 55%, #f06a4a 100%);
+  box-shadow: 0 0 0 2px #7a1a12;
+}
+.fb-mark {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  font-style: normal;
+  font-size: 18px;
+  font-weight: 900;
+  text-shadow: none;
+}
+.fb-good .fb-mark {
+  color: #1f9e55;
+}
+.fb-bad .fb-mark {
+  color: #d13d2f;
+}
+.fb-points {
+  width: fit-content;
+  margin: 0 auto 6px;
+  padding: 2px 16px;
+  border-radius: 999px;
+  background: #11286e;
+  border: 2px solid var(--hunt-edge);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  font-style: italic;
+  font-synthesis: style;
+}
+.fb-card .result-desc {
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+.fb-card .result-desc b {
+  color: #ffe08a;
+}
+.fb-answer {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin: 0 auto;
+  padding: 6px 18px 8px;
+  width: fit-content;
+  background: #fff;
+  border-radius: 16px;
+  color: #1b2560;
+  text-shadow: none;
+}
+.fb-answer small {
+  font-size: 14px;
+  font-weight: 800;
+}
+.fb-card .result-desc .fb-answer b {
+  min-width: 70px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 2px solid #1f8a46;
+  background: linear-gradient(180deg, #b9f5a8, #5fd36d);
+  color: #14205a;
+  font-size: 30px;
+  line-height: 1.2;
+}
+.fb-answer small[dir] {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4c5678;
+}
+.fb-card .keep {
+  color: #1b2560;
+}
+.fb-card .catch-head {
+  text-align: start;
+}
+.reduce-motion .fb-ribbon {
+  animation: none;
+}
+/* écran Bravo / Oups : la bulle du détective laisse la place (le détective est dans la carte) */
+.turn-card.fb-mode .turn-top {
+  display: none;
+}
+.fb-ribbon {
+  text-transform: none;
+  font-size: 28px;
+}
+.result-card .result-title.fb-pill {
+  text-transform: none;
+}
+.fb-hero .hp {
+  width: 100px;
+  height: 100px;
+}
+.fb-card .keep {
+  display: none; /* le bouton « Choisir mon numéro » le dit déjà */
+}
+.fb-card .move-line {
+  margin-top: 6px;
+}
+
+/* ===== V9.2 accueil (maquette) : tuiles 1 à 4 joueurs, rangée de 4 tuiles en bas ===== */
+.players-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 9px;
+  margin-bottom: 4px;
+}
+.players-row .seg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-height: 0;
+  padding: 5px 2px;
+  border-radius: 14px;
+}
+.players-row .seg b {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  font-size: 20px;
+  line-height: 1.1;
+}
+.players-row .seg b i {
+  font-style: normal;
+  font-size: 15px;
+  font-weight: 900;
+  color: #1b2560;
+}
+.players-row .seg small {
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.home-row.four {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+.home-row.four .mini-btn {
+  min-width: 0;
+  padding: 5px 2px;
+}
+.home-row.four .hr-txt {
+  font-size: 11.5px;
+}
+.start-panel .lvl-sub {
+  display: none; /* maquette : nom et plage seulement */
+}
+.start-panel .level {
+  min-height: 0;
+  padding: 6px 4px 7px;
+}
+
+/* ===== V9.2 jeu (maquette « Deviner ») : grand détective, onglets bleu nuit, onglet choisi jaune ===== */
+.turn-card .actiontab {
+  background: linear-gradient(0deg, #0e2160 0%, #18337e 60%, #24479e 100%);
+  color: #fff;
+  border: 2px solid var(--hunt-edge);
+  border-bottom-width: 4px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+.turn-card .actiontab.selected {
+  background: linear-gradient(180deg, #ffe680 0%, #ffcb2e 55%, #f4ad00 100%);
+  color: #1b2560;
+  border-color: #a86d00;
+  font-style: italic;
+  font-synthesis: style;
+  text-shadow: none;
+}
+.turn-card .q-title {
+  color: #fff;
+}
+.turn-card .mini-mascot {
+  flex: 0 0 102px;
+  width: 102px;
+  height: 90px;
+}
+.turn-card .mini-mascot .detective-scene {
+  transform: scale(0.6);
+}
+/* pavé numérique (Génie, Défi) : détective un peu plus petit pour que tout tienne */
+.turn-card:has(.keypad) .mini-mascot {
+  flex-basis: 70px;
+  width: 70px;
+  height: 61px;
+}
+.turn-card:has(.keypad) .mini-mascot .detective-scene {
+  transform: scale(0.41);
+}
+.detective-scene .hp-main {
+  width: 170px;
+  height: 150px;
+  border: 0;
+  border-radius: 22px;
+  box-shadow: none;
+  background-image: url(img/hunter-game.webp);
+  background-position: center;
+  -webkit-mask-image: radial-gradient(ellipse 66% 64% at 50% 46%, #000 50%, transparent 98%);
+  mask-image: radial-gradient(ellipse 66% 64% at 50% 46%, #000 50%, transparent 98%);
+}
+.bubble b {
+  font-style: italic;
+  font-synthesis: style;
+}
+:lang(ar) .bubble b,
+:lang(zh) .bubble b,
+:lang(ja) .bubble b {
+  font-style: normal;
+}
+.pause-btn {
+  background: linear-gradient(180deg, #ffb066 0%, #ff8a3d 55%, #e56a1c 100%);
+  color: #fff;
+  border-color: #a8460c;
+}
+
+.capbtn.precise {
+  background: linear-gradient(180deg, #ffe680 0%, #ffcb2e 55%, #f4ad00 100%);
+  color: #1b2560;
+  border-color: #a86d00;
+}
+.capbtn {
+  font-style: italic;
+  font-synthesis: style;
+}
+:lang(ar) .capbtn,
+:lang(zh) .capbtn,
+:lang(ja) .capbtn {
+  font-style: normal;
+}
+.key,
+.numtile,
+.grid button,
+.numgrid button {
+  box-shadow: none;
+  border-color: #7cc8ff;
+}
+.result-card.fb-card {
+  background-color: #173a92;
+}
+.modal-back .modal .rp-ctrl,
+.modal-back .modal .rp-mode,
+.panel .capture-row,
+.modal .capture-row {
+  gap: 12px; /* reste ≥ 8 px même pendant l'animation d'ouverture de la fenêtre */
+}
+body.scr-home .start-panel .lvl-sub {
+  display: none;
+}
