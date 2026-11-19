@@ -957,3 +957,267 @@ body::before {
 body.scr-home .start-panel .lvl-sub {
   display: none;
 }
+
+/* V9.3 : illustrations des niveaux (poussin, cerveau, fusée, hibou) comme sur la maquette */
+.start-panel .level .level-emoji {
+  display: block;
+  width: 100%;
+  height: 46px;
+  font-size: 0;
+  background: center / contain no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+.start-panel .level[data-level='junior'] .level-emoji {
+  background-image: url(img/lvl-junior.webp);
+}
+.start-panel .level[data-level='malin'] .level-emoji {
+  background-image: url(img/lvl-malin.webp);
+}
+.start-panel .level[data-level='expert'] .level-emoji {
+  background-image: url(img/lvl-expert.webp);
+}
+.start-panel .level[data-level='genius'] .level-emoji {
+  background-image: url(img/lvl-genius.webp);
+}
+.start-panel .level strong {
+  font-size: 18px;
+  line-height: 1.1;
+}
+.start-panel .level .level-range {
+  background: #fff;
+  color: #14205a;
+  text-shadow: none;
+  font-weight: 900;
+}
+/* V9.3 : illustrations de la rangée du bas (livre, cible, toque, bureau) comme sur la maquette */
+.home-row.four .hr-ico {
+  display: block;
+  width: 100%;
+  height: 34px;
+  font-size: 0;
+  background: center / contain no-repeat;
+}
+#openRules .hr-ico {
+  background-image: url(img/home-rules.webp);
+}
+#openChallenge .hr-ico {
+  background-image: url(img/home-challenge.webp);
+}
+#openTutorial .hr-ico {
+  background-image: url(img/home-tutorial.webp);
+}
+#openOffice .hr-ico {
+  background-image: url(img/home-office.webp);
+}
+.home-row.four .hr-txt {
+  font-weight: 800;
+}
+/* écrans courts (≤ 680 px) : illustrations plus petites pour que l'accueil tienne sans défiler */
+@media (max-height: 680px) {
+  .start-panel .level .level-emoji {
+    height: 32px;
+  }
+  .home-row.four .hr-ico {
+    height: 24px;
+  }
+  .players-row .seg b {
+    font-size: 17px;
+  }
+  .start-panel .label {
+    margin: 2px auto 4px;
+  }
+}
+
+/* ===== V9.3 : « le numéro s'échappe » sous un drap (maquette « drap furtif »), animé ===== */
+.move-line.mv-drap {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 8px 12px 10px;
+  border-radius: 18px;
+  border: 2px solid #9fcfff;
+  background: linear-gradient(180deg, #ffffff 0%, #e8f1ff 100%);
+  text-align: center;
+}
+.mv-drap .blind-jump {
+  width: 100%;
+  height: 58px;
+}
+.mv-drap .bj-track {
+  left: 6px;
+  right: 6px;
+  bottom: 8px;
+}
+.mv-drap .bj-track i {
+  width: 7px;
+  height: 7px;
+  background: #b8c4ea;
+}
+/* le drap : cache le numéro, glisse d'une case à l'autre en ondulant */
+.mv-drap .bj-token {
+  width: 58px;
+  height: 48px;
+  margin-left: -29px;
+  bottom: 6px;
+  border-radius: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 48'%3E%3Cpath d='M30 4C18 4 12 16 10 28C9 35 4 40 2 44Q6 40 10 44Q14 48 18 44Q22 40 26 44Q30 48 34 44Q38 40 42 44Q46 48 50 44Q54 40 58 44C56 40 51 35 50 28C48 16 42 4 30 4Z' fill='%23f6ead0' stroke='%235a3f1c' stroke-width='2.4' stroke-linejoin='round'/%3E%3Cpath d='M22 20c-2 8-5 15-8 21M38 20c2 8 5 15 8 21M30 24v16' stroke='%23d9c294' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
+    center bottom / contain no-repeat;
+  box-shadow: none;
+  color: transparent;
+  font-size: 0;
+  transform-origin: 50% 100%;
+}
+/* traînée de vitesse derrière le drap */
+.mv-drap .bj-token::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  width: 40px;
+  height: 16px;
+  inset-inline-start: auto;
+  left: calc(50% - 20px - var(--dir) * 44px);
+  background:
+    linear-gradient(90deg, transparent, #a99cf0) 0 0 / 100% 3px no-repeat,
+    linear-gradient(90deg, transparent, #a99cf0) 8px 7px / 80% 3px no-repeat,
+    linear-gradient(90deg, transparent, #a99cf0) 4px 13px / 90% 3px no-repeat;
+  transform: scaleX(var(--dir));
+  opacity: 0;
+  animation: drap-trail 1.3s ease-out 0.2s both;
+}
+/* petits nuages de poussière au départ et à l'arrivée */
+.mv-drap .bj-track::before,
+.mv-drap .bj-track::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  width: 22px;
+  height: 14px;
+  background: radial-gradient(circle at 30% 60%, #fff 0 5px, transparent 5.5px),
+    radial-gradient(circle at 65% 45%, #fff 0 6px, transparent 6.5px),
+    radial-gradient(circle at 50% 70%, #e2e8f6 0 6px, transparent 6.5px);
+  filter: drop-shadow(0 1px 0 #9aa6c8);
+  opacity: 0;
+}
+.mv-drap .bj-track::before {
+  left: calc(50% - 11px - var(--dir) * 26px);
+  animation: drap-puff 0.9s ease-out 0.25s both;
+}
+.mv-drap .bj-track::after {
+  left: calc(50% - 11px + var(--dx) * 3.2 + var(--dir) * 26px);
+  animation: drap-puff 0.9s ease-out 1.1s both;
+}
+.mv-drap .blind-jump.hop .bj-token {
+  animation: drap-slide 1.3s cubic-bezier(0.3, 0.7, 0.4, 1) 0.2s both;
+}
+.mv-drap .blind-jump.unsure .bj-token,
+.mv-drap .blind-jump.mirror .bj-token,
+.mv-drap .blind-jump.grow .bj-token,
+.mv-drap .blind-jump.shrink .bj-token {
+  animation-duration: 1.4s;
+}
+@keyframes drap-slide {
+  0% {
+    transform: translateX(0) skewX(0);
+  }
+  20% {
+    transform: translateX(calc(var(--dx) * 0.3)) skewX(calc(var(--dir) * -12deg)) scaleY(0.92);
+  }
+  60% {
+    transform: translateX(calc(var(--dx) * 2.8)) skewX(calc(var(--dir) * -8deg)) scaleY(1.04);
+  }
+  80% {
+    transform: translateX(calc(var(--dx) * 3.3)) skewX(calc(var(--dir) * 6deg));
+  }
+  100% {
+    transform: translateX(calc(var(--dx) * 3.2)) skewX(0);
+  }
+}
+@keyframes drap-trail {
+  0%,
+  10% {
+    opacity: 0;
+  }
+  30%,
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes drap-puff {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4) translateY(-4px);
+  }
+}
+/* « → +1 » : pastille violette en haut à droite, avec un petit éclat */
+.mv-drap .bj-label {
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 10px;
+  padding: 1px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8c75ef, #5b43d0);
+  border: 2px solid #2d1f86;
+  color: #fff;
+  font-size: 17px;
+  font-style: italic;
+  font-synthesis: style;
+}
+.mv-drap .bj-label::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 22px;
+  height: 10px;
+  margin-left: -11px;
+  background:
+    linear-gradient(#ffc83d, #ffc83d) 50% 0 / 3px 8px no-repeat,
+    linear-gradient(60deg, transparent 40%, #ffc83d 40% 60%, transparent 60%) 0 2px / 8px 8px no-repeat,
+    linear-gradient(-60deg, transparent 40%, #ffc83d 40% 60%, transparent 60%) 100% 2px / 8px 8px no-repeat;
+}
+.mv-drap > span {
+  flex: none;
+  display: block;
+  color: #4c5678;
+  font-size: 12.5px;
+}
+.mv-drap .mv-title {
+  display: block;
+  width: fit-content;
+  margin: 0 auto 2px;
+  padding: 0 6px 2px;
+  color: #14205a;
+  font-size: 19px;
+  font-style: italic;
+  font-synthesis: style;
+  font-weight: 800;
+  background: linear-gradient(90deg, transparent, #ffc83d 15% 85%, transparent) center bottom / 100% 3px
+    no-repeat;
+}
+:lang(ar) .mv-drap .mv-title,
+:lang(zh) .mv-drap .mv-title,
+:lang(ja) .mv-drap .mv-title,
+:lang(ar) .mv-drap .bj-label {
+  font-style: normal;
+}
+.reduce-motion .mv-drap .bj-token {
+  transform: translateX(calc(var(--dx) * 3.2));
+}
+.reduce-motion .mv-drap .bj-token::before,
+.reduce-motion .mv-drap .bj-track::before,
+.reduce-motion .mv-drap .bj-track::after {
+  animation: none;
+  opacity: 0;
+}

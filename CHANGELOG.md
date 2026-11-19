@@ -1,5 +1,15 @@
 # Historique des versions
 
+## V9.3 — illustrations des niveaux
+
+- Tuiles de niveau de l'accueil avec les illustrations de la maquette : poussin (Petit), cerveau (Moyen),
+  fusée (Grand), hibou diplômé (Génie), plage en pastille blanche.
+- Rangée du bas illustrée de même : livre « ? » (Comment jouer ?), cible et fléchette (Défi solo), toque
+  (Tutoriel), bureau et plante (Mon bureau).
+- **« Le numéro s'échappe ! » sous un drap** (maquette « drap furtif ») : le numéro caché glisse d'une case à
+  l'autre sous un drap qui ondule, avec une traînée de vitesse et des petits nuages de poussière ; le saut en
+  pastille violette « → +1 », le titre souligné de jaune. Animation coupée avec « Réduire les animations ».
+
 ## V9.2 — écrans « Bravo ! » / « Oups ! » et détective du logo (maquettes)
 
 - **Le détective du logo** remplace le petit personnage dessiné : en jeu, le détective à la loupe des maquettes

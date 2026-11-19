@@ -236,7 +236,7 @@ function blindJump(shift) {
             : 'mirror';
   // le pion reste DANS sa piste (64 px) : au plus 17 px de chaque côté du centre, plus loin si le saut est grand
   const dx = s.op === '+' ? Math.round(Math.sign(s.k) * (5 + 2.4 * Math.min(Math.abs(s.k), 5))) : 0;
-  return `<span class="blind-jump ${kind}" dir="ltr" aria-hidden="true" style="--dx:${dx}px"><span class="bj-track">${'<i></i>'.repeat(11)}</span><b class="bj-token">?</b></span><b dir="ltr" class="bj-label">${shiftSymbol(shift)}</b>`;
+  return `<span class="blind-jump ${kind}" dir="ltr" aria-hidden="true" style="--dx:${dx}px;--dir:${dx < 0 ? -1 : 1}"><span class="bj-track">${'<i></i>'.repeat(11)}</span><b class="bj-token">?</b></span><b dir="ltr" class="bj-label">${shiftSymbol(shift)}</b>`;
 }
 /** Pavé numérique (Génie et défi : trop de numéros pour une grille). */
 function keypadHTML() {
@@ -353,7 +353,7 @@ function resultView() {
     : x.frozen
       ? `<div class="move-line frozen"><b>🧊</b><span>${t('frozen')}${g.mode === 'challenge' && g.chFreezes != null ? ' ' + t('freezesLeft', { n: g.chFreezes }) : ''}</span></div>`
       : !['found', 'netHit'].includes(x.type)
-        ? `<div class="move-line">${blindJump(x.shift)}<span>${t('moved')}${moveHint(x.shift) ? ' <b class="mv-op">' + moveHint(x.shift) + '</b>' : ''}${clue ? '<br><small>' + t('oldClue') + '</small>' : ''}</span></div>`
+        ? `<div class="move-line mv-drap">${blindJump(x.shift)}<span><strong class="mv-title">${t('moved')}</strong>${moveHint(x.shift) ? ' <b class="mv-op">' + moveHint(x.shift) + '</b>' : ''}${clue ? '<br><small>' + t('oldClue') + '</small>' : ''}</span></div>`
         : '';
   const top = ['found', 'netHit'].includes(x.type) ? extra : '';
   if (top)
