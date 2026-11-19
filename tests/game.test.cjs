@@ -1052,7 +1052,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
           N.start(true); }
         out[lv] = [[...sizes].join('/'), [...near].join('/')].join(' '); }
       return out; });
-    check(/^4 /.test(widths.junior) && /^4 /.test(widths.malin) && /^8 /.test(widths.expert) && /^13 /.test(widths.genius), 'Questions « entre a et b » : 4 numéros (Petit, Moyen), 8 (Grand), 13 (Génie) ' + JSON.stringify(widths));
+    check(/^4 /.test(widths.junior) && /^6 /.test(widths.malin) && /^8 /.test(widths.expert) && /^13 /.test(widths.genius), 'Questions « entre a et b » : 4 numéros (Petit), 6 (Moyen, V8.17 : 2 × filet), 8 (Grand), 13 (Génie) ' + JSON.stringify(widths));
     check(!/\b7\b/.test(widths.genius.split(' ')[1] || ''), 'Génie : « proche de k » élargi (11 numéros) ' + widths.genius);
     // annonce aux autres joueurs
     await page.evaluate(() => { const N = window.__numero; N.state.players = 3; N.state.gameMode = 'race'; N.state.starter = 0; N.state.level = 'junior'; N.state.replayAsk = false; N.start(true); N.state.modal = null; N.guess(N.state.secret); N.nextTurn(); N.render(); });
@@ -1451,6 +1451,25 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.evaluate(() => { const N = window.__numero; N.state.reduceMotion = true; let k = 0; while (N.state.screen === 'game' && k++ < 300) { N.state.modal = null; if (N.state.phase === 'result') { N.nextTurn(); continue; } const s = N.state.secret; N.guess(s === 1 ? 2 : 1); } N.state.modal = null; N.render(); });
     check((await S(page)).screen === 'end' && await scroll() <= 0 && await page.isVisible('.panel > .escaped-note') && !(await page.$('.end-hero .escaped-note')), 'Fin de Course à 4 : « le numéro se cachait… » dans le cadre, sans défilement');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (V8.16) ' + page.errors.join(' | '));
+    // V8.17 : une question ne réduit jamais, à elle seule, les possibles à la portée du filet
+    const qs = await page.evaluate(() => {
+      const N = window.__numero, G = () => N.state, out = {};
+      for (const level of ['junior', 'malin', 'expert', 'genius']) {
+        let tot = 0, bad = 0, narrow = 0;
+        for (let k = 0; k < 120; k++) {
+          Object.assign(G(), { players: 1, level, mode: 'normal', gameMode: 'race', modal: null }); N.start(true); G().modal = null;
+          for (let t = 0; t < 3 && G().screen === 'game'; t++) {
+            const C = G().candidates, ns = N.netSize();
+            for (const id of G().choices) { const q = N.qbyid(id), y = C.filter(n => q.test(n)).length; tot++; if (C.length >= 4 * ns && Math.min(y, C.length - y) < 2 * ns) bad++; if (id.startsWith('range')) { const w = Number(id.slice(5).split('_')[0]); if (w < 2 * ns) narrow++; } }
+            N.ask(G().choices[0]); N.nextTurn(); G().modal = null;
+            const C2 = G().candidates; N.guess(C2[0] === G().secret ? (C2[1] || 1) : C2[0]); G().modal = null; if (G().phase === 'result') N.nextTurn(); G().modal = null;
+          }
+        }
+        out[level] = { tot, bad, narrow };
+      }
+      return out;
+    });
+    for (const [lv, r] of Object.entries(qs)) check(r.tot > 200 && r.bad === 0 && r.narrow === 0, `Questions ${lv} : chacune laisse au moins 2 × filet numéros possibles (${r.tot} questions vérifiées)`);
     console.log(`${failed === before ? '✓' : '✗'} V8.16 : Génie à 4 sur écran court`);
     await ctx.close();
   }

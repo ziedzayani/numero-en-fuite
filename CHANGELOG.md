@@ -1,5 +1,12 @@
 # Historique des versions
 
+## V8.17
+
+- **Une question ne suffit jamais au filet** (tous les niveaux) : chaque question proposée laisse, quelle que
+  soit la réponse, au moins 2 × la taille du filet en numéros possibles (6, ou 4 au niveau Petit). En toute fin
+  d'enquête, quand ce n'est plus possible, on propose celles qui en laissent le plus.
+- Questions « entre a et b » : au moins 2 × filet numéros (Moyen : 6 au lieu de 4, plus de « entre 10 et 13 »).
+
 ## V8.16
 
 Retours d'un essai sur téléphone (Génie, 4 joueurs, Course) :
