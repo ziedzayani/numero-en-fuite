@@ -1,5 +1,18 @@
 # Historique des versions
 
+## V9.5 — « Mon bureau » d'après les maquettes
+
+- Titre avec le bureau dessiné ; onglets en tuiles avec leurs images (détective, dossier, médaille,
+  presse-papiers), l'onglet choisi en violet bordé d'or.
+- Rang : médaillon du détective, chapeaux plus grands (le rang actuel en or).
+- Records : une carte par niveau avec son image (poussin, cerveau, fusée, hibou), score en pastille bleue,
+  « À découvrir » en pastille claire.
+- Badges : pastille « Badges 2/6 », cartes sur 2 colonnes, les badges obtenus en doré ; œil dessiné pour
+  « Œil de lynx ».
+- **Abandon et film** : revoir le parcours depuis « Quitter la partie ? » dévoile le numéro, donc la partie ne
+  peut plus reprendre ; au retour du film, seul le bouton « Fermer » reste (Retour ferme aussi la partie).
+- Missions : intro avec le presse-papiers, une carte par mission avec la cible, progression en pastille verte.
+
 ## V9.4 — images définitives et déplacements plus clairs
 
 - **Nouvelles images en haute qualité** (fond transparent) : détective à la loupe (jeu), pouce levé (« Bravo ! »),

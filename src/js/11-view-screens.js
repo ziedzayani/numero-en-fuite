@@ -71,7 +71,7 @@ function office() {
   ]
     .map(
       ([id, icon, k]) =>
-        `<button class="nb-tab ${tab === id ? 'is-selected' : ''}" data-otab="${id}" aria-pressed="${tab === id}">${icon} ${t(k)}${
+        `<button class="nb-tab ${tab === id ? 'is-selected' : ''}" data-otab="${id}" aria-pressed="${tab === id}"><i class="ot-ico ot-${id}" aria-hidden="true"></i>${t(k)}${
           id === 'badges' ? ` <small dir="ltr">${Object.keys(p.badges).length}/${BADGES.length}</small>` : ''
         }</button>`
     )
@@ -84,7 +84,7 @@ function office() {
         : tab === 'records'
           ? officeRecords(p)
           : officeRank(p);
-  return `<header class="top">${brand()}<button class="mini-btn" id="closeOffice">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel office-panel"><h1 class="settings-title">📚 ${t('officeTitle')}</h1><div class="office-tabs">${tabs}</div>${body}<button class="bigbtn" id="officePlay">▶ ${t('officePlay')}</button></section>`;
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeOffice">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel office-panel"><h1 class="settings-title office-title"><i class="ot-desk" aria-hidden="true"></i>${t('officeTitle')}</h1><div class="office-tabs">${tabs}</div>${body}<button class="bigbtn" id="officePlay">▶ ${t('officePlay')}</button></section>`;
 }
 /** Onglet « Rang » : barre d'XP, frise des 8 chapeaux, compteurs. */
 function officeRank(p) {
@@ -104,7 +104,7 @@ function officeRank(p) {
         `<div><b>${n}</b><small>${t(k)}</small>${k === 'officeWins' && p.totalHelpWins ? `<small class="help-wins">${t('officeHelpWins', { n: p.totalHelpWins })}</small>` : ''}</div>`
     )
     .join('');
-  return `<div class="office-rank"><span class="office-badge" aria-hidden="true">🕵️</span><div>${rankBar(p.xpTotal)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="office-tiles">${tiles}</div>`;
+  return `<div class="office-rank"><span class="office-badge" aria-hidden="true"><i class="ot-ico ot-rank"></i></span><div>${rankBar(p.xpTotal)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="office-tiles">${tiles}</div>`;
 }
 /** Onglet « Records » : meilleur score et meilleur nombre de tours par niveau. */
 function officeRecords(p) {
@@ -117,28 +117,30 @@ function officeRecords(p) {
   const rows = levels
     .map(([id, emoji, k]) => {
       const lv = p.levels[id] || {};
-      return `<li><span>${emoji} ${t(k)}</span><span class="rec">${
+      return `<li class="rec-row ${lv.bestScore != null ? 'has' : ''}"><span class="rec-lv"><i class="rec-ico lvl-${id}" aria-hidden="true"></i><b>${t(k)}</b></span><span class="rec">${
         lv.bestScore != null
-          ? `<b dir="ltr">${lv.bestScore} ${t('pts')}${lv.bestHelped ? ' 💡' : ''}</b>`
-          : `<i>${t('officeToDiscover')}</i>`
+          ? `<b class="rec-pill" dir="ltr">${lv.bestScore} ${t('pts')}${lv.bestHelped ? ' 💡' : ''}</b>`
+          : `<i class="rec-todo">${t('officeToDiscover')}</i>`
       }${lv.bestTurns != null ? `<small>${t('officeBestTurns', { n: lv.bestTurns })}</small>` : ''}${lv.helpWins ? `<small class="help-wins">${t('officeHelpWins', { n: lv.helpWins })}</small>` : ''}</span></li>`;
     })
     .join('');
-  return `<div class="label">📂 ${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}${levels.some(([id]) => (p.levels[id] || {}).bestHelped) ? ' ' + t('officeHelpNote') : ''}</p>`;
+  return `<div class="label"><i class="ot-ico ot-records sm" aria-hidden="true"></i>${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}${levels.some(([id]) => (p.levels[id] || {}).bestHelped) ? ' ' + t('officeHelpNote') : ''}</p>`;
 }
 /** Onglet « Badges » : étagère des 6 badges ; ceux à gagner disent comment les obtenir. */
 function officeBadges(p) {
-  return `<div class="badge-shelf">${BADGES.map(b => {
-    const got = !!p.badges[b.id];
-    return `<div class="badge ${got ? 'got' : 'locked'}"><span class="b-icon" aria-hidden="true">${b.icon}</span><b>${t('badge_' + b.id)}</b><small>${got ? '✅ ' + t('badgeGot') : t('badgeHow_' + b.id)}</small></div>`;
-  }).join('')}</div>`;
+  return `<div class="label badges-head"><i class="ot-ico ot-badges sm" aria-hidden="true"></i>${t('officeTabBadges')} <span class="bh-count" dir="ltr">${Object.keys(p.badges).length}/${BADGES.length}</span></div><div class="badge-shelf">${BADGES.map(
+    b => {
+      const got = !!p.badges[b.id];
+      return `<div class="badge ${got ? 'got' : 'locked'}"><span class="b-icon b-${b.id}" aria-hidden="true">${b.icon}</span><b>${t('badge_' + b.id)}</b><small>${got ? '✅ ' + t('badgeGot') : t('badgeHow_' + b.id)}</small></div>`;
+    }
+  ).join('')}</div>`;
 }
 /** Onglet « Missions » : 3 missions sans limite de temps ; une mission réussie est remplacée. */
 function officeMissions(p) {
-  return `<p class="sub small">${t('missionsIntro', { xp: MISSION_XP })}</p><ul class="mission-list">${p.missions
+  return `<div class="missions-intro"><i class="ot-ico ot-missions" aria-hidden="true"></i><p>${t('missionsIntro', { xp: MISSION_XP })}</p></div><ul class="mission-list">${p.missions
     .map(
       m =>
-        `<li><span class="m-icon" aria-hidden="true">🎯</span><span>${missionText(m)}</span><span class="m-prog" dir="ltr">${m.progress}/${m.goal}</span></li>`
+        `<li><span class="m-icon" aria-hidden="true"></span><span class="m-txt">${missionText(m)}</span><span class="m-prog" dir="ltr">${m.progress}/${m.goal}</span></li>`
     )
     .join('')}</ul>`;
 }

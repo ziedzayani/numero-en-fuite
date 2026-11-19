@@ -367,6 +367,8 @@
   "q_turn": "Où se cache ce petit numéro ?|Ouvrons l’œil… et le bon !|Une nouvelle enquête commence !",
   "questionsChange": "Nouvelles questions à chaque tour. Une seule aide par tour.",
   "quit": "Quitter la partie et revenir à l’accueil ?",
+  "quitFilmNote": "Revoir le parcours dévoile le numéro : la partie sera terminée.",
+  "quitSeenText": "Tu as vu le parcours du numéro : la partie est terminée.",
   "quitText": "La partie sera terminée.",
   "quitTitle": "Quitter la partie ?",
   "raceContinue": "Continuer",

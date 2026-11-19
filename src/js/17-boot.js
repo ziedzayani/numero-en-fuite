@@ -13,6 +13,12 @@ function back() {
     return true;
   }
   if (g.screen === 'game' && g.modal === 'quit') {
+    if (g.quitSeen) {
+      // film déjà vu : Retour ferme la partie (pas de reprise avec le numéro connu)
+      Object.assign(g, { quitSeen: false, modal: null, inGame: false, screen: 'home' });
+      render();
+      return true;
+    }
     g.modal = 'pause';
     render();
     return true;

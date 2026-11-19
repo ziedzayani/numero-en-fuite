@@ -241,6 +241,7 @@ function load() {
       g.modal = null;
     if (g.hunt && !Array.isArray(g.hunt.steps)) g.hunt = null;
     g.tut = null; // le tutoriel n'est jamais repris
+    if (g.quitSeen) Object.assign(g, { quitSeen: false, screen: 'home', inGame: false, modal: null }); // film vu en quittant
     if (!Array.isArray(g.placed)) g.placed = [];
     // une connexion Wi-Fi ne survit pas à un redémarrage : retour à l'accueil
     if (g.net || g.screen === 'lan') {

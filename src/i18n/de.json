@@ -367,6 +367,8 @@
   "q_turn": "Wo versteckt sich die kleine Zahl?|Augen auf, Detektiv!|Ein neuer Fall beginnt!",
   "questionsChange": "Neue Fragen in jeder Runde. Ein Hinweis pro Runde.",
   "quit": "Dieses Spiel verlassen und zum Start zurückkehren?",
+  "quitFilmNote": "Der Weg verrät die Zahl: Das Spiel wird beendet.",
+  "quitSeenText": "Du hast den Weg der Zahl gesehen: Das Spiel ist vorbei.",
   "quitText": "Das Spiel ist dann beendet.",
   "quitTitle": "Spiel verlassen?",
   "raceContinue": "Weiter",

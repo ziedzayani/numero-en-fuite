@@ -77,7 +77,10 @@ function modalView() {
     );
   if (g.modal === 'quit')
     return wrapM(
-      `<h2>🏠 ${t('quitTitle')}</h2><p>${t('quitText')}</p>${g.hunt && g.hunt.steps && g.hunt.steps.length ? `<button class="mini-btn rp-open" id="quitFilm">🎬 ${t('rpButton')}</button>` : ''}<div class="modal-actions"><button class="bigbtn pink" id="quitYes">${t('yes')}</button><button class="bigbtn light" id="quitNo">${t('no')}</button></div>`
+      // V9.5 : après avoir vu le film (le numéro est révélé), plus de retour à la partie : seulement « Fermer »
+      g.quitSeen
+        ? `<h2>🏠 ${t('quitTitle')}</h2><p>${t('quitSeenText')}</p><button class="mini-btn rp-open" id="quitFilm">🎬 ${t('rpButton')}</button><div class="modal-actions"><button class="bigbtn" id="quitYes">${t('close')}</button></div>`
+        : `<h2>🏠 ${t('quitTitle')}</h2><p>${t('quitText')}</p>${g.hunt && g.hunt.steps && g.hunt.steps.length ? `<button class="mini-btn rp-open" id="quitFilm">🎬 ${t('rpButton')}</button><p class="sub small quit-film-note">${t('quitFilmNote')}</p>` : ''}<div class="modal-actions"><button class="bigbtn pink" id="quitYes">${t('yes')}</button><button class="bigbtn light" id="quitNo">${t('no')}</button></div>`
     );
   if (g.modal === 'pause')
     return wrapM(

@@ -367,6 +367,8 @@
   "q_turn": "这个小数字藏在哪儿？|睁大眼睛，侦探！|新案件开始了！",
   "questionsChange": "每回合都有新问题。每回合一条线索。",
   "quit": "退出这局游戏并回到首页？",
+  "quitFilmNote": "查看路线会揭晓数字：游戏将结束。",
+  "quitSeenText": "你已看过数字的路线：游戏结束。",
   "quitText": "这局游戏将结束。",
   "quitTitle": "退出游戏？",
   "raceContinue": "继续",

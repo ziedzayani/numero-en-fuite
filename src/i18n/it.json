@@ -367,6 +367,8 @@
   "q_turn": "Dove si nasconde quel numerino?|Occhi aperti, detective!|Comincia un nuovo caso!",
   "questionsChange": "Domande nuove a ogni turno. Un indizio per turno.",
   "quit": "Lasciare questa partita e tornare alla home?",
+  "quitFilmNote": "Rivedere il percorso svela il numero: la partita finirà.",
+  "quitSeenText": "Hai visto il percorso del numero: la partita è finita.",
   "quitText": "La partita sarà finita.",
   "quitTitle": "Uscire dalla partita?",
   "raceContinue": "Continua",

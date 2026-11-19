@@ -171,6 +171,7 @@ function bind() {
   });
   // V9.4 : abandon → on peut revoir le parcours du numéro jusqu'ici, puis revenir à « Quitter la partie ? »
   click('quitFilm', () => {
+    g.quitSeen = true; // le film révèle le numéro : la partie ne peut plus reprendre
     g.rpQuitHunt = g.lastHunt || null;
     g.lastHunt = {
       start: g.hunt.start,
@@ -279,6 +280,7 @@ function bind() {
     start();
   });
   click('quitYes', () => {
+    g.quitSeen = false;
     if (g.net) return netLeave();
     g.modal = null;
     g.inGame = false;
