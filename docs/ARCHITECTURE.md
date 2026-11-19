@@ -86,18 +86,19 @@ Une clé existante n'est jamais remplacée ni purgée ; une donnée illisible es
 
 ## Recettes
 
-**Modifier un texte / ajouter une langue.** Modifier la clé dans les trois fichiers `src/i18n/*.json`. Pour une
-nouvelle langue : nouveau fichier JSON avec **toutes** les clés de `fr.json` (le build refuse sinon), l'ajouter à
-`LANGUAGES` dans `tools/build.mjs`, au choix de langue de `settings()` et à la validation de `load()`.
+**Modifier un texte / ajouter une langue.** Modifier la clé dans les 8 fichiers `src/i18n/*.json` (fr, en, ar, es,
+it, de, zh, ja). Pour une nouvelle langue : nouveau fichier JSON avec **toutes** les clés de `fr.json` (le build
+refuse sinon), l'ajouter à `LANGUAGES` dans `tools/build.mjs` et à `LANGS` dans `src/js/01-i18n.js` (choix de
+langue, validation de `load()` et détection de la langue du téléphone au premier lancement, repli sur l'anglais).
 
 **Ajouter une question.** Dans `qpool()` (`03-questions.js`) : `add(id, typeKey, icône, texteKey, valeurs, test)`.
-L'identifiant doit être stable (il est sauvegardé dans le carnet) et le texte présent dans les 3 langues.
+L'identifiant doit être stable (il est sauvegardé dans le carnet) et le texte présent dans les 8 langues.
 
 **Ajouter un niveau.** `LEVELS` (`00-constants.js`), `LIMITS` (`06-timers.js`), le choix de niveau dans `home()`,
 les textes `level…` / `age…`, et si besoin les branches de `makeMath()`, `qpool()` et `nextMove()`.
 
 **Changer les points.** `SCORE` (parties) ou `CHALLENGE_SCORE` (défi) dans `00-constants.js` ; mettre à jour la règle
-affichée (`rule3`, `modeScoreSub`, `chFormula`…) dans les 3 langues et les tests qui vérifient les scores.
+affichée (`rule3`, `modeScoreSub`, `chFormula`…) dans les 8 langues et les tests qui vérifient les scores.
 Pour le défi, garder la règle « prolonger ne rapporte jamais » : un tour de plus (`perTurn` + `miss`) doit coûter plus
 que ce qu'un calcul juste rapporte (`goodMath` + `timeRefundMs` × `perSecond`) ; un test le vérifie sur 168 parties simulées.
 

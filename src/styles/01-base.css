@@ -2,18 +2,18 @@
  * Variables de couleurs, mise en page générale, boutons, panneaux, sélecteurs, grille de numéros.
  */
 :root {
-  --bg1: #2f6bff;
-  --bg2: #46b4ff;
+  --bg1: #1a2b66; /* V9 : bleu nuit du logo */
+  --bg2: #2f62d8;
   --panel: #f9f6ea;
   --panel2: #ffffff;
   --ink: #1d2450;
   --ink2: #4c5678;
   --blue: #3f74ef;
   --blueDark: #2548a8;
-  --yellow: #ffd84d;
-  --yellowDark: #d5a700;
-  --pink: #f36ab6;
-  --pinkDark: #be3e85;
+  --yellow: #ffc83d; /* or du logo */
+  --yellowDark: #c98f00;
+  --pink: #ff8a3d;
+  --pinkDark: #c4581b;
   --green: #30c973;
   --greenDark: #149950;
   --purple: #7d67ee;
@@ -30,7 +30,7 @@
     Arial,
     sans-serif;
   color: var(--ink);
-  background: #2f6bff;
+  background: #1a2b66;
   font-synthesis: none;
 }
 * {
@@ -44,7 +44,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: #2f6bff;
+  background: #1a2b66;
   -webkit-font-smoothing: antialiased;
 }
 body::before {
@@ -54,12 +54,12 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(circle at 12% 8%, #ffffff2e 0 70px, transparent 71px),
+    radial-gradient(circle at 12% 8%, #ffc83d1f 0 70px, transparent 71px),
     radial-gradient(circle at 92% 26%, #ffffff1f 0 95px, transparent 96px),
     radial-gradient(circle at 18% 72%, #ffffff17 0 130px, transparent 131px),
     radial-gradient(circle at 88% 92%, #ffd84d26 0 110px, transparent 111px),
     radial-gradient(#ffffff24 1.6px, transparent 1.7px) 0 0/24px 24px,
-    linear-gradient(172deg, #2a5cf5 0%, #3b86ff 48%, #4fc0ff 100%);
+    linear-gradient(172deg, #14214f 0%, #1f3c8f 52%, #2c63d4 100%) /* V9 : bleu nuit → bleu roi */;
 }
 button {
   font: inherit;
@@ -671,8 +671,8 @@ button:focus-visible {
 }
 .result-card.bad {
   background: #fff0f3;
-  border-color: #f0afc6;
-  box-shadow: 0 5px 0 #f4c8d7;
+  border-color: #f3c9a1;
+  box-shadow: 0 5px 0 #f6d6b8;
 }
 .result-card.neutral {
   background: #eef3ff;

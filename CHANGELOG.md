@@ -1,5 +1,20 @@
 # Historique des versions
 
+## V9.0 — The Number Hunt
+
+Nouvelle identité pour attirer tous les joueurs, enfants et adultes.
+- **Nom anglais** « The Number Hunt » (application, page web, PWA) et **nouveau logo** (icône Android, accueil,
+  bandeau des écrans). Le logo de l'accueil flotte doucement et s'adapte à la hauteur de l'écran.
+- **Nouveau détective animé** (SVG, inspiré du logo) à la place de la mascotte violette : mêmes mouvements
+  (cherche, réfléchit, court, saute de joie, frissonne…), expressions (clin d'œil, fierté…) et chapeaux de rang.
+- **Couleurs** : plus de rose ; bleu nuit et or du logo, orange à la place du rose.
+- **8 langues** : + espagnol, italien, allemand, chinois (simplifié) et japonais. Au premier lancement, le jeu
+  prend **la langue du téléphone** (sinon l'anglais) ; un joueur existant garde sa langue. Réglages : une ligne
+  « Langue » ouvre la liste des 8 langues.
+- Sauvegardes, records et progrès conservés (même identifiant d'application, mêmes clés de stockage).
+- Mise en page : texte des sauts longs sous l'image, libellés de chronos qui ne débordent plus ; audit 3 tailles
+  × 8 langues sans défilement ; nouveaux tests (langue du téléphone, 8 langues, logo).
+
 ## V8.18 — nouveau mode Défi
 
 Analyse et simulations : voir `docs/DEFI.md`. Avant, un joueur « calculatrice » attrapait le numéro en ~4,4 tours

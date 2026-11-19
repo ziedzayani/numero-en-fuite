@@ -30,6 +30,11 @@ function back() {
     return true;
   }
   if (g.screen === 'game' && g.modal === 'handoff') return true;
+  if (g.modal === 'lang') {
+    closeLang();
+    render();
+    return true;
+  }
   if (g.modal === 'backup') {
     g.modal = null;
     g.backup = null;
@@ -96,6 +101,8 @@ window.__numero = {
   qbyid,
   wrap,
   dictionaries,
+  deviceLang,
+  LANGS,
   render,
   back,
   netsLeft,
@@ -118,6 +125,7 @@ window.__numero = {
   exportProgress,
   tipKeys: TIP_KEYS,
   marksOf,
+  mascot,
   settleOffice,
   heroRank,
   BADGES,

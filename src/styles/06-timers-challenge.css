@@ -49,7 +49,7 @@
   animation: pulse 0.5s ease-in-out infinite alternate;
 }
 .tmr.hurry .timer-bar span {
-  background: linear-gradient(90deg, #ff6b6b, #f36ab6);
+  background: linear-gradient(90deg, #ff6b6b, #ff8a3d);
 }
 .tmr.chUp,
 .tmr.challenge {
@@ -74,7 +74,7 @@
   min-height: 44px;
 }
 .ch-btn {
-  background: #f36ab6;
+  background: #ff8a3d;
   color: #fff;
   box-shadow: 0 4px 0 var(--pinkDark);
 }
@@ -296,4 +296,16 @@
 }
 #app.screen-enter > .modal-back {
   animation: fadeIn 0.2s ease both;
+}
+/* V9.0 : libellés longs (« Respuesta », « Risposta »…) : le libellé se raccourcit, le temps reste entier */
+.tmr .tmr-l {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tmr .timer-bar {
+  min-width: 14px;
+}
+.tmr b {
+  flex: 0 0 auto;
 }

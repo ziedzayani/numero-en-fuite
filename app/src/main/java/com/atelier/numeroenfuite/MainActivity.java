@@ -24,7 +24,7 @@ import android.widget.FrameLayout;
 public class MainActivity extends Activity {
 
     private static final String GAME_URL = "file:///android_asset/index.html";
-    private static final int SKY = 0xFF2A5CF5;
+    private static final int SKY = 0xFF1A2B66;
 
     private WebView game;
     private NetBridge net;

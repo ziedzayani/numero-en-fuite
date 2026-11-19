@@ -1,6 +1,8 @@
-# Le Numéro en fuite
+# The Number Hunt (ex « Le Numéro en fuite »)
 
-Jeu familial de logique et de calcul mental (1 à 4 joueurs sur un seul téléphone, en français, anglais et arabe).
+Jeu familial de logique et de calcul mental pour tous (enfants et adultes), 1 à 4 joueurs, en **8 langues** :
+français, anglais, arabe, espagnol, italien, allemand, chinois et japonais — la langue du téléphone est choisie
+au premier lancement.
 Application Android (WebView) qui fonctionne **entièrement hors ligne**. Multijoueur sur **un seul téléphone** ou
 **un téléphone chacun** sur le même Wi-Fi ([docs/MULTIJOUEUR.md](docs/MULTIJOUEUR.md)) — sans Internet ni serveur.
 
@@ -20,7 +22,7 @@ Dernière version, compilée et vérifiée automatiquement :
 | `src/` | **Sources du jeu** (à modifier) : `js/` logique et écrans, `styles/` CSS, `i18n/` traductions, `assets/fonts/` police |
 | `tools/build.mjs` | Assemble `src/` en un seul fichier HTML autonome (hors ligne) |
 | `tools/lint.mjs` | Analyse statique ESLint du script assemblé |
-| `tools/layout-audit.cjs` | Audit de mise en page : aucun défilement, aucun bouton collé (3 tailles × 3 langues) |
+| `tools/layout-audit.cjs` | Audit de mise en page : aucun défilement, aucun bouton collé (3 tailles × 8 langues) |
 | `app/src/main/assets/index.html` | Jeu **généré** embarqué dans l'APK (ne pas modifier à la main) |
 | `app/src/main/java/.../MainActivity.java` | Conteneur Android (WebView sécurisée, bouton Retour, Android 15) |
 | `app/src/main/AndroidManifest.xml` | Manifeste (autorisations réseau local normales, RTL, portrait) |
@@ -28,7 +30,7 @@ Dernière version, compilée et vérifiée automatiquement :
 | `app/build.gradle` | compileSdk/targetSdk 35, minSdk 23 (Android 6+), **version du jeu** |
 | `gradlew`, `gradle/wrapper/` | Gradle Wrapper 8.11.1 : compilation reproductible |
 | `.github/workflows/build-apk.yml` | Vérifications + tests + compilation + vérification + publication de l'APK |
-| `tests/game.test.cjs` | ~4 200 vérifications automatiques du jeu dans Chromium |
+| `tests/game.test.cjs` | ~5 400 vérifications automatiques du jeu dans Chromium |
 | `web/Numero_en_Fuite.html` | Version navigateur autonome (générée) |
 | `web/PWA/` | Version web installable, à héberger en HTTPS (`index.html` et `sw.js` générés) |
 | `LICENCE-POLICE.txt` | Licence libre (SIL OFL 1.1) de la police Baloo Bhaijaan 2 |

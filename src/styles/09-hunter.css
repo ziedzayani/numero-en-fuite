@@ -1,0 +1,350 @@
+/*
+ * V9 — le détective de « The Number Hunt » (SVG, voir mascot() dans 10-view-mascot.js).
+ * Couleurs tirées du logo (casquette à carreaux or, imperméable caramel doré, cravate bleu nuit)
+ * et de la palette du jeu. Le chapeau prend les couleurs du rang (hat-r1 … hat-r8).
+ * Les animations d'ensemble (flotter, courir, sauter, danser…) restent sur .dt-rig (04-detective-captures.css) ;
+ * ici : dessin, expressions et petits mouvements des parties (yeux, bras, loupe, jambes).
+ */
+.detective-scene .nh {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 150px;
+  height: 150px;
+  translate: -50% 0;
+  overflow: visible;
+}
+.nh * {
+  transform-box: fill-box;
+}
+/* --- couleurs --- */
+.nh path,
+.nh circle,
+.nh ellipse {
+  stroke: var(--line);
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.nh .nh-shadow {
+  fill: rgba(9, 16, 44, 0.28);
+  stroke: none;
+}
+.nh .nh-leg {
+  fill: #24345f;
+}
+.nh .nh-shoe {
+  fill: #141b3c;
+}
+.nh .nh-coat,
+.nh .nh-sleeve {
+  fill: var(--coat, #d9a14a);
+}
+.nh .nh-coat-dark {
+  fill: var(--coat-dark, #a9732b);
+}
+.nh .nh-lapel {
+  fill: var(--coat-dark, #b98134);
+}
+.nh .nh-shirt {
+  fill: #fff;
+}
+.nh .nh-tie {
+  fill: #1f3c8f;
+}
+.nh .nh-button {
+  fill: var(--yellow);
+  stroke-width: 1.4;
+}
+.nh .nh-skin {
+  fill: #f3c9a2;
+}
+.nh .nh-hair {
+  fill: #3a2a24;
+  stroke-width: 1.6;
+}
+.nh .nh-eye {
+  fill: #fff;
+  stroke-width: 2;
+}
+.nh .nh-pupil {
+  fill: #1d2450;
+  stroke: none;
+}
+.nh .nh-brow,
+.nh .nh-nose,
+.nh .nh-mouth,
+.nh .nh-lid,
+.nh .nh-wink,
+.nh .nh-crown-line,
+.nh .nh-handle,
+.nh .nh-shine {
+  fill: none;
+}
+.nh .nh-brow {
+  stroke-width: 2.8;
+  transition: transform 0.25s;
+}
+.nh .nh-nose {
+  stroke-width: 2;
+}
+.nh .nh-mouth {
+  stroke-width: 2.6;
+  display: none;
+}
+.nh .nh-mouth.grin,
+.nh .nh-mouth.oh {
+  fill: #7a2e2e;
+}
+.nh .nh-lid,
+.nh .nh-wink {
+  display: none;
+  stroke-width: 2.4;
+}
+/* casquette à carreaux (couleurs du rang : rang 1 = or du logo) */
+.nh .nh-plaid-a {
+  fill: var(--hat-base, #d9a34c);
+  stroke: none;
+}
+.nh .nh-plaid-b {
+  fill: none;
+  stroke: var(--hat-brim, #9a6a26);
+  stroke-width: 1.2;
+  opacity: 0.55;
+}
+.nh .nh-crown {
+  stroke-width: 2.8;
+}
+.nh .nh-crown-line {
+  stroke-width: 1.6;
+  opacity: 0.6;
+}
+.nh .nh-brim,
+.nh .nh-brim-back {
+  fill: var(--hat-top, #e8bd6c);
+}
+.nh .nh-bow {
+  fill: var(--hat-top, #e8bd6c);
+  stroke-width: 2;
+}
+.nh .nh-star {
+  display: none;
+  font-size: 13px;
+  font-weight: 900;
+  fill: var(--yellow);
+  stroke: var(--line);
+  stroke-width: 1;
+  paint-order: stroke;
+}
+.hat-r6 .nh .nh-star,
+.hat-r7 .nh .nh-star,
+.hat-r8 .nh .nh-star {
+  display: inline;
+}
+.hat-r8 .nh .nh-star {
+  fill: #fff;
+}
+/* loupe */
+.nh .nh-handle {
+  stroke: #6b4a1a;
+  stroke-width: 5;
+}
+.nh .nh-ring {
+  fill: none;
+  stroke: var(--yellow);
+  stroke-width: 4.5;
+}
+.nh .nh-shine {
+  stroke: #fff;
+  stroke-width: 2.4;
+  opacity: 0.9;
+}
+
+/* --- expressions --- */
+.expr-happy .nh .nh-mouth.smile,
+.expr-curious .nh .nh-mouth.smile,
+.expr-wink .nh .nh-mouth.grin,
+.expr-proud .nh .nh-mouth.grin,
+.expr-surprised .nh .nh-mouth.oh,
+.expr-grimace .nh .nh-mouth.flat,
+.expr-worried .nh .nh-mouth.flat {
+  display: inline;
+}
+/* curieux : regarde en l'air, un sourcil levé */
+.expr-curious .nh .nh-pupil {
+  translate: 1.4px -1.6px;
+}
+.expr-curious .nh .nh-brow.r {
+  transform: translateY(-2.5px) rotate(-6deg);
+}
+/* fier : yeux plissés de joie */
+.expr-proud .nh .nh-pupil,
+.expr-proud .nh .nh-eye {
+  display: none;
+}
+.expr-proud .nh .nh-lid {
+  display: inline;
+  stroke-width: 2.8;
+}
+/* surpris : sourcils hauts, pupilles petites */
+.expr-surprised .nh .nh-brow {
+  transform: translateY(-3px);
+}
+.expr-surprised .nh .nh-pupil {
+  scale: 0.75;
+}
+/* grimace / inquiet : sourcils obliques */
+.expr-grimace .nh .nh-brow.l,
+.expr-worried .nh .nh-brow.l {
+  transform: rotate(14deg) translateY(1px);
+}
+.expr-grimace .nh .nh-brow.r,
+.expr-worried .nh .nh-brow.r {
+  transform: rotate(-14deg) translateY(1px);
+}
+.expr-worried .nh .nh-pupil {
+  translate: 0 1px;
+}
+/* clin d'œil d'encouragement */
+.expr-wink .nh .nh-pupil.right,
+.expr-wink .nh .nh-eye:nth-of-type(2) {
+  display: none;
+}
+.expr-wink .nh .nh-wink {
+  display: inline;
+}
+
+/* --- petits mouvements des parties --- */
+.nh .nh-pupil {
+  transform-origin: center;
+}
+.nh .nh-arm-r {
+  transform-origin: 6% 30%;
+  animation: nh-glass 3.4s ease-in-out infinite;
+}
+@keyframes nh-glass {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-7deg);
+  }
+}
+.nh .nh-head {
+  transform-origin: 50% 90%;
+}
+.detective-scene.think .nh .nh-head,
+.detective-scene.search .nh .nh-head {
+  animation: nh-ponder 2.4s ease-in-out infinite;
+}
+@keyframes nh-ponder {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-6deg);
+  }
+}
+/* chercher / viser : la loupe balaie et monte devant l'œil */
+.detective-scene.search .nh .nh-arm-r,
+.detective-scene.aim .nh .nh-arm-r {
+  animation: nh-sweep 1.8s ease-in-out infinite;
+}
+@keyframes nh-sweep {
+  0%,
+  100% {
+    transform: rotate(4deg);
+  }
+  50% {
+    transform: rotate(-22deg);
+  }
+}
+/* attrapé, fier, record : la loupe brandie */
+.detective-scene.caught .nh .nh-arm-r,
+.detective-scene.proud .nh .nh-arm-r,
+.detective-scene.record .nh .nh-arm-r {
+  animation: nh-raise 0.9s ease-in-out infinite alternate;
+}
+@keyframes nh-raise {
+  from {
+    transform: rotate(-10deg);
+  }
+  to {
+    transform: rotate(-38deg) translateY(-3px);
+  }
+}
+.detective-scene.caught .nh .nh-arm-l,
+.detective-scene.proud .nh .nh-arm-l,
+.detective-scene.cheer .nh .nh-arm-l {
+  transform-origin: 90% 10%;
+  animation: nh-wave 0.7s ease-in-out infinite alternate;
+}
+@keyframes nh-wave {
+  from {
+    transform: rotate(10deg);
+  }
+  to {
+    transform: rotate(60deg);
+  }
+}
+/* courir : les jambes alternent */
+.detective-scene.dash-left .nh .nh-leg.l,
+.detective-scene.dash-right .nh .nh-leg.l {
+  transform-origin: 50% 0;
+  animation: nh-step 0.32s ease-in-out infinite alternate;
+}
+.detective-scene.dash-left .nh .nh-leg.r,
+.detective-scene.dash-right .nh .nh-leg.r {
+  transform-origin: 50% 0;
+  animation: nh-step 0.32s ease-in-out infinite alternate-reverse;
+}
+@keyframes nh-step {
+  from {
+    transform: rotate(-16deg);
+  }
+  to {
+    transform: rotate(16deg);
+  }
+}
+.detective-scene.dash-left .nh {
+  scale: -1 1; /* il court vers la gauche : le dessin se retourne */
+}
+/* grimace / inquiet : petit tremblement de la tête */
+.detective-scene.grimace .nh .nh-head,
+.detective-scene.worried .nh .nh-head {
+  animation: nh-shiver 0.5s ease-in-out 3;
+}
+@keyframes nh-shiver {
+  25% {
+    transform: rotate(-4deg);
+  }
+  75% {
+    transform: rotate(4deg);
+  }
+}
+/* clignement des yeux (sauf expressions aux yeux fermés) */
+.nh .nh-eyes {
+  transform-origin: 50% 55%;
+  animation: nh-blink 4.6s infinite;
+}
+@keyframes nh-blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.12);
+  }
+}
+.reduce-motion .nh *,
+.reduce-motion .nh {
+  animation: none !important;
+}
+/* les anciens chiffres « pensés » (7 … 5 … ?) gardent leur place autour de la tête */
+.detective-scene .detector-orbit {
+  color: var(--yellow);
+  -webkit-text-stroke: 1px var(--line);
+}

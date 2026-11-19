@@ -6,6 +6,21 @@
 let lastScreen = null,
   enterTimer = null,
   lastModalKey = null;
+/**
+ * Accueil : le logo prend la place qui reste, pour que tout tienne sans défiler
+ * quelles que soient la taille de l'écran, la langue et le mode (Solo / À plusieurs).
+ */
+function fitLogo() {
+  const el = document.querySelector('.logo-art');
+  if (!el) return;
+  el.style.width = '';
+  // hauteur de mise en page (sans les animations) + 6 px de marge pour le flottement du logo
+  const over = app.offsetHeight + 6 - innerHeight;
+  if (over <= 0) return;
+  const h = el.getBoundingClientRect().height;
+  el.style.width = Math.round((Math.max(96, h - over) * 640) / 488) + 'px';
+}
+addEventListener('resize', fitLogo);
 /** Redessine l'écran courant + la fenêtre ouverte, puis sauvegarde. */
 function render() {
   if (g.screen === 'home') restoreFromChallenge();
@@ -35,6 +50,7 @@ function render() {
     if (mb && mk === lastModalKey) mb.classList.add('steady');
     lastModalKey = mk;
   }
+  fitLogo();
   rpSchedule();
   if (changed && !g.reduceMotion) {
     app.classList.remove('screen-enter');
@@ -95,6 +111,7 @@ function bind() {
   app.querySelectorAll('[data-language]').forEach(b =>
     b.addEventListener('click', () => {
       g.lang = b.dataset.language;
+      if (g.modal === 'lang') closeLang();
       render();
     })
   );
@@ -277,6 +294,16 @@ function bind() {
     sfx('tap');
     render();
   };
+  click('openLang', () => {
+    g.langFrom = g.modal; // ex. 'pause' quand on vient d'une partie : rétablie à la fermeture
+    g.modal = 'lang';
+    sfx('tap');
+    render();
+  });
+  click('closeLang', () => {
+    closeLang();
+    render();
+  });
   click('openBackup', () => setBackup({ view: 'menu' }));
   click('backupClose', () => setBackup(null));
   click('backupExport', () => setBackup({ view: 'export', code: exportProgress() }));

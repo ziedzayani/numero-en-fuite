@@ -10,6 +10,7 @@ function modalView() {
     `<div class="modal-back" role="dialog" aria-modal="true"><div class="modal">${c}</div></div>`;
   if (['netWait', 'netLost'].includes(g.modal)) return wrapM(netModalView());
   if (g.modal === 'backup' && g.screen === 'settings') return wrapM(backupView());
+  if (g.modal === 'lang' && g.screen === 'settings') return wrapM(langView());
   if (g.modal === 'tip' && g.screen === 'game')
     return wrapM(
       `<div class="tip-box"><div class="mini-mascot">${mascot('idle', false, 'happy')}</div><div><h2>${t('tipTitle')}</h2><p>${t('tip_' + g.tipKey, { max: maxN() })}</p></div></div><button class="bigbtn green" id="tipOk">${t('tipOk')}</button>`

@@ -40,7 +40,7 @@ const EXPECTED_FN = `function(N){const s=N.state,max=N.maxN(),h=s.history;let fr
 const notebookOK = page => page.evaluate(src => { const f = eval('(' + src + ')'), N = window.__numero, exp = f(N), got = [...N.state.candidates].sort((a, b) => a - b); return { ok: exp.join() === got.join() && got.includes(N.state.secret), exp: exp.join(), got: got.join() }; }, EXPECTED_FN);
 
 async function fresh(browser, viewport = { width: 360, height: 740 }) {
-  const ctx = await browser.newContext({ viewport, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  const ctx = await browser.newContext({ locale: 'fr-FR', viewport, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
   const page = await ctx.newPage();
   page.errors = [];
   page.on('pageerror', e => page.errors.push(String(e)));
@@ -79,7 +79,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
   const label = `${players}J/${level}/${lang}`;
   const { ctx, page } = await fresh(browser);
   await page.evaluate(() => { window.__numero.state.reduceMotion = true; });
-  if (lang !== 'fr') { await page.click('#openSettings'); await page.click(`[data-language="${lang}"]`); await page.click('#closeSettings'); }
+  if (lang !== 'fr') { await page.click('#openSettings'); await page.click('#openLang'); await page.click(`[data-language="${lang}"]`); await page.click('#closeSettings'); }
   await pickPlayers(page, players);
   await page.click(`[data-level="${level}"]`);
   await page.click('#start');
@@ -275,7 +275,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click(`[data-question="${st.choices[0]}"]`);
     const mid = await S(page);
     await page.click('#pause'); await page.click('#pauseSettings');
-    await page.click('[data-language="ar"]');
+    await page.click('#openLang'); await page.click('[data-language="ar"]');
     check(await page.evaluate(() => document.documentElement.dir) === 'rtl', 'Arabe : affichage de droite à gauche');
     await shot(page, '07_reglages_arabe');
     await page.click('#closeSettings'); await page.waitForTimeout(450);
@@ -586,9 +586,9 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.evaluate(() => { const N = window.__numero; N.state.screen = 'settings'; N.render(); });
     await page.click('#motionToggle');
     check(await page.evaluate(() => document.body.classList.contains('reduce-motion')), 'Option « Réduire les animations »');
-    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'home'; N.state.modal = null; N.render(); }); // (réglages compacts : le détective est sur l'accueil)
-    const an = await page.evaluate(() => getComputedStyle(document.querySelector('.detector-pupil')).animationName);
-    check(an === 'none', 'Animations coupées quand l’option est active');
+    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'game'; N.state.modal = null; N.render(); }); // le détective (V9 : SVG animé) est sur l'écran de jeu
+    const an = await page.evaluate(() => { const els = [...document.querySelectorAll('.detective-scene, .detective-scene *')]; return els.length > 5 && els.every(e => ['none', ''].includes(getComputedStyle(e).animationName)); });
+    check(an, 'Animations coupées quand l’option est active (détective compris)');
     check(page.errors.length === 0, 'Aucune erreur JavaScript (captures/détective/aide/modes) ' + page.errors.join(' | '));
     console.log(`${failed === before ? '✓' : '✗'} Captures, détective, aide par joueur, modes Course / Points, boutons plats`);
     await ctx.close();
@@ -623,6 +623,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       ['#replayToggle', st => st.replayAsk === true, 'Film du parcours activé'], ['#replayToggle', st => st.replayAsk === false, 'Film du parcours désactivé'],
     ];
     for (const [sel, ok, label] of taps) {
+      if (sel.startsWith('[data-language')) await page.tap('#openLang');
       await page.locator(sel).scrollIntoViewIfNeeded(); await page.tap(sel);
       check(ok(await S(page)), `Réglages : le bouton « ${label} » fonctionne au toucher`);
       await flashCheck(label);
@@ -1089,7 +1090,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       else if (op === 'stop') { const h = hostOf(src); if (h) { for (const pg of h.peers.values()) deliver(pg, { type: 'disconnected' }); delete hosts[h.code]; } else if (src.__peer) { const hh = hosts[src.__peer.code]; if (hh) { hh.peers.delete(src.__peer.id); deliver(hh.page, { type: 'peerLeft', peer: src.__peer.id }); } src.__peer = null; } }
     };
     const phone = async () => {
-      const ctx = await browser.newContext({ viewport: { width: 360, height: 735 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+      const ctx = await browser.newContext({ locale: 'fr-FR', viewport: { width: 360, height: 735 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
       const page = await ctx.newPage(); page.errors = [];
       page.on('pageerror', e => page.errors.push(String(e)));
       await page.exposeBinding('__fakeNet', ({ page: src }, op, a, b) => { netOp(src, op, a, b); });
@@ -1391,12 +1392,59 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
+  // 3p) V9.0 : The Number Hunt — langue du téléphone, 8 langues, logo
+  {
+    const before = failed;
+    const LANG8 = ['fr', 'en', 'ar', 'es', 'it', 'de', 'zh', 'ja'];
+    // premier lancement : la langue du téléphone est choisie (sinon l'anglais)
+    for (const [locale, want] of [['es-MX', 'es'], ['de-DE', 'de'], ['it-IT', 'it'], ['zh-CN', 'zh'], ['zh-TW', 'zh'], ['ja-JP', 'ja'], ['ar-MA', 'ar'], ['fr-CA', 'fr'], ['en-US', 'en'], ['pt-BR', 'en'], ['ko-KR', 'en']]) {
+      const ctx = await browser.newContext({ locale, viewport: { width: 360, height: 735 } });
+      const page = await ctx.newPage();
+      await page.goto(URL); await page.evaluate(() => localStorage.clear()); await page.reload();
+      const lang = await page.evaluate(() => window.__numero.state.lang);
+      check(lang === want, `Premier lancement, téléphone en ${locale} → jeu en « ${want} » (${lang})`);
+      await ctx.close();
+    }
+    const { ctx, page } = await fresh(browser, { width: 360, height: 735 });
+    check(await page.evaluate(() => [window.__numero.deviceLang(['pt-PT', 'it-CH']), window.__numero.deviceLang(['zh-Hant-HK']), window.__numero.deviceLang([])].join()) === 'it,zh,en', 'Langue du téléphone : première langue reconnue de la liste, repli sur l’anglais');
+    // un joueur existant garde sa langue sauvegardée, quel que soit le téléphone
+    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'ar'; N.render(); });
+    await page.waitForTimeout(250); await page.reload();
+    check(await page.evaluate(() => window.__numero.state.lang) === 'ar', 'Joueur existant : la langue sauvegardée est gardée');
+    // nom et logo
+    check((await page.title()) === 'The Number Hunt', 'Titre de la page : The Number Hunt');
+    await page.evaluate(() => { const N = window.__numero; N.state.lang = 'fr'; N.state.screen = 'home'; N.state.modal = null; N.render(); });
+    const logo = await page.evaluate(() => { const el = document.querySelector('.logo-art'); const r = el.getBoundingClientRect(); return { bg: getComputedStyle(el).backgroundImage.slice(0, 30), w: r.width, label: el.getAttribute('aria-label') }; });
+    check(logo.bg.includes('data:image/webp') && logo.w >= 140 && logo.label === 'The Number Hunt', `Accueil : logo The Number Hunt affiché (${Math.round(logo.w)} px)`);
+    check(!(await page.evaluate(() => getComputedStyle(document.body).cssText + [...document.styleSheets].map(s => [...s.cssRules].map(r => r.cssText).join('')).join(''))).match(/#f36ab6|#be3e85|#ef7ca8|#fa75a1/i), 'Plus de rose dans les styles');
+    // réglages : une ligne « Langue » → fenêtre aux 8 langues ; chaque langue s'affiche sans erreur
+    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'settings'; N.render(); });
+    await page.click('#openLang');
+    check(await page.$$eval('.lang-grid .lang-choice', b => b.length) === 8, 'Réglages : 8 langues proposées');
+    for (const l of LANG8) {
+      if (!(await page.$('#openLang')) || (await S(page)).modal !== 'lang') await page.click('#openLang');
+      await page.click(`[data-language="${l}"]`);
+      const r = await page.evaluate(() => ({ lang: window.__numero.state.lang, html: document.documentElement.lang, dir: document.documentElement.dir, modal: window.__numero.state.modal, raw: /\b[a-z]+[A-Z]\w*\b/.test(document.querySelector('.settings-title').textContent) }));
+      check(r.lang === l && r.html === l && r.dir === (l === 'ar' ? 'rtl' : 'ltr') && r.modal === null && !r.raw, `Langue « ${l} » : choisie, appliquée à la page, fenêtre refermée`);
+      for (const scr of ['home', 'game', 'office']) {
+        await page.evaluate(scr => { const N = window.__numero; N.state.modal = null; if (scr === 'game') { N.state.players = 1; N.start(true); N.state.modal = null; } else N.state.screen = scr; N.render(); }, scr);
+        await page.waitForTimeout(450); // fin de l'animation d'entrée d'écran
+        const sc = await page.evaluate(() => document.scrollingElement.scrollHeight - innerHeight);
+        check(sc <= 2, `Langue « ${l} », écran ${scr} : pas de défilement (${sc}px)`);
+      }
+      await page.evaluate(() => { const N = window.__numero; N.state.screen = 'settings'; N.state.modal = null; N.render(); });
+    }
+    check(page.errors.length === 0, 'V9 : aucune erreur JavaScript ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V9.0 : The Number Hunt, langue du téléphone, 8 langues, logo`);
+    await ctx.close();
+  }
+
   // 3o) V8.15 : bureau (badges, missions, chapeaux) et écran de victoire compact animé
   {
     const before = failed;
     const { ctx, page } = await fresh(browser, { width: 360, height: 640 });
     const win = (level, opts = '') => page.evaluate(([lv, o]) => { const N = window.__numero; Object.assign(N.state, { players: 1, level: lv, mode: 'normal', replayAsk: false, modal: null }); N.start(true); N.state.modal = null; (0, eval)(o); N.guess(N.state.secret); N.nextTurn(); return N.state.soloResult; }, [level, opts]);
-    check(await page.$('.detective-scene.hat-r1'), 'Rang 1 : chapeau d’origine du détective');
+    check(await page.evaluate(() => window.__numero.mascot('idle').includes('hat-r1')), 'Rang 1 : chapeau d’origine du détective');
     let r = await win('junior');
     check(r.newBadges.includes('flash') && r.newBadges.includes('lynx'), `Victoire en 1 tour, sans erreur : badges « Éclair » et « Œil de lynx » (${r.newBadges.join(', ')})`);
     check(await page.isVisible('.reward-chip.xp') && (await page.textContent('.reward-line')).includes('badges'), 'Écran de fin : XP et nouveaux badges regroupés sur une ligne');

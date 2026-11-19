@@ -17,7 +17,7 @@ permissions:
 jobs:
   apk:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       HAS_RELEASE_KEY: ${{ secrets.NEF_KEYSTORE_BASE64 != '' }}
       APK_NAME: NumeroEnFuite.apk
@@ -44,8 +44,16 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           npm test
-      - name: Mise en page — aucun défilement, aucun bouton collé (3 tailles × 3 langues)
-        run: npm run audit:layout
+      - name: Mise en page — aucun défilement, aucun bouton collé (3 tailles × 8 langues, en parallèle)
+        run: |
+          pids=""
+          for l in fr en ar es it de zh ja; do
+            LANGS=$l node tools/layout-audit.cjs > "audit_$l.log" 2>&1 & pids="$pids $!"
+          done
+          fail=0
+          for p in $pids; do wait $p || fail=1; done
+          cat audit_*.log
+          exit $fail
       - name: Publier les captures d'écran des tests
         if: always()
         uses: actions/upload-artifact@v4

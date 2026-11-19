@@ -506,7 +506,7 @@
   "tip_mod101": "×2 (ou ×3) en Défi : on multiplie, et si on dépasse 100 on retire 101. Exemple : 60 × 2 = 120, 120 − 101 = 19.",
   "tip_moved": "Le numéro vient de bouger ! Ce que tu savais a glissé avec lui : décale tes idées avant de deviner.",
   "tip_net": "Pas sûr ? Le filet attrape plusieurs numéros voisins d’un coup, mais rapporte moins de points.",
-  "title": "Le Numéro en fuite",
+  "title": "The Number Hunt",
   "totalLine": "{score} pts + {stars} ⭐",
   "turn": "Tour {current} / {total}",
   "turnTimeUp": "TROP TARD !",

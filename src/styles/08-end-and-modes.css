@@ -246,7 +246,7 @@ button,
   box-shadow: none !important;
 }
 .numtile.sel {
-  outline: 4px solid #f36ab6;
+  outline: 4px solid #ff8a3d;
   outline-offset: 2px;
 }
 button:not(:disabled):active {
@@ -675,8 +675,8 @@ button.tut-cell {
   }
 }
 .tut-cell.wrong {
-  background: #ffd9e3;
-  border-color: #e0567f;
+  background: #ffe6cf;
+  border-color: #e0662a;
 }
 .tut-loop-msg {
   min-height: 2.6em;
@@ -1306,7 +1306,7 @@ body.scr-end .finalscore {
   margin: 8px 0;
   padding: 8px 10px;
   border-radius: 12px;
-  background: #ffd9e3;
+  background: #ffe6cf;
   font-weight: 700;
   font-size: 14px;
 }
@@ -1741,7 +1741,7 @@ body.scr-end .finalscore {
 }
 .hat-r3 {
   --hat-base: var(--pink);
-  --hat-top: #ff92cb;
+  --hat-top: #ffb37a;
   --hat-brim: var(--pinkDark);
 }
 .hat-r4 {
@@ -2300,5 +2300,125 @@ body.scr-end .finalscore {
     min-height: 44px;
     padding-top: 7px;
     padding-bottom: 7px;
+  }
+}
+
+/* ===== V9 « The Number Hunt » : logo, en-tête, accueil ===== */
+.brand {
+  background: linear-gradient(180deg, #22346f, #16214a);
+  border: 3px solid var(--yellow);
+  border-radius: 999px;
+  padding: 4px 14px 4px 4px;
+  gap: 8px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+.brand-badge {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--yellow);
+  background: #16214a url(img/badge.webp) center / cover no-repeat;
+}
+.brand b {
+  color: var(--yellow);
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+}
+.home-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+}
+.home-top .rank-chip {
+  background: rgba(10, 18, 46, 0.55);
+  border-color: var(--yellow);
+  box-shadow: none;
+}
+.home-logo {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin: -6px 0 6px;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+.logo-art {
+  /* sur les écrans courts, fitLogo() (16-render.js) le rétrécit pour que l'accueil tienne sans défiler */
+  width: min(78vw, 300px);
+  aspect-ratio: 640 / 488;
+  margin: 0;
+  background: url(img/logo.webp) center / contain no-repeat;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35));
+  animation: logo-float 4.5s ease-in-out infinite;
+}
+@keyframes logo-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-0.6deg);
+  }
+}
+.reduce-motion .logo-art {
+  animation: none;
+}
+.tagline {
+  margin: 0;
+  color: #fff;
+  font-weight: 800;
+  font-size: 17px;
+  text-align: center;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* V9.0 : fenêtre « Langue » — 8 langues sur 2 colonnes, chacune écrite dans sa langue */
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 10px 0 6px;
+}
+.lang-grid .lang-choice {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0;
+  min-height: 48px;
+  padding: 8px 10px;
+  font-size: 16px;
+}
+.lang-grid .lang-choice .flag {
+  font-size: 22px;
+}
+.lang-row small {
+  font-size: 13px;
+}
+.compact-settings .lang-row {
+  margin-bottom: 8px;
+}
+@media (max-height: 680px) {
+  .home-logo {
+    margin: -10px 0 2px;
+  }
+  .tagline {
+    font-size: 15px;
   }
 }

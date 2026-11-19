@@ -261,7 +261,7 @@
   background: #9b86ff;
 }
 .rp-dots i.on {
-  background: #f36ab6;
+  background: #ff8a3d;
   transform: scale(1.3);
 }
 .rp-ctrl {
@@ -536,7 +536,7 @@
   color: var(--ink2);
 }
 .rp-pick.bad {
-  background: #ffe1e7;
+  background: #ffe9d6;
   color: #b0213b;
 }
 .rp-pick.good {
@@ -553,7 +553,7 @@
   text-shadow: 0 1px 0 #0005;
 }
 .rp-track span.miss {
-  background: #ff8fa8 !important;
+  background: #ffb37a !important;
   color: #5a0c22 !important;
   border-color: #b0213b !important;
   position: relative;

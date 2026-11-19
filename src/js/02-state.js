@@ -32,7 +32,7 @@ const esc = x =>
 const initial = () => ({
   screen: 'home',
   settingsFrom: 'home',
-  lang: 'fr',
+  lang: deviceLang(), // premier lancement : langue du téléphone (puis la langue choisie est mémorisée)
   players: 1, // premier lancement : Solo (le dernier choix est ensuite mémorisé)
   level: 'junior',
   turn: 0,
@@ -83,9 +83,9 @@ const initial = () => ({
 });
 /** L'état courant. Remplacé (pas modifié) par start() et load() : toujours lire `g`, jamais une copie. */
 let g = initial();
-/** Texte traduit dans la langue courante (repli sur le français, puis sur la clé). */
+/** Texte traduit dans la langue courante (repli sur l'anglais, puis le français, puis la clé). */
 const t = (key, vars = {}) => {
-  const value = dictionaries[g.lang]?.[key] || dictionaries.fr[key] || key;
+  const value = dictionaries[g.lang]?.[key] || dictionaries.en?.[key] || dictionaries.fr[key] || key;
   return value.replace(/\{(\w+)\}/g, (_, k) => esc(vars[k] ?? ''));
 };
 /** Plus grand numéro de la partie en cours. */
@@ -214,7 +214,7 @@ function load() {
       !['home', 'game', 'end', 'settings', 'office', 'lan'].includes(d.screen) ||
       ![1, 2, 3, 4].includes(d.players) ||
       !(d.level in LEVELS) ||
-      !['fr', 'en', 'ar'].includes(d.lang) ||
+      !LANG_CODES.includes(d.lang) ||
       !Array.isArray(d.scores) ||
       d.scores.length !== d.players ||
       !Array.isArray(d.candidates) ||

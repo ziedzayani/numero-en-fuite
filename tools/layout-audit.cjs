@@ -13,7 +13,7 @@
 const path = require('path');
 const { chromium } = require('playwright');
 const SIZES = (process.env.SIZES || '360x735,393x806,412x870').split(',').map(s => s.split('x').map(Number));
-const LANGS = (process.env.LANGS || 'fr,en,ar').split(',');
+const LANGS = (process.env.LANGS || 'fr,en,ar,es,it,de,zh,ja').split(',');
 const MIN_GAP = 8;
 const STATES = {
   accueil: N => {},
@@ -357,7 +357,11 @@ const STATES = {
   const issues = [];
   let n = 0;
   for (const [w, h] of SIZES) {
-    const c = await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
+    const c = await b.newContext({
+      locale: 'fr-FR',
+      viewport: { width: w, height: h },
+      deviceScaleFactor: 1
+    });
     const p = await c.newPage();
     const errs = [];
     p.on('pageerror', e => errs.push(e.message));

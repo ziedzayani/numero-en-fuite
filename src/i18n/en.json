@@ -506,7 +506,7 @@
   "tip_mod101": "×2 (or ×3) in Challenge: multiply, and if you go over 100 take away 101. Example: 60 × 2 = 120, 120 − 101 = 19.",
   "tip_moved": "The number just moved! What you knew slid with it: shift your ideas before guessing.",
   "tip_net": "Not sure? The net catches several neighbouring numbers at once, but scores fewer points.",
-  "title": "The Runaway Number",
+  "title": "The Number Hunt",
   "totalLine": "{score} pts + {stars} ⭐",
   "turn": "Turn {current} / {total}",
   "turnTimeUp": "TOO LATE!",

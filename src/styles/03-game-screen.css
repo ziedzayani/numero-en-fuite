@@ -484,3 +484,12 @@ body.scr-game #app {
     font-size: 19px;
   }
 }
+/* V9.0 : saut long (ex. ±13 · ×3) + texte long (ES, DE…) → le texte passe sous l'image au lieu d'une colonne étroite */
+.move-line {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.move-line > span {
+  flex: 1 1 150px;
+  min-width: 0;
+}

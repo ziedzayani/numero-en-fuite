@@ -21,8 +21,9 @@ function scoreDelta(i) {
   }[x.type];
   return d ? `<i class="delta ${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : '−'}${Math.abs(d)}</i>` : '';
 }
+/** En-tête des écrans : petit médaillon du détective + nom (en anglais dans toutes les langues). */
 function brand() {
-  return `<div class="brand"><span class="brand-icon" dir="ltr">9?</span><span><small>${t('eyebrow')}</small><b>${t('title')}</b></span></div>`;
+  return `<div class="brand" dir="ltr"><span class="brand-badge" aria-hidden="true"></span><b>The Number Hunt</b></div>`;
 }
 function settingsButton(compact = false) {
   return compact
@@ -51,7 +52,8 @@ function home() {
         `<button class="level ${g.level === id ? 'is-selected' : ''}" data-level="${id}" aria-pressed="${g.level === id}"><span class="level-emoji">${emoji}</span><strong>${t(k)}</strong><span class="level-range" dir="ltr">${range}</span><small class="lvl-sub">${t(sub)}</small></button>`
     )
     .join('');
-  return `<header class="top">${brand()}${settingsButton()}</header><section class="hero hero-row"><div class="hero-mascot">${mascot()}</div><div class="hero-title"><h1>${t('hero1')}<br><span>${t('hero2')}</span></h1><button class="rank-chip" id="openOffice2">🎖️ ${rankName(rank)}</button></div></section><section class="panel start-panel">${who}<div class="label">✨ ${t('levels')}</div><div class="difficulty">${levels}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button><button class="mini-btn more-btn" id="openMore">⋯ ${t('more')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
+  // V9 : le logo « The Number Hunt » remplace l'en-tête et la mascotte de l'accueil (il flotte doucement)
+  return `<header class="top home-top"><button class="rank-chip" id="openOffice2">🎖️ ${rankName(rank)}</button>${settingsButton(true)}</header><section class="hero home-logo"><h1 class="logo-art" role="img" aria-label="The Number Hunt"><span class="sr-only">The Number Hunt</span></h1><p class="tagline">${t('hero1')} ${t('hero2')}</p></section><section class="panel start-panel">${who}<div class="label">✨ ${t('levels')}</div><div class="difficulty">${levels}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button><button class="mini-btn more-btn" id="openMore">⋯ ${t('more')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
 }
 /** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
 function office() {
@@ -133,21 +135,27 @@ function officeMissions(p) {
     )
     .join('')}</ul>`;
 }
+/** Ferme la fenêtre « Langue » et rétablit la fenêtre d'avant (pause d'une partie, etc.). */
+function closeLang() {
+  g.modal = g.langFrom || null;
+  g.langFrom = null;
+}
+/** Fenêtre « Langue du jeu » : les 8 langues, chacune écrite dans sa propre langue. */
+function langView() {
+  const items = LANGS.map(
+    ([code, flag, label]) =>
+      `<button class="lang-choice ${g.lang === code ? 'is-selected' : ''}" data-language="${code}" lang="${code}" dir="${code === 'ar' ? 'rtl' : 'ltr'}" aria-pressed="${g.lang === code}"><span class="flag">${flag}</span><strong>${label}</strong></button>`
+  ).join('');
+  return `<h2>🌍 ${t('language')}</h2><div class="lang-list lang-grid">${items}</div><p class="sub small">${t('languageHint')}</p><button class="mini-btn" id="closeLang">${t('close')}</button>`;
+}
 /** Réglages : langue, chronos, son, mouvements réduits, film. */
 function settings() {
   // Écran compact (sans défilement sur 360 × 735) : une seule carte, une ligne par réglage.
   const toggle = (id, on, icon, label, hint) =>
     `<button class="toggle-row" id="${id}" role="switch" aria-checked="${on}"><span class="flag">${icon}</span><span class="tr-text"><strong>${label}</strong><small>${hint}</small></span><span class="switch ${on ? 'on' : ''}"></span></button>`;
-  const langs = [
-    ['fr', '🇫🇷', 'Français'],
-    ['en', '🇬🇧', 'English'],
-    ['ar', '🇸🇦', 'العربية']
-  ]
-    .map(
-      ([code, flag, label]) =>
-        `<button class="lang-choice ${g.lang === code ? 'is-selected' : ''}" data-language="${code}" lang="${code}" dir="${code === 'ar' ? 'rtl' : 'ltr'}" aria-pressed="${g.lang === code}"><span class="flag">${flag}</span><strong>${label}</strong></button>`
-    )
-    .join('');
+  // 8 langues : une ligne « Langue » qui ouvre la liste complète (fenêtre 'lang', voir langView()).
+  const cur = LANGS.find(l => l[0] === g.lang) || LANGS[1];
+  const langs = `<button class="toggle-row lang-row" id="openLang"><span class="flag">🌍</span><span class="tr-text"><strong>${t('language')}</strong><small lang="${cur[0]}">${cur[1]} ${cur[2]}</small></span><span class="chev">›</span></button>`;
   const timers = [
     ['normal', 'timerNormal'],
     ['long', 'timerLong'],
@@ -158,7 +166,7 @@ function settings() {
         `<button class="mini-btn ${g.timerMode === m ? 'is-selected' : ''}" data-timer="${m}" aria-pressed="${g.timerMode === m}">${t(k)}</button>`
     )
     .join('');
-  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1><div class="panel-title">🌍 ${t('language')}</div><div class="lang-list">${langs}</div><div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}${toggle('replayToggle', g.replayAsk !== false, '🎬', t('rpSettingLabel'), t('rpSettingHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">💾</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1>${langs}<div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}${toggle('replayToggle', g.replayAsk !== false, '🎬', t('rpSettingLabel'), t('rpSettingHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">💾</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
 }
 /** Les trois onglets du tour : Indice, Calcul, Choisir un numéro (+ boutons de capture). */
 function questionView() {

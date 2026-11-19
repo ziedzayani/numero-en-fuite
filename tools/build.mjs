@@ -8,8 +8,9 @@
  *   src/index.html           squelette de la page, avec deux marqueurs :
  *                              /* @inject styles *\/   →  src/styles/*.css (ordre alphabétique)
  *                              /* @inject scripts *\/  →  src/js/*.js      (ordre alphabétique)
- *   src/js/01-i18n.js        contient /* @inject dictionaries *\/ {} → src/i18n/{fr,en,ar}.json
+ *   src/js/01-i18n.js        contient /* @inject dictionaries *\/ {} → src/i18n/{fr,en,ar,es,it,de,zh,ja}.json
  *   src/styles/00-fonts.css  référence fonts/*.woff2 → intégrées en data: URI (base64)
+ *   url(img/*.webp|png) dans le CSS (logo, icône) → intégrées de la même façon
  *   src/js/00-constants.js   contient /* @inject version *\/ '' → versionName de app/build.gradle
  *   src/pwa/sw.js            service worker ; __VERSION__ remplacé par versionName
  *
@@ -29,7 +30,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'src');
-const LANGUAGES = ['fr', 'en', 'ar'];
+const LANGUAGES = ['fr', 'en', 'ar', 'es', 'it', 'de', 'zh', 'ja'];
 const read = p => readFileSync(join(ROOT, p), 'utf8');
 const listDir = (dir, ext) =>
   readdirSync(join(ROOT, dir))
@@ -76,6 +77,11 @@ function styles() {
       css = css.replace(/url\(fonts\/([\w.-]+\.woff2)\)/g, (_, font) => {
         const b64 = readFileSync(join(SRC, 'assets/fonts', font)).toString('base64');
         return `url(data:font/woff2;base64,${b64})`;
+      });
+      // V9 : images (logo, icône) intégrées elles aussi → le jeu reste un seul fichier, hors ligne
+      css = css.replace(/url\(img\/([\w.-]+\.(webp|png))\)/g, (_, img, ext) => {
+        const b64 = readFileSync(join(SRC, 'assets/img', img)).toString('base64');
+        return `url(data:image/${ext};base64,${b64})`;
       });
       return `/* ---- ${f} ---- */\n${css}`;
     })

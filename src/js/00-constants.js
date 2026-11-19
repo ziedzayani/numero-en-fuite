@@ -27,7 +27,7 @@ const STORAGE = 'numeroEnFuiteV6',
   RECORDS_STORAGE = 'numeroEnFuiteRecords';
 
 /** Couleur de chaque joueur (1 à 4). */
-const colors = ['#8c75ef', '#31be95', '#f2af5c', '#ef7ca8'];
+const colors = ['#8c75ef', '#31be95', '#f2af5c', '#ff9f43'];
 
 /**
  * Niveaux : numéros de 1 à `max` ; le filet couvre `netSize` numéros voisins.

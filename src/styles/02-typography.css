@@ -277,7 +277,7 @@ button {
   padding: 2px 6px;
 }
 .timer.hurry .timer-bar span {
-  background: linear-gradient(90deg, #ff6b6b, #f36ab6);
+  background: linear-gradient(90deg, #ff6b6b, #ff8a3d);
 }
 .timer.hurry b {
   color: #d0263f;
