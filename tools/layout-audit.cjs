@@ -405,6 +405,13 @@ const STATES = {
             path: path.join(process.env.SHOTS, `${w}x${h}_${lang}_${name.replace(/[^\wÀ-ÿ+-]+/g, '_')}.png`)
           });
         const r = await p.evaluate(MIN => {
+          // mesure la mise en page finale : les animations d'ouverture (zoom des fenêtres…) faussaient les écarts
+          if (!document.getElementById('audit-still')) {
+            const st = document.createElement('style');
+            st.id = 'audit-still';
+            st.textContent = '*,*::before,*::after{animation:none!important;transition:none!important}';
+            document.head.appendChild(st);
+          }
           const vis = e => {
             const r = e.getBoundingClientRect(),
               s = getComputedStyle(e);
