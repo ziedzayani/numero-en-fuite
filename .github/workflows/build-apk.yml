@@ -44,7 +44,7 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           npm test
-      - name: Mise en page — aucun défilement, aucun bouton collé (3 tailles × 8 langues, en parallèle)
+      - name: Mise en page — aucun défilement, aucun bouton collé, texte lisible (3 tailles × 8 langues, en parallèle)
         run: |
           pids=""
           for l in fr en ar es it de zh ja; do

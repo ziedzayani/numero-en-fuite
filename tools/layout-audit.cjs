@@ -8,6 +8,7 @@
  *
  * Utilisation : npm run audit:layout        (échoue si un problème est trouvé ; utilisé par la CI)
  *   SIZES=360x640 LANGS=fr node tools/layout-audit.cjs   pour une taille ou une langue précise
+ *   SHOTS=/tmp/shots node tools/layout-audit.cjs           enregistre en plus une capture de chaque écran
  * Tailles par défaut : 360×735 (téléphone testé : 1080×2340, barres système déduites), 393×806, 412×870.
  */
 const path = require('path');
@@ -398,6 +399,11 @@ const STATES = {
           [lang, typeof fn === 'string' ? fn : fn.toString()]
         );
         await p.waitForTimeout(450);
+        // SHOTS=dossier : enregistre aussi une capture de chaque écran (revue visuelle)
+        if (process.env.SHOTS)
+          await p.screenshot({
+            path: path.join(process.env.SHOTS, `${w}x${h}_${lang}_${name.replace(/[^\wÀ-ÿ+-]+/g, '_')}.png`)
+          });
         const r = await p.evaluate(MIN => {
           const vis = e => {
             const r = e.getBoundingClientRect(),
@@ -442,15 +448,73 @@ const STATES = {
               if (gap !== null && gap < MIN)
                 out.gaps.push(`${label(btns[i])} ↔ ${label(btns[j])} : ${Math.round(gap)}px`);
             }
+          // texte peu lisible : contraste texte / fond (fond = 1er ancêtre opaque, ou 1re couleur d'un dégradé)
+          out.contrast = [];
+          const rgb = str => {
+            const m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/.exec(str || '');
+            return m ? [+m[1], +m[2], +m[3], m[4] == null ? 1 : +m[4]] : null;
+          };
+          const lum = c => {
+            const f = v => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+            return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+          };
+          let bgOwner = null;
+          const bgOf = e => {
+            for (let x = e; x && x.nodeType === 1; x = x.parentElement) {
+              const s = getComputedStyle(x);
+              bgOwner = x;
+              if (/url\(/.test(s.backgroundImage)) return null; // image : non mesurable
+              const grad = /gradient/.test(s.backgroundImage) && rgb(s.backgroundImage);
+              if (grad && grad[3] > 0.5) return grad;
+              const c = rgb(s.backgroundColor);
+              if (c && c[3] > 0.5) return c;
+            }
+            bgOwner = null;
+            return [26, 43, 102, 1]; // fond de la page
+          };
+          for (const e of document.querySelectorAll('#app *')) {
+            if (
+              !vis(e) ||
+              (modal && !modal.contains(e)) ||
+              e.closest(
+                'svg, .sr-only, [aria-hidden="true"], .detector-orbit, .nb-cell.no, .nb-range.no, .tut-cell.out, .rp-dots, .rp-trail, .rp-pick, .rp-track'
+              )
+            )
+              continue;
+            const own = [...e.childNodes].some(n => n.nodeType === 3 && /[\p{L}\p{N}]/u.test(n.textContent));
+            if (!own) continue;
+            let op = 1;
+            for (let x = e; x && x.nodeType === 1; x = x.parentElement) op *= +getComputedStyle(x).opacity;
+            if (op < 0.6) continue; // bouton désactivé, élément estompé exprès
+            const fg = rgb(getComputedStyle(e).color),
+              bg = bgOf(e);
+            if (!fg || !bg) continue;
+            const a = lum(fg),
+              b = lum(bg),
+              ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+            if (ratio < 3)
+              out.contrast.push(
+                label(e) +
+                  (bgOwner && bgOwner !== e
+                    ? ' sur ' +
+                      (bgOwner.className && typeof bgOwner.className === 'string'
+                        ? '.' + bgOwner.className.trim().split(/\s+/).join('.')
+                        : bgOwner.tagName)
+                    : '') +
+                  ' ' +
+                  ratio.toFixed(1)
+              );
+          }
           return out;
         }, MIN_GAP);
         n++;
-        if (r.page > 0 || r.inner.length || r.gaps.length)
+        if (r.page > 0 || r.inner.length || r.gaps.length || r.contrast.length)
           issues.push(
             `${w}x${h} ${lang} « ${name} »` +
               (r.page > 0 ? ` | page défile +${r.page}px` : '') +
               (r.inner.length ? ' | zone défile : ' + r.inner.join(', ') : '') +
-              (r.gaps.length ? ' | boutons collés : ' + r.gaps.join(' ; ') : '')
+              (r.gaps.length ? ' | boutons collés : ' + r.gaps.join(' ; ') : '') +
+              (r.contrast.length ? ' | texte peu lisible : ' + r.contrast.slice(0, 6).join(' ; ') : '')
           );
       }
     if (errs.length) issues.push('ERREURS JS ' + errs.join(' | '));

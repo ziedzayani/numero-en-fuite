@@ -38,13 +38,13 @@
 }
 .nh .nh-coat,
 .nh .nh-sleeve {
-  fill: var(--coat, #d9a14a);
+  fill: var(--coat, #9c6131);
 }
 .nh .nh-coat-dark {
-  fill: var(--coat-dark, #a9732b);
+  fill: var(--coat-dark, #6e3f1c);
 }
 .nh .nh-lapel {
-  fill: var(--coat-dark, #b98134);
+  fill: var(--coat-dark, #7a4721);
 }
 .nh .nh-shirt {
   fill: #fff;
@@ -101,14 +101,14 @@
   display: none;
   stroke-width: 2.4;
 }
-/* casquette à carreaux (couleurs du rang : rang 1 = or du logo) */
+/* casquette à carreaux (couleurs du rang : rang 1 = brun du logo) */
 .nh .nh-plaid-a {
-  fill: var(--hat-base, #d9a34c);
+  fill: var(--hat-base, #8f5a2e);
   stroke: none;
 }
 .nh .nh-plaid-b {
   fill: none;
-  stroke: var(--hat-brim, #9a6a26);
+  stroke: var(--hat-brim, #4f2d12);
   stroke-width: 1.2;
   opacity: 0.55;
 }
@@ -121,10 +121,10 @@
 }
 .nh .nh-brim,
 .nh .nh-brim-back {
-  fill: var(--hat-top, #e8bd6c);
+  fill: var(--hat-top, #b07a45);
 }
 .nh .nh-bow {
-  fill: var(--hat-top, #e8bd6c);
+  fill: var(--hat-top, #b07a45);
   stroke-width: 2;
 }
 .nh .nh-star {

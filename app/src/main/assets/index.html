@@ -6745,13 +6745,13 @@ body.scr-end .finalscore {
 }
 .nh .nh-coat,
 .nh .nh-sleeve {
-  fill: var(--coat, #d9a14a);
+  fill: var(--coat, #9c6131);
 }
 .nh .nh-coat-dark {
-  fill: var(--coat-dark, #a9732b);
+  fill: var(--coat-dark, #6e3f1c);
 }
 .nh .nh-lapel {
-  fill: var(--coat-dark, #b98134);
+  fill: var(--coat-dark, #7a4721);
 }
 .nh .nh-shirt {
   fill: #fff;
@@ -6808,14 +6808,14 @@ body.scr-end .finalscore {
   display: none;
   stroke-width: 2.4;
 }
-/* casquette à carreaux (couleurs du rang : rang 1 = or du logo) */
+/* casquette à carreaux (couleurs du rang : rang 1 = brun du logo) */
 .nh .nh-plaid-a {
-  fill: var(--hat-base, #d9a34c);
+  fill: var(--hat-base, #8f5a2e);
   stroke: none;
 }
 .nh .nh-plaid-b {
   fill: none;
-  stroke: var(--hat-brim, #9a6a26);
+  stroke: var(--hat-brim, #4f2d12);
   stroke-width: 1.2;
   opacity: 0.55;
 }
@@ -6828,10 +6828,10 @@ body.scr-end .finalscore {
 }
 .nh .nh-brim,
 .nh .nh-brim-back {
-  fill: var(--hat-top, #e8bd6c);
+  fill: var(--hat-top, #b07a45);
 }
 .nh .nh-bow {
-  fill: var(--hat-top, #e8bd6c);
+  fill: var(--hat-top, #b07a45);
   stroke-width: 2;
 }
 .nh .nh-star {
@@ -7056,6 +7056,581 @@ body.scr-end .finalscore {
   -webkit-text-stroke: 1px var(--line);
 }
 
+/* ---- 10-theme.css ---- */
+/*
+ * V9.1 — Thème « The Number Hunt » (d'après les maquettes) : appliqué par-dessus les styles existants.
+ * Cartes bleu roi lumineuses (texte blanc), titres en pastille or, tuiles de niveau colorées, gros boutons
+ * jaunes, tuiles blanches à icône, réglages en lignes claires, bandeaux « Bravo » vert / « Oups » rouge.
+ * Pas de rose. Les éléments clairs (bulles, questions, numéros, réglages) gardent un texte bleu nuit.
+ * Les boutons restent sans ombre portée (box-shadow) : le relief vient d'un dégradé et d'un bord plus épais en bas.
+ */
+:root {
+  --hunt-card: linear-gradient(180deg, #2a5fd4 0%, #1d47b0 45%, #173a92 100%);
+  --hunt-edge: #7cc8ff;
+  --hunt-glow: 0 0 0 2px #0e2462, 0 0 20px rgba(92, 180, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  --hunt-text: #ffffff;
+  --hunt-soft: #dbe8ff;
+  --hunt-tile: linear-gradient(180deg, #ffffff 0%, #e4efff 100%);
+  --hunt-tile-edge: #9fcfff;
+  --hunt-gold: #ffc83d;
+  --hunt-red: #d93a2f;
+}
+
+/* ---------- fond : bleu roi avec un halo au centre ---------- */
+body::before {
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 30%, rgba(120, 190, 255, 0.35), transparent 70%),
+    radial-gradient(#ffffff1c 1.4px, transparent 1.5px) 0 0/26px 26px,
+    linear-gradient(180deg, #132a78 0%, #1f4cc0 45%, #1a3e9f 75%, #10286b 100%);
+}
+
+/* ---------- cartes ---------- */
+.panel,
+.modal {
+  background: var(--hunt-card);
+  border: 2px solid var(--hunt-edge);
+  border-radius: 24px;
+  box-shadow: var(--hunt-glow);
+  color: var(--hunt-text);
+}
+.panel h1,
+.panel h2,
+.panel h3,
+.modal h1,
+.modal h2,
+.modal h3,
+.settings-title {
+  color: var(--hunt-text);
+  text-shadow: 0 2px 0 rgba(8, 20, 70, 0.45);
+}
+.panel .sub,
+.modal .sub,
+.panel .intro,
+.modal .intro,
+.modal p,
+.panel > p,
+.footer,
+.app-version {
+  color: var(--hunt-soft);
+}
+.hero h1,
+.hero .intro {
+  color: #fff;
+}
+
+/* ---------- titres de section : pastille bleu nuit bordée d'or ---------- */
+.panel .label,
+.panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 8px auto 8px;
+  padding: 3px 14px;
+  background: #11286e;
+  border: 2px solid var(--hunt-gold);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+.settings-title {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 10px;
+  padding: 4px 18px;
+  background: #11286e;
+  border: 2px solid var(--hunt-edge);
+  border-radius: 999px;
+  box-shadow: 0 0 14px rgba(92, 180, 255, 0.45);
+}
+
+/* ---------- boutons ---------- */
+.bigbtn {
+  background: linear-gradient(180deg, #ffe680 0%, #ffcb2e 55%, #f4ad00 100%);
+  color: #1b2560;
+  border: 3px solid #a86d00;
+  border-bottom-width: 6px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.bigbtn.green {
+  background: linear-gradient(0deg, #137a3e 0%, #1f9e55 55%, #36c172 100%);
+  border-color: #0c5a2c;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 40, 15, 0.45);
+}
+.bigbtn.light {
+  background: linear-gradient(0deg, #1f4bb8 0%, #2f66de 55%, #4f86f5 100%);
+  border-color: #142f7a;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(5, 20, 70, 0.45);
+}
+.bigbtn.pink {
+  background: linear-gradient(0deg, #a83416 0%, #d24d24 55%, #f0703c 100%);
+  border-color: #7a220c;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(60, 10, 0, 0.45);
+}
+.bigbtn:disabled {
+  filter: saturate(0.4);
+}
+.mini-btn {
+  background: var(--hunt-tile);
+  color: #1b2560;
+  border: 2px solid var(--hunt-tile-edge);
+  border-bottom-width: 4px;
+}
+
+/* ---------- accueil ---------- */
+.tagline {
+  position: relative;
+  padding: 5px 16px;
+  background: #fff;
+  color: #1b2560;
+  border: 2px solid #1b2560;
+  border-radius: 999px;
+  text-shadow: none;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.35);
+}
+.rank-chip {
+  background: #11286e;
+  color: #fff;
+  border: 2px solid var(--hunt-gold);
+}
+.seg,
+.chip-btn {
+  background: var(--hunt-tile);
+  color: #1b2560;
+  border: 2px solid var(--hunt-tile-edge);
+  border-bottom-width: 4px;
+}
+.seg.is-selected,
+.chip-btn.is-selected {
+  position: relative;
+  background: linear-gradient(180deg, #ffe680 0%, #ffcb2e 100%);
+  color: #1b2560;
+  border-color: #a86d00;
+}
+.seg.is-selected::after,
+.level.is-selected::after {
+  content: '✓';
+  position: absolute;
+  top: -7px;
+  inset-inline-end: -6px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #22b45d;
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+}
+/* tuiles de niveau : vert, bleu, rouge, violet */
+.level {
+  position: relative;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-bottom-width: 4px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+.level[data-level='junior'] {
+  background: linear-gradient(0deg, #13843f 0%, #23a95a 50%, #4fd17f 100%);
+}
+.level[data-level='malin'] {
+  background: linear-gradient(0deg, #1b4cbc 0%, #2d6be0 50%, #5c96ff 100%);
+}
+.level[data-level='expert'] {
+  background: linear-gradient(0deg, #a8261d 0%, #d13d2f 50%, #f06a4a 100%);
+}
+.level[data-level='genius'] {
+  background: linear-gradient(0deg, #4b2fa6 0%, #6a48d1 50%, #9373f2 100%);
+}
+.level.is-selected {
+  border-color: var(--hunt-gold);
+  box-shadow:
+    0 0 0 2px var(--hunt-gold),
+    0 0 14px rgba(255, 200, 61, 0.7);
+}
+.level strong,
+.level small,
+.level .lvl-sub {
+  color: #fff;
+}
+.level .level-range {
+  background: rgba(10, 25, 80, 0.55);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0 8px;
+}
+/* rangée du bas : tuiles blanches, icône au-dessus */
+.home-row .mini-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: var(--hunt-tile);
+  color: #1b2560;
+  border: 2px solid var(--hunt-tile-edge);
+  border-bottom-width: 4px;
+  line-height: 1.1;
+}
+.home-row .hr-ico {
+  font-size: 22px;
+  line-height: 1;
+}
+.home-row .hr-txt {
+  font-size: 12.5px;
+}
+
+/* ---------- réglages : lignes claires ---------- */
+.toggle-row {
+  background: var(--hunt-tile);
+  color: #1b2560;
+  border: 2px solid var(--hunt-tile-edge);
+  border-radius: 16px;
+}
+.toggle-row small {
+  color: #46527d;
+}
+.timer-details summary {
+  color: #ffe08a;
+}
+
+/* ---------- jeu ---------- */
+.turn-card .bubble,
+.bubble {
+  background: #fff;
+  color: #1b2560;
+}
+.actiontab {
+  background: #11286e;
+  color: #fff;
+  border: 2px solid var(--hunt-edge);
+  border-bottom-width: 4px;
+}
+.actiontab.is-selected,
+.actiontab[aria-selected='true'] {
+  background: linear-gradient(180deg, #ffe680 0%, #ffcb2e 100%);
+  color: #1b2560;
+  border-color: #a86d00;
+}
+.qbtn {
+  background: var(--hunt-tile);
+  color: #1b2560;
+  border: 2px solid var(--hunt-tile-edge);
+  border-bottom-width: 4px;
+}
+.qbtn small {
+  color: #4a5a9a;
+}
+/* numéros : tuiles bleu clair */
+.key,
+.numtile,
+.mathbtn,
+.grid button,
+.numgrid button {
+  background: linear-gradient(180deg, #f4f9ff 0%, #cfe3ff 100%);
+  color: #14205a;
+  border: 2px solid #7fb6ff;
+  border-bottom-width: 4px;
+}
+.mathbox,
+.result-card,
+.mini-notebook,
+.help-note,
+.tip {
+  color: #1b2560;
+}
+/* résultat : bandeau vert « Bravo » / rouge « Oups » */
+.result-card .result-title {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 4px;
+  padding: 2px 18px;
+  border-radius: 14px;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+.result-card.good .result-title {
+  background: linear-gradient(0deg, #137a3e 0%, #24a75b 60%, #45cc7c 100%);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #0c5a2c;
+}
+.result-card.bad .result-title {
+  background: linear-gradient(0deg, #a8261d 0%, #d13d2f 60%, #ef5e47 100%);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #7a1a12;
+}
+.result-card.neutral .result-title {
+  background: linear-gradient(0deg, #1b4cbc 0%, #2d6be0 60%, #5c96ff 100%);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #142f7a;
+}
+
+/* ---------- fins de partie ---------- */
+.end-hero h1 {
+  display: inline-block;
+  max-width: 100%;
+  padding: 4px 20px;
+  border-radius: 18px;
+  border: 3px solid #fff;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+.end-hero.win h1 {
+  background: linear-gradient(0deg, #137a3e 0%, #24a75b 60%, #45cc7c 100%);
+  box-shadow:
+    0 0 0 3px #0c5a2c,
+    0 0 22px rgba(255, 214, 80, 0.75);
+}
+.end-hero.lose h1 {
+  background: linear-gradient(0deg, #a8261d 0%, #d13d2f 60%, #ef5e47 100%);
+  box-shadow:
+    0 0 0 3px #7a1a12,
+    0 0 22px rgba(255, 110, 80, 0.6);
+}
+.end-hero.win .hero-mascot {
+  filter: drop-shadow(0 0 18px rgba(255, 214, 80, 0.75));
+}
+.end-hero.lose .hero-mascot {
+  filter: drop-shadow(0 0 16px rgba(255, 90, 70, 0.55));
+}
+
+/* ---------- arabe, chinois, japonais : pas d'italique ni de majuscules forcées ---------- */
+:lang(ar) .panel .label,
+:lang(zh) .panel .label,
+:lang(ja) .panel .label {
+  letter-spacing: 0;
+}
+
+/* ---------- éléments clairs posés sur une carte bleue : texte bleu nuit ---------- */
+.rule-card,
+.office-records li,
+.score-lines li,
+.mission-list li,
+.next-goal,
+.reward-chip,
+.net-error,
+.name-row,
+.net-players li,
+.ch-new,
+.podium-note,
+.xp-gain,
+.tmr,
+.move-line,
+.kp-display,
+.mode-card,
+.solo-score,
+.banner {
+  color: #1b2560;
+}
+.office-records li,
+.score-lines li {
+  background: var(--hunt-tile);
+  border: 1px solid var(--hunt-tile-edge);
+  margin-bottom: 4px;
+}
+.kp-display .kp-range {
+  color: #5d6ea8;
+}
+
+/* ---------- textes posés directement sur une carte bleue : clairs ---------- */
+.pick-hint,
+.finalscore small,
+.finalscore > div:nth-child(2) small,
+.office-panel > p,
+.office-panel .sub,
+.office-rank,
+.office-rank small,
+.rank-line,
+.panel .xp,
+.app-version {
+  color: var(--hunt-soft);
+}
+.finalscore .value,
+.finalscore .value small,
+.ch-score,
+.ec-score,
+.ec-score small,
+.net-code {
+  color: var(--hunt-gold);
+  text-shadow: 0 2px 0 rgba(8, 20, 70, 0.5);
+}
+.help-fold summary,
+.score-lines summary,
+.timer-details summary,
+.modal details summary {
+  color: #ffe08a;
+}
+.compact-settings .settings-title,
+.settings-panel .settings-title {
+  color: #fff;
+}
+.modal .label {
+  display: flex;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 4px auto;
+  padding: 1px 12px;
+  background: #11286e;
+  border: 2px solid var(--hunt-gold);
+  border-radius: 999px;
+  color: #fff;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+.modal > .result-title,
+.tut-body .result-title {
+  color: #fff;
+}
+/* bureau : tuiles de statistiques crème bordées d'or (maquette « Mes statistiques ») */
+.office-tiles div {
+  background: linear-gradient(180deg, #fffaf0 0%, #ffeec4 100%);
+  border: 2px solid var(--hunt-gold);
+  color: #1b2560;
+}
+.office-tiles small {
+  color: #5a4a20;
+}
+.rank-step {
+  color: #fff;
+}
+
+/* ---------- jeu : onglets, chronos, captures ---------- */
+.actiontabs {
+  background: transparent;
+}
+.actiontab.selected {
+  background: linear-gradient(180deg, #ffe680 0%, #ffcb2e 100%);
+  color: #1b2560;
+  border-color: #a86d00;
+  opacity: 1;
+}
+.tmr {
+  background: #fff;
+}
+.capbtn.precise {
+  background: linear-gradient(0deg, #a83e12 0%, #d65a22 55%, #f07a3c 100%);
+  color: #fff;
+}
+.capbtn.net {
+  background: linear-gradient(0deg, #3f27a0 0%, #5c3fd0 55%, #8065ef 100%);
+  color: #fff;
+}
+/* priorités plus fortes que les anciennes règles */
+.modal .rule-card p,
+.panel .rule-card p {
+  color: #4c5678;
+}
+.panel .net-error,
+.modal .net-error {
+  color: #5a2a00;
+}
+.turn-card .pane-head .pick-hint,
+.turn-card .with-keypad .pick-hint,
+.turn-card .pick-hint {
+  color: var(--hunt-soft);
+}
+.compact-settings .app-version {
+  color: var(--hunt-soft);
+}
+.ec-card .solo-score,
+.career-card .solo-score {
+  color: var(--hunt-gold);
+  text-shadow: 0 2px 0 rgba(8, 20, 70, 0.5);
+}
+.office-panel .rank-step {
+  color: #fff;
+}
+.office-panel .rank-step.current {
+  color: var(--hunt-gold);
+}
+.reveal-side small,
+.reveal-side p {
+  color: var(--hunt-soft);
+}
+.rp-move > span {
+  color: #1b2560;
+}
+.rp-move .mv-arrow em {
+  color: #fff;
+}
+.player-chip {
+  color: #14205a; /* lisible sur les 4 couleurs de joueur */
+  text-shadow: none;
+}
+.turn-body .actiontabs,
+.turn-card .actiontabs {
+  background: transparent;
+  box-shadow: none;
+}
+/* accueil compact : 2/3/4 joueurs et Wi-Fi sur une seule ligne */
+.multi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 8px;
+}
+.multi-row .chip-btn {
+  min-width: 0;
+  padding: 5px 4px;
+  font-size: 13px;
+  line-height: 1.15;
+}
+.start-panel .label {
+  margin: 4px auto 6px;
+}
+.tagline {
+  padding: 3px 14px;
+}
+.end-hero h1 {
+  font-size: clamp(20px, 6.4vw, 26px);
+  line-height: 1.15;
+  padding: 3px 14px;
+}
+.end-hero.neutral h1 {
+  background: linear-gradient(0deg, #1b4cbc 0%, #2d6be0 60%, #5c96ff 100%);
+  box-shadow:
+    0 0 0 3px #142f7a,
+    0 0 22px rgba(92, 180, 255, 0.6);
+}
+.end-hero h1 {
+  font-size: clamp(19px, 6vw, 24px);
+  padding: 2px 12px;
+  border-width: 2px;
+}
+.panel .label {
+  margin: 4px auto;
+  padding: 1px 12px;
+}
+.panel .label {
+  font-size: 12px;
+  line-height: 1.25;
+}
+.end-hero h1 {
+  line-height: 1.08;
+}
+/* écarts d'au moins 10 px entre boutons voisins (bords plus épais du thème) */
+.rp-mode,
+.rp-ctrl,
+.nb-tabs {
+  gap: 10px;
+}
+.nb-clear,
+.nb-rangebtn {
+  margin-inline: 6px;
+}
+
 </style>
 </head>
 <body><main id="app" aria-live="polite"></main>
@@ -7144,7 +7719,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.0";
+const APP_VERSION = "9.1";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -13736,7 +14311,7 @@ function home() {
     )
     .join('');
   // V9 : le logo « The Number Hunt » remplace l'en-tête et la mascotte de l'accueil (il flotte doucement)
-  return `<header class="top home-top"><button class="rank-chip" id="openOffice2">🎖️ ${rankName(rank)}</button>${settingsButton(true)}</header><section class="hero home-logo"><h1 class="logo-art" role="img" aria-label="The Number Hunt"><span class="sr-only">The Number Hunt</span></h1><p class="tagline">${t('hero1')} ${t('hero2')}</p></section><section class="panel start-panel">${who}<div class="label">✨ ${t('levels')}</div><div class="difficulty">${levels}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn ch-btn" id="openChallenge">🏆 ${t('chBtn')}</button><button class="mini-btn office-btn" id="openOffice">📚 ${t('officeBtn')}</button><button class="mini-btn more-btn" id="openMore">⋯ ${t('more')}</button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
+  return `<header class="top home-top"><button class="rank-chip" id="openOffice2">🎖️ ${rankName(rank)}</button>${settingsButton(true)}</header><section class="hero home-logo"><h1 class="logo-art" role="img" aria-label="The Number Hunt"><span class="sr-only">The Number Hunt</span></h1><p class="tagline">${t('hero1')} ${t('hero2')}</p></section><section class="panel start-panel">${who}<div class="label">✨ ${t('levels')}</div><div class="difficulty">${levels}</div><button class="bigbtn" id="start">▶ ${t('play')}</button><div class="home-row"><button class="mini-btn ch-btn" id="openChallenge"><span class="hr-ico" aria-hidden="true">🎯</span><span class="hr-txt">${t('chBtn')}</span></button><button class="mini-btn office-btn" id="openOffice"><span class="hr-ico" aria-hidden="true">📚</span><span class="hr-txt">${t('officeBtn')}</span></button><button class="mini-btn more-btn" id="openMore"><span class="hr-ico" aria-hidden="true">📖</span><span class="hr-txt">${t('more')}</span></button></div></section><footer class="footer">${t('homeFooter')} · V${APP_VERSION}</footer>`;
 }
 /** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
 function office() {
@@ -14140,7 +14715,7 @@ function end() {
     champions = tot.map((s, i) => (s === best ? pname(i) : null)).filter(Boolean),
     order = tot.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
   const soloLost = g.players === 1 && g.soloWon === false;
-  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
+  return `${g.reduceMotion || soloLost ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${g.players === 1 ? (soloLost ? 'lose' : 'win') : isRace() ? 'neutral' : 'win'}"><div class="hero-mascot">${mascot(soloLost ? 'grimace' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : isRace() ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${isRace() && g.players > 1 ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {
@@ -14185,7 +14760,7 @@ function endRace() {
         `<div class="finalscore"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}</strong><small>${t('podiumNotCaught', { n: o.v })}</small></div></div>`
     )
   ].join('');
-  return `${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot('caught')}</div><h1>🏆 ${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro">${t('raceWinDesc', { turns: g.raceTurns })}</p></section>
+  return `${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win"><div class="hero-mascot">${mascot('caught')}</div><h1>🏆 ${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro">${t('raceWinDesc', { turns: g.raceTurns })}</p></section>
  <section class="panel">${escapedNote(true)}<div class="label centered">${t('podiumTitle')}</div>${rows}<p class="sub centered">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
 }
 /**
@@ -14249,7 +14824,7 @@ function endSoloCareer(res) {
     : `<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('soloLoseEncourage')}</small>${escapedNote(false)}</div></div>`;
   // XP gagnée, badges et missions : une seule ligne de pastilles
   const xp = `<span class="reward-chip xp" title="${esc(t('xpGained'))}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b></span>`;
-  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head ${won ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>
  <section class="panel centered solo-card career-card ec-card">${top}${rewardLine(res, xp)}${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
  <div class="ec-actions"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="openOffice" aria-label="${esc(t('officeBtn'))}">📚</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
 }
@@ -14261,7 +14836,7 @@ function endSoloLegacy() {
     misses = h.filter(e => e.type === 'wrong' || e.type === 'netMiss').length,
     clues = h.filter(e => e.type === 'question' || e.type === 'math').length,
     stars = won ? (turns <= 3 ? 3 : turns <= 6 ? 2 : 1) : 0;
-  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p>${escapedNote(false)}</section>
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${won ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p>${escapedNote(false)}</section>
  <section class="panel centered solo-card">${won ? `<div class="solo-stars" aria-label="${stars}/3">${[1, 2, 3].map(i => `<span class="${i <= stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div><div class="solo-rate">${t(['', 'soloRate1', 'soloRate2', 'soloRate3'][stars])}</div>` : `<div class="solo-reveal"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><small>${t('soloReveal')}</small></div>`}
  <div class="solo-stats"><div><b>${turns}</b><small>${t('statTurns')}</small></div><div><b>${clues}</b><small>${t('statClues')}</small></div><div><b>${misses}</b><small>${t('statMisses')}</small></div></div>
  ${won ? (g.soloNewRecord ? `<div class="ch-new">${t('soloNewRecord')}</div>` : g.soloBest ? `<p class="sub">${t('soloBest', { n: g.soloBest })}</p>` : '') : ''}
@@ -14270,7 +14845,7 @@ function endSoloLegacy() {
 function endChallenge() {
   const r = records(),
     best = r[chRecordKey()] || 0;
-  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
+  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${g.chWon ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
 }
 
 /* ---- 12-replay.js ---- */

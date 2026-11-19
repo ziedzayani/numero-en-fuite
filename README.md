@@ -22,7 +22,7 @@ Dernière version, compilée et vérifiée automatiquement :
 | `src/` | **Sources du jeu** (à modifier) : `js/` logique et écrans, `styles/` CSS, `i18n/` traductions, `assets/fonts/` police |
 | `tools/build.mjs` | Assemble `src/` en un seul fichier HTML autonome (hors ligne) |
 | `tools/lint.mjs` | Analyse statique ESLint du script assemblé |
-| `tools/layout-audit.cjs` | Audit de mise en page : aucun défilement, aucun bouton collé (3 tailles × 8 langues) |
+| `tools/layout-audit.cjs` | Audit de mise en page : aucun défilement, aucun bouton collé, aucun texte peu lisible (3 tailles × 8 langues) |
 | `app/src/main/assets/index.html` | Jeu **généré** embarqué dans l'APK (ne pas modifier à la main) |
 | `app/src/main/java/.../MainActivity.java` | Conteneur Android (WebView sécurisée, bouton Retour, Android 15) |
 | `app/src/main/AndroidManifest.xml` | Manifeste (autorisations réseau local normales, RTL, portrait) |

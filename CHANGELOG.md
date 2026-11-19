@@ -1,5 +1,22 @@
 # Historique des versions
 
+## V9.1 — tous les écrans au nouveau design
+
+D'après les maquettes : le style seul change, les règles du jeu restent les mêmes.
+- **Cartes bleu roi lumineuses** (bord bleu clair) sur fond bleu avec halo, texte blanc ; titres de section en
+  pastille bleu nuit bordée d'or ; titres d'écran en pastille.
+- **Accueil** : bulle blanche « Attrape-moi si tu peux ! », Solo / À plusieurs en tuiles (✓ sur le choix),
+  2 / 3 / 4 joueurs et Wi-Fi sur une ligne, **niveaux en tuiles colorées** (vert, bleu, rouge, violet — pas de
+  rose) avec ✓, gros bouton JOUER jaune, rangée du bas en tuiles blanches à icône.
+- **Boutons** : jaune or, vert, bleu et rouge-orangé en relief (dégradé + bord inférieur épais, toujours sans ombre
+  portée) ; numéros et réponses en tuiles bleu clair ; onglets Indice / Calcul / Deviner bleu nuit, l'onglet
+  choisi en jaune.
+- **Résultats** : bandeau vert (« Bravo », « Gagné ») ou rouge (« Raté », « Il t'a échappé ») ; bleu quand
+  personne n'a attrapé le numéro en Course. Détective en manteau et chapeau bruns, comme sur le logo.
+- **Réglages** en lignes claires, **Mon bureau** avec des tuiles de statistiques crème bordées d'or.
+- Audit de mise en page : nouvelle vérification **« texte peu lisible »** (contraste texte / fond) sur tous les
+  écrans, 3 tailles × 8 langues ; `SHOTS=dossier` enregistre une capture de chaque écran pour la relecture.
+
 ## V9.0 — The Number Hunt
 
 Nouvelle identité pour attirer tous les joueurs, enfants et adultes.
