@@ -216,6 +216,21 @@ const STATES = {
     N.state.netLostInfo = { failed: true };
     N.state.modal = 'netLost';
   },
+  ...Object.fromEntries(
+    ['rank', 'records', 'badges', 'missions'].map(tab => [
+      'bureau ' + tab,
+      `N => { N.state.screen = 'office'; N.state.officeTab = '${tab}'; }`
+    ])
+  ),
+  'fin solo gagnée + récompenses': N => {
+    N.state.players = 1;
+    N.state.level = 'junior';
+    N.state.mode = 'normal';
+    N.state.replayAsk = false;
+    N.start(true);
+    N.guess(N.state.secret);
+    N.nextTurn();
+  },
   'wifi connexion perdue': N => {
     N.state.players = 3;
     N.start(true);

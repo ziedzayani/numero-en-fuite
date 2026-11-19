@@ -56,12 +56,37 @@ function home() {
 /** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
 function office() {
   const p = careerProfile(loadCareer()),
-    levels = [
-      ['junior', '🐣', 'levelJunior'],
-      ['malin', '🧠', 'levelMalin'],
-      ['expert', '🚀', 'levelExpert'],
-      ['genius', '🦉', 'levelGenius']
-    ];
+    tab = ['records', 'badges', 'missions'].includes(g.officeTab) ? g.officeTab : 'rank';
+  const tabs = [
+    ['rank', '🕵️', 'officeTabRank'],
+    ['records', '📂', 'officeTabRecords'],
+    ['badges', '🏅', 'officeTabBadges'],
+    ['missions', '🎯', 'officeTabMissions']
+  ]
+    .map(
+      ([id, icon, k]) =>
+        `<button class="nb-tab ${tab === id ? 'is-selected' : ''}" data-otab="${id}" aria-pressed="${tab === id}">${icon} ${t(k)}${
+          id === 'badges' ? ` <small dir="ltr">${Object.keys(p.badges).length}/${BADGES.length}</small>` : ''
+        }</button>`
+    )
+    .join('');
+  const body =
+    tab === 'badges'
+      ? officeBadges(p)
+      : tab === 'missions'
+        ? officeMissions(p)
+        : tab === 'records'
+          ? officeRecords(p)
+          : officeRank(p);
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeOffice">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel office-panel"><h1 class="settings-title">📚 ${t('officeTitle')}</h1><div class="office-tabs">${tabs}</div>${body}<button class="bigbtn" id="officePlay">▶ ${t('officePlay')}</button></section>`;
+}
+/** Onglet « Rang » : barre d'XP, frise des 8 chapeaux, compteurs. */
+function officeRank(p) {
+  const cur = rankOf(p.xpTotal).rank;
+  const hats = RANKS.map(
+    (_, i) =>
+      `<span class="rank-step ${i + 1 <= cur ? 'reached' : ''} ${i + 1 === cur ? 'current' : ''}" title="${esc(rankName(i + 1))}"><i class="mini-hat hat-r${i + 1}"></i>${i + 1}</span>`
+  ).join('');
   const tiles = [
     ['officePlayed', p.totalWins + p.totalLosses],
     ['officeWins', p.totalWins],
@@ -70,6 +95,16 @@ function office() {
   ]
     .map(([k, n]) => `<div><b>${n}</b><small>${t(k)}</small></div>`)
     .join('');
+  return `<div class="office-rank"><span class="office-badge" aria-hidden="true">🕵️</span><div>${rankBar(p.xpTotal)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="office-tiles">${tiles}</div>`;
+}
+/** Onglet « Records » : meilleur score et meilleur nombre de tours par niveau. */
+function officeRecords(p) {
+  const levels = [
+    ['junior', '🐣', 'levelJunior'],
+    ['malin', '🧠', 'levelMalin'],
+    ['expert', '🚀', 'levelExpert'],
+    ['genius', '🦉', 'levelGenius']
+  ];
   const rows = levels
     .map(([id, emoji, k]) => {
       const lv = p.levels[id] || {};
@@ -80,7 +115,23 @@ function office() {
       }${lv.bestTurns != null ? `<small>${t('officeBestTurns', { n: lv.bestTurns })}</small>` : ''}</span></li>`;
     })
     .join('');
-  return `<header class="top">${brand()}<button class="mini-btn" id="closeOffice">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="hero settings-hero"><h1>📚 ${t('officeTitle')}</h1><p class="intro">${t('officeSub')}</p></section><section class="panel office-panel"><div class="office-rank"><span class="office-badge" aria-hidden="true">🕵️</span><div>${rankBar(p.xpTotal)}</div></div><div class="office-tiles">${tiles}</div><div class="label">📂 ${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}</p><button class="bigbtn" id="officePlay">▶ ${t('officePlay')}</button></section>`;
+  return `<div class="label">📂 ${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}</p>`;
+}
+/** Onglet « Badges » : étagère des 6 badges ; ceux à gagner disent comment les obtenir. */
+function officeBadges(p) {
+  return `<div class="badge-shelf">${BADGES.map(b => {
+    const got = !!p.badges[b.id];
+    return `<div class="badge ${got ? 'got' : 'locked'}"><span class="b-icon" aria-hidden="true">${b.icon}</span><b>${t('badge_' + b.id)}</b><small>${got ? '✅ ' + t('badgeGot') : t('badgeHow_' + b.id)}</small></div>`;
+  }).join('')}</div>`;
+}
+/** Onglet « Missions » : 3 missions sans limite de temps ; une mission réussie est remplacée. */
+function officeMissions(p) {
+  return `<p class="sub small">${t('missionsIntro', { xp: MISSION_XP })}</p><ul class="mission-list">${p.missions
+    .map(
+      m =>
+        `<li><span class="m-icon" aria-hidden="true">🎯</span><span>${missionText(m)}</span><span class="m-prog" dir="ltr">${m.progress}/${m.goal}</span></li>`
+    )
+    .join('')}</ul>`;
 }
 /** Réglages : langue, chronos, son, mouvements réduits, film. */
 function settings() {
@@ -417,6 +468,21 @@ function escapedNote(withText) {
   if (!withText && !film) return '';
   return `<div class="escaped-note">${withText ? `<span>🏃 ${t('escapedWas', { n: g.escaped.n })}</span>` : ''}${film}</div>`;
 }
+/** Récompenses du bureau gagnées pendant la partie : nouveaux badges, missions réussies (V8.15). */
+function rewardLine(res, lead = '') {
+  // regroupées pour rester sur une ligne : « 🏅 👁️ ⚡ » et « 🎯 ×2 : +40 XP »
+  const badges = (res.newBadges || []).map(id => BADGES.find(x => x.id === id)).filter(Boolean),
+    done = res.missionsDone || [];
+  const chips = [
+    badges.length
+      ? `<span class="reward-chip" title="${esc(badges.map(b => t('badge_' + b.id)).join(', '))}">${badges.length === 1 ? t('rewardBadge', { name: badges[0].icon + ' ' + t('badge_' + badges[0].id) }) : t('rewardBadges', { icons: badges.map(b => b.icon).join(' ') })}</span>`
+      : '',
+    done.length
+      ? `<span class="reward-chip" title="${esc(done.map(missionText).join(' · '))}">${done.length === 1 ? t('rewardMission', { xp: MISSION_XP }) : t('rewardMissions', { n: done.length, xp: done.length * MISSION_XP })}</span>`
+      : ''
+  ].join('');
+  return chips || lead ? `<div class="reward-line">${lead}${chips}</div>` : '';
+}
 /** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */
 function endSolo() {
   return g.soloResult ? endSoloCareer(g.soloResult) : endSoloLegacy();
@@ -433,29 +499,27 @@ function rankBar(xp) {
 /** Conseil de fin de partie (clé + variables enregistrées par settleSolo). */
 const tipText = ([key, vars]) => t(key, { ...vars, level: vars.levelKey ? t(vars.levelKey) : '' });
 function endSoloCareer(res) {
+  // V8.15 : écran compact (tout tient en 360×640) — score qui défile, lignes regroupées en pastilles.
   const won = res.won;
   const record = won
     ? res.newRecord
       ? `<div class="ch-new">${t(res.prevBest == null ? 'soloFirstRecord' : 'soloNewRecordPts')}</div>`
       : `<div class="record-chip">${t('soloRecordPts', { n: res.prevBest })}</div>`
     : '';
-  const lines = res.lines
-    .map(
-      ([key, v, vars]) =>
-        `<li><span>${t(key, vars)}</span><b dir="ltr">${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</b></li>`
-    )
+  const chips = res.lines
+    .map(([key, v, vars]) => {
+      const label = t(key, vars);
+      return `<li title="${esc(label.replace(/<[^>]+>/g, ''))}"><span>${label}</span><b dir="ltr">${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</b></li>`;
+    })
     .join('');
-  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></section>
- <section class="panel centered solo-card career-card">${
-   won
-     ? `<div class="solo-stars" aria-label="${res.stars}/3">${[1, 2, 3].map(i => `<span class="${i <= res.stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div>`
-     : `<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('soloLoseEncourage')}</small>${escapedNote(false)}</div></div>`
- }<div class="label">${t('soloScoreTitle')}</div><div class="solo-score" dir="ltr">${res.score}<small> ${t('pts')}</small></div>${record}${
-   lines
-     ? `<details class="score-lines"${res.lines.length <= 3 ? ' open' : ''}><summary>${t('scoreDetail')}</summary><ul>${lines}</ul></details>`
-     : ''
- }<div class="xp-gain"><span>🎖️ ${t('xpGained')}</span><b dir="ltr">+${res.xp} XP</b></div>${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
- <button class="bigbtn" id="again">🔄 ${t('replay')}</button><div class="end-row"><button class="bigbtn light" id="openOffice">📚 ${t('officeBtn')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></div></section>`;
+  const top = won
+    ? `<div class="ec-score"><div class="solo-stars" aria-label="${res.stars}/3">${[1, 2, 3].map(i => `<span class="${i <= res.stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div><div class="solo-score" dir="ltr"><b data-count="${res.score}" data-count-id="${esc(g.gameId || '')}">${res.score}</b><small> ${t('pts')}</small></div></div>${record}${chips ? `<ul class="ec-lines">${chips}</ul>` : ''}`
+    : `<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('soloLoseEncourage')}</small>${escapedNote(false)}</div></div>`;
+  // XP gagnée, badges et missions : une seule ligne de pastilles
+  const xp = `<span class="reward-chip xp" title="${esc(t('xpGained'))}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b></span>`;
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>
+ <section class="panel centered solo-card career-card ec-card">${top}${rewardLine(res, xp)}${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
+ <div class="ec-actions"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="openOffice" aria-label="${esc(t('officeBtn'))}">📚</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
 }
 /** Ancien écran de fin (parties terminées avant la V8.8 : aucune récompense n'est inventée a posteriori). */
 function endSoloLegacy() {

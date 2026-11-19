@@ -83,6 +83,7 @@ function shiftMarks() {
   const keep = new Set(possible);
   m.out = all(maxN()).filter(n => !keep.has(n));
   m.step = huntSteps();
+  g.usedShift = true; // mission « Décale tes marques » (V8.15)
   return true;
 }
 function clearMarks() {

@@ -14,11 +14,14 @@ const EXPR = {
   'dash-left': 'surprised',
   'dash-right': 'surprised',
   hop: 'surprised',
-  worried: 'worried'
+  worried: 'worried',
+  cheer: 'wink', // défaite : clin d'œil d'encouragement (V8.15)
+  record: 'proud' // nouveau record : saut de joie et trophée
 };
 function mascot(state = 'idle', party = false, expr = null) {
   const e = expr || EXPR[state] || 'happy';
-  return `<div class="detective-scene ${state} expr-${e}" role="img" aria-label="${esc(t('title'))}"><span class="detector-orbit one">3</span><span class="detector-orbit two">?</span><span class="detector-orbit three">7</span><div class="detective-shadow"></div><div class="think-dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="dt-rig"><div class="detector-magnifier"></div><div class="detector-hat"></div><div class="detector-brim"></div><div class="detective"><span class="detector-brow left"></span><span class="detector-brow right"></span><span class="detector-pupil left"></span><span class="detector-pupil right"></span><span class="detector-blush left"></span><span class="detector-blush right"></span><span class="detector-smile"></span><span class="detector-mouth"></span><span class="detector-tongue"></span></div><div class="detector-body"></div><div class="detector-hand left"></div><div class="detector-hand right"></div><div class="detector-leg left"></div><div class="detector-leg right"></div><div class="detector-foot left"></div><div class="detector-foot right"></div></div>${state === 'caught' || party ? confetti() : ''}</div>`;
+  // chapeau selon le rang du joueur (V8.15) : le rang 1 garde le chapeau d'origine
+  return `<div class="detective-scene ${state} expr-${e} hat-r${heroRank()}" role="img" aria-label="${esc(t('title'))}"><span class="detector-orbit one">3</span><span class="detector-orbit two">?</span><span class="detector-orbit three">7</span><div class="detective-shadow"></div><div class="think-dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="dt-rig"><div class="detector-magnifier"></div><div class="detector-hat"></div><div class="detector-brim"></div><div class="detective"><span class="detector-brow left"></span><span class="detector-brow right"></span><span class="detector-pupil left"></span><span class="detector-pupil right"></span><span class="detector-blush left"></span><span class="detector-blush right"></span><span class="detector-smile"></span><span class="detector-mouth"></span><span class="detector-tongue"></span></div><div class="detector-body"></div><div class="detector-hand left"></div><div class="detector-hand right"></div><div class="detector-leg left"></div><div class="detector-leg right"></div><div class="detector-foot left"></div><div class="detector-foot right"></div></div>${state === 'caught' || party ? confetti() : ''}</div>`;
 }
 /** Phrase du détective : variante choisie de façon stable pendant un même tour. */
 function quip(key) {

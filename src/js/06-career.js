@@ -98,6 +98,7 @@ function loadCareer() {
   if (!p.processed || typeof p.processed !== 'object') p.processed = {};
   p.levels = p.levels || {};
   for (const l of Object.keys(LEVELS)) p.levels[l] = { ...emptyLevel(), ...(p.levels[l] || {}) };
+  normalizeOffice(p); // badges et missions (V8.15), complétés si absents
   if (fresh) {
     const r = records();
     for (const l of Object.keys(LEVELS))
@@ -110,6 +111,7 @@ function saveCareer(c) {
   try {
     localStorage.setItem(CAREER_STORAGE, JSON.stringify(c));
   } catch (e) {} // stockage plein ou interdit : le jeu continue
+  forgetRank();
 }
 
 /** Identifiant de partie : stable, sauvegardé avec la partie (reprise après fermeture). */
@@ -151,6 +153,7 @@ function settleSolo(won) {
     if (lv.bestTurns == null || turns < lv.bestTurns) lv.bestTurns = turns;
   } else p.totalLosses++;
   p.xpTotal += xp;
+  const rewards = settleOffice(p, gameFacts(won, turns, stars), lv); // badges, missions (+XP)
   const result = {
     won,
     turns,
@@ -163,6 +166,9 @@ function settleSolo(won) {
     xp,
     xpTotal: p.xpTotal,
     rankUp: rankOf(p.xpTotal).rank > rankBefore,
+    newBadges: rewards.newBadges,
+    missionsDone: rewards.missionsDone,
+    missionXp: rewards.missionXp,
     tip: soloTip(won, turns, stars, g.history, g.last)
   };
   p.processed[id] = result;
@@ -259,6 +265,7 @@ function importProgress(code) {
   if (!r.ok) return false;
   try {
     localStorage.setItem(CAREER_STORAGE, JSON.stringify(r.data.career));
+    forgetRank();
     localStorage.setItem(RECORDS_STORAGE, JSON.stringify(r.data.records));
   } catch (e) {
     return false;

@@ -44,8 +44,34 @@ function render() {
     enterTimer = setTimeout(() => app.classList.remove('screen-enter'), 380);
   } else if (!changed) app.classList.remove('screen-enter');
   bind();
+  countUp();
   save();
   netBroadcast(); // hôte Wi-Fi : chaque changement est envoyé aux autres téléphones
+}
+/**
+ * Score de fin qui défile de 0 à sa valeur (V8.15), une seule fois par partie ;
+ * jamais si les animations sont réduites (la valeur finale est déjà écrite dans la page).
+ */
+let countAnim = null; // { id, t0, to, dur } : survit aux ré-affichages pendant l'animation
+function countUp() {
+  const el = app.querySelector('[data-count]');
+  if (!el || g.reduceMotion) return;
+  const id = el.dataset.countId,
+    to = Number(el.dataset.count) || 0;
+  if (!id || to <= 0) return;
+  if (!(countAnim && countAnim.id === id)) {
+    if (g.countedId === id) return; // déjà vu (retour sur l'écran, redémarrage) : valeur finale
+    g.countedId = id;
+    countAnim = { id, t0: performance.now(), to, dur: Math.min(1400, 500 + to) };
+  }
+  const a = countAnim;
+  const step = now => {
+    if (!el.isConnected) return; // l'écran a été redessiné : le nouvel élément reprend l'animation
+    const k = Math.min(1, (now - a.t0) / a.dur);
+    el.textContent = String(Math.round(a.to * (1 - Math.pow(1 - k, 3))));
+    if (k < 1) requestAnimationFrame(step);
+  };
+  step(performance.now());
 }
 /** Branche les clics des éléments de l'écran (identifiants et attributs data-*). */
 function bind() {
@@ -290,6 +316,13 @@ function bind() {
     sfx('tap');
     render();
   });
+  app.querySelectorAll('[data-otab]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.officeTab = b.dataset.otab;
+      sfx('tap');
+      render();
+    })
+  );
   click('closeOffice', () => {
     g.screen = g.officeFrom === 'end' && g.soloResult ? 'end' : 'home';
     sfx('tap');

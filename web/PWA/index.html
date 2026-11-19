@@ -945,7 +945,7 @@ button:focus-visible {
   top: 8px;
   width: 80px;
   height: 24px;
-  background: #324986;
+  background: var(--hat-base, #324986);
   border: 4px solid var(--line);
   border-radius: 18px 18px 12px 12px;
   transform: rotate(-7deg);
@@ -957,7 +957,7 @@ button:focus-visible {
   top: -16px;
   width: 47px;
   height: 20px;
-  background: #4b68b6;
+  background: var(--hat-top, #4b68b6);
   border: 4px solid var(--line);
   border-bottom: none;
   border-radius: 12px 12px 0 0;
@@ -968,7 +968,7 @@ button:focus-visible {
   top: 26px;
   width: 94px;
   height: 13px;
-  background: #23396c;
+  background: var(--hat-brim, #23396c);
   border: 4px solid var(--line);
   border-radius: 16px;
   transform: rotate(-6deg);
@@ -5994,6 +5994,379 @@ body.scr-end .finalscore {
   margin-bottom: 8px;
 }
 
+/* V8.15 : chapeau du détective selon le rang (couleurs officielles ; rang 1 = chapeau d'origine) */
+.hat-r2 {
+  --hat-base: var(--green);
+  --hat-top: #5fdc95;
+  --hat-brim: var(--greenDark);
+}
+.hat-r3 {
+  --hat-base: var(--pink);
+  --hat-top: #ff92cb;
+  --hat-brim: var(--pinkDark);
+}
+.hat-r4 {
+  --hat-base: var(--yellow);
+  --hat-top: #ffe57f;
+  --hat-brim: var(--yellowDark);
+}
+.hat-r5 {
+  --hat-base: var(--purple);
+  --hat-top: #a08ff7;
+  --hat-brim: var(--purpleDark);
+}
+.hat-r6,
+.hat-r7,
+.hat-r8 {
+  --hat-base: var(--blue);
+  --hat-top: #74a0ff;
+  --hat-brim: var(--blueDark);
+}
+.hat-r7 {
+  --hat-base: var(--purple);
+  --hat-top: #a08ff7;
+  --hat-brim: var(--purpleDark);
+}
+.hat-r8 {
+  --hat-base: var(--yellow);
+  --hat-top: #ffe57f;
+  --hat-brim: var(--pink);
+}
+/* rangs 6 à 8 : une étoile sur le chapeau */
+.hat-r6 .detector-hat::after,
+.hat-r7 .detector-hat::after,
+.hat-r8 .detector-hat::after {
+  content: '★';
+  position: absolute;
+  left: 30px;
+  top: -14px;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--yellow);
+  text-shadow: 0 0 0 var(--line);
+  -webkit-text-stroke: 1px var(--line);
+}
+.hat-r8 .detector-hat::after {
+  color: var(--pink);
+}
+/* clin d'œil d'encouragement (défaite) */
+.expr-wink .detector-pupil.right {
+  scale: 1 0.15;
+}
+.expr-wink .detector-brow {
+  opacity: 1;
+}
+.expr-wink .detector-brow.right {
+  transform: translateY(3px);
+}
+.detective-scene.cheer .dt-rig {
+  animation: cheer 1.6s ease-in-out infinite;
+}
+@keyframes cheer {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-5deg) translateY(-3px);
+  }
+  60% {
+    transform: rotate(4deg);
+  }
+}
+/* nouveau record : saut de joie et trophée */
+.detective-scene.record .dt-rig {
+  animation: record-jump 0.9s cubic-bezier(0.3, 0.7, 0.4, 1) 0.2s 3 both;
+}
+.detective-scene.record::before {
+  content: '🏆';
+  position: absolute;
+  right: 4px;
+  top: 0;
+  font-size: 30px;
+  z-index: 3;
+  animation: record-trophy 0.8s ease-out 0.3s both;
+}
+@keyframes record-jump {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-18px) rotate(-4deg);
+  }
+}
+@keyframes record-trophy {
+  from {
+    transform: scale(0) rotate(-30deg);
+  }
+  to {
+    transform: scale(1) rotate(0);
+  }
+}
+.reduce-motion .detective-scene.record .dt-rig,
+.reduce-motion .detective-scene.cheer .dt-rig,
+.reduce-motion .detective-scene.record::before {
+  animation: none;
+}
+
+/* « Mon bureau » : onglets, frise des rangs, étagère des badges, missions */
+.office-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+.office-tabs .nb-tab {
+  font-size: 13px;
+}
+.rank-line-hats {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 2px;
+  margin: 8px 0 10px;
+  align-items: end;
+}
+.rank-step {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  opacity: 0.45;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--ink2);
+}
+.rank-step.reached {
+  opacity: 1;
+}
+.rank-step.current {
+  color: var(--purpleDark);
+}
+.rank-step.current .mini-hat {
+  transform: scale(1.25) translateY(-2px);
+}
+.mini-hat {
+  position: relative;
+  width: 26px;
+  height: 18px;
+}
+.mini-hat::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 0;
+  width: 14px;
+  height: 11px;
+  background: var(--hat-top, #4b68b6);
+  border: 2px solid var(--line);
+  border-bottom: none;
+  border-radius: 5px 5px 0 0;
+}
+.mini-hat::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 26px;
+  height: 7px;
+  background: var(--hat-brim, #23396c);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+.badge-shelf {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+.badge {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 2px;
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 16px;
+  padding: 8px 4px;
+  text-align: center;
+}
+.badge .b-icon {
+  font-size: 28px;
+  line-height: 1.1;
+}
+.badge b {
+  font-size: 12.5px;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.badge small {
+  font-size: 10.5px;
+  line-height: 1.2;
+  color: var(--ink2);
+}
+.badge.got {
+  background: #fff6cf;
+  box-shadow: 0 3px 0 var(--yellowDark);
+}
+.badge.locked .b-icon {
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+.mission-list {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 10px;
+  padding: 0;
+  list-style: none;
+}
+.mission-list li {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  text-align: start;
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  padding: 7px 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.mission-list .m-icon {
+  font-size: 22px;
+}
+.mission-list .m-prog {
+  font-size: 12px;
+  color: var(--greenDark);
+  white-space: nowrap;
+}
+.reward-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 6px 0;
+}
+.reward-chip {
+  background: #fff6cf;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.office-tabs .nb-tab {
+  padding: 4px 2px;
+  font-size: 12px;
+  min-width: 0;
+}
+.office-tabs .nb-tab small {
+  display: block;
+  font-size: 10px;
+}
+
+/* V8.15 : écran de fin solo compact (étape 5) — tient en 360×640 sans défilement */
+.ec-head > div:last-child {
+  grid-column: 2;
+  min-width: 0;
+}
+.ec-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.ec-card .solo-score {
+  font-size: 40px;
+  line-height: 1;
+}
+.ec-card .solo-score b {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.ec-card .solo-stars {
+  margin: 0;
+}
+.ec-card .solo-stars span {
+  font-size: 26px;
+}
+.ec-card .ch-new,
+.ec-card .record-chip {
+  margin: 4px auto;
+}
+.ec-lines {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  margin: 6px 0 2px;
+  padding: 0;
+  list-style: none;
+}
+.ec-lines li {
+  display: flex;
+  gap: 5px;
+  align-items: baseline;
+  background: #eef3ff;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.ec-lines li b {
+  color: var(--greenDark);
+  font-weight: 800;
+}
+.ec-card .xp-gain {
+  margin: 6px 0 2px;
+}
+.ec-card .next-goal {
+  font-size: 12.5px;
+  line-height: 1.3;
+}
+.ec-actions {
+  display: grid;
+  grid-template-columns: 1fr 56px 56px;
+  gap: 8px;
+  margin-top: 4px;
+}
+.ec-actions .bigbtn {
+  margin: 0 !important;
+  min-height: 52px;
+  padding-inline: 4px;
+}
+.ec-actions .bigbtn.light {
+  font-size: 22px;
+}
+.ec-lines li {
+  font-size: 11px;
+  padding: 2px 7px;
+}
+.ec-card .ch-new,
+.ec-card .record-chip {
+  font-size: 13px;
+  padding: 3px 12px;
+  display: inline-block;
+}
+.ec-card .reward-line {
+  margin: 6px 0 4px;
+}
+.ec-card .reward-chip {
+  font-size: 12px;
+  padding: 2px 8px;
+}
+.reward-chip.xp b {
+  color: var(--greenDark);
+}
+.ec-card .next-goal {
+  margin: 2px 0 6px;
+  padding: 5px 10px;
+}
+.solo-reveal.with-side {
+  gap: 26px;
+}
+
 </style>
 </head>
 <body><main id="app" aria-live="polite"></main>
@@ -6082,7 +6455,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "8.14";
+const APP_VERSION = "8.15";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -6118,6 +6491,19 @@ const dictionaries = {
   "backupReplaces": "Il remplacera tes progrès actuels :",
   "backupSummary": "Rang {rank} — {name} · {xp} XP · {wins} victoires",
   "backupTitle": "Mes progrès",
+  "badgeGot": "Obtenu !",
+  "badgeHow_ace": "10 victoires au même niveau",
+  "badgeHow_brain": "Réussir 3 calculs dans une même enquête",
+  "badgeHow_flash": "Gagner en 3 tours ou moins",
+  "badgeHow_hound": "Gagner au niveau Génie sans lancer le filet",
+  "badgeHow_lynx": "Gagner sans aucune erreur, d’une capture précise",
+  "badgeHow_net": "Attraper le numéro avec le filet",
+  "badge_ace": "As du détective",
+  "badge_brain": "Cerveau d’or",
+  "badge_flash": "Éclair",
+  "badge_hound": "Fin limier",
+  "badge_lynx": "Œil de lynx",
+  "badge_net": "Maître du filet",
   "bonusClue": "Ton indice bonus",
   "bonusDeduction": "🧠 +1 bonus déduction (question posée) !",
   "bravo": "BRAVO !",
@@ -6251,6 +6637,15 @@ const dictionaries = {
   "miniTip": "💡 Astuce : une question raye d’un coup plusieurs numéros. Ensuite le numéro bouge : pense à décaler ce que tu sais !",
   "miss": "RATÉ !",
   "missDesc": "Tu as choisi <b>{n}</b>, mais ce n’était pas le bon numéro. <b>−1 point</b>.",
+  "mission_fast": "Gagne en {n} tours ou moins",
+  "mission_math": "Réussis {n} calculs dans une même enquête",
+  "mission_noMiss": "Gagne sans aucune erreur",
+  "mission_play": "Mène {n} enquêtes en solo",
+  "mission_precise": "Attrape le numéro d’une capture précise",
+  "mission_shift": "Utilise « Décaler mes marques » dans ton carnet",
+  "mission_stars": "Gagne avec 3 étoiles",
+  "mission_winLevel": "Gagne une enquête au niveau {level}",
+  "missionsIntro": "Pas de chrono : prends ton temps. Chaque mission réussie rapporte +{xp} XP et une nouvelle arrive.",
   "modeRace": "Course",
   "modeRaceSub": "Le 1er qui l’attrape gagne, les autres jouent pour le podium. Personne ? Les points départagent.",
   "modeScore": "Points",
@@ -6349,6 +6744,8 @@ const dictionaries = {
   "nowGuess": "Maintenant, choisis ton numéro.",
   "officeBestTurns": "meilleur : {n} tours",
   "officeBtn": "Mon bureau",
+  "officeHats": "Les chapeaux des 8 rangs",
+  "officeHatsNext": "Prochain chapeau : {name}",
   "officeLosses": "Pas encore résolues",
   "officeNote": "Un record par niveau. Tous les niveaux sont ouverts à tout âge.",
   "officePlay": "Jouer en solo",
@@ -6356,6 +6753,10 @@ const dictionaries = {
   "officeRecords": "Mes records en solo",
   "officeStars": "Étoiles",
   "officeSub": "Chaque enquête te fait progresser !",
+  "officeTabBadges": "Badges",
+  "officeTabMissions": "Missions",
+  "officeTabRank": "Rang",
+  "officeTabRecords": "Records",
   "officeTitle": "Mon bureau",
   "officeToDiscover": "À découvrir",
   "officeWins": "Gagnées",
@@ -6441,6 +6842,10 @@ const dictionaries = {
   "resume": "Reprendre la partie",
   "resumeBtn": "Reprendre",
   "resumeSub": "Tour {current} / {total}",
+  "rewardBadge": "🏅 Nouveau badge : {name}",
+  "rewardBadges": "🏅 Nouveaux badges : {icons}",
+  "rewardMission": "🎯 Mission réussie : +{xp} XP",
+  "rewardMissions": "🎯 {n} missions : +{xp} XP",
   "rpAskText": "Regarde son parcours depuis le début : chaque indice, chaque saut, jusqu’à la capture.",
   "rpAskTitle": "Revoir l’évasion du numéro ?",
   "rpAuto": "Automatique",
@@ -6618,6 +7023,19 @@ const dictionaries = {
   "backupReplaces": "It will replace your current progress:",
   "backupSummary": "Rank {rank} — {name} · {xp} XP · {wins} wins",
   "backupTitle": "My progress",
+  "badgeGot": "Earned!",
+  "badgeHow_ace": "10 wins at the same level",
+  "badgeHow_brain": "Get 3 sums right in one case",
+  "badgeHow_flash": "Win in 3 turns or fewer",
+  "badgeHow_hound": "Win at Genius level without throwing the net",
+  "badgeHow_lynx": "Win with no mistake, with an exact catch",
+  "badgeHow_net": "Catch the number with the net",
+  "badge_ace": "Detective ace",
+  "badge_brain": "Golden brain",
+  "badge_flash": "Lightning",
+  "badge_hound": "Sharp sleuth",
+  "badge_lynx": "Lynx eye",
+  "badge_net": "Net master",
   "bonusClue": "Your bonus hint",
   "bonusDeduction": "🧠 +1 deduction bonus (you asked a question)!",
   "bravo": "GREAT JOB!",
@@ -6751,6 +7169,15 @@ const dictionaries = {
   "miniTip": "💡 Tip: one question crosses out several numbers at once. Then the number moves: shift what you know!",
   "miss": "NOT QUITE!",
   "missDesc": "You picked <b>{n}</b>, but it wasn’t right. <b>−1 point</b>.",
+  "mission_fast": "Win in {n} turns or fewer",
+  "mission_math": "Get {n} sums right in one case",
+  "mission_noMiss": "Win with no mistake",
+  "mission_play": "Solve {n} solo cases",
+  "mission_precise": "Catch the number with an exact catch",
+  "mission_shift": "Use “Shift my marks” in your notebook",
+  "mission_stars": "Win with 3 stars",
+  "mission_winLevel": "Win a case at {level} level",
+  "missionsIntro": "No timer: take your time. Each mission gives +{xp} XP and a new one arrives.",
   "modeRace": "Race",
   "modeRaceSub": "First to catch it wins, the others play for the podium. Nobody? Points decide.",
   "modeScore": "Points",
@@ -6849,6 +7276,8 @@ const dictionaries = {
   "nowGuess": "Now pick a number.",
   "officeBestTurns": "best: {n} turns",
   "officeBtn": "My office",
+  "officeHats": "The hats of the 8 ranks",
+  "officeHatsNext": "Next hat: {name}",
   "officeLosses": "Not solved yet",
   "officeNote": "One record per level. Every level is open at any age.",
   "officePlay": "Play solo",
@@ -6856,6 +7285,10 @@ const dictionaries = {
   "officeRecords": "My solo records",
   "officeStars": "Stars",
   "officeSub": "Every case helps you progress!",
+  "officeTabBadges": "Badges",
+  "officeTabMissions": "Missions",
+  "officeTabRank": "Rank",
+  "officeTabRecords": "Records",
   "officeTitle": "My office",
   "officeToDiscover": "To discover",
   "officeWins": "Won",
@@ -6941,6 +7374,10 @@ const dictionaries = {
   "resume": "Resume game",
   "resumeBtn": "Resume",
   "resumeSub": "Turn {current} / {total}",
+  "rewardBadge": "🏅 New badge: {name}",
+  "rewardBadges": "🏅 New badges: {icons}",
+  "rewardMission": "🎯 Mission done: +{xp} XP",
+  "rewardMissions": "🎯 {n} missions: +{xp} XP",
   "rpAskText": "See its whole route from the start: every clue, every jump, until the capture.",
   "rpAskTitle": "Watch the number’s escape?",
   "rpAuto": "Automatic",
@@ -7118,6 +7555,19 @@ const dictionaries = {
   "backupReplaces": "سيستبدل تقدّمك الحالي:",
   "backupSummary": "الرتبة {rank} — {name} · {xp} XP · {wins} انتصارات",
   "backupTitle": "تقدّمي",
+  "badgeGot": "تم الحصول عليه!",
+  "badgeHow_ace": "10 انتصارات في المستوى نفسه",
+  "badgeHow_brain": "أصب في 3 عمليات حسابية في تحقيق واحد",
+  "badgeHow_flash": "اربح في 3 أدوار أو أقل",
+  "badgeHow_hound": "اربح في مستوى العبقري دون رمي الشبكة",
+  "badgeHow_lynx": "اربح دون أي خطأ، بإمساك دقيق",
+  "badgeHow_net": "أمسك الرقم بالشبكة",
+  "badge_ace": "نجم المحققين",
+  "badge_brain": "العقل الذهبي",
+  "badge_flash": "البرق",
+  "badge_hound": "المحقق الماهر",
+  "badge_lynx": "عين الوشق",
+  "badge_net": "سيد الشبكة",
   "bonusClue": "تلميحك الإضافي",
   "bonusDeduction": "🧠 +1 مكافأة استنتاج (طرحت سؤالًا)!",
   "bravo": "أحسنت!",
@@ -7251,6 +7701,15 @@ const dictionaries = {
   "miniTip": "💡 نصيحة: سؤال واحد يشطب عدة أرقام دفعة واحدة. بعدها يتحرك الرقم: لا تنسَ أن تُزيح ما تعرفه!",
   "miss": "لم تصب!",
   "missDesc": "اخترت <b>{n}</b>، لكنه ليس الرقم الصحيح. <b>−1 نقطة</b>.",
+  "mission_fast": "اربح في {n} أدوار أو أقل",
+  "mission_math": "أصب في {n} عمليات حسابية في تحقيق واحد",
+  "mission_noMiss": "اربح دون أي خطأ",
+  "mission_play": "أنجز {n} تحقيقات بمفردك",
+  "mission_precise": "أمسك الرقم بإمساك دقيق",
+  "mission_shift": "استعمل «أزِح علاماتي» في دفترك",
+  "mission_stars": "اربح بثلاث نجوم",
+  "mission_winLevel": "اربح تحقيقًا في مستوى {level}",
+  "missionsIntro": "لا يوجد وقت محدد: خذ وقتك. كل مهمة ناجحة تمنح ‎+{xp} XP وتأتي مهمة جديدة.",
   "modeRace": "سباق",
   "modeRaceSub": "الأول يفوز، والآخرون يلعبون من أجل المنصة. لا أحد؟ النقاط تحسم.",
   "modeScore": "نقاط",
@@ -7349,6 +7808,8 @@ const dictionaries = {
   "nowGuess": "اختر رقمًا الآن.",
   "officeBestTurns": "الأفضل: {n} أدوار",
   "officeBtn": "مكتبي",
+  "officeHats": "قبعات الرتب الثماني",
+  "officeHatsNext": "القبعة التالية: {name}",
   "officeLosses": "لم تُحل بعد",
   "officeNote": "رقم قياسي لكل مستوى. كل المستويات مفتوحة في أي عمر.",
   "officePlay": "العب فرديًا",
@@ -7356,6 +7817,10 @@ const dictionaries = {
   "officeRecords": "أرقامي القياسية فرديًا",
   "officeStars": "نجوم",
   "officeSub": "كل تحقيق يجعلك تتقدم!",
+  "officeTabBadges": "الأوسمة",
+  "officeTabMissions": "المهام",
+  "officeTabRank": "الرتبة",
+  "officeTabRecords": "الأرقام القياسية",
   "officeTitle": "مكتبي",
   "officeToDiscover": "للاكتشاف",
   "officeWins": "ناجحة",
@@ -7441,6 +7906,10 @@ const dictionaries = {
   "resume": "متابعة اللعبة",
   "resumeBtn": "متابعة",
   "resumeSub": "الدور {current} / {total}",
+  "rewardBadge": "🏅 وسام جديد: {name}",
+  "rewardBadges": "🏅 أوسمة جديدة: {icons}",
+  "rewardMission": "🎯 مهمة ناجحة: ‎+{xp} XP",
+  "rewardMissions": "🎯 {n} مهام: ‎+{xp} XP",
   "rpAskText": "شاهد مساره منذ البداية: كل تلميح وكل قفزة حتى الإمساك به.",
   "rpAskTitle": "هل تريد مشاهدة هروب الرقم؟",
   "rpAuto": "تلقائي",
@@ -8390,6 +8859,7 @@ function loadCareer() {
   if (!p.processed || typeof p.processed !== 'object') p.processed = {};
   p.levels = p.levels || {};
   for (const l of Object.keys(LEVELS)) p.levels[l] = { ...emptyLevel(), ...(p.levels[l] || {}) };
+  normalizeOffice(p); // badges et missions (V8.15), complétés si absents
   if (fresh) {
     const r = records();
     for (const l of Object.keys(LEVELS))
@@ -8402,6 +8872,7 @@ function saveCareer(c) {
   try {
     localStorage.setItem(CAREER_STORAGE, JSON.stringify(c));
   } catch (e) {} // stockage plein ou interdit : le jeu continue
+  forgetRank();
 }
 
 /** Identifiant de partie : stable, sauvegardé avec la partie (reprise après fermeture). */
@@ -8443,6 +8914,7 @@ function settleSolo(won) {
     if (lv.bestTurns == null || turns < lv.bestTurns) lv.bestTurns = turns;
   } else p.totalLosses++;
   p.xpTotal += xp;
+  const rewards = settleOffice(p, gameFacts(won, turns, stars), lv); // badges, missions (+XP)
   const result = {
     won,
     turns,
@@ -8455,6 +8927,9 @@ function settleSolo(won) {
     xp,
     xpTotal: p.xpTotal,
     rankUp: rankOf(p.xpTotal).rank > rankBefore,
+    newBadges: rewards.newBadges,
+    missionsDone: rewards.missionsDone,
+    missionXp: rewards.missionXp,
     tip: soloTip(won, turns, stars, g.history, g.last)
   };
   p.processed[id] = result;
@@ -8551,6 +9026,7 @@ function importProgress(code) {
   if (!r.ok) return false;
   try {
     localStorage.setItem(CAREER_STORAGE, JSON.stringify(r.data.career));
+    forgetRank();
     localStorage.setItem(RECORDS_STORAGE, JSON.stringify(r.data.records));
   } catch (e) {
     return false;
@@ -8559,6 +9035,151 @@ function importProgress(code) {
   for (const k of BACKUP_PREFS) if (r.data.prefs && k in r.data.prefs) g[k] = r.data.prefs[k];
   return true;
 }
+
+/* ---- 06b-badges.js ---- */
+/*
+ * « Mon bureau » V8.15 : badges, missions et chapeau du détective (mode Solo classique).
+ *
+ * Tout est rangé dans la carrière (numeroEnFuiteCareerV1, profil actif) et donc aussi dans le
+ * code de sauvegarde « Mes progrès » :
+ *   p.badges   = { id: date }                       badges obtenus (jamais retirés)
+ *   p.missions = [{ k, level?, n?, progress, goal }] 3 missions en cours, sans limite de temps
+ *   p.missionSeq                                     compteur pour tirer les missions suivantes
+ * Une mission réussie rapporte MISSION_XP et laisse sa place à une nouvelle.
+ * Rien n'est payant, rien n'expire, rien ne se perd.
+ */
+
+const MISSION_XP = 20;
+
+/**
+ * Les 6 badges. `test(f, lv)` reçoit les faits de la partie (voir gameFacts) et les compteurs du niveau.
+ * Les textes sont les clés badge_<id> (nom) et badgeHow_<id> (comment l'obtenir).
+ */
+const BADGES = [
+  { id: 'lynx', icon: '👁️', test: f => f.won && f.misses === 0 && f.finalCapture === 'precise' },
+  { id: 'flash', icon: '⚡', test: f => f.won && f.turns <= 3 },
+  { id: 'brain', icon: '🧠', test: f => f.goodMath >= 3 },
+  { id: 'net', icon: '🕸️', test: f => f.won && f.finalCapture === 'net' },
+  { id: 'hound', icon: '🐾', test: f => f.won && f.level === 'genius' && !f.usedNet },
+  { id: 'ace', icon: '🃏', test: (f, lv) => lv.wins >= 10 }
+];
+
+/** Modèles de missions, tirés à tour de rôle (jamais deux fois la même en même temps). */
+// ordre de tirage : les 3 premières (mener 3 enquêtes, décaler ses marques, gagner au niveau Moyen) sont pour débuter
+const MISSION_KINDS = ['play', 'shift', 'winLevel', 'math', 'precise', 'fast', 'noMiss', 'stars'];
+function makeMission(kind, seq) {
+  const order = Object.keys(LEVELS);
+  switch (kind) {
+    case 'winLevel':
+      return { k: kind, level: order[(seq + 1) % order.length], progress: 0, goal: 1 };
+    case 'math':
+      return { k: kind, n: 2, progress: 0, goal: 1 };
+    case 'fast':
+      return { k: kind, n: 5, progress: 0, goal: 1 };
+    case 'play':
+      return { k: kind, n: 3, progress: 0, goal: 3 };
+    default:
+      return { k: kind, progress: 0, goal: 1 };
+  }
+}
+/** Une partie fait-elle avancer la mission ? (nombre de pas gagnés) */
+function missionStep(m, f) {
+  switch (m.k) {
+    case 'winLevel':
+      return f.won && f.level === m.level ? 1 : 0;
+    case 'math':
+      return f.goodMath >= m.n ? 1 : 0;
+    case 'precise':
+      return f.won && f.finalCapture === 'precise' ? 1 : 0;
+    case 'fast':
+      return f.won && f.turns <= m.n ? 1 : 0;
+    case 'shift':
+      return f.shifted ? 1 : 0;
+    case 'play':
+      return 1;
+    case 'noMiss':
+      return f.won && f.misses === 0 ? 1 : 0;
+    case 'stars':
+      return f.won && f.stars === 3 ? 1 : 0;
+    default:
+      return 0;
+  }
+}
+const missionKey = m => m.k + (m.level ? ':' + m.level : '');
+/** Prochaine mission : la suivante du cycle qui n'est pas déjà en cours. */
+function nextMission(p) {
+  const current = new Set((p.missions || []).map(missionKey));
+  for (let tries = 0; tries < MISSION_KINDS.length * 4; tries++) {
+    const seq = p.missionSeq || 0;
+    p.missionSeq = seq + 1;
+    const m = makeMission(MISSION_KINDS[seq % MISSION_KINDS.length], Math.floor(seq / MISSION_KINDS.length));
+    if (!current.has(missionKey(m))) return m;
+  }
+  return makeMission('play', 0);
+}
+/** Complète badges et missions d'un profil (ancienne sauvegarde, code importé, donnée abîmée). */
+function normalizeOffice(p) {
+  if (!p.badges || typeof p.badges !== 'object' || Array.isArray(p.badges)) p.badges = {};
+  if (!Array.isArray(p.missions)) p.missions = [];
+  p.missions = p.missions.filter(m => m && MISSION_KINDS.includes(m.k) && m.goal > 0 && m.progress < m.goal);
+  while (p.missions.length < 3) p.missions.push(nextMission(p));
+  return p;
+}
+
+/** Faits d'une partie solo terminée, lus dans l'état du jeu. */
+function gameFacts(won, turns, stars) {
+  const h = g.history;
+  return {
+    won,
+    turns,
+    stars,
+    level: g.level,
+    goodMath: h.filter(e => e.type === 'math' && e.correct).length,
+    misses: h.filter(e => e.type === 'wrong' || e.type === 'netMiss').length,
+    usedNet: h.some(e => e.type === 'netMiss' || e.type === 'netHit'),
+    finalCapture: g.last && g.last.type === 'netHit' ? 'net' : 'precise',
+    shifted: !!g.usedShift
+  };
+}
+
+/**
+ * Appelée UNE fois par partie (dans settleSolo, protégée par le journal `processed`) :
+ * nouveaux badges, missions avancées / réussies (remplacées), XP des missions.
+ */
+function settleOffice(p, f, lv) {
+  normalizeOffice(p);
+  const newBadges = BADGES.filter(b => !p.badges[b.id] && b.test(f, lv)).map(b => b.id);
+  for (const id of newBadges) p.badges[id] = Date.now();
+  const done = [];
+  p.missions = p.missions.map(m => {
+    const progress = Math.min(m.goal, m.progress + missionStep(m, f));
+    if (progress < m.goal) return { ...m, progress };
+    done.push({ ...m, progress });
+    return null;
+  });
+  p.missions = p.missions.filter(Boolean);
+  while (p.missions.length < 3) p.missions.push(nextMission(p));
+  const missionXp = done.length * MISSION_XP;
+  p.xpTotal += missionXp;
+  return { newBadges, missionsDone: done, missionXp };
+}
+
+/** Texte d'une mission (traduit). */
+const LEVEL_NAME_KEYS = {
+  junior: 'levelJunior',
+  malin: 'levelMalin',
+  expert: 'levelExpert',
+  genius: 'levelGenius'
+};
+const missionText = m => t('mission_' + m.k, { n: m.n, level: m.level ? t(LEVEL_NAME_KEYS[m.level]) : '' });
+
+/** Rang du joueur, gardé en mémoire (le chapeau du détective en dépend à chaque affichage). */
+let rankCache = null;
+const heroRank = () => {
+  if (rankCache === null) rankCache = rankOf(careerProfile(loadCareer()).xpTotal).rank;
+  return rankCache;
+};
+const forgetRank = () => (rankCache = null);
 
 /* ---- 07-timers.js ---- */
 /*
@@ -8912,6 +9533,7 @@ function shiftMarks() {
   const keep = new Set(possible);
   m.out = all(maxN()).filter(n => !keep.has(n));
   m.step = huntSteps();
+  g.usedShift = true; // mission « Décale tes marques » (V8.15)
   return true;
 }
 function clearMarks() {
@@ -9323,11 +9945,14 @@ const EXPR = {
   'dash-left': 'surprised',
   'dash-right': 'surprised',
   hop: 'surprised',
-  worried: 'worried'
+  worried: 'worried',
+  cheer: 'wink', // défaite : clin d'œil d'encouragement (V8.15)
+  record: 'proud' // nouveau record : saut de joie et trophée
 };
 function mascot(state = 'idle', party = false, expr = null) {
   const e = expr || EXPR[state] || 'happy';
-  return `<div class="detective-scene ${state} expr-${e}" role="img" aria-label="${esc(t('title'))}"><span class="detector-orbit one">3</span><span class="detector-orbit two">?</span><span class="detector-orbit three">7</span><div class="detective-shadow"></div><div class="think-dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="dt-rig"><div class="detector-magnifier"></div><div class="detector-hat"></div><div class="detector-brim"></div><div class="detective"><span class="detector-brow left"></span><span class="detector-brow right"></span><span class="detector-pupil left"></span><span class="detector-pupil right"></span><span class="detector-blush left"></span><span class="detector-blush right"></span><span class="detector-smile"></span><span class="detector-mouth"></span><span class="detector-tongue"></span></div><div class="detector-body"></div><div class="detector-hand left"></div><div class="detector-hand right"></div><div class="detector-leg left"></div><div class="detector-leg right"></div><div class="detector-foot left"></div><div class="detector-foot right"></div></div>${state === 'caught' || party ? confetti() : ''}</div>`;
+  // chapeau selon le rang du joueur (V8.15) : le rang 1 garde le chapeau d'origine
+  return `<div class="detective-scene ${state} expr-${e} hat-r${heroRank()}" role="img" aria-label="${esc(t('title'))}"><span class="detector-orbit one">3</span><span class="detector-orbit two">?</span><span class="detector-orbit three">7</span><div class="detective-shadow"></div><div class="think-dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="dt-rig"><div class="detector-magnifier"></div><div class="detector-hat"></div><div class="detector-brim"></div><div class="detective"><span class="detector-brow left"></span><span class="detector-brow right"></span><span class="detector-pupil left"></span><span class="detector-pupil right"></span><span class="detector-blush left"></span><span class="detector-blush right"></span><span class="detector-smile"></span><span class="detector-mouth"></span><span class="detector-tongue"></span></div><div class="detector-body"></div><div class="detector-hand left"></div><div class="detector-hand right"></div><div class="detector-leg left"></div><div class="detector-leg right"></div><div class="detector-foot left"></div><div class="detector-foot right"></div></div>${state === 'caught' || party ? confetti() : ''}</div>`;
 }
 /** Phrase du détective : variante choisie de façon stable pendant un même tour. */
 function quip(key) {
@@ -9404,12 +10029,37 @@ function home() {
 /** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
 function office() {
   const p = careerProfile(loadCareer()),
-    levels = [
-      ['junior', '🐣', 'levelJunior'],
-      ['malin', '🧠', 'levelMalin'],
-      ['expert', '🚀', 'levelExpert'],
-      ['genius', '🦉', 'levelGenius']
-    ];
+    tab = ['records', 'badges', 'missions'].includes(g.officeTab) ? g.officeTab : 'rank';
+  const tabs = [
+    ['rank', '🕵️', 'officeTabRank'],
+    ['records', '📂', 'officeTabRecords'],
+    ['badges', '🏅', 'officeTabBadges'],
+    ['missions', '🎯', 'officeTabMissions']
+  ]
+    .map(
+      ([id, icon, k]) =>
+        `<button class="nb-tab ${tab === id ? 'is-selected' : ''}" data-otab="${id}" aria-pressed="${tab === id}">${icon} ${t(k)}${
+          id === 'badges' ? ` <small dir="ltr">${Object.keys(p.badges).length}/${BADGES.length}</small>` : ''
+        }</button>`
+    )
+    .join('');
+  const body =
+    tab === 'badges'
+      ? officeBadges(p)
+      : tab === 'missions'
+        ? officeMissions(p)
+        : tab === 'records'
+          ? officeRecords(p)
+          : officeRank(p);
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeOffice">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel office-panel"><h1 class="settings-title">📚 ${t('officeTitle')}</h1><div class="office-tabs">${tabs}</div>${body}<button class="bigbtn" id="officePlay">▶ ${t('officePlay')}</button></section>`;
+}
+/** Onglet « Rang » : barre d'XP, frise des 8 chapeaux, compteurs. */
+function officeRank(p) {
+  const cur = rankOf(p.xpTotal).rank;
+  const hats = RANKS.map(
+    (_, i) =>
+      `<span class="rank-step ${i + 1 <= cur ? 'reached' : ''} ${i + 1 === cur ? 'current' : ''}" title="${esc(rankName(i + 1))}"><i class="mini-hat hat-r${i + 1}"></i>${i + 1}</span>`
+  ).join('');
   const tiles = [
     ['officePlayed', p.totalWins + p.totalLosses],
     ['officeWins', p.totalWins],
@@ -9418,6 +10068,16 @@ function office() {
   ]
     .map(([k, n]) => `<div><b>${n}</b><small>${t(k)}</small></div>`)
     .join('');
+  return `<div class="office-rank"><span class="office-badge" aria-hidden="true">🕵️</span><div>${rankBar(p.xpTotal)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="office-tiles">${tiles}</div>`;
+}
+/** Onglet « Records » : meilleur score et meilleur nombre de tours par niveau. */
+function officeRecords(p) {
+  const levels = [
+    ['junior', '🐣', 'levelJunior'],
+    ['malin', '🧠', 'levelMalin'],
+    ['expert', '🚀', 'levelExpert'],
+    ['genius', '🦉', 'levelGenius']
+  ];
   const rows = levels
     .map(([id, emoji, k]) => {
       const lv = p.levels[id] || {};
@@ -9428,7 +10088,23 @@ function office() {
       }${lv.bestTurns != null ? `<small>${t('officeBestTurns', { n: lv.bestTurns })}</small>` : ''}</span></li>`;
     })
     .join('');
-  return `<header class="top">${brand()}<button class="mini-btn" id="closeOffice">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="hero settings-hero"><h1>📚 ${t('officeTitle')}</h1><p class="intro">${t('officeSub')}</p></section><section class="panel office-panel"><div class="office-rank"><span class="office-badge" aria-hidden="true">🕵️</span><div>${rankBar(p.xpTotal)}</div></div><div class="office-tiles">${tiles}</div><div class="label">📂 ${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}</p><button class="bigbtn" id="officePlay">▶ ${t('officePlay')}</button></section>`;
+  return `<div class="label">📂 ${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}</p>`;
+}
+/** Onglet « Badges » : étagère des 6 badges ; ceux à gagner disent comment les obtenir. */
+function officeBadges(p) {
+  return `<div class="badge-shelf">${BADGES.map(b => {
+    const got = !!p.badges[b.id];
+    return `<div class="badge ${got ? 'got' : 'locked'}"><span class="b-icon" aria-hidden="true">${b.icon}</span><b>${t('badge_' + b.id)}</b><small>${got ? '✅ ' + t('badgeGot') : t('badgeHow_' + b.id)}</small></div>`;
+  }).join('')}</div>`;
+}
+/** Onglet « Missions » : 3 missions sans limite de temps ; une mission réussie est remplacée. */
+function officeMissions(p) {
+  return `<p class="sub small">${t('missionsIntro', { xp: MISSION_XP })}</p><ul class="mission-list">${p.missions
+    .map(
+      m =>
+        `<li><span class="m-icon" aria-hidden="true">🎯</span><span>${missionText(m)}</span><span class="m-prog" dir="ltr">${m.progress}/${m.goal}</span></li>`
+    )
+    .join('')}</ul>`;
 }
 /** Réglages : langue, chronos, son, mouvements réduits, film. */
 function settings() {
@@ -9765,6 +10441,21 @@ function escapedNote(withText) {
   if (!withText && !film) return '';
   return `<div class="escaped-note">${withText ? `<span>🏃 ${t('escapedWas', { n: g.escaped.n })}</span>` : ''}${film}</div>`;
 }
+/** Récompenses du bureau gagnées pendant la partie : nouveaux badges, missions réussies (V8.15). */
+function rewardLine(res, lead = '') {
+  // regroupées pour rester sur une ligne : « 🏅 👁️ ⚡ » et « 🎯 ×2 : +40 XP »
+  const badges = (res.newBadges || []).map(id => BADGES.find(x => x.id === id)).filter(Boolean),
+    done = res.missionsDone || [];
+  const chips = [
+    badges.length
+      ? `<span class="reward-chip" title="${esc(badges.map(b => t('badge_' + b.id)).join(', '))}">${badges.length === 1 ? t('rewardBadge', { name: badges[0].icon + ' ' + t('badge_' + badges[0].id) }) : t('rewardBadges', { icons: badges.map(b => b.icon).join(' ') })}</span>`
+      : '',
+    done.length
+      ? `<span class="reward-chip" title="${esc(done.map(missionText).join(' · '))}">${done.length === 1 ? t('rewardMission', { xp: MISSION_XP }) : t('rewardMissions', { n: done.length, xp: done.length * MISSION_XP })}</span>`
+      : ''
+  ].join('');
+  return chips || lead ? `<div class="reward-line">${lead}${chips}</div>` : '';
+}
 /** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */
 function endSolo() {
   return g.soloResult ? endSoloCareer(g.soloResult) : endSoloLegacy();
@@ -9781,29 +10472,27 @@ function rankBar(xp) {
 /** Conseil de fin de partie (clé + variables enregistrées par settleSolo). */
 const tipText = ([key, vars]) => t(key, { ...vars, level: vars.levelKey ? t(vars.levelKey) : '' });
 function endSoloCareer(res) {
+  // V8.15 : écran compact (tout tient en 360×640) — score qui défile, lignes regroupées en pastilles.
   const won = res.won;
   const record = won
     ? res.newRecord
       ? `<div class="ch-new">${t(res.prevBest == null ? 'soloFirstRecord' : 'soloNewRecordPts')}</div>`
       : `<div class="record-chip">${t('soloRecordPts', { n: res.prevBest })}</div>`
     : '';
-  const lines = res.lines
-    .map(
-      ([key, v, vars]) =>
-        `<li><span>${t(key, vars)}</span><b dir="ltr">${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</b></li>`
-    )
+  const chips = res.lines
+    .map(([key, v, vars]) => {
+      const label = t(key, vars);
+      return `<li title="${esc(label.replace(/<[^>]+>/g, ''))}"><span>${label}</span><b dir="ltr">${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</b></li>`;
+    })
     .join('');
-  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero"><div class="hero-mascot">${mascot(won ? 'caught' : 'grimace')}</div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></section>
- <section class="panel centered solo-card career-card">${
-   won
-     ? `<div class="solo-stars" aria-label="${res.stars}/3">${[1, 2, 3].map(i => `<span class="${i <= res.stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div>`
-     : `<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('soloLoseEncourage')}</small>${escapedNote(false)}</div></div>`
- }<div class="label">${t('soloScoreTitle')}</div><div class="solo-score" dir="ltr">${res.score}<small> ${t('pts')}</small></div>${record}${
-   lines
-     ? `<details class="score-lines"${res.lines.length <= 3 ? ' open' : ''}><summary>${t('scoreDetail')}</summary><ul>${lines}</ul></details>`
-     : ''
- }<div class="xp-gain"><span>🎖️ ${t('xpGained')}</span><b dir="ltr">+${res.xp} XP</b></div>${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
- <button class="bigbtn" id="again">🔄 ${t('replay')}</button><div class="end-row"><button class="bigbtn light" id="openOffice">📚 ${t('officeBtn')}</button><button class="bigbtn light" id="menu">⌂ ${t('menuBack')}</button></div></section>`;
+  const top = won
+    ? `<div class="ec-score"><div class="solo-stars" aria-label="${res.stars}/3">${[1, 2, 3].map(i => `<span class="${i <= res.stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div><div class="solo-score" dir="ltr"><b data-count="${res.score}" data-count-id="${esc(g.gameId || '')}">${res.score}</b><small> ${t('pts')}</small></div></div>${record}${chips ? `<ul class="ec-lines">${chips}</ul>` : ''}`
+    : `<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('soloLoseEncourage')}</small>${escapedNote(false)}</div></div>`;
+  // XP gagnée, badges et missions : une seule ligne de pastilles
+  const xp = `<span class="reward-chip xp" title="${esc(t('xpGained'))}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b></span>`;
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>
+ <section class="panel centered solo-card career-card ec-card">${top}${rewardLine(res, xp)}${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
+ <div class="ec-actions"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="openOffice" aria-label="${esc(t('officeBtn'))}">📚</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
 }
 /** Ancien écran de fin (parties terminées avant la V8.8 : aucune récompense n'est inventée a posteriori). */
 function endSoloLegacy() {
@@ -10874,8 +11563,34 @@ function render() {
     enterTimer = setTimeout(() => app.classList.remove('screen-enter'), 380);
   } else if (!changed) app.classList.remove('screen-enter');
   bind();
+  countUp();
   save();
   netBroadcast(); // hôte Wi-Fi : chaque changement est envoyé aux autres téléphones
+}
+/**
+ * Score de fin qui défile de 0 à sa valeur (V8.15), une seule fois par partie ;
+ * jamais si les animations sont réduites (la valeur finale est déjà écrite dans la page).
+ */
+let countAnim = null; // { id, t0, to, dur } : survit aux ré-affichages pendant l'animation
+function countUp() {
+  const el = app.querySelector('[data-count]');
+  if (!el || g.reduceMotion) return;
+  const id = el.dataset.countId,
+    to = Number(el.dataset.count) || 0;
+  if (!id || to <= 0) return;
+  if (!(countAnim && countAnim.id === id)) {
+    if (g.countedId === id) return; // déjà vu (retour sur l'écran, redémarrage) : valeur finale
+    g.countedId = id;
+    countAnim = { id, t0: performance.now(), to, dur: Math.min(1400, 500 + to) };
+  }
+  const a = countAnim;
+  const step = now => {
+    if (!el.isConnected) return; // l'écran a été redessiné : le nouvel élément reprend l'animation
+    const k = Math.min(1, (now - a.t0) / a.dur);
+    el.textContent = String(Math.round(a.to * (1 - Math.pow(1 - k, 3))));
+    if (k < 1) requestAnimationFrame(step);
+  };
+  step(performance.now());
 }
 /** Branche les clics des éléments de l'écran (identifiants et attributs data-*). */
 function bind() {
@@ -11120,6 +11835,13 @@ function bind() {
     sfx('tap');
     render();
   });
+  app.querySelectorAll('[data-otab]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.officeTab = b.dataset.otab;
+      sfx('tap');
+      render();
+    })
+  );
   click('closeOffice', () => {
     g.screen = g.officeFrom === 'end' && g.soloResult ? 'end' : 'home';
     sfx('tap');
@@ -11408,6 +12130,9 @@ window.__numero = {
   exportProgress,
   tipKeys: TIP_KEYS,
   marksOf,
+  settleOffice,
+  heroRank,
+  BADGES,
   netLocalKeys: NET_LOCAL_KEYS,
   toggleMark,
   toggleRange,

@@ -1,5 +1,22 @@
 # Historique des versions
 
+## V8.15
+
+**Mon bureau** (étape 4) — 4 onglets : 🕵️ Rang · 📂 Records · 🏅 Badges · 🎯 Missions.
+- **6 badges** : Œil de lynx (victoire sans erreur, capture précise), Éclair (≤ 3 tours), Cerveau d'or (3 calculs
+  réussis dans une enquête), Maître du filet (capture au filet), Fin limier (Génie sans lancer le filet),
+  As du détective (10 victoires au même niveau). Les badges à gagner disent comment les obtenir.
+- **3 missions** sans chrono, remplacées quand elles sont réussies (+20 XP chacune) : mener 3 enquêtes,
+  décaler ses marques, gagner au niveau Moyen, réussir des calculs, gagner vite, sans erreur, avec 3 étoiles…
+- **Frise des 8 rangs** avec leur chapeau ; le **détective porte le chapeau de ton rang** (rang 1 : chapeau
+  d'origine ; couleurs officielles ; étoile à partir du rang 6).
+- Détective : **saut de joie et trophée** sur un nouveau record, **clin d'œil d'encouragement** après une défaite.
+- Badges et missions sont dans la carrière, donc aussi dans le code « Mes progrès ».
+
+**Écran de victoire solo compact et animé** (étape 5) : le score défile de 0 à sa valeur (une seule fois ;
+jamais avec « Réduire les animations »), les lignes du score sont regroupées en pastilles, XP / badges /
+missions sur une ligne, boutons Rejouer · 📚 · ⌂ sur une rangée. Tient en 360 × 640 sans défilement (FR, EN, AR).
+
 ## V8.14
 
 **Carnet d'enquête « à la main »** (📓) : c'est l'enfant qui barre les numéros lui-même.
