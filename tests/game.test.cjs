@@ -980,13 +980,13 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       if (net) N.netCapture(N.state.secret); else N.guess(N.state.secret); N.nextTurn(); N.state.modal = null; N.render(); return N.state.soloResult; }, [level, misses, maths, net]);
     const careerNow = () => page.evaluate(() => window.__numero.loadCareer().profiles['local-default']);
     const r1 = await play('junior', 3, 2, false);
-    check(r1.won && r1.turns === 4 && r1.score === 440 && r1.stars === 2 && r1.newRecord && r1.prevBest === null && r1.xp === 50, `T07 : 1re victoire au niveau → record, +50 XP (${r1.score} pts, ${r1.xp} XP)`);
+    check(r1.won && r1.turns === 4 && r1.score === 440 && r1.stars === 2 && r1.newRecord && r1.prevBest === null && r1.xp === 15, `T07 : 1re victoire au niveau Petit → record, +15 XP (10 + 5) (${r1.score} pts, ${r1.xp} XP)`);
     check(await page.isVisible('.solo-score') && (await page.getAttribute('.solo-score [data-count]', 'data-count')) === '440' && await page.isVisible('.ch-new') && await page.isVisible('.next-goal') && await page.isVisible('#openOffice'), 'Écran de fin : score, « Premier record », conseil, bouton « Mon bureau »');
     const r2 = await play('junior', 5, 0, false);
-    check(!r2.newRecord && r2.prevBest === 440 && r2.xp === 40 && (await page.textContent('.record-chip')).includes('440'), `T06 : victoire sans record → +40 XP, « Record du niveau : 440 » (${r2.score} pts)`);
+    check(!r2.newRecord && r2.prevBest === 440 && r2.xp === 10 && (await page.textContent('.record-chip')).includes('440'), `T06 : victoire sans record → +10 XP (Petit), « Record du niveau : 440 » (${r2.score} pts)`);
     // T08 : score égal au record → pas de « nouveau record »
     const r3 = await play('junior', 3, 2, false);
-    check(r3.score === 440 && !r3.newRecord && r3.xp === 40, 'T08 : score égal au record → pas de « Nouveau record », +40 XP');
+    check(r3.score === 440 && !r3.newRecord && r3.xp === 10, 'T08 : score égal au record → pas de « Nouveau record », +10 XP');
     // T09 / T21 : rouvrir le résultat, recharger, Retour, rien n'est compté deux fois
     const c0 = await careerNow();
     for (let i = 0; i < 5; i++) { await page.click('#openOffice'); await page.click('#closeOffice'); }
@@ -996,7 +996,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(again === 'end,true,true' && c1.xpTotal === c0.xpTotal && c1.totalWins === c0.totalWins && c1.totalStars === c0.totalStars && c1.levels.junior.gamesPlayed === c0.levels.junior.gamesPlayed, `T09 / T21 : 5 réouvertures, rechargement, nouvel appel — XP ${c0.xpTotal} → ${c1.xpTotal}, rien de doublé`);
     // T05 : défaite après 12 tours ; T10 : niveaux indépendants
     const lose = await page.evaluate(() => { const N = window.__numero; N.state.level = 'malin'; N.start(true); N.state.replayAsk = false; for (let i = 0; i < 12 && N.state.screen === 'game'; i++) { N.guess(N.state.secret === 1 ? 2 : 1); N.nextTurn(); } N.state.modal = null; N.render(); return N.state.soloResult; });
-    check(!lose.won && lose.score === 0 && lose.stars === 0 && lose.xp === 10 && await page.isVisible('.solo-reveal'), 'T05 : défaite après 12 tours → 0 point, 0 étoile, +10 XP, numéro révélé');
+    check(!lose.won && lose.score === 0 && lose.stars === 0 && lose.xp === 3 && await page.isVisible('.solo-reveal'), 'T05 : défaite après 12 tours (Moyen) → 0 point, 0 étoile, +3 XP, numéro révélé');
     const rM = await play('malin', 1, 1, true);
     const c2 = await careerNow();
     check(rM.newRecord && c2.levels.malin.bestScore === rM.score && c2.levels.junior.bestScore === 440 && rM.lines.every(l => l[0] !== 'scoreLinePrecise'), `T10 : record Moyen (${rM.score}) indépendant de Petit (440) ; pas de bonus de précision au filet`);
@@ -1017,7 +1017,9 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await page.click('#openOffice');
     const c3 = await careerNow();
     const tiles = await page.$$eval('.office-tiles b', e => e.map(x => x.textContent).join()); await page.click('[data-otab="records"]');
-    check(tiles === [c3.totalWins + c3.totalLosses, c3.totalWins, c3.totalLosses, c3.totalStars].join() && (await page.textContent('.office-records')).includes('440'), 'Mon bureau : enquêtes, victoires, défaites, étoiles, records par niveau (' + tiles + ')');
+    const olv = await page.evaluate(() => { const N = window.__numero; return N.state.officeLevel || N.state.level || 'junior'; }), L3 = c3.levels[olv];
+    const want = [L3.gamesPlayed, L3.wins, L3.gamesPlayed - L3.wins, L3.stars].join();
+    check(tiles === want && (await page.textContent('.office-records')).includes('440'), 'Mon bureau (V9.6) : statistiques du niveau choisi, records par niveau (' + olv + ' : ' + tiles + ' / ' + want + ')');
     const rk = await page.evaluate(() => { const f = window.__numero.rankOf; return [f(0).rank, f(99).rank, f(100).rank, f(560).rank, f(560).pct, f(5000).rank, f(5000).next].join(); });
     check(rk === '1,1,2,4,44,8,', 'Rangs : seuils 0 / 100 / … ; 560 XP → rang 4 à 44 % (' + rk + ')');
     for (const lang of ['fr', 'en', 'ar']) for (const scr of ['office', 'end']) {
@@ -1426,6 +1428,41 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
+  // 3q) V9.6 : bureau par niveau — XP selon le niveau, aide = 0, badges à paliers, missions adaptées
+  {
+    const before = failed;
+    const { ctx, page } = await fresh(browser, { width: 360, height: 735 });
+    const win = (lv, help = false) => page.evaluate(([lv, help]) => { const N = window.__numero; Object.assign(N.state, { players: 1, level: lv, mode: 'normal', replayAsk: false, modal: null, playerHelp: [help, false, false, false] }); N.start(true); N.state.modal = null; N.guess(N.state.secret); N.nextTurn(); return N.state.soloResult; }, [lv, help]);
+    const prof = () => page.evaluate(() => window.__numero.loadCareer().profiles['local-default']);
+    let r = await win('junior');
+    check(r.xp === 15 && r.newBadges.includes('flash') && r.badgeTier === 1, `Petit : victoire + record = 15 XP, badge « Éclair » 🥉 (${r.xp} XP, palier ${r.badgeTier})`);
+    r = await win('junior');
+    check(r.xp === 10 && !r.newBadges.includes('flash'), 'Petit : 10 XP, « Éclair » 🥉 pas regagné au même niveau');
+    r = await win('genius');
+    let p = await prof();
+    check(r.xp === 45 && r.newBadges.includes('flash') && p.badges.flash === 4 && p.badges.hound === 4, `Génie : 30 + 15 XP, « Éclair » passe en 💎, « Fin limier » 💎 (${r.xp} XP)`);
+    const xp0 = p.xpTotal, w0 = p.totalWins, hw0 = p.totalHelpWins || 0;
+    r = await win('expert', true);
+    p = await prof();
+    check(r.xp === 0 && r.newBadges.length === 0 && r.missionXp === 0 && p.xpTotal === xp0 && p.totalWins === w0 + 1 && p.totalHelpWins === hw0 + 1, 'Avec l’aide : victoire comptée « avec aide », mais 0 XP, aucun badge, aucune mission');
+    check(p.missions.length === 3 && p.missions.every(m => m.min != null || m.level || m.k === 'shift' || m.progress >= 0), 'Missions : toujours 3, avec un niveau minimum');
+    const step = await page.evaluate(() => { const N = window.__numero, c = N.loadCareer(), pr = c.profiles['local-default']; pr.missions = [{ k: 'precise', min: 2, progress: 0, goal: 1 }, { k: 'play', n: 3, min: 0, progress: 0, goal: 3 }, { k: 'noMiss', min: 3, progress: 0, goal: 1 }]; localStorage.setItem('numeroEnFuiteCareerV1', JSON.stringify(c)); return true; });
+    await win('junior'); p = await prof();
+    check(p.missions.some(m => m.k === 'precise' && m.progress === 0) && p.missions.some(m => m.k === 'noMiss' && m.progress === 0) && p.missions.some(m => m.k === 'play' && m.progress === 1), 'Mission « niveau Grand ou plus » : une victoire au niveau Petit ne compte pas');
+    await win('genius'); p = await prof();
+    check(!p.missions.some(m => m.k === 'precise' && m.min === 2) && !p.missions.some(m => m.k === 'noMiss' && m.min === 3), 'Une victoire au niveau Génie compte pour les missions Grand+ et Génie');
+    await page.evaluate(() => { const N = window.__numero; N.state.screen = 'office'; N.state.officeTab = 'badges'; N.state.modal = null; N.render(); });
+    check((await page.textContent('.badge-shelf')).includes('💎') && (await page.textContent('.badge-shelf')).includes('Génie'), 'Onglet Badges : médaille du palier et niveau affichés');
+    await page.evaluate(() => { const N = window.__numero; N.state.officeTab = 'missions'; N.render(); });
+    check(/ou plus/.test(await page.textContent('.mission-list')), 'Onglet Missions : le niveau minimum est écrit');
+    // anciens badges (date) gardés au palier 🥉
+    const mig = await page.evaluate(() => { const c = JSON.parse(localStorage.getItem('numeroEnFuiteCareerV1')); c.profiles['local-default'].badges = { lynx: 1700000000000 }; localStorage.setItem('numeroEnFuiteCareerV1', JSON.stringify(c)); return window.__numero.loadCareer().profiles['local-default'].badges.lynx; });
+    check(mig === 1, 'Ancien badge (date) repris au palier 🥉');
+    check(page.errors.length === 0, 'V9.6 : aucune erreur JavaScript ' + page.errors.join(' | '));
+    console.log(`${failed === before ? '✓' : '✗'} V9.6 : XP par niveau, aide sans récompense, badges à paliers, missions par niveau`);
+    await ctx.close();
+  }
+
   // 3o) V8.15 : bureau (badges, missions, chapeaux) et écran de victoire compact animé
   {
     const before = failed;
@@ -1443,6 +1480,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(r.missionsDone.some(m => m.k === 'play') && r.missionXp >= 20 && p2.missions.length === 3 && !p2.missions.some(m => m.k === 'play'), `Mission réussie : +${r.missionXp} XP, remplacée par une nouvelle`);
     check(!r.newBadges.includes('flash'), 'Un badge ne se gagne qu’une fois');
     // chapeau selon le rang
+    for (let i = 0; i < 3; i++) await win('genius'); // V9.6 : le Génie rapporte assez d'XP pour le rang 2
     const rank = await page.evaluate(() => window.__numero.rankOf(window.__numero.loadCareer().profiles['local-default'].xpTotal).rank);
     check(rank >= 2 && await page.$(`.detective-scene.hat-r${rank}`), `Rang ${rank} : nouveau chapeau sur le détective`);
     // score qui défile, puis valeur finale ; tout tient en 360×640

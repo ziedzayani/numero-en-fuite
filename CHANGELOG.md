@@ -1,5 +1,24 @@
 # Historique des versions
 
+## V9.6 — Mon bureau ne mélange plus les niveaux
+
+- **XP selon le niveau** : victoire 10 / 15 / 20 / 30 XP (Petit / Moyen / Grand / Génie), défaite 2 / 3 / 4 / 5,
+  bonus record 5 / 8 / 10 / 15 ; le niveau est rappelé à côté des XP sur l'écran de victoire.
+- **Avec l'aide 💡 : aucune récompense** — 0 XP, pas de badge, pas de mission (la victoire reste notée « avec
+  aide » dans le bureau). Dit dans la fenêtre « Prêt ? » et sur l'écran de victoire.
+- **Badges à 4 paliers**, un par niveau : 🥉 Petit, 🥈 Moyen, 🥇 Grand, 💎 Génie ; on regagne un badge à un niveau
+  plus haut ; l'onglet Badges montre le palier obtenu et le suivant. « Fin limier » : 💎 seulement. Les anciens
+  badges sont gardés au palier 🥉.
+- **Statistiques par niveau** dans l'onglet Rang : on choisit Petit / Moyen / Grand / Génie (enquêtes, victoires,
+  défaites, étoiles du niveau), Petit et Génie ne se mélangent plus.
+- **Missions adaptées** : chacune a un niveau minimum (le niveau où l'on joue le plus, ou le suivant une fois sur
+  deux pour progresser) ; une partie à un niveau plus facile ne compte pas, plus difficile compte.
+
+## V9.6
+
+- **Mon bureau › Rang : statistiques par niveau** (Petit, Moyen, Grand, Génie) au lieu d'un total mélangé :
+  enquêtes, victoires (dont avec aide), pas encore résolues et étoiles du niveau choisi (par défaut le dernier joué).
+
 ## V9.5 — « Mon bureau » d'après les maquettes
 
 - Titre avec le bureau dessiné ; onglets en tuiles avec leurs images (détective, dossier, médaille,

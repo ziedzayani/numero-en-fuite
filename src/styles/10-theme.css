@@ -1813,3 +1813,117 @@ body.scr-home .start-panel .lvl-sub {
 .fb-score b {
   white-space: nowrap;
 }
+/* V9.6 : choix du niveau des statistiques du bureau */
+.olv-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.olv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 0;
+  padding: 4px 2px;
+  border-radius: 12px;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-bottom-width: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+  opacity: 0.75;
+}
+.olv .rec-ico {
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+}
+.olv.lv-junior {
+  background: linear-gradient(0deg, #13843f, #23a95a);
+}
+.olv.lv-malin {
+  background: linear-gradient(0deg, #1b4cbc, #2d6be0);
+}
+.olv.lv-expert {
+  background: linear-gradient(0deg, #a8261d, #d13d2f);
+}
+.olv.lv-genius {
+  background: linear-gradient(0deg, #4b2fa6, #6a48d1);
+}
+.olv.is-selected {
+  opacity: 1;
+  border-color: var(--hunt-gold);
+  box-shadow:
+    0 0 0 2px var(--hunt-gold),
+    0 0 10px rgba(255, 200, 61, 0.6);
+}
+/* V9.6 : paliers des badges */
+.office-panel .badge .b-medal {
+  font-style: normal;
+}
+.office-panel .badge .b-got,
+.office-panel .badge .b-next {
+  display: block;
+}
+.office-panel .badge .b-next {
+  color: #5a4a20;
+  font-weight: 700;
+}
+.office-panel .badge.tier-4 {
+  background: linear-gradient(180deg, #f2fbff, #cdeeff);
+  border-color: #6cc8ff;
+  box-shadow: 0 0 12px rgba(108, 200, 255, 0.7);
+}
+.reward-chip.help-chip small {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.reward-chip.xp small {
+  color: #14205a;
+  font-weight: 700;
+}
+/* rang : un peu plus compact (langues longues) */
+.office-panel .rank-line-hats {
+  margin-bottom: 0;
+}
+.office-panel .office-rank + .label,
+.office-panel .rank-line-hats + .sub {
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+.office-panel .office-tiles {
+  margin: 4px 0 8px;
+}
+.office-panel .office-tiles div {
+  padding: 5px 3px;
+}
+.office-panel .office-tiles b {
+  font-size: 19px;
+}
+.office-title {
+  white-space: nowrap;
+  max-width: 100%;
+  font-size: min(26px, 6.6vw);
+}
+@media (max-height: 760px) {
+  .fb-score {
+    margin: 0 auto 4px;
+    padding: 1px 4px 1px 10px;
+  }
+  .fb-score small {
+    font-size: 11.5px;
+  }
+  .fb-score b {
+    font-size: 14px;
+    padding: 0 10px;
+  }
+  .fb-hero .hp {
+    width: 70px;
+    height: 60px;
+  }
+}

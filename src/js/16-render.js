@@ -364,6 +364,13 @@ function bind() {
     sfx('tap');
     render();
   });
+  app.querySelectorAll('[data-olevel]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.officeLevel = b.dataset.olevel;
+      sfx('tap');
+      render();
+    })
+  );
   app.querySelectorAll('[data-otab]').forEach(b =>
     b.addEventListener('click', () => {
       g.officeTab = b.dataset.otab;

@@ -8919,6 +8919,120 @@ body.scr-home .start-panel .lvl-sub {
 .fb-score b {
   white-space: nowrap;
 }
+/* V9.6 : choix du niveau des statistiques du bureau */
+.olv-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.olv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 0;
+  padding: 4px 2px;
+  border-radius: 12px;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-bottom-width: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+  opacity: 0.75;
+}
+.olv .rec-ico {
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+}
+.olv.lv-junior {
+  background: linear-gradient(0deg, #13843f, #23a95a);
+}
+.olv.lv-malin {
+  background: linear-gradient(0deg, #1b4cbc, #2d6be0);
+}
+.olv.lv-expert {
+  background: linear-gradient(0deg, #a8261d, #d13d2f);
+}
+.olv.lv-genius {
+  background: linear-gradient(0deg, #4b2fa6, #6a48d1);
+}
+.olv.is-selected {
+  opacity: 1;
+  border-color: var(--hunt-gold);
+  box-shadow:
+    0 0 0 2px var(--hunt-gold),
+    0 0 10px rgba(255, 200, 61, 0.6);
+}
+/* V9.6 : paliers des badges */
+.office-panel .badge .b-medal {
+  font-style: normal;
+}
+.office-panel .badge .b-got,
+.office-panel .badge .b-next {
+  display: block;
+}
+.office-panel .badge .b-next {
+  color: #5a4a20;
+  font-weight: 700;
+}
+.office-panel .badge.tier-4 {
+  background: linear-gradient(180deg, #f2fbff, #cdeeff);
+  border-color: #6cc8ff;
+  box-shadow: 0 0 12px rgba(108, 200, 255, 0.7);
+}
+.reward-chip.help-chip small {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.reward-chip.xp small {
+  color: #14205a;
+  font-weight: 700;
+}
+/* rang : un peu plus compact (langues longues) */
+.office-panel .rank-line-hats {
+  margin-bottom: 0;
+}
+.office-panel .office-rank + .label,
+.office-panel .rank-line-hats + .sub {
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+.office-panel .office-tiles {
+  margin: 4px 0 8px;
+}
+.office-panel .office-tiles div {
+  padding: 5px 3px;
+}
+.office-panel .office-tiles b {
+  font-size: 19px;
+}
+.office-title {
+  white-space: nowrap;
+  max-width: 100%;
+  font-size: min(26px, 6.6vw);
+}
+@media (max-height: 760px) {
+  .fb-score {
+    margin: 0 auto 4px;
+    padding: 1px 4px 1px 10px;
+  }
+  .fb-score small {
+    font-size: 11.5px;
+  }
+  .fb-score b {
+    font-size: 14px;
+    padding: 0 10px;
+  }
+  .fb-hero .hp {
+    width: 70px;
+    height: 60px;
+  }
+}
 
     </style>
   </head>
@@ -9009,7 +9123,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.5";
+const APP_VERSION = "9.6";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -9046,12 +9160,14 @@ const dictionaries = {
   "backupSummary": "Rang {rank} — {name} · {xp} XP · {wins} victoires",
   "backupTitle": "Mes progrès",
   "badgeGot": "Obtenu !",
+  "badgeGotAt": "Obtenu au niveau {level}",
   "badgeHow_ace": "10 victoires au même niveau",
   "badgeHow_brain": "Réussir 3 calculs dans une même enquête",
   "badgeHow_flash": "Gagner en 3 tours ou moins",
   "badgeHow_hound": "Gagner au niveau Génie sans lancer le filet",
   "badgeHow_lynx": "Gagner sans aucune erreur, d’une capture précise",
   "badgeHow_net": "Attraper le numéro avec le filet",
+  "badgeNextAt": "Suivant : {medal} niveau {level}",
   "badge_ace": "As du détective",
   "badge_brain": "Cerveau d’or",
   "badge_flash": "Éclair",
@@ -9152,6 +9268,7 @@ const dictionaries = {
   "helpAsk": "Sur demande",
   "helpAuto": "Automatique",
   "helpHint": "Montre les numéros encore possibles. Désactivée par défaut : c’est au détective de déduire !",
+  "helpNoXp": "Avec l’aide : ni XP, ni badge, ni mission.",
   "helpOff": "Désactivée",
   "helpPlayer": "Aide",
   "helpPlayerHint": "💡 Aide = les numéros encore possibles en vert (désactivée par défaut).",
@@ -9207,6 +9324,7 @@ const dictionaries = {
   "miniTip": "💡 Astuce : une question raye d’un coup plusieurs numéros. Ensuite le numéro bouge : pense à décaler ce que tu sais !",
   "miss": "RATÉ !",
   "missDesc": "Tu as choisi <b>{n}</b>, mais ce n’était pas le bon numéro. <b>−1 point</b>.",
+  "missionMinLevel": "(niveau {level} ou plus)",
   "mission_fast": "Gagne en {n} tours ou moins",
   "mission_math": "Réussis {n} calculs dans une même enquête",
   "mission_noMiss": "Gagne sans aucune erreur",
@@ -9328,6 +9446,7 @@ const dictionaries = {
   "officePlayed": "Enquêtes terminées",
   "officeRecords": "Mes records en solo",
   "officeStars": "Étoiles",
+  "officeStatsLevel": "Mes statistiques par niveau",
   "officeSub": "Chaque enquête te fait progresser !",
   "officeTabBadges": "Badges",
   "officeTabMissions": "Missions",
@@ -9609,12 +9728,14 @@ const dictionaries = {
   "backupSummary": "Rank {rank} — {name} · {xp} XP · {wins} wins",
   "backupTitle": "My progress",
   "badgeGot": "Earned!",
+  "badgeGotAt": "Earned at level {level}",
   "badgeHow_ace": "10 wins at the same level",
   "badgeHow_brain": "Get 3 sums right in one case",
   "badgeHow_flash": "Win in 3 turns or fewer",
   "badgeHow_hound": "Win at Genius level without throwing the net",
   "badgeHow_lynx": "Win with no mistake, with an exact catch",
   "badgeHow_net": "Catch the number with the net",
+  "badgeNextAt": "Next: {medal} level {level}",
   "badge_ace": "Detective ace",
   "badge_brain": "Golden brain",
   "badge_flash": "Lightning",
@@ -9715,6 +9836,7 @@ const dictionaries = {
   "helpAsk": "On request",
   "helpAuto": "Automatic",
   "helpHint": "Shows the numbers still possible. Off by default: the detective has to work it out!",
+  "helpNoXp": "With help: no XP, badges or missions.",
   "helpOff": "Off",
   "helpPlayer": "Help",
   "helpPlayerHint": "💡 Help = possible numbers shown in green (off by default).",
@@ -9770,6 +9892,7 @@ const dictionaries = {
   "miniTip": "💡 Tip: one question crosses out several numbers at once. Then the number moves: shift what you know!",
   "miss": "NOT QUITE!",
   "missDesc": "You picked <b>{n}</b>, but it wasn’t right. <b>−1 point</b>.",
+  "missionMinLevel": "(level {level} or higher)",
   "mission_fast": "Win in {n} turns or fewer",
   "mission_math": "Get {n} sums right in one case",
   "mission_noMiss": "Win with no mistake",
@@ -9891,6 +10014,7 @@ const dictionaries = {
   "officePlayed": "Cases played",
   "officeRecords": "My solo records",
   "officeStars": "Stars",
+  "officeStatsLevel": "My stats by level",
   "officeSub": "Every case helps you progress!",
   "officeTabBadges": "Badges",
   "officeTabMissions": "Missions",
@@ -10172,12 +10296,14 @@ const dictionaries = {
   "backupSummary": "الرتبة {rank} — {name} · {xp} XP · {wins} انتصارات",
   "backupTitle": "تقدّمي",
   "badgeGot": "تم الحصول عليه!",
+  "badgeGotAt": "حصلت عليه في مستوى {level}",
   "badgeHow_ace": "10 انتصارات في المستوى نفسه",
   "badgeHow_brain": "أصب في 3 عمليات حسابية في تحقيق واحد",
   "badgeHow_flash": "اربح في 3 أدوار أو أقل",
   "badgeHow_hound": "اربح في مستوى العبقري دون رمي الشبكة",
   "badgeHow_lynx": "اربح دون أي خطأ، بإمساك دقيق",
   "badgeHow_net": "أمسك الرقم بالشبكة",
+  "badgeNextAt": "التالي: {medal} مستوى {level}",
   "badge_ace": "نجم المحققين",
   "badge_brain": "العقل الذهبي",
   "badge_flash": "البرق",
@@ -10278,6 +10404,7 @@ const dictionaries = {
   "helpAsk": "عند الطلب",
   "helpAuto": "تلقائي",
   "helpHint": "يعرض الأرقام التي ما زالت محتملة. متوقفة افتراضيًا: على المحقق أن يستنتج!",
+  "helpNoXp": "مع المساعدة: لا خبرة ولا أوسمة ولا مهام.",
   "helpOff": "متوقفة",
   "helpPlayer": "مساعدة",
   "helpPlayerHint": "💡 المساعدة = الأرقام المحتملة باللون الأخضر (متوقفة افتراضيًا).",
@@ -10333,6 +10460,7 @@ const dictionaries = {
   "miniTip": "💡 نصيحة: سؤال واحد يشطب عدة أرقام دفعة واحدة. بعدها يتحرك الرقم: لا تنسَ أن تُزيح ما تعرفه!",
   "miss": "لم تصب!",
   "missDesc": "اخترت <b>{n}</b>، لكنه ليس الرقم الصحيح. <b>−1 نقطة</b>.",
+  "missionMinLevel": "(مستوى {level} أو أعلى)",
   "mission_fast": "اربح في {n} أدوار أو أقل",
   "mission_math": "أصب في {n} عمليات حسابية في تحقيق واحد",
   "mission_noMiss": "اربح دون أي خطأ",
@@ -10454,6 +10582,7 @@ const dictionaries = {
   "officePlayed": "تحقيقات منتهية",
   "officeRecords": "أرقامي القياسية فرديًا",
   "officeStars": "نجوم",
+  "officeStatsLevel": "إحصائياتي حسب المستوى",
   "officeSub": "كل تحقيق يجعلك تتقدم!",
   "officeTabBadges": "الأوسمة",
   "officeTabMissions": "المهام",
@@ -10735,12 +10864,14 @@ const dictionaries = {
   "backupSummary": "Rango {rank} — {name} · {xp} XP · {wins} victorias",
   "backupTitle": "Mi progreso",
   "badgeGot": "¡Conseguido!",
+  "badgeGotAt": "Ganada en nivel {level}",
   "badgeHow_ace": "10 victorias en el mismo nivel",
   "badgeHow_brain": "Acierta 3 cálculos en un mismo caso",
   "badgeHow_flash": "Gana en 3 turnos o menos",
   "badgeHow_hound": "Gana en el nivel Genio sin lanzar la red",
   "badgeHow_lynx": "Gana sin ningún error, con una captura exacta",
   "badgeHow_net": "Atrapa el número con la red",
+  "badgeNextAt": "Siguiente: {medal} nivel {level}",
   "badge_ace": "As de los detectives",
   "badge_brain": "Cerebro de oro",
   "badge_flash": "Relámpago",
@@ -10841,6 +10972,7 @@ const dictionaries = {
   "helpAsk": "A petición",
   "helpAuto": "Automática",
   "helpHint": "Muestra los números aún posibles. Desactivada por defecto: ¡el detective tiene que deducirlo!",
+  "helpNoXp": "Con ayuda: sin XP, insignias ni misiones.",
   "helpOff": "Desactivada",
   "helpPlayer": "Ayuda",
   "helpPlayerHint": "💡 Ayuda = números posibles en verde (desactivada por defecto).",
@@ -10896,6 +11028,7 @@ const dictionaries = {
   "miniTip": "💡 Consejo: una pregunta tacha varios números a la vez. Luego el número se mueve: ¡desplaza lo que sabes!",
   "miss": "¡CASI!",
   "missDesc": "Elegiste el <b>{n}</b>, pero no era. <b>−1 punto</b>.",
+  "missionMinLevel": "(nivel {level} o superior)",
   "mission_fast": "Gana en {n} turnos o menos",
   "mission_math": "Acierta {n} cálculos en un mismo caso",
   "mission_noMiss": "Gana sin ningún error",
@@ -11017,6 +11150,7 @@ const dictionaries = {
   "officePlayed": "Casos jugados",
   "officeRecords": "Mis récords en solitario",
   "officeStars": "Estrellas",
+  "officeStatsLevel": "Mis estadísticas por nivel",
   "officeSub": "¡Cada caso te ayuda a progresar!",
   "officeTabBadges": "Insignias",
   "officeTabMissions": "Misiones",
@@ -11298,12 +11432,14 @@ const dictionaries = {
   "backupSummary": "Grado {rank} — {name} · {xp} XP · {wins} vittorie",
   "backupTitle": "I miei progressi",
   "badgeGot": "Ottenuto!",
+  "badgeGotAt": "Ottenuto al livello {level}",
   "badgeHow_ace": "10 vittorie allo stesso livello",
   "badgeHow_brain": "Indovina 3 calcoli nello stesso caso",
   "badgeHow_flash": "Vinci in 3 turni o meno",
   "badgeHow_hound": "Vinci al livello Genio senza lanciare la rete",
   "badgeHow_lynx": "Vinci senza errori, con una cattura esatta",
   "badgeHow_net": "Cattura il numero con la rete",
+  "badgeNextAt": "Prossimo: {medal} livello {level}",
   "badge_ace": "Asso dei detective",
   "badge_brain": "Cervello d’oro",
   "badge_flash": "Fulmine",
@@ -11404,6 +11540,7 @@ const dictionaries = {
   "helpAsk": "Su richiesta",
   "helpAuto": "Automatico",
   "helpHint": "Mostra i numeri ancora possibili. Disattivato di base: il detective deve dedurlo!",
+  "helpNoXp": "Con l’aiuto: niente XP, distintivi o missioni.",
   "helpOff": "Disattivato",
   "helpPlayer": "Aiuto",
   "helpPlayerHint": "💡 Aiuto = numeri possibili in verde (disattivato di base).",
@@ -11459,6 +11596,7 @@ const dictionaries = {
   "miniTip": "💡 Consiglio: una domanda cancella più numeri insieme. Poi il numero si muove: sposta quello che sai!",
   "miss": "PECCATO!",
   "missDesc": "Hai scelto <b>{n}</b>, ma non era quello. <b>−1 punto</b>.",
+  "missionMinLevel": "(livello {level} o superiore)",
   "mission_fast": "Vinci in {n} turni o meno",
   "mission_math": "Indovina {n} calcoli nello stesso caso",
   "mission_noMiss": "Vinci senza errori",
@@ -11580,6 +11718,7 @@ const dictionaries = {
   "officePlayed": "Casi giocati",
   "officeRecords": "I miei record in solitario",
   "officeStars": "Stelle",
+  "officeStatsLevel": "Le mie statistiche per livello",
   "officeSub": "Ogni caso ti fa progredire!",
   "officeTabBadges": "Medaglie",
   "officeTabMissions": "Missioni",
@@ -11861,12 +12000,14 @@ const dictionaries = {
   "backupSummary": "Rang {rank} — {name} · {xp} XP · {wins} Siege",
   "backupTitle": "Mein Fortschritt",
   "badgeGot": "Erhalten!",
+  "badgeGotAt": "Erhalten auf Stufe {level}",
   "badgeHow_ace": "10 Siege auf derselben Stufe",
   "badgeHow_brain": "3 Rechnungen in einem Fall richtig lösen",
   "badgeHow_flash": "In 3 Runden oder weniger gewinnen",
   "badgeHow_hound": "Auf Stufe Genie gewinnen, ohne das Netz zu werfen",
   "badgeHow_lynx": "Ohne Fehler gewinnen, mit einem genauen Fang",
   "badgeHow_net": "Die Zahl mit dem Netz fangen",
+  "badgeNextAt": "Nächstes: {medal} Stufe {level}",
   "badge_ace": "Detektiv-Ass",
   "badge_brain": "Goldenes Hirn",
   "badge_flash": "Blitz",
@@ -11967,6 +12108,7 @@ const dictionaries = {
   "helpAsk": "Auf Wunsch",
   "helpAuto": "Automatisch",
   "helpHint": "Zeigt die noch möglichen Zahlen. Standardmäßig aus: Der Detektiv soll selbst kombinieren!",
+  "helpNoXp": "Mit Hilfe: keine XP, Abzeichen oder Missionen.",
   "helpOff": "Aus",
   "helpPlayer": "Hilfe",
   "helpPlayerHint": "💡 Hilfe = mögliche Zahlen in Grün (standardmäßig aus).",
@@ -12022,6 +12164,7 @@ const dictionaries = {
   "miniTip": "💡 Tipp: Eine Frage streicht mehrere Zahlen auf einmal. Danach bewegt sich die Zahl: Verschiebe, was du weißt!",
   "miss": "DANEBEN!",
   "missDesc": "Du hast <b>{n}</b> gewählt, aber das war es nicht. <b>−1 Punkt</b>.",
+  "missionMinLevel": "(Stufe {level} oder höher)",
   "mission_fast": "Gewinne in {n} Runden oder weniger",
   "mission_math": "Löse {n} Rechnungen in einem Fall richtig",
   "mission_noMiss": "Gewinne ohne einen Fehler",
@@ -12143,6 +12286,7 @@ const dictionaries = {
   "officePlayed": "Gespielte Fälle",
   "officeRecords": "Meine Solo-Rekorde",
   "officeStars": "Sterne",
+  "officeStatsLevel": "Meine Statistik je Stufe",
   "officeSub": "Jeder Fall bringt dich weiter!",
   "officeTabBadges": "Abzeichen",
   "officeTabMissions": "Missionen",
@@ -12424,12 +12568,14 @@ const dictionaries = {
   "backupSummary": "等级 {rank} — {name} · {xp} XP · {wins} 次胜利",
   "backupTitle": "我的进度",
   "badgeGot": "已获得！",
+  "badgeGotAt": "在{level}难度获得",
   "badgeHow_ace": "在同一难度获胜 10 次",
   "badgeHow_brain": "在一个案件中答对 3 道算术题",
   "badgeHow_flash": "在 3 回合内获胜",
   "badgeHow_hound": "在天才难度获胜且不使用网",
   "badgeHow_lynx": "零失误获胜，并且精准捕捉",
   "badgeHow_net": "用网抓住数字",
+  "badgeNextAt": "下一个：{medal} {level}难度",
   "badge_ace": "侦探王牌",
   "badge_brain": "黄金大脑",
   "badge_flash": "闪电",
@@ -12530,6 +12676,7 @@ const dictionaries = {
   "helpAsk": "按需",
   "helpAuto": "自动",
   "helpHint": "显示仍有可能的数字。默认关闭：侦探要自己推理！",
+  "helpNoXp": "使用帮助：没有经验值、徽章或任务。",
   "helpOff": "关闭",
   "helpPlayer": "帮助",
   "helpPlayerHint": "💡 帮助 = 用绿色显示可能的数字（默认关闭）。",
@@ -12585,6 +12732,7 @@ const dictionaries = {
   "miniTip": "💡 提示：一个问题能一次划掉好几个数字。之后数字会移动：把你知道的也挪一挪！",
   "miss": "没抓到！",
   "missDesc": "你选了 <b>{n}</b>，但不对。<b>−1 分</b>。",
+  "missionMinLevel": "（{level}难度或更高）",
   "mission_fast": "在 {n} 回合内获胜",
   "mission_math": "在一个案件中答对 {n} 道算术题",
   "mission_noMiss": "零失误获胜",
@@ -12706,6 +12854,7 @@ const dictionaries = {
   "officePlayed": "已玩案件",
   "officeRecords": "我的单人纪录",
   "officeStars": "星星",
+  "officeStatsLevel": "各难度统计",
   "officeSub": "每个案件都让你进步！",
   "officeTabBadges": "徽章",
   "officeTabMissions": "任务",
@@ -12987,12 +13136,14 @@ const dictionaries = {
   "backupSummary": "ランク {rank} — {name} · {xp} XP · {wins} 勝",
   "backupTitle": "進行状況",
   "badgeGot": "獲得！",
+  "badgeGotAt": "{level}レベルで獲得",
   "badgeHow_ace": "同じレベルで 10 回勝つ",
   "badgeHow_brain": "1 つの事件で計算を 3 問正解",
   "badgeHow_flash": "3 ターン以内に勝つ",
   "badgeHow_hound": "天才レベルで網を使わずに勝つ",
   "badgeHow_lynx": "ミスなしで、ピタリ捕獲で勝つ",
   "badgeHow_net": "網で数字をつかまえる",
+  "badgeNextAt": "次：{medal} {level}レベル",
   "badge_ace": "名探偵エース",
   "badge_brain": "黄金の頭脳",
   "badge_flash": "稲妻",
@@ -13093,6 +13244,7 @@ const dictionaries = {
   "helpAsk": "必要なとき",
   "helpAuto": "自動",
   "helpHint": "まだありえる数字を表示。最初はオフ：探偵は自分で推理しよう！",
+  "helpNoXp": "ヘルプあり：XP・バッジ・ミッションなし。",
   "helpOff": "オフ",
   "helpPlayer": "ヘルプ",
   "helpPlayerHint": "💡 ヘルプ = ありえる数字を緑で表示（最初はオフ）。",
@@ -13148,6 +13300,7 @@ const dictionaries = {
   "miniTip": "💡 コツ：1 つの質問でいくつもの数字を消せる。そのあと数字は動く：わかったことも一緒にずらそう！",
   "miss": "はずれ！",
   "missDesc": "<b>{n}</b> を選んだけど、ちがった。<b>−1 点</b>。",
+  "missionMinLevel": "（{level}レベル以上）",
   "mission_fast": "{n} ターン以内に勝つ",
   "mission_math": "1 つの事件で計算を {n} 問正解",
   "mission_noMiss": "ミスなしで勝つ",
@@ -13269,6 +13422,7 @@ const dictionaries = {
   "officePlayed": "事件数",
   "officeRecords": "ひとりプレイの記録",
   "officeStars": "星",
+  "officeStatsLevel": "レベル別の成績",
   "officeSub": "事件をこなすたびに成長！",
   "officeTabBadges": "バッジ",
   "officeTabMissions": "ミッション",
@@ -14298,7 +14452,13 @@ function start(skipHandoff = false) {
 /** Barème du score Solo (cahier des charges V8.5). Prolonger d'un tour coûte 40, un calcul en rapporte au plus 20. */
 const SOLO_SCORE = { win: 100, perTurnSaved: 40, perMath: 20, maxMath: 3, precise: 10, perMiss: 10 };
 /** XP de fin de partie. */
-const SOLO_XP = { win: 40, recordBonus: 10, loss: 10 };
+/** XP d'une partie solo selon le niveau (V9.6) : un niveau plus dur rapporte plus. Avec l'aide : 0 XP. */
+const SOLO_XP = {
+  junior: { win: 10, recordBonus: 5, loss: 2 },
+  malin: { win: 15, recordBonus: 8, loss: 3 },
+  expert: { win: 20, recordBonus: 10, loss: 4 },
+  genius: { win: 30, recordBonus: 15, loss: 5 }
+};
 /** Seuils d'XP des rangs (le libellé est la clé de traduction rank1…rank8). */
 const RANKS = [0, 100, 250, 450, 700, 1000, 1400, 1900];
 const CAREER_STORAGE = 'numeroEnFuiteCareerV1';
@@ -14433,9 +14593,10 @@ function settleSolo(won) {
     stars = soloStars(won, turns),
     prevBest = lv.bestScore,
     newRecord = won && (prevBest == null || score.total > prevBest), // strictement meilleur
-    xp = won ? SOLO_XP.win + (newRecord ? SOLO_XP.recordBonus : 0) : SOLO_XP.loss,
-    rankBefore = rankOf(p.xpTotal).rank,
-    helped = !!(g.playerHelp && g.playerHelp[0]); // aide activée : victoire notée « avec aide » dans le bureau
+    helped = !!(g.playerHelp && g.playerHelp[0]), // aide activée : victoire notée « avec aide », sans récompense
+    sx = SOLO_XP[g.level] || SOLO_XP.junior,
+    xp = helped ? 0 : won ? sx.win + (newRecord ? sx.recordBonus : 0) : sx.loss,
+    rankBefore = rankOf(p.xpTotal).rank;
   lv.gamesPlayed++;
   if (won) {
     lv.wins++;
@@ -14453,7 +14614,10 @@ function settleSolo(won) {
     if (lv.bestTurns == null || turns < lv.bestTurns) lv.bestTurns = turns;
   } else p.totalLosses++;
   p.xpTotal += xp;
-  const rewards = settleOffice(p, gameFacts(won, turns, stars), lv); // badges, missions (+XP)
+  // badges et missions : seulement sans l'aide (V9.6)
+  const rewards = helped
+    ? { newBadges: [], missionsDone: [], missionXp: 0, badgeTier: 0 }
+    : settleOffice(p, gameFacts(won, turns, stars), lv);
   const result = {
     won,
     helped,
@@ -14468,6 +14632,7 @@ function settleSolo(won) {
     xpTotal: p.xpTotal,
     rankUp: rankOf(p.xpTotal).rank > rankBefore,
     newBadges: rewards.newBadges,
+    badgeTier: rewards.badgeTier || 0,
     missionsDone: rewards.missionsDone,
     missionXp: rewards.missionXp,
     tip: soloTip(won, turns, stars, g.history, g.last)
@@ -14582,14 +14747,29 @@ function importProgress(code) {
  *
  * Tout est rangé dans la carrière (numeroEnFuiteCareerV1, profil actif) et donc aussi dans le
  * code de sauvegarde « Mes progrès » :
- *   p.badges   = { id: date }                       badges obtenus (jamais retirés)
- *   p.missions = [{ k, level?, n?, progress, goal }] 3 missions en cours, sans limite de temps
+ *   p.badges   = { id: palier }                     palier 1–4 = niveau le plus haut où le badge est gagné
+ *                                                   (🥉 Petit, 🥈 Moyen, 🥇 Grand, 💎 Génie ; jamais retiré)
+ *   p.missions = [{ k, level?, n?, min?, progress, goal }] 3 missions ; `min` = niveau minimum (0–3)
  *   p.missionSeq                                     compteur pour tirer les missions suivantes
  * Une mission réussie rapporte MISSION_XP et laisse sa place à une nouvelle.
  * Rien n'est payant, rien n'expire, rien ne se perd.
  */
 
 const MISSION_XP = 20;
+/** Ordre des niveaux (indice 0–3) et médaille de chaque palier de badge. */
+const LEVEL_ORDER = ['junior', 'malin', 'expert', 'genius'];
+const TIER_MEDALS = ['', '🥉', '🥈', '🥇', '💎'];
+const levelIdx = l => Math.max(0, LEVEL_ORDER.indexOf(l));
+/** Niveau où le joueur joue le plus (pour adapter les missions). */
+function mainLevel(p) {
+  let best = 0,
+    n = -1;
+  LEVEL_ORDER.forEach((l, i) => {
+    const c = (p.levels && p.levels[l] && p.levels[l].gamesPlayed) || 0;
+    if (c >= n) [best, n] = [c > n ? i : best, Math.max(n, c)];
+  });
+  return best;
+}
 
 /**
  * Les 6 badges. `test(f, lv)` reçoit les faits de la partie (voir gameFacts) et les compteurs du niveau.
@@ -14607,23 +14787,24 @@ const BADGES = [
 /** Modèles de missions, tirés à tour de rôle (jamais deux fois la même en même temps). */
 // ordre de tirage : les 3 premières (mener 3 enquêtes, décaler ses marques, gagner au niveau Moyen) sont pour débuter
 const MISSION_KINDS = ['play', 'shift', 'winLevel', 'math', 'precise', 'fast', 'noMiss', 'stars'];
-function makeMission(kind, seq) {
-  const order = Object.keys(LEVELS);
+function makeMission(kind, seq, min = 0) {
+  // V9.6 : chaque mission vise le niveau du joueur (ou le suivant, pour progresser) ; `min` = niveau minimum
   switch (kind) {
     case 'winLevel':
-      return { k: kind, level: order[(seq + 1) % order.length], progress: 0, goal: 1 };
+      return { k: kind, level: LEVEL_ORDER[Math.min(3, min + 1)], progress: 0, goal: 1 };
     case 'math':
-      return { k: kind, n: 2, progress: 0, goal: 1 };
+      return { k: kind, n: 2, min, progress: 0, goal: 1 };
     case 'fast':
-      return { k: kind, n: 5, progress: 0, goal: 1 };
+      return { k: kind, n: 5, min, progress: 0, goal: 1 };
     case 'play':
-      return { k: kind, n: 3, progress: 0, goal: 3 };
+      return { k: kind, n: 3, min, progress: 0, goal: 3 };
     default:
-      return { k: kind, progress: 0, goal: 1 };
+      return { k: kind, min, progress: 0, goal: 1 };
   }
 }
 /** Une partie fait-elle avancer la mission ? (nombre de pas gagnés) */
 function missionStep(m, f) {
+  if (m.min && levelIdx(f.level) < m.min) return 0; // partie jouée à un niveau trop facile
   switch (m.k) {
     case 'winLevel':
       return f.won && f.level === m.level ? 1 : 0;
@@ -14646,13 +14827,20 @@ function missionStep(m, f) {
   }
 }
 const missionKey = m => m.k + (m.level ? ':' + m.level : '');
+
 /** Prochaine mission : la suivante du cycle qui n'est pas déjà en cours. */
 function nextMission(p) {
   const current = new Set((p.missions || []).map(missionKey));
   for (let tries = 0; tries < MISSION_KINDS.length * 4; tries++) {
     const seq = p.missionSeq || 0;
     p.missionSeq = seq + 1;
-    const m = makeMission(MISSION_KINDS[seq % MISSION_KINDS.length], Math.floor(seq / MISSION_KINDS.length));
+    const main = mainLevel(p),
+      min = seq % 2 ? Math.min(3, main + 1) : main; // une mission sur deux pousse au niveau suivant
+    const m = makeMission(
+      MISSION_KINDS[seq % MISSION_KINDS.length],
+      Math.floor(seq / MISSION_KINDS.length),
+      min
+    );
     if (!current.has(missionKey(m))) return m;
   }
   return makeMission('play', 0);
@@ -14660,6 +14848,11 @@ function nextMission(p) {
 /** Complète badges et missions d'un profil (ancienne sauvegarde, code importé, donnée abîmée). */
 function normalizeOffice(p) {
   if (!p.badges || typeof p.badges !== 'object' || Array.isArray(p.badges)) p.badges = {};
+  // anciens badges (date d'obtention, V8.15) : gardés, au palier 🥉
+  for (const id of Object.keys(p.badges)) {
+    const v = p.badges[id];
+    if (!(Number.isInteger(v) && v >= 1 && v <= 4)) p.badges[id] = 1;
+  }
   if (!Array.isArray(p.missions)) p.missions = [];
   p.missions = p.missions.filter(m => m && MISSION_KINDS.includes(m.k) && m.goal > 0 && m.progress < m.goal);
   while (p.missions.length < 3) p.missions.push(nextMission(p));
@@ -14688,8 +14881,10 @@ function gameFacts(won, turns, stars) {
  */
 function settleOffice(p, f, lv) {
   normalizeOffice(p);
-  const newBadges = BADGES.filter(b => !p.badges[b.id] && b.test(f, lv)).map(b => b.id);
-  for (const id of newBadges) p.badges[id] = Date.now();
+  // palier du badge = niveau de la partie (🥉 Petit … 💎 Génie) ; nouveau si plus haut que l'actuel
+  const badgeTier = levelIdx(f.level) + 1;
+  const newBadges = BADGES.filter(b => (p.badges[b.id] || 0) < badgeTier && b.test(f, lv)).map(b => b.id);
+  for (const id of newBadges) p.badges[id] = badgeTier;
   const done = [];
   p.missions = p.missions.map(m => {
     const progress = Math.min(m.goal, m.progress + missionStep(m, f));
@@ -14701,7 +14896,7 @@ function settleOffice(p, f, lv) {
   while (p.missions.length < 3) p.missions.push(nextMission(p));
   const missionXp = done.length * MISSION_XP;
   p.xpTotal += missionXp;
-  return { newBadges, missionsDone: done, missionXp };
+  return { newBadges, missionsDone: done, missionXp, badgeTier };
 }
 
 /** Texte d'une mission (traduit). */
@@ -14711,7 +14906,9 @@ const LEVEL_NAME_KEYS = {
   expert: 'levelExpert',
   genius: 'levelGenius'
 };
-const missionText = m => t('mission_' + m.k, { n: m.n, level: m.level ? t(LEVEL_NAME_KEYS[m.level]) : '' });
+const missionText = m =>
+  t('mission_' + m.k, { n: m.n, level: m.level ? t(LEVEL_NAME_KEYS[m.level]) : '' }) +
+  (m.min ? ' ' + t('missionMinLevel', { level: t(LEVEL_NAME_KEYS[LEVEL_ORDER[m.min]]) }) : '');
 
 /** Rang du joueur, gardé en mémoire (le chapeau du détective en dépend à chaque affichage). */
 let rankCache = null;
@@ -15735,18 +15932,36 @@ function officeRank(p) {
     (_, i) =>
       `<span class="rank-step ${i + 1 <= cur ? 'reached' : ''} ${i + 1 === cur ? 'current' : ''}" title="${esc(rankName(i + 1))}"><i class="mini-hat hat-r${i + 1}"></i>${i + 1}</span>`
   ).join('');
+  // V9.6 : statistiques par niveau (Petit et Génie ne se comparent pas) ; niveau choisi par les tuiles
+  const lvId = ['junior', 'malin', 'expert', 'genius'].includes(g.officeLevel)
+      ? g.officeLevel
+      : g.level || 'junior',
+    L = p.levels[lvId] || {},
+    played = L.gamesPlayed || 0,
+    wins = L.wins || 0;
+  const lvTabs = [
+    ['junior', 'levelJunior'],
+    ['malin', 'levelMalin'],
+    ['expert', 'levelExpert'],
+    ['genius', 'levelGenius']
+  ]
+    .map(
+      ([id, k]) =>
+        `<button class="olv lv-${id} ${id === lvId ? 'is-selected' : ''}" data-olevel="${id}" aria-pressed="${id === lvId}"><i class="rec-ico lvl-${id}" aria-hidden="true"></i><span>${t(k)}</span></button>`
+    )
+    .join('');
   const tiles = [
-    ['officePlayed', p.totalWins + p.totalLosses],
-    ['officeWins', p.totalWins],
-    ['officeLosses', p.totalLosses],
-    ['officeStars', p.totalStars]
+    ['officePlayed', played],
+    ['officeWins', wins],
+    ['officeLosses', Math.max(0, played - wins)],
+    ['officeStars', L.stars || 0]
   ]
     .map(
       ([k, n]) =>
-        `<div><b>${n}</b><small>${t(k)}</small>${k === 'officeWins' && p.totalHelpWins ? `<small class="help-wins">${t('officeHelpWins', { n: p.totalHelpWins })}</small>` : ''}</div>`
+        `<div><b>${n}</b><small>${t(k)}</small>${k === 'officeWins' && L.helpWins ? `<small class="help-wins">${t('officeHelpWins', { n: L.helpWins })}</small>` : ''}</div>`
     )
     .join('');
-  return `<div class="office-rank"><span class="office-badge" aria-hidden="true"><i class="ot-ico ot-rank"></i></span><div>${rankBar(p.xpTotal)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="office-tiles">${tiles}</div>`;
+  return `<div class="office-rank"><span class="office-badge" aria-hidden="true"><i class="ot-ico ot-rank"></i></span><div>${rankBar(p.xpTotal)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="label">📊 ${t('officeStatsLevel')}</div><div class="olv-row">${lvTabs}</div><div class="office-tiles">${tiles}</div>`;
 }
 /** Onglet « Records » : meilleur score et meilleur nombre de tours par niveau. */
 function officeRecords(p) {
@@ -15770,10 +15985,17 @@ function officeRecords(p) {
 }
 /** Onglet « Badges » : étagère des 6 badges ; ceux à gagner disent comment les obtenir. */
 function officeBadges(p) {
+  // V9.6 : chaque badge a 4 paliers, un par niveau (🥉 Petit, 🥈 Moyen, 🥇 Grand, 💎 Génie)
   return `<div class="label badges-head"><i class="ot-ico ot-badges sm" aria-hidden="true"></i>${t('officeTabBadges')} <span class="bh-count" dir="ltr">${Object.keys(p.badges).length}/${BADGES.length}</span></div><div class="badge-shelf">${BADGES.map(
     b => {
-      const got = !!p.badges[b.id];
-      return `<div class="badge ${got ? 'got' : 'locked'}"><span class="b-icon b-${b.id}" aria-hidden="true">${b.icon}</span><b>${t('badge_' + b.id)}</b><small>${got ? '✅ ' + t('badgeGot') : t('badgeHow_' + b.id)}</small></div>`;
+      const tier = p.badges[b.id] || 0,
+        only = b.id === 'hound' ? 4 : 0, // « Fin limier » : niveau Génie seulement
+        next = tier >= 4 ? 0 : only || tier + 1,
+        lvName = i => t(LEVEL_NAME_KEYS[LEVEL_ORDER[i - 1]]);
+      const line = tier
+        ? `<span class="b-got">${TIER_MEDALS[tier]} ${t('badgeGotAt', { level: lvName(tier) })}</span>${next ? `<span class="b-next">${t('badgeNextAt', { medal: TIER_MEDALS[next], level: lvName(next) })}</span>` : ''}`
+        : t('badgeHow_' + b.id);
+      return `<div class="badge ${tier ? 'got tier-' + tier : 'locked'}"><span class="b-icon b-${b.id}" aria-hidden="true">${b.icon}</span><b>${t('badge_' + b.id)}${tier ? ` <i class="b-medal">${TIER_MEDALS[tier]}</i>` : ''}</b><small>${line}</small></div>`;
     }
   ).join('')}</div>`;
 }
@@ -16213,13 +16435,16 @@ function rewardLine(res, lead = '') {
     done = res.missionsDone || [];
   const chips = [
     badges.length
-      ? `<span class="reward-chip" title="${esc(badges.map(b => t('badge_' + b.id)).join(', '))}">${badges.length === 1 ? t('rewardBadge', { name: badges[0].icon + ' ' + t('badge_' + badges[0].id) }) : t('rewardBadges', { icons: badges.map(b => b.icon).join(' ') })}</span>`
+      ? `<span class="reward-chip" title="${esc(badges.map(b => t('badge_' + b.id)).join(', '))}">${badges.length === 1 ? t('rewardBadge', { name: badges[0].icon + ' ' + t('badge_' + badges[0].id) + (res.badgeTier ? ' ' + TIER_MEDALS[res.badgeTier] : '') }) : t('rewardBadges', { icons: badges.map(b => b.icon).join(' ') })}</span>`
       : '',
     done.length
       ? `<span class="reward-chip" title="${esc(done.map(missionText).join(' · '))}">${done.length === 1 ? t('rewardMission', { xp: MISSION_XP }) : t('rewardMissions', { n: done.length, xp: done.length * MISSION_XP })}</span>`
       : ''
   ].join('');
-  const help = res.won && res.helped ? `<span class="reward-chip help-chip">${t('helpedWin')}</span>` : '';
+  const help =
+    res.won && res.helped
+      ? `<span class="reward-chip help-chip" title="${esc(t('helpNoXp'))}">${t('helpedWin')} <small>${t('helpNoXp')}</small></span>`
+      : '';
   return chips || lead || help ? `<div class="reward-line">${lead}${help}${chips}</div>` : '';
 }
 /** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */
@@ -16255,7 +16480,7 @@ function endSoloCareer(res) {
     ? `<div class="ec-score"><div class="solo-stars" aria-label="${res.stars}/3">${[1, 2, 3].map(i => `<span class="${i <= res.stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div><div class="solo-score" dir="ltr"><b data-count="${res.score}" data-count-id="${esc(g.gameId || '')}">${res.score}</b><small> ${t('pts')}</small></div></div>${record}${chips ? `<ul class="ec-lines">${chips}</ul>` : ''}`
     : `<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('soloLoseEncourage')}</small>${escapedNote(false)}</div></div>`;
   // XP gagnée, badges et missions : une seule ligne de pastilles
-  const xp = `<span class="reward-chip xp" title="${esc(t('xpGained'))}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b></span>`;
+  const xp = `<span class="reward-chip xp" title="${esc(t('xpGained'))}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b>${res.level && !res.helped ? ` <small>· ${t(LEVEL_NAME_KEYS[res.level])}</small>` : ''}</span>`;
   return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head ${won ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>
  <section class="panel centered solo-card career-card ec-card">${top}${rewardLine(res, xp)}${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
  <div class="ec-actions"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="openOffice" aria-label="${esc(t('officeBtn'))}">📚</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;
@@ -16494,7 +16719,7 @@ function modalView() {
     const multi = g.players > 1,
       lim = TURN_LIMITS[g.players];
     return wrapM(
-      `<h2>${multi ? '👥 ' + t('namesTitle') : '🕵️ ' + t('readyTitle')}</h2>${multi ? `<p>${t('namesHint')}</p>` : ''}<div class="names">${Array.from({ length: g.players }, (_, i) => `<div class="name-row"><i class="player-dot" style="background:${colors[i]}"></i>${multi ? `<input id="name${i}" data-name="${i}" type="text" maxlength="12" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('player', { n: i + 1 }))}" value="${esc(g.names[i] || '')}">` : `<strong class="solo-name">${t('you')}</strong>`}<button type="button" class="help-chip ${g.playerHelp[i] ? 'on' : ''}" data-phelp="${i}" role="switch" aria-checked="${!!g.playerHelp[i]}">💡 ${t('helpPlayer')}</button></div>`).join('')}</div><p class="help-note">${t('helpPlayerHint')}</p>${multi ? `<div class="label">${t('modeTitle')}</div><div class="mode-pick" role="radiogroup"><button type="button" role="radio" class="mode-card ${g.gameMode !== 'score' ? 'on' : ''}" data-gmode="race" aria-checked="${g.gameMode !== 'score'}"><b>🏁 ${t('modeRace')}</b><small>${t('modeRaceSub')}</small></button><button type="button" role="radio" class="mode-card ${g.gameMode === 'score' ? 'on' : ''}" data-gmode="score" aria-checked="${g.gameMode === 'score'}"><b>🏆 ${t('modeScore')}</b><small>${t('modeScoreSub', { n: lim })}</small></button></div>` : ''}<div class="modal-actions"><button class="bigbtn green" id="namesGo">▶ ${t('namesGo')}</button><button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
+      `<h2>${multi ? '👥 ' + t('namesTitle') : '🕵️ ' + t('readyTitle')}</h2>${multi ? `<p>${t('namesHint')}</p>` : ''}<div class="names">${Array.from({ length: g.players }, (_, i) => `<div class="name-row"><i class="player-dot" style="background:${colors[i]}"></i>${multi ? `<input id="name${i}" data-name="${i}" type="text" maxlength="12" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('player', { n: i + 1 }))}" value="${esc(g.names[i] || '')}">` : `<strong class="solo-name">${t('you')}</strong>`}<button type="button" class="help-chip ${g.playerHelp[i] ? 'on' : ''}" data-phelp="${i}" role="switch" aria-checked="${!!g.playerHelp[i]}">💡 ${t('helpPlayer')}</button></div>`).join('')}</div><p class="help-note">${t('helpPlayerHint')}${multi ? '' : ' ' + t('helpNoXp')}</p>${multi ? `<div class="label">${t('modeTitle')}</div><div class="mode-pick" role="radiogroup"><button type="button" role="radio" class="mode-card ${g.gameMode !== 'score' ? 'on' : ''}" data-gmode="race" aria-checked="${g.gameMode !== 'score'}"><b>🏁 ${t('modeRace')}</b><small>${t('modeRaceSub')}</small></button><button type="button" role="radio" class="mode-card ${g.gameMode === 'score' ? 'on' : ''}" data-gmode="score" aria-checked="${g.gameMode === 'score'}"><b>🏆 ${t('modeScore')}</b><small>${t('modeScoreSub', { n: lim })}</small></button></div>` : ''}<div class="modal-actions"><button class="bigbtn green" id="namesGo">▶ ${t('namesGo')}</button><button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
     );
   }
   // film : en partie, ou depuis l'écran de fin quand le numéro s'est échappé (V8.14)
@@ -17654,6 +17879,13 @@ function bind() {
     sfx('tap');
     render();
   });
+  app.querySelectorAll('[data-olevel]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.officeLevel = b.dataset.olevel;
+      sfx('tap');
+      render();
+    })
+  );
   app.querySelectorAll('[data-otab]').forEach(b =>
     b.addEventListener('click', () => {
       g.officeTab = b.dataset.otab;

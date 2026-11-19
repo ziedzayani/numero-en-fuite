@@ -93,18 +93,36 @@ function officeRank(p) {
     (_, i) =>
       `<span class="rank-step ${i + 1 <= cur ? 'reached' : ''} ${i + 1 === cur ? 'current' : ''}" title="${esc(rankName(i + 1))}"><i class="mini-hat hat-r${i + 1}"></i>${i + 1}</span>`
   ).join('');
+  // V9.6 : statistiques par niveau (Petit et Génie ne se comparent pas) ; niveau choisi par les tuiles
+  const lvId = ['junior', 'malin', 'expert', 'genius'].includes(g.officeLevel)
+      ? g.officeLevel
+      : g.level || 'junior',
+    L = p.levels[lvId] || {},
+    played = L.gamesPlayed || 0,
+    wins = L.wins || 0;
+  const lvTabs = [
+    ['junior', 'levelJunior'],
+    ['malin', 'levelMalin'],
+    ['expert', 'levelExpert'],
+    ['genius', 'levelGenius']
+  ]
+    .map(
+      ([id, k]) =>
+        `<button class="olv lv-${id} ${id === lvId ? 'is-selected' : ''}" data-olevel="${id}" aria-pressed="${id === lvId}"><i class="rec-ico lvl-${id}" aria-hidden="true"></i><span>${t(k)}</span></button>`
+    )
+    .join('');
   const tiles = [
-    ['officePlayed', p.totalWins + p.totalLosses],
-    ['officeWins', p.totalWins],
-    ['officeLosses', p.totalLosses],
-    ['officeStars', p.totalStars]
+    ['officePlayed', played],
+    ['officeWins', wins],
+    ['officeLosses', Math.max(0, played - wins)],
+    ['officeStars', L.stars || 0]
   ]
     .map(
       ([k, n]) =>
-        `<div><b>${n}</b><small>${t(k)}</small>${k === 'officeWins' && p.totalHelpWins ? `<small class="help-wins">${t('officeHelpWins', { n: p.totalHelpWins })}</small>` : ''}</div>`
+        `<div><b>${n}</b><small>${t(k)}</small>${k === 'officeWins' && L.helpWins ? `<small class="help-wins">${t('officeHelpWins', { n: L.helpWins })}</small>` : ''}</div>`
     )
     .join('');
-  return `<div class="office-rank"><span class="office-badge" aria-hidden="true"><i class="ot-ico ot-rank"></i></span><div>${rankBar(p.xpTotal)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="office-tiles">${tiles}</div>`;
+  return `<div class="office-rank"><span class="office-badge" aria-hidden="true"><i class="ot-ico ot-rank"></i></span><div>${rankBar(p.xpTotal)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="label">📊 ${t('officeStatsLevel')}</div><div class="olv-row">${lvTabs}</div><div class="office-tiles">${tiles}</div>`;
 }
 /** Onglet « Records » : meilleur score et meilleur nombre de tours par niveau. */
 function officeRecords(p) {
@@ -128,10 +146,17 @@ function officeRecords(p) {
 }
 /** Onglet « Badges » : étagère des 6 badges ; ceux à gagner disent comment les obtenir. */
 function officeBadges(p) {
+  // V9.6 : chaque badge a 4 paliers, un par niveau (🥉 Petit, 🥈 Moyen, 🥇 Grand, 💎 Génie)
   return `<div class="label badges-head"><i class="ot-ico ot-badges sm" aria-hidden="true"></i>${t('officeTabBadges')} <span class="bh-count" dir="ltr">${Object.keys(p.badges).length}/${BADGES.length}</span></div><div class="badge-shelf">${BADGES.map(
     b => {
-      const got = !!p.badges[b.id];
-      return `<div class="badge ${got ? 'got' : 'locked'}"><span class="b-icon b-${b.id}" aria-hidden="true">${b.icon}</span><b>${t('badge_' + b.id)}</b><small>${got ? '✅ ' + t('badgeGot') : t('badgeHow_' + b.id)}</small></div>`;
+      const tier = p.badges[b.id] || 0,
+        only = b.id === 'hound' ? 4 : 0, // « Fin limier » : niveau Génie seulement
+        next = tier >= 4 ? 0 : only || tier + 1,
+        lvName = i => t(LEVEL_NAME_KEYS[LEVEL_ORDER[i - 1]]);
+      const line = tier
+        ? `<span class="b-got">${TIER_MEDALS[tier]} ${t('badgeGotAt', { level: lvName(tier) })}</span>${next ? `<span class="b-next">${t('badgeNextAt', { medal: TIER_MEDALS[next], level: lvName(next) })}</span>` : ''}`
+        : t('badgeHow_' + b.id);
+      return `<div class="badge ${tier ? 'got tier-' + tier : 'locked'}"><span class="b-icon b-${b.id}" aria-hidden="true">${b.icon}</span><b>${t('badge_' + b.id)}${tier ? ` <i class="b-medal">${TIER_MEDALS[tier]}</i>` : ''}</b><small>${line}</small></div>`;
     }
   ).join('')}</div>`;
 }
@@ -571,13 +596,16 @@ function rewardLine(res, lead = '') {
     done = res.missionsDone || [];
   const chips = [
     badges.length
-      ? `<span class="reward-chip" title="${esc(badges.map(b => t('badge_' + b.id)).join(', '))}">${badges.length === 1 ? t('rewardBadge', { name: badges[0].icon + ' ' + t('badge_' + badges[0].id) }) : t('rewardBadges', { icons: badges.map(b => b.icon).join(' ') })}</span>`
+      ? `<span class="reward-chip" title="${esc(badges.map(b => t('badge_' + b.id)).join(', '))}">${badges.length === 1 ? t('rewardBadge', { name: badges[0].icon + ' ' + t('badge_' + badges[0].id) + (res.badgeTier ? ' ' + TIER_MEDALS[res.badgeTier] : '') }) : t('rewardBadges', { icons: badges.map(b => b.icon).join(' ') })}</span>`
       : '',
     done.length
       ? `<span class="reward-chip" title="${esc(done.map(missionText).join(' · '))}">${done.length === 1 ? t('rewardMission', { xp: MISSION_XP }) : t('rewardMissions', { n: done.length, xp: done.length * MISSION_XP })}</span>`
       : ''
   ].join('');
-  const help = res.won && res.helped ? `<span class="reward-chip help-chip">${t('helpedWin')}</span>` : '';
+  const help =
+    res.won && res.helped
+      ? `<span class="reward-chip help-chip" title="${esc(t('helpNoXp'))}">${t('helpedWin')} <small>${t('helpNoXp')}</small></span>`
+      : '';
   return chips || lead || help ? `<div class="reward-line">${lead}${help}${chips}</div>` : '';
 }
 /** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */
@@ -613,7 +641,7 @@ function endSoloCareer(res) {
     ? `<div class="ec-score"><div class="solo-stars" aria-label="${res.stars}/3">${[1, 2, 3].map(i => `<span class="${i <= res.stars ? 'on' : ''}" style="--d:${0.15 + i * 0.25}s">★</span>`).join('')}</div><div class="solo-score" dir="ltr"><b data-count="${res.score}" data-count-id="${esc(g.gameId || '')}">${res.score}</b><small> ${t('pts')}</small></div></div>${record}${chips ? `<ul class="ec-lines">${chips}</ul>` : ''}`
     : `<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('soloLoseEncourage')}</small>${escapedNote(false)}</div></div>`;
   // XP gagnée, badges et missions : une seule ligne de pastilles
-  const xp = `<span class="reward-chip xp" title="${esc(t('xpGained'))}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b></span>`;
+  const xp = `<span class="reward-chip xp" title="${esc(t('xpGained'))}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b>${res.level && !res.helped ? ` <small>· ${t(LEVEL_NAME_KEYS[res.level])}</small>` : ''}</span>`;
   return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head ${won ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>
  <section class="panel centered solo-card career-card ec-card">${top}${rewardLine(res, xp)}${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
  <div class="ec-actions"><button class="bigbtn" id="again">🔄 ${t('replay')}</button><button class="bigbtn light" id="openOffice" aria-label="${esc(t('officeBtn'))}">📚</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}">⌂</button></div></section>`;

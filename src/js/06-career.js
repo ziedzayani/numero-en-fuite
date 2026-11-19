@@ -15,7 +15,13 @@
 /** Barème du score Solo (cahier des charges V8.5). Prolonger d'un tour coûte 40, un calcul en rapporte au plus 20. */
 const SOLO_SCORE = { win: 100, perTurnSaved: 40, perMath: 20, maxMath: 3, precise: 10, perMiss: 10 };
 /** XP de fin de partie. */
-const SOLO_XP = { win: 40, recordBonus: 10, loss: 10 };
+/** XP d'une partie solo selon le niveau (V9.6) : un niveau plus dur rapporte plus. Avec l'aide : 0 XP. */
+const SOLO_XP = {
+  junior: { win: 10, recordBonus: 5, loss: 2 },
+  malin: { win: 15, recordBonus: 8, loss: 3 },
+  expert: { win: 20, recordBonus: 10, loss: 4 },
+  genius: { win: 30, recordBonus: 15, loss: 5 }
+};
 /** Seuils d'XP des rangs (le libellé est la clé de traduction rank1…rank8). */
 const RANKS = [0, 100, 250, 450, 700, 1000, 1400, 1900];
 const CAREER_STORAGE = 'numeroEnFuiteCareerV1';
@@ -150,9 +156,10 @@ function settleSolo(won) {
     stars = soloStars(won, turns),
     prevBest = lv.bestScore,
     newRecord = won && (prevBest == null || score.total > prevBest), // strictement meilleur
-    xp = won ? SOLO_XP.win + (newRecord ? SOLO_XP.recordBonus : 0) : SOLO_XP.loss,
-    rankBefore = rankOf(p.xpTotal).rank,
-    helped = !!(g.playerHelp && g.playerHelp[0]); // aide activée : victoire notée « avec aide » dans le bureau
+    helped = !!(g.playerHelp && g.playerHelp[0]), // aide activée : victoire notée « avec aide », sans récompense
+    sx = SOLO_XP[g.level] || SOLO_XP.junior,
+    xp = helped ? 0 : won ? sx.win + (newRecord ? sx.recordBonus : 0) : sx.loss,
+    rankBefore = rankOf(p.xpTotal).rank;
   lv.gamesPlayed++;
   if (won) {
     lv.wins++;
@@ -170,7 +177,10 @@ function settleSolo(won) {
     if (lv.bestTurns == null || turns < lv.bestTurns) lv.bestTurns = turns;
   } else p.totalLosses++;
   p.xpTotal += xp;
-  const rewards = settleOffice(p, gameFacts(won, turns, stars), lv); // badges, missions (+XP)
+  // badges et missions : seulement sans l'aide (V9.6)
+  const rewards = helped
+    ? { newBadges: [], missionsDone: [], missionXp: 0, badgeTier: 0 }
+    : settleOffice(p, gameFacts(won, turns, stars), lv);
   const result = {
     won,
     helped,
@@ -185,6 +195,7 @@ function settleSolo(won) {
     xpTotal: p.xpTotal,
     rankUp: rankOf(p.xpTotal).rank > rankBefore,
     newBadges: rewards.newBadges,
+    badgeTier: rewards.badgeTier || 0,
     missionsDone: rewards.missionsDone,
     missionXp: rewards.missionXp,
     tip: soloTip(won, turns, stars, g.history, g.last)

@@ -3,14 +3,29 @@
  *
  * Tout est rangé dans la carrière (numeroEnFuiteCareerV1, profil actif) et donc aussi dans le
  * code de sauvegarde « Mes progrès » :
- *   p.badges   = { id: date }                       badges obtenus (jamais retirés)
- *   p.missions = [{ k, level?, n?, progress, goal }] 3 missions en cours, sans limite de temps
+ *   p.badges   = { id: palier }                     palier 1–4 = niveau le plus haut où le badge est gagné
+ *                                                   (🥉 Petit, 🥈 Moyen, 🥇 Grand, 💎 Génie ; jamais retiré)
+ *   p.missions = [{ k, level?, n?, min?, progress, goal }] 3 missions ; `min` = niveau minimum (0–3)
  *   p.missionSeq                                     compteur pour tirer les missions suivantes
  * Une mission réussie rapporte MISSION_XP et laisse sa place à une nouvelle.
  * Rien n'est payant, rien n'expire, rien ne se perd.
  */
 
 const MISSION_XP = 20;
+/** Ordre des niveaux (indice 0–3) et médaille de chaque palier de badge. */
+const LEVEL_ORDER = ['junior', 'malin', 'expert', 'genius'];
+const TIER_MEDALS = ['', '🥉', '🥈', '🥇', '💎'];
+const levelIdx = l => Math.max(0, LEVEL_ORDER.indexOf(l));
+/** Niveau où le joueur joue le plus (pour adapter les missions). */
+function mainLevel(p) {
+  let best = 0,
+    n = -1;
+  LEVEL_ORDER.forEach((l, i) => {
+    const c = (p.levels && p.levels[l] && p.levels[l].gamesPlayed) || 0;
+    if (c >= n) [best, n] = [c > n ? i : best, Math.max(n, c)];
+  });
+  return best;
+}
 
 /**
  * Les 6 badges. `test(f, lv)` reçoit les faits de la partie (voir gameFacts) et les compteurs du niveau.
@@ -28,23 +43,24 @@ const BADGES = [
 /** Modèles de missions, tirés à tour de rôle (jamais deux fois la même en même temps). */
 // ordre de tirage : les 3 premières (mener 3 enquêtes, décaler ses marques, gagner au niveau Moyen) sont pour débuter
 const MISSION_KINDS = ['play', 'shift', 'winLevel', 'math', 'precise', 'fast', 'noMiss', 'stars'];
-function makeMission(kind, seq) {
-  const order = Object.keys(LEVELS);
+function makeMission(kind, seq, min = 0) {
+  // V9.6 : chaque mission vise le niveau du joueur (ou le suivant, pour progresser) ; `min` = niveau minimum
   switch (kind) {
     case 'winLevel':
-      return { k: kind, level: order[(seq + 1) % order.length], progress: 0, goal: 1 };
+      return { k: kind, level: LEVEL_ORDER[Math.min(3, min + 1)], progress: 0, goal: 1 };
     case 'math':
-      return { k: kind, n: 2, progress: 0, goal: 1 };
+      return { k: kind, n: 2, min, progress: 0, goal: 1 };
     case 'fast':
-      return { k: kind, n: 5, progress: 0, goal: 1 };
+      return { k: kind, n: 5, min, progress: 0, goal: 1 };
     case 'play':
-      return { k: kind, n: 3, progress: 0, goal: 3 };
+      return { k: kind, n: 3, min, progress: 0, goal: 3 };
     default:
-      return { k: kind, progress: 0, goal: 1 };
+      return { k: kind, min, progress: 0, goal: 1 };
   }
 }
 /** Une partie fait-elle avancer la mission ? (nombre de pas gagnés) */
 function missionStep(m, f) {
+  if (m.min && levelIdx(f.level) < m.min) return 0; // partie jouée à un niveau trop facile
   switch (m.k) {
     case 'winLevel':
       return f.won && f.level === m.level ? 1 : 0;
@@ -67,13 +83,20 @@ function missionStep(m, f) {
   }
 }
 const missionKey = m => m.k + (m.level ? ':' + m.level : '');
+
 /** Prochaine mission : la suivante du cycle qui n'est pas déjà en cours. */
 function nextMission(p) {
   const current = new Set((p.missions || []).map(missionKey));
   for (let tries = 0; tries < MISSION_KINDS.length * 4; tries++) {
     const seq = p.missionSeq || 0;
     p.missionSeq = seq + 1;
-    const m = makeMission(MISSION_KINDS[seq % MISSION_KINDS.length], Math.floor(seq / MISSION_KINDS.length));
+    const main = mainLevel(p),
+      min = seq % 2 ? Math.min(3, main + 1) : main; // une mission sur deux pousse au niveau suivant
+    const m = makeMission(
+      MISSION_KINDS[seq % MISSION_KINDS.length],
+      Math.floor(seq / MISSION_KINDS.length),
+      min
+    );
     if (!current.has(missionKey(m))) return m;
   }
   return makeMission('play', 0);
@@ -81,6 +104,11 @@ function nextMission(p) {
 /** Complète badges et missions d'un profil (ancienne sauvegarde, code importé, donnée abîmée). */
 function normalizeOffice(p) {
   if (!p.badges || typeof p.badges !== 'object' || Array.isArray(p.badges)) p.badges = {};
+  // anciens badges (date d'obtention, V8.15) : gardés, au palier 🥉
+  for (const id of Object.keys(p.badges)) {
+    const v = p.badges[id];
+    if (!(Number.isInteger(v) && v >= 1 && v <= 4)) p.badges[id] = 1;
+  }
   if (!Array.isArray(p.missions)) p.missions = [];
   p.missions = p.missions.filter(m => m && MISSION_KINDS.includes(m.k) && m.goal > 0 && m.progress < m.goal);
   while (p.missions.length < 3) p.missions.push(nextMission(p));
@@ -109,8 +137,10 @@ function gameFacts(won, turns, stars) {
  */
 function settleOffice(p, f, lv) {
   normalizeOffice(p);
-  const newBadges = BADGES.filter(b => !p.badges[b.id] && b.test(f, lv)).map(b => b.id);
-  for (const id of newBadges) p.badges[id] = Date.now();
+  // palier du badge = niveau de la partie (🥉 Petit … 💎 Génie) ; nouveau si plus haut que l'actuel
+  const badgeTier = levelIdx(f.level) + 1;
+  const newBadges = BADGES.filter(b => (p.badges[b.id] || 0) < badgeTier && b.test(f, lv)).map(b => b.id);
+  for (const id of newBadges) p.badges[id] = badgeTier;
   const done = [];
   p.missions = p.missions.map(m => {
     const progress = Math.min(m.goal, m.progress + missionStep(m, f));
@@ -122,7 +152,7 @@ function settleOffice(p, f, lv) {
   while (p.missions.length < 3) p.missions.push(nextMission(p));
   const missionXp = done.length * MISSION_XP;
   p.xpTotal += missionXp;
-  return { newBadges, missionsDone: done, missionXp };
+  return { newBadges, missionsDone: done, missionXp, badgeTier };
 }
 
 /** Texte d'une mission (traduit). */
@@ -132,7 +162,9 @@ const LEVEL_NAME_KEYS = {
   expert: 'levelExpert',
   genius: 'levelGenius'
 };
-const missionText = m => t('mission_' + m.k, { n: m.n, level: m.level ? t(LEVEL_NAME_KEYS[m.level]) : '' });
+const missionText = m =>
+  t('mission_' + m.k, { n: m.n, level: m.level ? t(LEVEL_NAME_KEYS[m.level]) : '' }) +
+  (m.min ? ' ' + t('missionMinLevel', { level: t(LEVEL_NAME_KEYS[LEVEL_ORDER[m.min]]) }) : '');
 
 /** Rang du joueur, gardé en mémoire (le chapeau du détective en dépend à chaque affichage). */
 let rankCache = null;
