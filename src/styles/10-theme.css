@@ -3392,3 +3392,302 @@ body.scr-end:has(.podium-box .pod-row:nth-child(3)) .race-hero .win-det {
 .q-res-row .fb-score.q-pts b {
   padding: 1px 10px;
 }
+
+/* ===== V9.13 : fenêtre Pause, alignée sur les écrans de référence ===== */
+.modal:has(.pause-card) {
+  position: relative;
+  overflow: visible;
+  padding: 0 16px 18px;
+  border: 3px solid #6ff0ff;
+  border-radius: 28px;
+  background: radial-gradient(ellipse 70% 38% at 50% 22%, rgba(150, 210, 255, 0.5), transparent 70%),
+    repeating-conic-gradient(from 0deg at 50% 24%, rgba(170, 215, 255, 0.12) 0 5deg, transparent 5deg 14deg),
+    linear-gradient(180deg, #1f4fd0 0%, #163a9e 55%, #0f2a7a 100%);
+  box-shadow:
+    0 0 0 2px #0a2a7a,
+    0 0 14px #3fe0ff,
+    0 0 30px rgba(63, 224, 255, 0.55),
+    inset 0 0 18px rgba(63, 224, 255, 0.25);
+}
+.pause-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+/* détective officiel (loupe), posé derrière le bandeau titre : pas de coupe visible */
+.pause-card .pz-det {
+  position: relative;
+  align-self: center;
+  width: 210px;
+  height: 172px;
+  margin: -46px 0 -30px;
+  background: url(img/hunter-main.webp) center top / contain no-repeat;
+  filter: drop-shadow(0 4px 10px rgba(5, 20, 70, 0.45));
+}
+.pause-card .pz-spark {
+  position: absolute;
+  top: 60px;
+  width: 34px;
+  height: 40px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 46'%3E%3Cg stroke='%23ffd21f' stroke-width='6' stroke-linecap='round' fill='none'%3E%3Cpath d='M30 6 22 18'/%3E%3Cpath d='M36 24 22 27'/%3E%3Cpath d='M33 41 21 35'/%3E%3C/g%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.pause-card .pz-spark.l {
+  left: -16px;
+}
+.pause-card .pz-spark.r {
+  right: -16px;
+  transform: scaleX(-1);
+}
+/* bandeau titre : bleu nuit bordé d'or, icône pause jaune glossy */
+.modal .pause-card h2.pz-title {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 12px;
+  padding: 5px 26px 5px 8px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #1a3a9a 0%, #0f2462 100%);
+  border: 3px solid #ffd54a;
+  box-shadow:
+    0 0 0 2px #a86d00,
+    0 0 16px rgba(255, 214, 80, 0.55),
+    0 6px 12px rgba(5, 20, 70, 0.45);
+  color: #fff;
+  font-size: 32px;
+  font-style: italic;
+  font-synthesis: style;
+  font-weight: 900;
+  line-height: 1.1;
+  text-shadow: 0 3px 0 #0b1d5a;
+}
+.pause-card .pz-ico {
+  position: relative;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffd85a 0%, #ffad1f 55%, #f08a00 100%);
+  border: 2px solid #fff1a8;
+  box-shadow:
+    0 0 0 2px #b86a00,
+    inset 0 -4px 0 rgba(150, 70, 0, 0.35);
+}
+.pause-card .pz-ico::before,
+.pause-card .pz-ico::after {
+  content: '';
+  position: absolute;
+  top: 11px;
+  bottom: 11px;
+  width: 8px;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 0 2px 0 rgba(150, 70, 0, 0.45);
+}
+.pause-card .pz-ico::before {
+  left: 12px;
+}
+.pause-card .pz-ico::after {
+  right: 12px;
+}
+/* message dans un cartouche clair */
+.modal .pause-card .pz-msg {
+  position: relative;
+  margin: 0 4px 6px;
+  padding: 8px 14px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #ffffff 0%, #e6eeff 100%);
+  border: 2px solid #b9d4ff;
+  box-shadow: 0 4px 10px rgba(5, 20, 70, 0.35);
+  color: #14205a;
+  font-size: 17px;
+  font-style: italic;
+  font-synthesis: style;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+}
+.modal .pause-card .pz-msg::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: -9px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, transparent, #ffc83d 30% 70%, transparent);
+}
+/* boutons : Reprendre jaune-or dominant, Réglages bleu électrique, Quitter bleu nuit bordé cyan */
+.pause-card .pz-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+.pause-card .pz-actions .bigbtn {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  margin: 0;
+  border-radius: 999px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.pause-card .pz-actions .bigbtn::before {
+  content: '';
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  top: 4px;
+  height: 34%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+.pause-card .pz-actions .bigbtn > * {
+  position: relative;
+}
+.pause-card .pz-resume {
+  min-height: 70px;
+  font-size: 27px;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #fff3a6 0%, #ffd83a 35%, #ffbf0f 70%, #f0a000 100%);
+  border: 3px solid #ffe066;
+  outline: 2px solid #b87800;
+  box-shadow:
+    0 6px 14px rgba(5, 20, 70, 0.45),
+    0 0 16px rgba(255, 214, 80, 0.6),
+    inset 0 -5px 0 rgba(170, 100, 0, 0.4);
+  color: #14205a;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.pause-card .pz-play {
+  width: 34px;
+  height: 34px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3.6v16.8a1.6 1.6 0 0 0 2.4 1.4l12.9-8.4a1.6 1.6 0 0 0 0-2.8L8.4 2.2A1.6 1.6 0 0 0 6 3.6z' fill='%231b2560'/%3E%3Cpath d='M8.5 6.5v4.5l5.5-3.4z' fill='%235a6cc0' opacity='.55'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.6));
+}
+.pause-card .pz-settings {
+  min-height: 60px;
+  font-size: 23px;
+  background: linear-gradient(180deg, #1c6ae6 0%, #2a86f5 30%, #1662dc 72%, #0f4cc0 100%);
+  border: 3px solid #8fdcff;
+  box-shadow:
+    0 0 0 2px #0b2f8f,
+    0 6px 12px rgba(5, 20, 70, 0.4),
+    0 0 12px rgba(92, 200, 255, 0.55),
+    inset 0 -5px 0 rgba(8, 40, 130, 0.45);
+  color: #fff;
+  text-shadow: 0 2px 0 #0b2f8f;
+}
+.pause-card .pz-settings .ic-gear {
+  width: 36px;
+  height: 36px;
+  vertical-align: 0;
+}
+.pause-card .pz-quit {
+  min-height: 58px;
+  font-size: 20px;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #2a4fae 0%, #142f7e 50%, #0b1d5a 100%);
+  border: 3px solid #6ff0ff;
+  box-shadow:
+    0 0 0 2px #071a52,
+    0 6px 12px rgba(5, 20, 70, 0.45),
+    0 0 12px rgba(63, 224, 255, 0.55),
+    inset 0 -4px 0 rgba(0, 10, 40, 0.45);
+  color: #fff;
+  text-shadow: 0 2px 0 #071a52;
+}
+.pause-card .pz-quit::before {
+  opacity: 0.45;
+}
+.pause-card .pz-exit {
+  width: 42px;
+  height: 36px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 66 56'%3E%3Crect x='3' y='3' width='32' height='50' rx='5' fill='%23c98300' stroke='%235a3500' stroke-width='3'/%3E%3Cpath d='M9 8l18 4v36l-18 3z' fill='%23ffd447' stroke='%238a5600' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cpath d='M11 11l7 1.6v8L11 19z' fill='%23fff3b0' opacity='.8'/%3E%3Ccircle cx='23' cy='31' r='2.6' fill='%235a3500'/%3E%3Cpath d='M31 23h16v-8l16 13-16 13v-8H31z' fill='%23fff' stroke='%230b2f8f' stroke-width='3.2' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.pause-card .pz-actions .bigbtn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-height: 700px) {
+  .pause-card .pz-det {
+    width: 160px;
+    height: 132px;
+    margin: -36px 0 -24px;
+  }
+  .pause-card .pz-spark {
+    top: 44px;
+    width: 26px;
+    height: 30px;
+  }
+  .pause-card .pz-spark.l {
+    left: -12px;
+  }
+  .pause-card .pz-spark.r {
+    right: -12px;
+  }
+  .modal .pause-card h2.pz-title {
+    font-size: 26px;
+    margin-bottom: 8px;
+  }
+  .pause-card .pz-ico {
+    width: 38px;
+    height: 38px;
+  }
+  .pause-card .pz-ico::before,
+  .pause-card .pz-ico::after {
+    top: 9px;
+    bottom: 9px;
+    width: 7px;
+  }
+  .pause-card .pz-ico::before {
+    left: 9px;
+  }
+  .pause-card .pz-ico::after {
+    right: 9px;
+  }
+  .modal .pause-card .pz-msg {
+    font-size: 15px;
+    padding: 6px 12px;
+  }
+  .pause-card .pz-actions {
+    gap: 9px;
+  }
+  .pause-card .pz-resume {
+    min-height: 58px;
+    font-size: 23px;
+  }
+  .pause-card .pz-settings {
+    min-height: 52px;
+    font-size: 20px;
+  }
+  .pause-card .pz-quit {
+    min-height: 50px;
+    font-size: 17px;
+  }
+}
+/* pas d'italique artificiel en arabe, chinois, japonais ; icône de sortie retournée en arabe */
+html[lang='ar'] .pause-card .pz-title,
+html[lang='ar'] .pause-card .pz-msg,
+html[lang='zh'] .pause-card .pz-title,
+html[lang='zh'] .pause-card .pz-msg,
+html[lang='ja'] .pause-card .pz-title,
+html[lang='ja'] .pause-card .pz-msg {
+  font-style: normal;
+}
+[dir='rtl'] .pause-card .pz-exit {
+  transform: scaleX(-1);
+}

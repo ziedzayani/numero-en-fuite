@@ -84,7 +84,8 @@ function modalView() {
     );
   if (g.modal === 'pause')
     return wrapM(
-      `<div class="hero-mascot small-mascot">${mascot()}</div><h2>⏸ ${t('pauseTitle')}</h2><p>${t('pauseText')}</p><div class="modal-actions"><button class="bigbtn green" id="resumeGame">▶ ${t('resumeBtn')}</button><button class="bigbtn light" id="pauseSettings" ${g.net ? 'hidden' : ''}>⚙️ ${t('settings')}</button><button class="bigbtn pink" id="askQuit">🏠 ${t('askQuit')}</button></div>`
+      // V9.13 : fenêtre Pause d'après la maquette (détective à la loupe, bandeau titre, 3 boutons glossy)
+      `<div class="pause-card"><div class="pz-det" aria-hidden="true"><i class="pz-spark l"></i><i class="pz-spark r"></i></div><h2 class="pz-title"><i class="pz-ico" aria-hidden="true"></i><span>${t('pauseTitle')}</span></h2><p class="pz-msg">${t('pauseText')}</p><div class="modal-actions pz-actions"><button class="bigbtn pz-resume" id="resumeGame"><i class="pz-play" aria-hidden="true"></i><span>${t('resumeBtn')}</span></button><button class="bigbtn light pz-settings" id="pauseSettings" ${g.net ? 'hidden' : ''}><i class="ic ic-gear" aria-hidden="true"></i><span>${t('settings')}</span></button><button class="bigbtn pz-quit" id="askQuit"><i class="pz-exit" aria-hidden="true"></i><span>${t('askQuit')}</span></button></div></div>`
     );
   if (g.modal === 'notebook') return wrapM(notebookView());
   const p = active();

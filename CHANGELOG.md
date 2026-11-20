@@ -1,5 +1,15 @@
 # Historique des versions
 
+## V9.13 — fenêtre Pause alignée sur la maquette
+
+- Panneau bleu royal à rayons, bordure cyan lumineuse ; détective officiel à la loupe (image existante) posé
+  derrière le bandeau titre « Pause » (bleu nuit bordé d'or, icône pause jaune glossy) ; message dans un
+  cartouche clair.
+- REPRENDRE jaune-or glossy dominant (icône Play), Réglages bleu électrique (engrenage existant), QUITTER LA
+  PARTIE bleu nuit bordé cyan avec une icône de porte dessinée (plus d'orange ni d'emoji). La confirmation
+  « Quitter la partie ? » existante est conservée.
+- Responsive : pas de défilement de 640 à 932 px de haut, 8 langues (pas d'italique artificiel en ar / zh / ja).
+
 ## V9.12 — à plusieurs, chaque question compte (+1 / −1)
 
 - Partie à plusieurs (Course et Points, hors Défi) : une question dont la réponse est **OUI** rapporte **+1 point**,
