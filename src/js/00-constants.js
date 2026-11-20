@@ -53,7 +53,7 @@ const maxFor = (mode, level) => (mode === 'challenge' ? CHALLENGE_MAX : (LEVELS[
  *   miss            par numéro raté (1 en tir précis, 2 ou 3 avec le filet)
  *   deductionBonus  capture juste après avoir posé une question
  */
-const SCORE = { precise: 10, net: 4, miss: -1, deductionBonus: 1 };
+const SCORE = { precise: 10, net: 4, miss: -1, deductionBonus: 1, questionYes: 1, questionNo: -1 };
 
 /** Nombre de filets par joueur et par partie (tous les modes). */
 const NETS_MAX = 3;

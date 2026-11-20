@@ -108,6 +108,29 @@ function makeChoices() {
       if (!chosen.includes(q)) chosen.push(q);
     }
   }
+  // V9.12 : à plusieurs, au moins une question VRAIE et une FAUSSE pour le numéro caché (OUI +1 / NON −1) :
+  // il y a toujours une bonne question à trouver, et toujours un piège.
+  if (questionBet() && g.secret) {
+    const picked = chosen.slice(0, 3);
+    for (const want of [true, false]) {
+      if (picked.some(q => !!q.test(g.secret) === want)) continue;
+      const fits = q => !picked.includes(q) && !!q.test(g.secret) === want;
+      const typed = q => fits(q) && !picked.slice(0, 2).some(p => p.type === q.type);
+      const alt =
+        candidates.find(typed) ||
+        candidates.find(fits) ||
+        shuffle(pool.filter(qualifies)).find(typed) ||
+        shuffle(pool.filter(qualifies)).find(fits) ||
+        pool.find(fits);
+      if (!alt) continue;
+      // on remplace la dernière question qui a la même réponse qu'une autre
+      const same = [...picked]
+        .reverse()
+        .find(q => picked.filter(o => !!o.test(g.secret) === !!q.test(g.secret)).length > 1);
+      picked[picked.indexOf(same || picked[picked.length - 1])] = alt;
+    }
+    chosen.splice(0, chosen.length, ...picked);
+  }
   g.choices = chosen.slice(0, 3).map(q => q.id);
   g.shownIds.push(...g.choices);
 }

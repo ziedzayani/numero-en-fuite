@@ -257,7 +257,22 @@ async function playFullGame(browser, players, level, lang = 'fr') {
         (await page.isDisabled('[data-tab="question"]')) && (await page.isDisabled('[data-tab="math"]')),
         `${label} t${turn} : 2e aide impossible`
       );
-      check(r.scores.join() === scoresBefore.join(), `${label} t${turn} : tour conservé sans pénalité`);
+      {
+        // V9.12 : à plusieurs, une question rapporte +1 (OUI) ou −1 (NON) ; un calcul ne change pas le score
+        const lq = r.history[r.history.length - 1];
+        const want = scoresBefore.map(
+          (v, k) => v + (lq && lq.type === 'question' && lq.player === k ? lq.qpts || 0 : 0)
+        );
+        check(
+          r.scores.join() === want.join(),
+          `${label} t${turn} : tour conservé, score de la question seulement`
+        );
+        if (lq && lq.type === 'question')
+          check(
+            lq.qpts === (r.players > 1 ? (lq.answer ? 1 : -1) : 0),
+            `${label} t${turn} : question ±1 à plusieurs`
+          );
+      }
       // tenter directement nextTurn sans deviner ne doit rien faire
       await page.evaluate(() => window.__numero.nextTurn());
       check(
@@ -2792,7 +2807,9 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       N.render();
     });
     check(
-      (await S(page)).screen === 'end' && (await S(page)).raceWinner === 0 && (await page.isVisible('.race-hero')),
+      (await S(page)).screen === 'end' &&
+        (await S(page)).raceWinner === 0 &&
+        (await page.isVisible('.race-hero')),
       'Course : Joueur 1 attrape le numéro → fin immédiate, écran de victoire'
     );
     check(page.errors.length === 0, 'Aucune erreur JavaScript (V8.10) ' + page.errors.join(' | '));
@@ -4554,6 +4571,104 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await noOverflow(page, `Victoire ${vp.tag}px`);
     await shot(page, pre + '09_victoire');
     console.log(`${failed === before ? '✓' : '✗'} Affichage ${vp.width}×${vp.height}`);
+    await ctx.close();
+  }
+
+  // V9.12 : à plusieurs, question OUI +1 / NON −1, et toujours au moins une vraie + une fausse proposée
+  {
+    const { ctx, page } = await fresh(browser);
+    const bet = await page.evaluate(() => {
+      const N = window.__numero,
+        errs = [];
+      let asked = 0,
+        rerolls = 0;
+      for (const level of ['junior', 'malin', 'expert', 'genius'])
+        for (const mode of ['race', 'score'])
+          for (let rep = 0; rep < 40; rep++) {
+            const st = N.state;
+            st.players = 2 + (rep % 3);
+            st.gameMode = mode;
+            st.level = level;
+            N.start(true);
+            N.state.modal = null;
+            for (let i = 0; i < 12 && N.state.screen === 'game'; i++) {
+              const s = N.state;
+              const ans = s.choices.map(id => !!N.qbyid(id).test(s.secret));
+              if (s.choices.length !== 3 || new Set(s.choices).size !== 3)
+                errs.push('3 questions distinctes');
+              if (!ans.includes(true) || !ans.includes(false)) errs.push(`vraie+fausse ${level} ${ans}`);
+              if (i % 3 === 1 && !s.rerolled) {
+                document.getElementById('reroll')?.click();
+                const a2 = N.state.choices.map(id => !!N.qbyid(id).test(N.state.secret));
+                rerolls++;
+                if (!a2.includes(true) || !a2.includes(false)) errs.push('vraie+fausse après 🔀');
+              }
+              const before = s.scores.slice(),
+                id = N.state.choices[Math.floor(Math.random() * 3)],
+                yes = !!N.qbyid(id).test(N.state.secret);
+              N.ask(id);
+              asked++;
+              const d = N.state.scores.map((v, k) => v - before[k]);
+              const want = d.map((v, k) => (k === N.state.last.player ? (yes ? 1 : -1) : 0));
+              if (d.join() !== want.join()) errs.push(`score question ${d} attendu ${want}`);
+              if (N.state.last.qpts !== (yes ? 1 : -1)) errs.push('qpts');
+              N.nextTurn(); // retour au choix de la capture (même joueur)
+              N.guess(N.state.secret === 1 ? 2 : 1); // capture ratée : le tour passe
+              N.nextTurn();
+              N.state.modal = null;
+            }
+          }
+      // solo et Défi : aucun point pour une question
+      N.state.players = 1;
+      N.state.level = 'malin';
+      N.start(true);
+      N.state.modal = null;
+      const s0 = N.state.scores[0];
+      N.ask(N.state.choices[0]);
+      if (N.state.scores[0] !== s0 || N.state.last.qpts) errs.push('solo : question sans point');
+      return { errs: [...new Set(errs)].slice(0, 5), asked, rerolls };
+    });
+    check(
+      !bet.errs.length && bet.asked > 500,
+      `À plusieurs : OUI +1 / NON −1 sur ${bet.asked} questions ${bet.errs.join(' | ')}`
+    );
+    check(bet.rerolls > 50, `Toujours une vraie et une fausse, aussi après 🔀 (${bet.rerolls} changements)`);
+    await page.evaluate(() => {
+      const N = window.__numero;
+      N.state.players = 2;
+      N.state.gameMode = 'score';
+      N.state.level = 'malin';
+      N.start(true);
+      N.state.modal = null;
+      N.render();
+    });
+    check((await page.textContent('.q-title')).includes('+1'), 'Rappel « OUI +1 · NON −1 » à côté du titre');
+    const id = await page.evaluate(() => {
+      const N = window.__numero;
+      return N.state.choices.find(q => !N.qbyid(q).test(N.state.secret));
+    });
+    await page.click(`[data-question="${id}"]`);
+    check(
+      (await page.textContent('.fb-score.neg')).includes('−1') &&
+        (await page.textContent('.chip.current .delta')).includes('1'),
+      'Réponse NON : jeton « Ton score −1 » et −1 sur la pastille'
+    );
+    await shot(page, 'v912_question_non');
+    await page.evaluate(() => {
+      const N = window.__numero;
+      N.nextTurn();
+      N.guess(N.state.secret === 1 ? 2 : 1);
+      N.nextTurn();
+      N.state.modal = null;
+      N.render();
+    });
+    const yid = await page.evaluate(() => {
+      const N = window.__numero;
+      return N.state.choices.find(q => N.qbyid(q).test(N.state.secret));
+    });
+    await page.click(`[data-question="${yid}"]`);
+    check((await page.textContent('.fb-score.pos')).includes('+1'), 'Réponse OUI : jeton « Ton score +1 »');
+    await shot(page, 'v912_question_oui');
     await ctx.close();
   }
 

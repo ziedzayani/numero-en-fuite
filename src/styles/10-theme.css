@@ -3199,3 +3199,173 @@ body.scr-end .panel.race-panel {
     min-height: 58px;
   }
 }
+/* V9.12 : à plusieurs, rappel du pari de la question (OUI +1 · NON −1) */
+.q-title .q-bet {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #14205a;
+  border: 1px solid #ffc83d;
+  color: #ffe08a;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.tradeoff .bet {
+  color: #14205a;
+  font-weight: 700;
+}
+
+/* ===== V9.12 : écran de victoire, corrections d'après le pack fourni ===== */
+/* détective : buste à base fondue (plus de coupe nette), proportions conservées (contain) */
+.race-hero .hero-mascot {
+  overflow: visible;
+}
+.race-hero .win-det {
+  left: -8px;
+  bottom: -22px;
+  width: 168px;
+  height: 214px;
+  background: url(img/hunter-win.webp) left bottom / contain no-repeat;
+  filter: drop-shadow(0 0 12px rgba(255, 214, 80, 0.45));
+}
+/* trophée centré sur le bord haut du bandeau vert */
+.race-hero .rh-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.race-hero .rh-side h1 {
+  align-self: stretch;
+}
+.race-hero .rh-trophy {
+  position: relative;
+  z-index: 2;
+  margin: 0 auto -18px;
+  background: url(img/ic-trophy.webp) center bottom / contain no-repeat;
+}
+/* podium : lignes séparées par des pointillés, 1re place or, 2e place argent bleuté */
+.race-panel .podium-box .pod-row {
+  border: 0;
+  border-bottom: 2px dotted rgba(255, 255, 255, 0.55);
+}
+.race-panel .podium-box .pod-row.place-1 {
+  margin-bottom: 0;
+  border: 3px solid #ffd54a;
+}
+.race-panel .podium-box .pod-row.place-1 + .pod-row {
+  margin-top: 8px;
+  border-top: 2px dotted rgba(255, 255, 255, 0.55);
+}
+.race-panel .podium-box .pod-row.place-2 {
+  background: linear-gradient(90deg, rgba(200, 220, 255, 0.16), rgba(200, 220, 255, 0.04));
+}
+.race-panel .podium-box .pod-row.place-2 strong {
+  color: #eef4ff;
+}
+.race-panel .podium-box .pod-row .medal {
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* REJOUER : forme jaune glossy, contour doré continu, ombre maîtrisée */
+.race-actions .bigbtn#again {
+  isolation: isolate;
+  border: 3px solid #ffe066;
+  outline: 2px solid #b87800;
+  outline-offset: 0;
+  box-shadow:
+    0 6px 14px rgba(5, 20, 70, 0.45),
+    0 0 14px rgba(255, 214, 80, 0.55),
+    inset 0 -5px 0 rgba(170, 100, 0, 0.4);
+}
+.race-actions .bigbtn#again .ic-replay {
+  width: 40px;
+  height: 38px;
+  background-size: contain;
+  background-position: center;
+}
+/* aucun confetti du décor ne dépasse sous les boutons */
+.race-decor i:nth-child(9) {
+  bottom: auto;
+  top: 58%;
+  left: 2%;
+}
+.race-decor i:nth-child(10) {
+  bottom: auto;
+  top: 60%;
+  right: 2%;
+}
+.race-decor .rd-glass {
+  display: none;
+}
+/* ACCUEIL : bouton bleu glossy, maison blanche intégrée */
+.race-actions .home-btn.tile-btn {
+  position: relative;
+  overflow: hidden;
+  width: 76px;
+  height: 72px;
+  border-radius: 22px;
+  border: 3px solid #8fdcff;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 60'%3E%3Cpath d='M32 5 4 29a3.5 3.5 0 0 0 4.6 5.3L12 31.4V53a4 4 0 0 0 4 4h11V41h10v16h11a4 4 0 0 0 4-4V31.4l3.4 2.9A3.5 3.5 0 0 0 60 29Z' fill='%23fff' stroke='%230b2f8f' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center 54% / 52% auto no-repeat,
+    linear-gradient(180deg, #4aa8ff 0%, #1f74ee 45%, #1450c8 100%);
+  box-shadow:
+    0 0 0 2px #0b2f8f,
+    0 6px 14px rgba(5, 20, 70, 0.45),
+    0 0 14px rgba(92, 200, 255, 0.7),
+    inset 0 -5px 0 rgba(8, 40, 130, 0.45);
+  filter: none;
+}
+.race-actions .home-btn.tile-btn::before {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 4px;
+  height: 36%;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+@media (max-height: 760px) {
+  .race-hero .win-det {
+    width: 146px;
+    height: 186px;
+    bottom: -20px;
+  }
+  .race-actions .home-btn.tile-btn {
+    width: 64px;
+    height: 60px;
+    border-radius: 18px;
+  }
+}
+@media (max-height: 700px) {
+  .race-hero .win-det {
+    width: 100px;
+    height: 127px;
+    bottom: -10px;
+  }
+}
+body.scr-end:has(.podium-box .pod-row:nth-child(3)) .race-hero .win-det {
+  width: 110px;
+  height: 140px;
+  bottom: -12px;
+}
+/* V9.12 : jeton de la question à côté de OUI / NON */
+.q-res-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 10px;
+}
+.q-res-row .result-title {
+  margin: 0;
+}
+.q-res-row .fb-score.q-pts {
+  margin: 0;
+}

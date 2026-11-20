@@ -93,6 +93,8 @@ const maxN = () => maxFor(g.mode, g.level);
 /** Indice du joueur dont c'est le tour (le premier joueur change à chaque partie : g.starter). */
 const active = () => (g.turn + (g.starter || 0)) % g.players;
 /** Mode « Course » (et solo) : la première capture gagne. Sinon mode « Points » (score après N tours). */
+/** V9.12 : à plusieurs (hors Défi), une question rapporte +1 si la réponse est OUI, −1 si c'est NON. */
+const questionBet = () => g.mode !== 'challenge' && g.players > 1;
 const isRace = () => g.mode !== 'challenge' && (g.players === 1 || g.gameMode !== 'score');
 /** Filets restants pour le joueur i (NETS_MAX par partie). */
 const netsLeft = (i = active()) =>

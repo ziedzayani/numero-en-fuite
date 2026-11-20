@@ -1,5 +1,24 @@
 # Historique des versions
 
+## V9.12 — à plusieurs, chaque question compte (+1 / −1)
+
+- Partie à plusieurs (Course et Points, hors Défi) : une question dont la réponse est **OUI** rapporte **+1 point**,
+  une réponse **NON** coûte **−1 point**. Le gain s'affiche dans le jeton « Ton score » et sur la pastille du joueur.
+- Les 3 questions proposées contiennent toujours **au moins une vraie et au moins une fausse** pour le numéro
+  caché (aussi après 🔀). Elles restent toutes utiles (elles coupent les numéros possibles en deux).
+- Rappel « OUI +1 · NON −1 » à côté de « Choisis une question », ligne 🎲 dans ℹ️, règle « Points » complétée
+  (8 langues). Solo et Défi inchangés. Le jeton « Ton score » se place à côté de OUI / NON (pas de défilement).
+
+### Écran de victoire (pack d'images fourni)
+
+- Détective : buste à base fondue (plus de coupe nette au torse), proportions conservées.
+- REJOUER : le confetti du décor qui dépassait sous le bouton est déplacé ; contour doré continu, ombre adoucie,
+  icône bleue fournie (meilleure résolution).
+- ACCUEIL : bouton bleu glossy avec une maison blanche dessinée dans le bouton.
+- Trophée centré sur le bord du bandeau vert ; podium : 1re place bordée d'or, 2e place entre pointillés avec un
+  fond argenté. Images remplacées en meilleure résolution (trophée, médailles, flèches, engrenage), sans doublon.
+- Pas de coureur dans le bandeau « Le numéro se cachait sur le … » (à ta demande).
+
 ## V9.11 — écran de victoire : corrections d'après la maquette
 
 Fond bleu nuit à rayons ; détective du logo pouce levé, yeux ouverts ; bandeau vert glossy (reflet, contour doré
