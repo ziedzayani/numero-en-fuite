@@ -128,7 +128,10 @@ function start(skipHandoff = false) {
     tutSeen,
     lastMulti,
     tipsSeen,
-    myName
+    myName,
+    seriesPref,
+    series,
+    seriesContinue
   } = g;
   g = initial();
   g.players = players;
@@ -151,6 +154,16 @@ function start(skipHandoff = false) {
   g.playerHelp = Array.isArray(playerHelp) ? playerHelp.slice(0, 4) : [false, false, false, false];
   g.mode = 'normal';
   g.gameId = newGameId(); // identifiant stable : les récompenses solo ne sont attribuées qu'une fois
+  // V9.16 : séries « premier à 2 / 3 victoires ». « Manche suivante » garde la série (mêmes joueurs,
+  // même niveau, même mode) ; tout autre lancement en commence une nouvelle (ou aucune).
+  g.seriesPref = [2, 3].includes(seriesPref) ? seriesPref : 0;
+  const key = [players, level, g.gameMode, ...(names || []).slice(0, players)].join('|');
+  if (players > 1 && g.seriesPref) {
+    const keep = seriesContinue && series && series.key === key && !series.done;
+    g.series = keep
+      ? { ...series, wins: series.wins.slice(), round: series.round + 1, last: null }
+      : { target: g.seriesPref, wins: Array(players).fill(0), round: 1, key, done: false, last: null };
+  } else g.series = null;
   g.netsLeft = Array(players).fill(NETS_MAX);
   g.screen = 'game';
   g.inGame = true;

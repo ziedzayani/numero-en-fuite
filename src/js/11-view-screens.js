@@ -7,7 +7,7 @@
 /** Pastilles des joueurs : score, étoiles, joueur actif. */
 function scoreboard() {
   if (g.mode === 'challenge') return '';
-  return `<div class="chips" style="grid-template-columns:repeat(${g.players},minmax(0,1fr))">${g.scores.map((s, i) => `<div class="chip ${active() === i ? 'current' : ''} ${g.phase === 'result' && g.last && g.last.player === i && ['found', 'netHit', 'wrong', 'netMiss'].includes(g.last.type) ? 'bump' : ''}"><span class="cname">${isRace() && isPlaced(i) ? `<b class="podium-medal">${['🥇', '🥈', '🥉', '🎖️'][placeFor(g.placed.find(p => p.player === i).round) - 1]}</b>` : ''}<i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}</span><span class="cscore"><b>${s}</b> <small>⭐${g.stars[i]}</small></span>${scoreDelta(i)}</div>`).join('')}</div>`;
+  return `<div class="chips" style="grid-template-columns:repeat(${g.players},minmax(0,1fr))">${g.scores.map((s, i) => `<div class="chip ${active() === i ? 'current' : ''} ${g.phase === 'result' && g.last && g.last.player === i && ['found', 'netHit', 'wrong', 'netMiss'].includes(g.last.type) ? 'bump' : ''}"><span class="cname">${isRace() && isPlaced(i) ? `<b class="podium-medal">${['🥇', '🥈', '🥉', '🎖️'][placeFor(g.placed.find(p => p.player === i).round) - 1]}</b>` : ''}<i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}${g.series ? `<small class="ser-w" title="${esc(t('seriesTitle'))}">⚔️${g.series.wins[i] || 0}</small>` : ''}</span><span class="cscore"><b>${s}</b> <small>⭐${g.stars[i]}</small></span>${scoreDelta(i)}</div>`).join('')}</div>`;
 }
 /** Gain / perte du dernier coup (+10, +4, −1…) affiché sur la pastille. */
 function scoreDelta(i) {
@@ -517,6 +517,43 @@ function game() {
           : '';
   return `<header class="gbar"><span class="brand-icon lvl-badge ${logo}" dir="ltr" aria-label="${t('levelBadge')} 1–${maxN()}"><span class="lvl-emo">${g.mode === 'challenge' ? '🏆' : { junior: '🐣', malin: '🧠', expert: '🚀', genius: '🦉' }[g.level]}</span><b class="lvl-range">1–${maxN()}</b>${logo === 'thinking' ? '<i class="logo-bubble">…</i>' : ''}</span><div class="gstatus">${g.mode === 'challenge' ? `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: '∞' })}</b><span>🏆 ${chScore()}</span></div>` : `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: g.limit })}</b><span>🎯 ${g.captures}</span></div><div class="gprogress" dir="ltr"><span style="width:${pct}%"></span></div>`}</div><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header>${scoreboard()}<section class="panel turn-card${result && fbKind(g.last) ? ' fb-mode' : ''}"><div class="turn-top"><div class="mini-mascot">${mascot(anim === 'worried' ? 'idle' : anim, party, anim === 'worried' ? 'worried' : null)}</div><div class="bubble"><b>${head}</b><span class="quip">${netWatchBanner() || quip(qk)}</span></div></div>${result && g.mode !== 'challenge' ? '' : timersHTML()}<div class="turn-body">${result ? resultView() : questionView()}</div></section>`;
 }
+/** V9.16 : séries — gagnant(s) de la série (quand elle est finie). */
+function seriesChampions() {
+  const s = g.series;
+  if (!s || !s.done) return [];
+  const best = Math.max(...s.wins);
+  return s.wins.map((w, i) => (w === best ? pname(i) : null)).filter(Boolean);
+}
+/** Pastille « Manche 2 · Premier à 3 » + score de la série (« Zied 2 · Ahlem 1 »). */
+function seriesPill() {
+  const s = g.series;
+  if (!s) return '';
+  const line = s.wins
+    .map(
+      (w, i) =>
+        `<span class="sp-p"><i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))} <b dir="ltr">${w}</b></span>`
+    )
+    .join('');
+  // à 3–4 joueurs, les victoires sont sur les lignes du podium (seriesBadge) : la pastille reste sur une ligne
+  return `<div class="series-pill${s.done ? ' done' : ''}"><small>${s.done ? '🏆' : '⚔️'} ${t('seriesRound', { n: s.round })} · ${t('seriesTo', { n: s.target })}</small>${g.players > 2 ? '' : `<div class="sp-line">${line}</div>`}</div>`;
+}
+/** Victoires de la série d'un joueur, sur sa ligne du podium (3–4 joueurs). */
+function seriesBadge(i) {
+  return g.series && g.players > 2 ? ` <i class="ser-badge" dir="ltr">⚔️ ${g.series.wins[i] || 0}</i>` : '';
+}
+/** Texte du bouton « Rejouer » : manche suivante / nouvelle série / prêt (Wi-Fi). */
+function replayLabel() {
+  if (g.net && (g.netReady || []).includes(g.net.seat))
+    return t(g.net.role === 'host' ? 'netLaunchNow' : 'netReadyMe');
+  if (g.series) return t(g.series.done ? 'seriesNew' : 'seriesNext');
+  return t('replay');
+}
+/** Titre de fin quand la série est gagnée. */
+function seriesTitle() {
+  const c = seriesChampions();
+  if (!c.length) return '';
+  return c.length > 1 ? t('seriesTie', { players: c.join(', ') }) : t('seriesWinner', { player: c[0] });
+}
 /** Écran de fin : choisit entre défi, solo, course et points. */
 function end() {
   if (g.mode === 'challenge') return endChallenge();
@@ -529,7 +566,7 @@ function end() {
   const soloLost = g.players === 1 && g.soloWon === false;
   // V9.4 : personne n'a trouvé le numéro → pas de fête (même si quelqu'un a plus de points)
   const noCatch = g.players > 1 && (isRace() || !g.captures);
-  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
+  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {
@@ -573,18 +610,18 @@ function endRace() {
   const rows = [
     ...placed.map(
       p =>
-        `<div class="finalscore pod-row place-${p.place}"><div class="medal">${medal(p.place)}</div><div><strong>${esc(pname(p.i))}</strong><small>${tHtml('podiumCaught', { turn: `<b>${p.turn}</b>` })}.</small></div></div>`
+        `<div class="finalscore pod-row place-${p.place}"><div class="medal">${medal(p.place)}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${tHtml('podiumCaught', { turn: `<b>${p.turn}</b>` })}.</small></div></div>`
     ),
     ...others.map(
       o =>
-        `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}</strong><small>${tHtml('podiumNotCaught', { n: `<b dir="ltr">${o.v}</b>` })}.</small></div></div>`
+        `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}${seriesBadge(o.i)}</strong><small>${tHtml('podiumNotCaught', { n: `<b dir="ltr">${o.v}</b>` })}.</small></div></div>`
     )
   ].join('');
   const decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
   const caught = caughtN
     ? `<div class="escaped-note race-caught"><span>${tHtml('escapedWas', { n: `<b class="big-n">${caughtN}</b>` })}</span></div>`
     : escapedNote(true);
-  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro rh-line">${t('raceWinDesc', { turns: g.raceTurns })}</p></div></section>${caught}<section class="panel podium-panel race-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
+  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${seriesTitle() || (winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] }))}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${t('raceWinDesc', { turns: g.raceTurns })}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button><button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
 }
 /**
  * Fin de partie alors que le numéro courait encore : « il était sur le 23 » et le film de son évasion.

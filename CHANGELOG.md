@@ -1,5 +1,19 @@
 # Historique des versions
 
+## V9.16 — Séries et revanche
+
+- **Séries** à plusieurs (même téléphone et Wi-Fi) : « 1 partie », « Premier à 2 » ou « Premier à 3 » victoires.
+  Gagnant d'une manche : 1er de la Course, ou meilleur total aux Points (manche nulle si personne n'a attrapé le
+  numéro). « Manche suivante » garde le score ; la série gagnée affiche « Zied remporte la série ! » et
+  « Nouvelle série ». Score de la série sur les pastilles des joueurs (⚔️) et sur l'écran de fin (pastille, ou
+  sur chaque ligne du podium à 3–4 joueurs). Une manche ne compte qu'une fois (identifiant de partie).
+- **Revanche Wi-Fi avec « Prêt »** : « Rejouer » ne relance plus tout de suite pour tout le monde ; chacun se déclare
+  prêt (✅ / ⏳ visibles par tous), la revanche part quand tous les joueurs connectés sont prêts. L'hôte peut
+  « Lancer maintenant » si quelqu'un ne répond pas.
+- Salle Wi-Fi : l'hôte choisit aussi la série ; les invités la voient.
+- Fenêtre des prénoms à 4 joueurs resserrée : toujours sans défilement avec le choix de la série.
+- Abandonné (redondant avec les séries) : la « Course en 2 captures ».
+
 ## V9.15 — fondations du multijoueur
 
 - **Questions : au moins une réponse OUI**, sans rien révéler. Les 3 questions proposées couvrent tous les numéros

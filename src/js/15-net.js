@@ -116,6 +116,7 @@ function netLaunch(relaunch = false) {
   g.players = seats.length;
   g.names = net.lobby.map(p => p.name);
   g.playerHelp = [false, false, false, false];
+  g.seriesContinue = relaunch; // la série continue à la revanche (mêmes joueurs)
   start(true);
   g.net = { role: 'host', seat: 0 };
   g.absent = [];
@@ -126,6 +127,32 @@ function netLaunch(relaunch = false) {
 
 /** « Rejouer » de l'hôte : même salle, joueurs encore connectés (le premier joueur tourne). */
 const netRelaunch = () => netLaunch(true);
+/**
+ * V9.16 : bouton « Rejouer » / « Manche suivante » en Wi-Fi. Chacun se déclare prêt ; la revanche part quand
+ * tous les joueurs connectés sont prêts. L'hôte peut « Lancer maintenant » (2e appui) si quelqu'un ne répond pas.
+ */
+function netAgain() {
+  if (!g.net || g.screen !== 'end') return;
+  if (g.net.role === 'client') {
+    netSend('host', { t: 'again' });
+    g.netAgainAsked = true;
+    return render();
+  }
+  const ready = g.netReady || [];
+  if (ready.includes(0)) return netLaunchRematch();
+  g.netReady = [...ready, 0];
+  netReadyCheck();
+}
+function netReadyCheck() {
+  if (net.role !== 'host' || !g.net) return;
+  const present = net.lobby.filter(p => p.connected).map(p => p.seat);
+  if (present.length && present.every(s => (g.netReady || []).includes(s))) return netLaunchRematch();
+  render();
+}
+function netLaunchRematch() {
+  if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
+  netRelaunch();
+}
 
 /** Copie de l'état envoyée aux autres : sans secret, sans parcours, sans la réponse du calcul en cours. */
 function redactState(seat) {
@@ -166,7 +193,11 @@ function netBroadcastTimers() {
 }
 function netBroadcastLobby() {
   const players = net.lobby.map(p => ({ seat: p.seat, name: p.name, connected: p.connected }));
-  const rules = { level: g.level, mode: g.gameMode === 'score' ? 'score' : 'race' };
+  const rules = {
+    level: g.level,
+    mode: g.gameMode === 'score' ? 'score' : 'race',
+    series: g.seriesPref || 0
+  };
   for (const p of net.lobby)
     if (p.peer && p.connected) netSend(p.peer, { t: 'lobby', players, rules, started: !!g.net });
 }
@@ -207,11 +238,11 @@ function hostOnMessage(peer, m) {
     return;
   }
   if (m.t === 'again') {
-    // « Rejouer » demandé depuis le téléphone d'un invité : même effet que le bouton de l'hôte
+    // V9.16 : « Rejouer » d'un invité = « je suis prêt » (avant : relançait aussitôt pour tout le monde)
     const p = net.lobby.find(x => x.peer === peer && x.connected);
     if (!p || !g.net || g.screen !== 'end') return;
-    if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
-    netRelaunch();
+    if (!(g.netReady || []).includes(p.seat)) g.netReady = [...(g.netReady || []), p.seat];
+    netReadyCheck();
     return;
   }
   if (m.t === 'action') {
@@ -527,7 +558,7 @@ function lanScreen() {
   else if (v === 'join' || v === 'joining')
     body = `${nameField}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else
-    body = `<p class="sub">✅ ${t('netConnected')}</p>${net.rules ? `<p class="net-rules">${netRulesText(net.rules.level, net.rules.mode)}</p>` : ''}${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
+    body = `<p class="sub">✅ ${t('netConnected')}</p>${net.rules ? `<p class="net-rules">${netRulesText(net.rules.level, net.rules.mode, net.rules.series)}</p>` : ''}${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
   return `<header class="top">${brand()}<button class="mini-btn" id="netCancelTop">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel net-panel"><h1 class="settings-title">📶 ${t('netTitle')}</h1>${body}</section>`;
 }
 
@@ -537,10 +568,21 @@ const NET_LEVELS = [
   ['expert', '🚀', 'levelExpert'],
   ['genius', '🦉', 'levelGenius']
 ];
-/** « Facile 1–9 · Course » (salle d'attente des invités). */
-function netRulesText(level, mode) {
+/** « Facile 1–9 · Course · Premier à 3 » (salle d'attente des invités). */
+function netRulesText(level, mode, series) {
   const L = NET_LEVELS.find(x => x[0] === level) || NET_LEVELS[0];
-  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}`;
+  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}${series ? ' · ⚔️ ' + t('seriesTo', { n: series }) : ''}`;
+}
+/** Choix de la série (écran des prénoms, salle Wi-Fi) : 1 partie, premier à 2, premier à 3. */
+function seriesPicker(attr) {
+  return `<div class="mode-pick series-pick" role="radiogroup" aria-label="${esc(t('seriesTitle'))}">${[
+    0, 2, 3
+  ]
+    .map(
+      n =>
+        `<button type="button" role="radio" class="mode-card ${(g.seriesPref || 0) === n ? 'on' : ''}" ${attr}="${n}" aria-checked="${(g.seriesPref || 0) === n}"><b>${n ? t('seriesTo', { n }) : t('seriesOne')}</b></button>`
+    )
+    .join('')}</div>`;
 }
 /** V9.15 : l'hôte choisit le niveau et le mode DANS la salle d'attente (avant : sur l'accueil seulement). */
 function netRulesPicker() {
@@ -554,7 +596,7 @@ function netRulesPicker() {
         `<button type="button" role="radio" class="mode-card ${(g.gameMode === 'score') === (m === 'score') ? 'on' : ''}" data-netmode="${m}" aria-checked="${(g.gameMode === 'score') === (m === 'score')}"><b>${m === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}</b></button>`
     )
     .join('');
-  return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div></div>`;
+  return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}</div>`;
 }
 /** Fenêtres réseau : attente d'un joueur déconnecté (partagée), connexion perdue (locale). */
 function netModalView() {
@@ -581,11 +623,16 @@ function netModalView() {
   return '';
 }
 
-/** Fin de partie sur un téléphone invité : c'est l'hôte qui relance. */
-const netEndNote = () =>
-  g.net && g.net.role === 'client' && g.netAgainAsked
-    ? `<p class="sub centered">⏳ ${t('netAgainSent')}</p>`
-    : '';
+/** V9.16 : fin de partie en Wi-Fi : qui est prêt pour la revanche (✅ / ⏳). */
+function netEndNote() {
+  const ready = g.netReady || [];
+  if (!g.net || !ready.length) return '';
+  const list = Array.from({ length: g.players }, (_, i) => i)
+    .filter(i => !isAbsent(i))
+    .map(i => `${esc(pname(i))} ${ready.includes(i) ? '✅' : '⏳'}`)
+    .join(' · ');
+  return `<p class="sub centered net-ready">${t('netReadyList', { list })}</p>`;
+}
 
 /** « Au tour de … » dans la bulle du détective, sur les téléphones qui regardent. */
 function netWatchBanner() {
@@ -624,6 +671,14 @@ function bindNet(click) {
     b.addEventListener('click', () => {
       if (net.role !== 'host' || g.net) return;
       g.level = b.dataset.netlevel;
+      render();
+      netBroadcastLobby();
+    })
+  );
+  document.querySelectorAll('[data-netseries]').forEach(b =>
+    b.addEventListener('click', () => {
+      if (net.role !== 'host' || g.net) return;
+      g.seriesPref = Number(b.dataset.netseries) || 0;
       render();
       netBroadcastLobby();
     })

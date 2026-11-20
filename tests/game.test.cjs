@@ -2954,6 +2954,13 @@ async function playFullGame(browser, players, level, lang = 'fr') {
           /Points/.test(txt),
         `Salle Wi-Fi : niveau et mode choisis par l’hôte, affichés chez les invités (« ${txt.trim()} »)`
       );
+      await host.click('[data-netseries="2"]');
+      await wait(200);
+      check(
+        (await p2.textContent('.net-rules')).includes('Premier à 2'),
+        'Salle Wi-Fi : la série choisie par l’hôte (« Premier à 2 ») est affichée chez les invités'
+      );
+      await host.click('[data-netseries="0"]');
       await host.click(`[data-netlevel="${lv0}"]`);
       await host.click(`[data-netmode="${md0 === 'score' ? 'score' : 'race'}"]`);
       await wait(150);
@@ -3194,14 +3201,25 @@ async function playFullGame(browser, players, level, lang = 'fr') {
         'Course Wi-Fi : la première capture termine la partie chez tous'
       );
     }
-    // V8.14 : « Rejouer » marche aussi depuis le téléphone d'un invité (l'hôte relance pour tous)
+    // V9.16 : « Rejouer » = « je suis prêt » ; la revanche part quand tous les joueurs connectés sont prêts
     check(await p2.isVisible('#again'), 'Fin de partie : « Rejouer » aussi chez les invités');
     await p2.click('#again');
     await wait(400);
     [h, s2] = [await SN(host), await SN(p2)];
     check(
+      h.screen === 'end' &&
+        s2.screen === 'end' &&
+        (await host.textContent('.net-ready')).includes('Omar ✅') &&
+        (await host.textContent('.net-ready')).includes('Léa ⏳') &&
+        (await p2.textContent('#again')).includes('Prêt'),
+      'Revanche Wi-Fi : Omar prêt (✅), Léa pas encore (⏳) — personne n’est éjecté de l’écran de fin'
+    );
+    await host.click('#again');
+    await wait(400);
+    [h, s2] = [await SN(host), await SN(p2)];
+    check(
       h.screen === 'game' && s2.screen === 'game' && h.players === 2 && s2.names.join() === 'Léa,Omar',
-      'Rejouer (depuis Omar) : nouvelle partie à 2 pour tous'
+      'Revanche Wi-Fi : tout le monde prêt → nouvelle partie à 2 pour tous'
     );
     // l'hôte rejoue alors qu'il est seul : retour à la salle d'attente (même code) au lieu de ne rien faire
     {
@@ -4619,6 +4637,81 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await noOverflow(page, `Victoire ${vp.tag}px`);
     await shot(page, pre + '09_victoire');
     console.log(`${failed === before ? '✓' : '✗'} Affichage ${vp.width}×${vp.height}`);
+    await ctx.close();
+  }
+
+  // V9.16 : séries « premier à 2 / 3 » (même téléphone) : victoires comptées, manche suivante, nouvelle série
+  {
+    const { ctx, page } = await fresh(browser);
+    const r = await page.evaluate(() => {
+      const N = window.__numero,
+        out = [];
+      Object.assign(N.state, {
+        players: 2,
+        names: ['Zied', 'Ahlem', '', ''],
+        gameMode: 'race',
+        level: 'junior',
+        seriesPref: 2
+      });
+      N.start(true);
+      const win = who => {
+        N.state.modal = null;
+        N.state.starter = who;
+        N.state.turn = 0;
+        N.guess(N.state.secret);
+        N.nextTurn();
+      };
+      win(1);
+      out.push(N.state.series.wins.join() + '/' + N.state.series.done);
+      document.getElementById('again').click();
+      out.push('round' + N.state.series.round + '/' + N.state.screen);
+      win(0);
+      out.push(N.state.series.wins.join() + '/' + N.state.series.done);
+      document.getElementById('again').click();
+      win(0);
+      out.push(N.state.series.wins.join() + '/' + N.state.series.done);
+      out.push(document.getElementById('again').textContent.trim());
+      out.push(document.querySelector('.end-hero h1').textContent.trim());
+      // le même gameId ne compte qu'une fois (rendu, sauvegarde, rechargement)
+      N.render();
+      out.push(N.state.series.wins.join());
+      document.getElementById('again').click();
+      out.push(N.state.series.wins.join() + '/round' + N.state.series.round);
+      // Points sans aucune capture : manche nulle
+      Object.assign(N.state, { gameMode: 'score' });
+      N.state.seriesPref = 3;
+      N.start(true);
+      N.state.turn = N.state.limit;
+      N.state.modal = null;
+      N.guess(N.state.secret === 1 ? 2 : 1);
+      N.nextTurn();
+      out.push('nul:' + N.state.series.wins.join() + '/' + N.state.screen);
+      // une seule partie : pas de série
+      N.state.seriesPref = 0;
+      N.start(true);
+      out.push(String(N.state.series));
+      return out;
+    });
+    check(r[0] === '0,1/false', `Série : 1re manche gagnée par Ahlem (${r[0]})`);
+    check(
+      r[1] === 'round2/game' && r[2] === '1,1/false',
+      `Série : « Manche suivante » garde le score (${r[1]} ${r[2]})`
+    );
+    check(
+      r[3] === '2,1/true' && r[4] === 'Nouvelle série' && /Zied remporte la série/.test(r[5]),
+      `Série gagnée par Zied 2–1, titre et bouton « Nouvelle série » (${r[3]} · ${r[4]} · ${r[5]})`
+    );
+    check(
+      r[6] === '2,1' && r[7] === '0,0/round1',
+      `Série : comptée une seule fois, puis « Nouvelle série » repart de 0 (${r[6]} ${r[7]})`
+    );
+    check(
+      r[8] === 'nul:0,0/end' && r[9] === 'null',
+      `Série : manche sans capture = nulle ; « 1 partie » = pas de série (${r[8]} ${r[9]})`
+    );
+    await page.reload();
+    const kept = await page.evaluate(() => JSON.stringify(window.__numero.state.series));
+    check(kept === 'null', 'Série : sauvegarde relue sans erreur');
     await ctx.close();
   }
 

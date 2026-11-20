@@ -249,6 +249,17 @@ function bind() {
       save();
     })
   );
+  app.querySelectorAll('[data-series]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.seriesPref = Number(b.dataset.series) || 0;
+      app.querySelectorAll('[data-series]').forEach(x => {
+        x.classList.toggle('on', x === b);
+        x.setAttribute('aria-checked', x === b);
+      });
+      sfx('tap');
+      save();
+    })
+  );
   click('namesGo', () => {
     for (let i = 0; i < g.players; i++) {
       const el = document.getElementById('name' + i);
@@ -269,14 +280,10 @@ function bind() {
   click('again', () => {
     sfx('tap');
     if (g.mode === 'challenge') return startChallenge(g.chKind, g.chDiff);
-    if (g.net && g.net.role === 'client') {
-      // invité : on demande à l'hôte de relancer la partie pour tout le monde
-      netSend('host', { t: 'again' });
-      g.netAgainAsked = true;
-      return render();
-    }
+    // V9.16 Wi-Fi : « Rejouer » = « je suis prêt » ; la revanche part quand tout le monde est prêt
+    if (g.net) return netAgain();
     if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
-    if (g.net) return netRelaunch();
+    g.seriesContinue = true; // « Manche suivante » : la série continue (si elle n'est pas finie)
     start();
   });
   click('quitYes', () => {

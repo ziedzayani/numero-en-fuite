@@ -265,6 +265,25 @@ function revealEscaped() {
       ? { start: g.hunt.start, steps: g.hunt.steps, end: { type: 'escaped', n: g.secret }, max: maxN() }
       : null;
 }
+/**
+ * V9.16 : fin d'une manche d'une série. Gagnant(s) : 1re place de la Course, ou meilleur total aux Points
+ * (seulement si quelqu'un a attrapé le numéro : sinon, manche nulle). Une seule fois par partie (gameId).
+ */
+function seriesRecord() {
+  const s = g.series;
+  if (!s || g.players < 2 || s.recorded === g.gameId) return;
+  s.recorded = g.gameId;
+  let win = [];
+  if (isRace()) win = g.placed.filter(p => placeFor(p.round) === 1).map(p => p.player);
+  else if (g.captures) {
+    const tot = g.scores.map((v, i) => v + (g.stars[i] || 0)),
+      best = Math.max(...tot);
+    win = tot.map((v, i) => (v === best ? i : -1)).filter(i => i >= 0);
+  }
+  win.forEach(i => (s.wins[i] = (s.wins[i] || 0) + 1));
+  s.last = win;
+  s.done = Math.max(...s.wins) >= s.target;
+}
 /** Fin de la course : premier(s) du podium vainqueur(s) ; `escaped` : des joueurs cherchaient encore. */
 function finishRace(escaped = false) {
   if (escaped) revealEscaped();
@@ -274,6 +293,8 @@ function finishRace(escaped = false) {
   g.screen = 'end';
   g.inGame = false;
   g.modal = null;
+  g.netReady = [];
+  seriesRecord();
   sfx('win');
 }
 /*
@@ -384,6 +405,8 @@ function advanceTurn() {
     g.screen = 'end';
     g.inGame = false;
     g.modal = null;
+    g.netReady = [];
+    seriesRecord();
     sfx(g.players === 1 ? 'bad' : 'win');
   } else {
     g.phase = 'choose';

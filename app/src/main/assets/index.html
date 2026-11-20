@@ -10788,6 +10788,146 @@ html[lang='ja'] .pause-card .pz-msg {
   font-weight: 800;
   text-align: center;
 }
+/* ===== V9.16 : séries ===== */
+.series-pick {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.series-pick {
+  margin-top: 8px;
+}
+.series-pick .mode-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 3px 2px;
+  text-align: center;
+}
+.series-pick .mode-card b {
+  font-size: 12.5px;
+  line-height: 1.15;
+}
+.chip .ser-w {
+  margin-inline-start: 4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #11286e;
+  border: 1px solid var(--hunt-gold);
+  color: #ffe08a;
+  font-size: 10.5px;
+  font-weight: 800;
+  vertical-align: 1px;
+}
+.series-pill {
+  width: fit-content;
+  max-width: 100%;
+  margin: 8px auto 0;
+  padding: 4px 14px 6px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #1a3a9a, #0f2462);
+  border: 2px solid #ffd54a;
+  box-shadow: 0 0 12px rgba(255, 214, 80, 0.45);
+  color: #fff;
+  text-align: center;
+}
+.series-pill small {
+  display: block;
+  color: #ffe08a;
+  font-size: 12px;
+  font-weight: 800;
+}
+.series-pill .sp-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 12px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.series-pill .sp-p b {
+  color: #ffd54a;
+  font-size: 16px;
+}
+.series-pill .player-dot {
+  margin-inline-end: 4px;
+}
+.series-pill.done {
+  border-color: #fff2a0;
+  box-shadow:
+    0 0 0 2px #a86d00,
+    0 0 18px rgba(255, 214, 80, 0.8);
+}
+.race-hero .series-pill {
+  margin-top: 6px;
+}
+.net-ready {
+  margin: 6px 0 0;
+  font-weight: 800;
+}
+@media (max-height: 700px) {
+  .series-pill {
+    margin-top: 4px;
+    padding: 2px 10px 3px;
+  }
+  .series-pill small {
+    font-size: 10.5px;
+  }
+  .series-pill .sp-line {
+    font-size: 12px;
+  }
+  .series-pill .sp-p b {
+    font-size: 13px;
+  }
+}
+/* à 4 joueurs, la fenêtre des prénoms reste sans défilement malgré le choix de la série */
+.modal:has(.name-row:nth-child(4)) .name-row {
+  min-height: 0;
+}
+.modal:has(.name-row:nth-child(4)) .names {
+  gap: 4px;
+}
+.modal:has(.name-row:nth-child(4)) .name-row input {
+  min-height: 32px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.modal:has(.name-row:nth-child(4)) .name-row .help-chip {
+  min-height: 0;
+  padding: 4px 10px;
+}
+.modal:has(.name-row:nth-child(4)) .mode-card small {
+  line-height: 1.2;
+}
+.modal:has(.name-row:nth-child(4)) .names {
+  margin-bottom: 8px;
+}
+.modal:has(.name-row:nth-child(4)) .help-note {
+  margin-bottom: 4px;
+  line-height: 1.25;
+}
+.modal:has(.name-row:nth-child(4)) .series-pick {
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+.modal:has(.name-row:nth-child(4)) .mode-card {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.ser-badge {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: #11286e;
+  border: 1px solid var(--hunt-gold);
+  color: #ffe08a;
+  font-size: 0.6em;
+  font-style: normal;
+  font-weight: 800;
+  vertical-align: 0.2em;
+}
 
     </style>
   </head>
@@ -10878,7 +11018,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.15";
+const APP_VERSION = "9.16";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -11161,6 +11301,7 @@ const dictionaries = {
   "netJoin": "Rejoindre avec un code",
   "netJoinGo": "Rejoindre",
   "netLaunch": "Lancer la partie",
+  "netLaunchNow": "Lancer maintenant",
   "netLevelMode": "Niveau {level} · {mode} (à choisir sur l’accueil)",
   "netLostText": "Le téléphone de l’hôte ne répond plus. Vérifie le Wi-Fi puis réessaie.",
   "netLostTitle": "Connexion perdue",
@@ -11168,6 +11309,8 @@ const dictionaries = {
   "netMissDesc": "Rien dans le filet <b>{nums}</b>. <b>−{p} points</b> (1 par numéro).",
   "netMissLog": "{player} · filet {nums} vide (−{p}) · {shift}",
   "netQuit": "Quitter la partie",
+  "netReadyList": "Revanche — prêts : {list}",
+  "netReadyMe": "Prêt ✅",
   "netRetry": "Réessayer",
   "netRetryFailed": "Partie introuvable : l’hôte a peut-être quitté ou créé une nouvelle partie.",
   "netSameWifi": "Tous les téléphones doivent être sur le même Wi-Fi (ou sur le partage de connexion de l’un d’eux).",
@@ -11351,6 +11494,14 @@ const dictionaries = {
   "secondaryInstruction": "Tu peux prendre un indice ou faire un calcul avant de tenter ta chance.",
   "seconds": "{n} s",
   "seeResults": "Voir le classement",
+  "seriesNew": "Nouvelle série",
+  "seriesNext": "Manche suivante",
+  "seriesOne": "1 partie",
+  "seriesRound": "Manche {n}",
+  "seriesTie": "Égalité dans la série : {players} !",
+  "seriesTitle": "Série",
+  "seriesTo": "Premier à {n}",
+  "seriesWinner": "{player} remporte la série !",
   "settings": "Réglages",
   "settingsTip": "Tu peux changer la langue sans recommencer la partie.",
   "shifted": "Il s’est déplacé.",
@@ -11732,6 +11883,7 @@ const dictionaries = {
   "netJoin": "Join with a code",
   "netJoinGo": "Join",
   "netLaunch": "Start the game",
+  "netLaunchNow": "Start now",
   "netLevelMode": "Level {level} · {mode} (chosen on the home screen)",
   "netLostText": "The host’s phone is not responding. Check the Wi-Fi and try again.",
   "netLostTitle": "Connection lost",
@@ -11739,6 +11891,8 @@ const dictionaries = {
   "netMissDesc": "Nothing in the net <b>{nums}</b>. <b>−{p} points</b> (1 per number).",
   "netMissLog": "{player} · net {nums} empty (−{p}) · {shift}",
   "netQuit": "Leave the game",
+  "netReadyList": "Rematch — ready: {list}",
+  "netReadyMe": "Ready ✅",
   "netRetry": "Try again",
   "netRetryFailed": "Game not found: the host may have left or started a new game.",
   "netSameWifi": "All phones must be on the same Wi-Fi (or on one phone’s hotspot).",
@@ -11922,6 +12076,14 @@ const dictionaries = {
   "secondaryInstruction": "You can get one hint or solve a maths challenge before guessing.",
   "seconds": "{n} s",
   "seeResults": "See results",
+  "seriesNew": "New series",
+  "seriesNext": "Next round",
+  "seriesOne": "1 game",
+  "seriesRound": "Round {n}",
+  "seriesTie": "Series tied: {players}!",
+  "seriesTitle": "Series",
+  "seriesTo": "First to {n}",
+  "seriesWinner": "{player} wins the series!",
   "settings": "Settings",
   "settingsTip": "Switch languages without restarting your game.",
   "shifted": "It moved to another spot.",
@@ -12303,6 +12465,7 @@ const dictionaries = {
   "netJoin": "انضم برمز",
   "netJoinGo": "انضم",
   "netLaunch": "ابدأ اللعبة",
+  "netLaunchNow": "ابدأ الآن",
   "netLevelMode": "المستوى {level} · {mode} (يُختار من الشاشة الرئيسية)",
   "netLostText": "هاتف المضيف لا يستجيب. تحقق من الواي فاي ثم أعد المحاولة.",
   "netLostTitle": "انقطع الاتصال",
@@ -12310,6 +12473,8 @@ const dictionaries = {
   "netMissDesc": "لا شيء في الشبكة <b>{nums}</b>. <b>−{p} نقاط</b> (1 عن كل رقم).",
   "netMissLog": "{player} · شبكة {nums} فارغة (−{p}) · {shift}",
   "netQuit": "غادر اللعبة",
+  "netReadyList": "مباراة الثأر — جاهزون: {list}",
+  "netReadyMe": "جاهز ✅",
   "netRetry": "أعد المحاولة",
   "netRetryFailed": "لم يتم العثور على اللعبة: ربما غادر المضيف أو أنشأ لعبة جديدة.",
   "netSameWifi": "يجب أن تكون كل الهواتف على نفس شبكة الواي فاي (أو على نقطة اتصال أحدها).",
@@ -12493,6 +12658,14 @@ const dictionaries = {
   "secondaryInstruction": "يمكنك طلب تلميح أو حل مسألة قبل التخمين.",
   "seconds": "{n} ث",
   "seeResults": "عرض النتائج",
+  "seriesNew": "سلسلة جديدة",
+  "seriesNext": "الجولة التالية",
+  "seriesOne": "جولة واحدة",
+  "seriesRound": "الجولة {n}",
+  "seriesTie": "تعادل في السلسلة: {players}!",
+  "seriesTitle": "سلسلة",
+  "seriesTo": "الأول إلى {n}",
+  "seriesWinner": "{player} يفوز بالسلسلة!",
   "settings": "الإعدادات",
   "settingsTip": "غيّر اللغة بدون إعادة بدء اللعبة.",
   "shifted": "انتقل إلى مكان آخر.",
@@ -12874,6 +13047,7 @@ const dictionaries = {
   "netJoin": "Unirse con un código",
   "netJoinGo": "Unirse",
   "netLaunch": "Empezar la partida",
+  "netLaunchNow": "Empezar ya",
   "netLevelMode": "Nivel {level} · {mode} (elegido en la pantalla de inicio)",
   "netLostText": "El móvil del anfitrión no responde. Comprueba el Wi-Fi y vuelve a intentarlo.",
   "netLostTitle": "Conexión perdida",
@@ -12881,6 +13055,8 @@ const dictionaries = {
   "netMissDesc": "Nada en la red <b>{nums}</b>. <b>−{p} puntos</b> (1 por número).",
   "netMissLog": "{player} · red {nums} vacía (−{p}) · {shift}",
   "netQuit": "Salir de la partida",
+  "netReadyList": "Revancha — listos: {list}",
+  "netReadyMe": "Listo ✅",
   "netRetry": "Reintentar",
   "netRetryFailed": "Partida no encontrada: puede que el anfitrión se haya ido o haya creado una partida nueva.",
   "netSameWifi": "Todos los móviles deben estar en el mismo Wi-Fi (o en el punto de acceso de uno de ellos).",
@@ -13064,6 +13240,14 @@ const dictionaries = {
   "secondaryInstruction": "Puedes pedir una pista o resolver un desafío de cálculo antes de adivinar.",
   "seconds": "{n} s",
   "seeResults": "Ver los resultados",
+  "seriesNew": "Nueva serie",
+  "seriesNext": "Siguiente ronda",
+  "seriesOne": "1 partida",
+  "seriesRound": "Ronda {n}",
+  "seriesTie": "Empate en la serie: ¡{players}!",
+  "seriesTitle": "Serie",
+  "seriesTo": "Primero a {n}",
+  "seriesWinner": "¡{player} gana la serie!",
   "settings": "Ajustes",
   "settingsTip": "Cambia de idioma sin reiniciar la partida.",
   "shifted": "Se ha movido a otra casilla.",
@@ -13445,6 +13629,7 @@ const dictionaries = {
   "netJoin": "Entra con un codice",
   "netJoinGo": "Entra",
   "netLaunch": "Avvia la partita",
+  "netLaunchNow": "Inizia ora",
   "netLevelMode": "Livello {level} · {mode} (scelto nella schermata iniziale)",
   "netLostText": "Il telefono dell’host non risponde. Controlla il Wi-Fi e riprova.",
   "netLostTitle": "Connessione persa",
@@ -13452,6 +13637,8 @@ const dictionaries = {
   "netMissDesc": "Niente nella rete <b>{nums}</b>. <b>−{p} punti</b> (1 per numero).",
   "netMissLog": "{player} · rete {nums} vuota (−{p}) · {shift}",
   "netQuit": "Esci dalla partita",
+  "netReadyList": "Rivincita — pronti: {list}",
+  "netReadyMe": "Pronto ✅",
   "netRetry": "Riprova",
   "netRetryFailed": "Partita non trovata: forse l’host se n’è andato o ha creato una nuova partita.",
   "netSameWifi": "Tutti i telefoni devono essere sullo stesso Wi-Fi (o sull’hotspot di uno di loro).",
@@ -13635,6 +13822,14 @@ const dictionaries = {
   "secondaryInstruction": "Puoi chiedere un indizio o risolvere una sfida di calcolo prima di indovinare.",
   "seconds": "{n} s",
   "seeResults": "Vedi i risultati",
+  "seriesNew": "Nuova serie",
+  "seriesNext": "Round successivo",
+  "seriesOne": "1 partita",
+  "seriesRound": "Round {n}",
+  "seriesTie": "Pareggio nella serie: {players}!",
+  "seriesTitle": "Serie",
+  "seriesTo": "Primo a {n}",
+  "seriesWinner": "{player} vince la serie!",
   "settings": "Impostazioni",
   "settingsTip": "Cambia lingua senza ricominciare la partita.",
   "shifted": "Si è spostato in un’altra casella.",
@@ -14016,6 +14211,7 @@ const dictionaries = {
   "netJoin": "Mit Code beitreten",
   "netJoinGo": "Beitreten",
   "netLaunch": "Spiel starten",
+  "netLaunchNow": "Jetzt starten",
   "netLevelMode": "Stufe {level} · {mode} (auf dem Startbildschirm gewählt)",
   "netLostText": "Das Handy des Gastgebers antwortet nicht. Prüfe das WLAN und versuche es erneut.",
   "netLostTitle": "Verbindung verloren",
@@ -14023,6 +14219,8 @@ const dictionaries = {
   "netMissDesc": "Nichts im Netz <b>{nums}</b>. <b>−{p} Punkte</b> (1 pro Zahl).",
   "netMissLog": "{player} · Netz {nums} leer (−{p}) · {shift}",
   "netQuit": "Spiel verlassen",
+  "netReadyList": "Revanche — bereit: {list}",
+  "netReadyMe": "Bereit ✅",
   "netRetry": "Erneut versuchen",
   "netRetryFailed": "Spiel nicht gefunden: Der Gastgeber ist vielleicht gegangen oder hat ein neues Spiel erstellt.",
   "netSameWifi": "Alle Handys müssen im selben WLAN sein (oder im Hotspot eines Handys).",
@@ -14206,6 +14404,14 @@ const dictionaries = {
   "secondaryInstruction": "Du kannst vor dem Raten einen Hinweis holen oder eine Rechenaufgabe lösen.",
   "seconds": "{n} s",
   "seeResults": "Ergebnisse ansehen",
+  "seriesNew": "Neue Serie",
+  "seriesNext": "Nächste Runde",
+  "seriesOne": "1 Spiel",
+  "seriesRound": "Runde {n}",
+  "seriesTie": "Serie unentschieden: {players}!",
+  "seriesTitle": "Serie",
+  "seriesTo": "Wer zuerst {n}",
+  "seriesWinner": "{player} gewinnt die Serie!",
   "settings": "Einstellungen",
   "settingsTip": "Sprache wechseln, ohne das Spiel neu zu starten.",
   "shifted": "Sie ist auf ein anderes Feld gezogen.",
@@ -14587,6 +14793,7 @@ const dictionaries = {
   "netJoin": "用代码加入",
   "netJoinGo": "加入",
   "netLaunch": "开始游戏",
+  "netLaunchNow": "立即开始",
   "netLevelMode": "难度 {level} · {mode}（在首页选择）",
   "netLostText": "房主的手机没有响应。请检查 Wi-Fi 后重试。",
   "netLostTitle": "连接已断开",
@@ -14594,6 +14801,8 @@ const dictionaries = {
   "netMissDesc": "网 <b>{nums}</b> 里什么都没有。<b>−{p} 分</b>（每个数字 1 分）。",
   "netMissLog": "{player} · 网 {nums} 落空（−{p}） · {shift}",
   "netQuit": "退出游戏",
+  "netReadyList": "再来一局 — 已准备：{list}",
+  "netReadyMe": "已准备 ✅",
   "netRetry": "重试",
   "netRetryFailed": "找不到游戏：房主可能已离开或创建了新游戏。",
   "netSameWifi": "所有手机都必须连接同一个 Wi-Fi（或其中一部手机的热点）。",
@@ -14777,6 +14986,14 @@ const dictionaries = {
   "secondaryInstruction": "猜之前，你可以要一条线索或做一道算术挑战。",
   "seconds": "{n} 秒",
   "seeResults": "查看结果",
+  "seriesNew": "新系列赛",
+  "seriesNext": "下一局",
+  "seriesOne": "1 局",
+  "seriesRound": "第 {n} 局",
+  "seriesTie": "系列赛平局：{players}！",
+  "seriesTitle": "系列赛",
+  "seriesTo": "先赢 {n} 局",
+  "seriesWinner": "{player} 赢得系列赛！",
   "settings": "设置",
   "settingsTip": "切换语言无需重新开始游戏。",
   "shifted": "它移到了另一格。",
@@ -15158,6 +15375,7 @@ const dictionaries = {
   "netJoin": "コードで参加",
   "netJoinGo": "参加",
   "netLaunch": "ゲーム開始",
+  "netLaunchNow": "今すぐ開始",
   "netLevelMode": "レベル {level} · {mode}（ホームで選択）",
   "netLostText": "ホストのスマホが応答しません。Wi-Fi を確認してもう一度試してね。",
   "netLostTitle": "接続が切れました",
@@ -15165,6 +15383,8 @@ const dictionaries = {
   "netMissDesc": "網 <b>{nums}</b> には何もいなかった。<b>−{p} 点</b>（数字 1 個につき 1 点）。",
   "netMissLog": "{player} · 網 {nums} はずれ（−{p}） · {shift}",
   "netQuit": "ゲームをやめる",
+  "netReadyList": "リベンジ — 準備OK：{list}",
+  "netReadyMe": "準備OK ✅",
   "netRetry": "もう一度",
   "netRetryFailed": "ゲームが見つかりません：ホストが退出したか、新しいゲームを作ったかもしれません。",
   "netSameWifi": "すべてのスマホを同じ Wi-Fi（または 1 台のテザリング）につないでね。",
@@ -15348,6 +15568,14 @@ const dictionaries = {
   "secondaryInstruction": "当てる前に、ヒントをもらうか計算チャレンジができる。",
   "seconds": "{n} 秒",
   "seeResults": "結果を見る",
+  "seriesNew": "新しいシリーズ",
+  "seriesNext": "次のラウンド",
+  "seriesOne": "1 ゲーム",
+  "seriesRound": "第 {n} ラウンド",
+  "seriesTie": "シリーズは引き分け：{players}！",
+  "seriesTitle": "シリーズ",
+  "seriesTo": "先に {n} 勝",
+  "seriesWinner": "{player} がシリーズ優勝！",
   "settings": "設定",
   "settingsTip": "言語を変えてもゲームはそのまま続きます。",
   "shifted": "となりのマスに動いた。",
@@ -15526,6 +15754,10 @@ const esc = x =>
   );
 /** État d'une partie neuve. Les réglages sont recopiés par start(). */
 const initial = () => ({
+  seriesPref: 0, // V9.16 : 0 = une seule partie, 2 / 3 = « premier à 2 / 3 victoires »
+  series: null,
+  netReady: [], // Wi-Fi : joueurs prêts pour la revanche
+
   screen: 'home',
   settingsFrom: 'home',
   lang: deviceLang(), // premier lancement : langue du téléphone (puis la langue choisie est mémorisée)
@@ -15766,6 +15998,19 @@ function load() {
     if (g.screen === 'home' && !['rules', 'names', 'challenge'].includes(g.modal)) g.modal = null;
     if (!['normal', 'long', 'off'].includes(g.timerMode)) g.timerMode = 'normal';
     g.mathElapsed = Number(g.mathElapsed) || 0;
+    // V9.16 : séries (anciennes sauvegardes : aucune série)
+    if (![0, 2, 3].includes(g.seriesPref)) g.seriesPref = 0;
+    const s = g.series;
+    if (
+      !s ||
+      typeof s !== 'object' ||
+      ![2, 3].includes(s.target) ||
+      !Array.isArray(s.wins) ||
+      s.wins.length !== g.players ||
+      g.players < 2
+    )
+      g.series = null;
+    g.netReady = [];
   } catch (e) {}
 }
 
@@ -16242,7 +16487,10 @@ function start(skipHandoff = false) {
     tutSeen,
     lastMulti,
     tipsSeen,
-    myName
+    myName,
+    seriesPref,
+    series,
+    seriesContinue
   } = g;
   g = initial();
   g.players = players;
@@ -16265,6 +16513,16 @@ function start(skipHandoff = false) {
   g.playerHelp = Array.isArray(playerHelp) ? playerHelp.slice(0, 4) : [false, false, false, false];
   g.mode = 'normal';
   g.gameId = newGameId(); // identifiant stable : les récompenses solo ne sont attribuées qu'une fois
+  // V9.16 : séries « premier à 2 / 3 victoires ». « Manche suivante » garde la série (mêmes joueurs,
+  // même niveau, même mode) ; tout autre lancement en commence une nouvelle (ou aucune).
+  g.seriesPref = [2, 3].includes(seriesPref) ? seriesPref : 0;
+  const key = [players, level, g.gameMode, ...(names || []).slice(0, players)].join('|');
+  if (players > 1 && g.seriesPref) {
+    const keep = seriesContinue && series && series.key === key && !series.done;
+    g.series = keep
+      ? { ...series, wins: series.wins.slice(), round: series.round + 1, last: null }
+      : { target: g.seriesPref, wins: Array(players).fill(0), round: 1, key, done: false, last: null };
+  } else g.series = null;
   g.netsLeft = Array(players).fill(NETS_MAX);
   g.screen = 'game';
   g.inGame = true;
@@ -17454,6 +17712,25 @@ function revealEscaped() {
       ? { start: g.hunt.start, steps: g.hunt.steps, end: { type: 'escaped', n: g.secret }, max: maxN() }
       : null;
 }
+/**
+ * V9.16 : fin d'une manche d'une série. Gagnant(s) : 1re place de la Course, ou meilleur total aux Points
+ * (seulement si quelqu'un a attrapé le numéro : sinon, manche nulle). Une seule fois par partie (gameId).
+ */
+function seriesRecord() {
+  const s = g.series;
+  if (!s || g.players < 2 || s.recorded === g.gameId) return;
+  s.recorded = g.gameId;
+  let win = [];
+  if (isRace()) win = g.placed.filter(p => placeFor(p.round) === 1).map(p => p.player);
+  else if (g.captures) {
+    const tot = g.scores.map((v, i) => v + (g.stars[i] || 0)),
+      best = Math.max(...tot);
+    win = tot.map((v, i) => (v === best ? i : -1)).filter(i => i >= 0);
+  }
+  win.forEach(i => (s.wins[i] = (s.wins[i] || 0) + 1));
+  s.last = win;
+  s.done = Math.max(...s.wins) >= s.target;
+}
 /** Fin de la course : premier(s) du podium vainqueur(s) ; `escaped` : des joueurs cherchaient encore. */
 function finishRace(escaped = false) {
   if (escaped) revealEscaped();
@@ -17463,6 +17740,8 @@ function finishRace(escaped = false) {
   g.screen = 'end';
   g.inGame = false;
   g.modal = null;
+  g.netReady = [];
+  seriesRecord();
   sfx('win');
 }
 /*
@@ -17573,6 +17852,8 @@ function advanceTurn() {
     g.screen = 'end';
     g.inGame = false;
     g.modal = null;
+    g.netReady = [];
+    seriesRecord();
     sfx(g.players === 1 ? 'bad' : 'win');
   } else {
     g.phase = 'choose';
@@ -17693,7 +17974,7 @@ function confetti() {
 /** Pastilles des joueurs : score, étoiles, joueur actif. */
 function scoreboard() {
   if (g.mode === 'challenge') return '';
-  return `<div class="chips" style="grid-template-columns:repeat(${g.players},minmax(0,1fr))">${g.scores.map((s, i) => `<div class="chip ${active() === i ? 'current' : ''} ${g.phase === 'result' && g.last && g.last.player === i && ['found', 'netHit', 'wrong', 'netMiss'].includes(g.last.type) ? 'bump' : ''}"><span class="cname">${isRace() && isPlaced(i) ? `<b class="podium-medal">${['🥇', '🥈', '🥉', '🎖️'][placeFor(g.placed.find(p => p.player === i).round) - 1]}</b>` : ''}<i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}</span><span class="cscore"><b>${s}</b> <small>⭐${g.stars[i]}</small></span>${scoreDelta(i)}</div>`).join('')}</div>`;
+  return `<div class="chips" style="grid-template-columns:repeat(${g.players},minmax(0,1fr))">${g.scores.map((s, i) => `<div class="chip ${active() === i ? 'current' : ''} ${g.phase === 'result' && g.last && g.last.player === i && ['found', 'netHit', 'wrong', 'netMiss'].includes(g.last.type) ? 'bump' : ''}"><span class="cname">${isRace() && isPlaced(i) ? `<b class="podium-medal">${['🥇', '🥈', '🥉', '🎖️'][placeFor(g.placed.find(p => p.player === i).round) - 1]}</b>` : ''}<i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}${g.series ? `<small class="ser-w" title="${esc(t('seriesTitle'))}">⚔️${g.series.wins[i] || 0}</small>` : ''}</span><span class="cscore"><b>${s}</b> <small>⭐${g.stars[i]}</small></span>${scoreDelta(i)}</div>`).join('')}</div>`;
 }
 /** Gain / perte du dernier coup (+10, +4, −1…) affiché sur la pastille. */
 function scoreDelta(i) {
@@ -18203,6 +18484,43 @@ function game() {
           : '';
   return `<header class="gbar"><span class="brand-icon lvl-badge ${logo}" dir="ltr" aria-label="${t('levelBadge')} 1–${maxN()}"><span class="lvl-emo">${g.mode === 'challenge' ? '🏆' : { junior: '🐣', malin: '🧠', expert: '🚀', genius: '🦉' }[g.level]}</span><b class="lvl-range">1–${maxN()}</b>${logo === 'thinking' ? '<i class="logo-bubble">…</i>' : ''}</span><div class="gstatus">${g.mode === 'challenge' ? `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: '∞' })}</b><span>🏆 ${chScore()}</span></div>` : `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: g.limit })}</b><span>🎯 ${g.captures}</span></div><div class="gprogress" dir="ltr"><span style="width:${pct}%"></span></div>`}</div><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header>${scoreboard()}<section class="panel turn-card${result && fbKind(g.last) ? ' fb-mode' : ''}"><div class="turn-top"><div class="mini-mascot">${mascot(anim === 'worried' ? 'idle' : anim, party, anim === 'worried' ? 'worried' : null)}</div><div class="bubble"><b>${head}</b><span class="quip">${netWatchBanner() || quip(qk)}</span></div></div>${result && g.mode !== 'challenge' ? '' : timersHTML()}<div class="turn-body">${result ? resultView() : questionView()}</div></section>`;
 }
+/** V9.16 : séries — gagnant(s) de la série (quand elle est finie). */
+function seriesChampions() {
+  const s = g.series;
+  if (!s || !s.done) return [];
+  const best = Math.max(...s.wins);
+  return s.wins.map((w, i) => (w === best ? pname(i) : null)).filter(Boolean);
+}
+/** Pastille « Manche 2 · Premier à 3 » + score de la série (« Zied 2 · Ahlem 1 »). */
+function seriesPill() {
+  const s = g.series;
+  if (!s) return '';
+  const line = s.wins
+    .map(
+      (w, i) =>
+        `<span class="sp-p"><i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))} <b dir="ltr">${w}</b></span>`
+    )
+    .join('');
+  // à 3–4 joueurs, les victoires sont sur les lignes du podium (seriesBadge) : la pastille reste sur une ligne
+  return `<div class="series-pill${s.done ? ' done' : ''}"><small>${s.done ? '🏆' : '⚔️'} ${t('seriesRound', { n: s.round })} · ${t('seriesTo', { n: s.target })}</small>${g.players > 2 ? '' : `<div class="sp-line">${line}</div>`}</div>`;
+}
+/** Victoires de la série d'un joueur, sur sa ligne du podium (3–4 joueurs). */
+function seriesBadge(i) {
+  return g.series && g.players > 2 ? ` <i class="ser-badge" dir="ltr">⚔️ ${g.series.wins[i] || 0}</i>` : '';
+}
+/** Texte du bouton « Rejouer » : manche suivante / nouvelle série / prêt (Wi-Fi). */
+function replayLabel() {
+  if (g.net && (g.netReady || []).includes(g.net.seat))
+    return t(g.net.role === 'host' ? 'netLaunchNow' : 'netReadyMe');
+  if (g.series) return t(g.series.done ? 'seriesNew' : 'seriesNext');
+  return t('replay');
+}
+/** Titre de fin quand la série est gagnée. */
+function seriesTitle() {
+  const c = seriesChampions();
+  if (!c.length) return '';
+  return c.length > 1 ? t('seriesTie', { players: c.join(', ') }) : t('seriesWinner', { player: c[0] });
+}
 /** Écran de fin : choisit entre défi, solo, course et points. */
 function end() {
   if (g.mode === 'challenge') return endChallenge();
@@ -18215,7 +18533,7 @@ function end() {
   const soloLost = g.players === 1 && g.soloWon === false;
   // V9.4 : personne n'a trouvé le numéro → pas de fête (même si quelqu'un a plus de points)
   const noCatch = g.players > 1 && (isRace() || !g.captures);
-  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p></section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
+  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {
@@ -18259,18 +18577,18 @@ function endRace() {
   const rows = [
     ...placed.map(
       p =>
-        `<div class="finalscore pod-row place-${p.place}"><div class="medal">${medal(p.place)}</div><div><strong>${esc(pname(p.i))}</strong><small>${tHtml('podiumCaught', { turn: `<b>${p.turn}</b>` })}.</small></div></div>`
+        `<div class="finalscore pod-row place-${p.place}"><div class="medal">${medal(p.place)}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${tHtml('podiumCaught', { turn: `<b>${p.turn}</b>` })}.</small></div></div>`
     ),
     ...others.map(
       o =>
-        `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}</strong><small>${tHtml('podiumNotCaught', { n: `<b dir="ltr">${o.v}</b>` })}.</small></div></div>`
+        `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}${seriesBadge(o.i)}</strong><small>${tHtml('podiumNotCaught', { n: `<b dir="ltr">${o.v}</b>` })}.</small></div></div>`
     )
   ].join('');
   const decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
   const caught = caughtN
     ? `<div class="escaped-note race-caught"><span>${tHtml('escapedWas', { n: `<b class="big-n">${caughtN}</b>` })}</span></div>`
     : escapedNote(true);
-  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro rh-line">${t('raceWinDesc', { turns: g.raceTurns })}</p></div></section>${caught}<section class="panel podium-panel race-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
+  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${seriesTitle() || (winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] }))}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${t('raceWinDesc', { turns: g.raceTurns })}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button><button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
 }
 /**
  * Fin de partie alors que le numéro courait encore : « il était sur le 23 » et le film de son évasion.
@@ -18575,7 +18893,7 @@ function modalView() {
     const multi = g.players > 1,
       lim = TURN_LIMITS[g.players];
     return wrapM(
-      `<h2>${multi ? '👥 ' + t('namesTitle') : '🕵️ ' + t('readyTitle')}</h2>${multi ? `<p>${t('namesHint')}</p>` : ''}<div class="names">${Array.from({ length: g.players }, (_, i) => `<div class="name-row"><i class="player-dot" style="background:${colors[i]}"></i>${multi ? `<input id="name${i}" data-name="${i}" type="text" maxlength="12" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('player', { n: i + 1 }))}" value="${esc(g.names[i] || '')}">` : `<strong class="solo-name">${t('you')}</strong>`}<button type="button" class="help-chip ${g.playerHelp[i] ? 'on' : ''}" data-phelp="${i}" role="switch" aria-checked="${!!g.playerHelp[i]}">💡 ${t('helpPlayer')}</button></div>`).join('')}</div><p class="help-note">${t('helpPlayerHint')}${multi ? '' : ' ' + t('helpNoXp')}</p>${multi ? `<div class="label">${t('modeTitle')}</div><div class="mode-pick" role="radiogroup"><button type="button" role="radio" class="mode-card ${g.gameMode !== 'score' ? 'on' : ''}" data-gmode="race" aria-checked="${g.gameMode !== 'score'}"><b>🏁 ${t('modeRace')}</b><small>${t('modeRaceSub')}</small></button><button type="button" role="radio" class="mode-card ${g.gameMode === 'score' ? 'on' : ''}" data-gmode="score" aria-checked="${g.gameMode === 'score'}"><b>🏆 ${t('modeScore')}</b><small>${t('modeScoreSub', { n: lim })}</small></button></div>` : ''}<div class="modal-actions"><button class="bigbtn green" id="namesGo">▶ ${t('namesGo')}</button><button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
+      `<h2>${multi ? '👥 ' + t('namesTitle') : '🕵️ ' + t('readyTitle')}</h2>${multi ? `<p>${t('namesHint')}</p>` : ''}<div class="names">${Array.from({ length: g.players }, (_, i) => `<div class="name-row"><i class="player-dot" style="background:${colors[i]}"></i>${multi ? `<input id="name${i}" data-name="${i}" type="text" maxlength="12" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('player', { n: i + 1 }))}" value="${esc(g.names[i] || '')}">` : `<strong class="solo-name">${t('you')}</strong>`}<button type="button" class="help-chip ${g.playerHelp[i] ? 'on' : ''}" data-phelp="${i}" role="switch" aria-checked="${!!g.playerHelp[i]}">💡 ${t('helpPlayer')}</button></div>`).join('')}</div><p class="help-note">${t('helpPlayerHint')}${multi ? '' : ' ' + t('helpNoXp')}</p>${multi ? `<div class="label">${t('modeTitle')}</div><div class="mode-pick" role="radiogroup"><button type="button" role="radio" class="mode-card ${g.gameMode !== 'score' ? 'on' : ''}" data-gmode="race" aria-checked="${g.gameMode !== 'score'}"><b>🏁 ${t('modeRace')}</b><small>${t('modeRaceSub')}</small></button><button type="button" role="radio" class="mode-card ${g.gameMode === 'score' ? 'on' : ''}" data-gmode="score" aria-checked="${g.gameMode === 'score'}"><b>🏆 ${t('modeScore')}</b><small>${t('modeScoreSub', { n: lim })}</small></button></div>${seriesPicker('data-series')}` : ''}<div class="modal-actions"><button class="bigbtn green" id="namesGo">▶ ${t('namesGo')}</button><button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
     );
   }
   // film : en partie, ou depuis l'écran de fin quand le numéro s'est échappé (V8.14)
@@ -18990,6 +19308,7 @@ function netLaunch(relaunch = false) {
   g.players = seats.length;
   g.names = net.lobby.map(p => p.name);
   g.playerHelp = [false, false, false, false];
+  g.seriesContinue = relaunch; // la série continue à la revanche (mêmes joueurs)
   start(true);
   g.net = { role: 'host', seat: 0 };
   g.absent = [];
@@ -19000,6 +19319,32 @@ function netLaunch(relaunch = false) {
 
 /** « Rejouer » de l'hôte : même salle, joueurs encore connectés (le premier joueur tourne). */
 const netRelaunch = () => netLaunch(true);
+/**
+ * V9.16 : bouton « Rejouer » / « Manche suivante » en Wi-Fi. Chacun se déclare prêt ; la revanche part quand
+ * tous les joueurs connectés sont prêts. L'hôte peut « Lancer maintenant » (2e appui) si quelqu'un ne répond pas.
+ */
+function netAgain() {
+  if (!g.net || g.screen !== 'end') return;
+  if (g.net.role === 'client') {
+    netSend('host', { t: 'again' });
+    g.netAgainAsked = true;
+    return render();
+  }
+  const ready = g.netReady || [];
+  if (ready.includes(0)) return netLaunchRematch();
+  g.netReady = [...ready, 0];
+  netReadyCheck();
+}
+function netReadyCheck() {
+  if (net.role !== 'host' || !g.net) return;
+  const present = net.lobby.filter(p => p.connected).map(p => p.seat);
+  if (present.length && present.every(s => (g.netReady || []).includes(s))) return netLaunchRematch();
+  render();
+}
+function netLaunchRematch() {
+  if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
+  netRelaunch();
+}
 
 /** Copie de l'état envoyée aux autres : sans secret, sans parcours, sans la réponse du calcul en cours. */
 function redactState(seat) {
@@ -19040,7 +19385,11 @@ function netBroadcastTimers() {
 }
 function netBroadcastLobby() {
   const players = net.lobby.map(p => ({ seat: p.seat, name: p.name, connected: p.connected }));
-  const rules = { level: g.level, mode: g.gameMode === 'score' ? 'score' : 'race' };
+  const rules = {
+    level: g.level,
+    mode: g.gameMode === 'score' ? 'score' : 'race',
+    series: g.seriesPref || 0
+  };
   for (const p of net.lobby)
     if (p.peer && p.connected) netSend(p.peer, { t: 'lobby', players, rules, started: !!g.net });
 }
@@ -19081,11 +19430,11 @@ function hostOnMessage(peer, m) {
     return;
   }
   if (m.t === 'again') {
-    // « Rejouer » demandé depuis le téléphone d'un invité : même effet que le bouton de l'hôte
+    // V9.16 : « Rejouer » d'un invité = « je suis prêt » (avant : relançait aussitôt pour tout le monde)
     const p = net.lobby.find(x => x.peer === peer && x.connected);
     if (!p || !g.net || g.screen !== 'end') return;
-    if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
-    netRelaunch();
+    if (!(g.netReady || []).includes(p.seat)) g.netReady = [...(g.netReady || []), p.seat];
+    netReadyCheck();
     return;
   }
   if (m.t === 'action') {
@@ -19401,7 +19750,7 @@ function lanScreen() {
   else if (v === 'join' || v === 'joining')
     body = `${nameField}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else
-    body = `<p class="sub">✅ ${t('netConnected')}</p>${net.rules ? `<p class="net-rules">${netRulesText(net.rules.level, net.rules.mode)}</p>` : ''}${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
+    body = `<p class="sub">✅ ${t('netConnected')}</p>${net.rules ? `<p class="net-rules">${netRulesText(net.rules.level, net.rules.mode, net.rules.series)}</p>` : ''}${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
   return `<header class="top">${brand()}<button class="mini-btn" id="netCancelTop">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel net-panel"><h1 class="settings-title">📶 ${t('netTitle')}</h1>${body}</section>`;
 }
 
@@ -19411,10 +19760,21 @@ const NET_LEVELS = [
   ['expert', '🚀', 'levelExpert'],
   ['genius', '🦉', 'levelGenius']
 ];
-/** « Facile 1–9 · Course » (salle d'attente des invités). */
-function netRulesText(level, mode) {
+/** « Facile 1–9 · Course · Premier à 3 » (salle d'attente des invités). */
+function netRulesText(level, mode, series) {
   const L = NET_LEVELS.find(x => x[0] === level) || NET_LEVELS[0];
-  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}`;
+  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}${series ? ' · ⚔️ ' + t('seriesTo', { n: series }) : ''}`;
+}
+/** Choix de la série (écran des prénoms, salle Wi-Fi) : 1 partie, premier à 2, premier à 3. */
+function seriesPicker(attr) {
+  return `<div class="mode-pick series-pick" role="radiogroup" aria-label="${esc(t('seriesTitle'))}">${[
+    0, 2, 3
+  ]
+    .map(
+      n =>
+        `<button type="button" role="radio" class="mode-card ${(g.seriesPref || 0) === n ? 'on' : ''}" ${attr}="${n}" aria-checked="${(g.seriesPref || 0) === n}"><b>${n ? t('seriesTo', { n }) : t('seriesOne')}</b></button>`
+    )
+    .join('')}</div>`;
 }
 /** V9.15 : l'hôte choisit le niveau et le mode DANS la salle d'attente (avant : sur l'accueil seulement). */
 function netRulesPicker() {
@@ -19428,7 +19788,7 @@ function netRulesPicker() {
         `<button type="button" role="radio" class="mode-card ${(g.gameMode === 'score') === (m === 'score') ? 'on' : ''}" data-netmode="${m}" aria-checked="${(g.gameMode === 'score') === (m === 'score')}"><b>${m === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}</b></button>`
     )
     .join('');
-  return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div></div>`;
+  return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}</div>`;
 }
 /** Fenêtres réseau : attente d'un joueur déconnecté (partagée), connexion perdue (locale). */
 function netModalView() {
@@ -19455,11 +19815,16 @@ function netModalView() {
   return '';
 }
 
-/** Fin de partie sur un téléphone invité : c'est l'hôte qui relance. */
-const netEndNote = () =>
-  g.net && g.net.role === 'client' && g.netAgainAsked
-    ? `<p class="sub centered">⏳ ${t('netAgainSent')}</p>`
-    : '';
+/** V9.16 : fin de partie en Wi-Fi : qui est prêt pour la revanche (✅ / ⏳). */
+function netEndNote() {
+  const ready = g.netReady || [];
+  if (!g.net || !ready.length) return '';
+  const list = Array.from({ length: g.players }, (_, i) => i)
+    .filter(i => !isAbsent(i))
+    .map(i => `${esc(pname(i))} ${ready.includes(i) ? '✅' : '⏳'}`)
+    .join(' · ');
+  return `<p class="sub centered net-ready">${t('netReadyList', { list })}</p>`;
+}
 
 /** « Au tour de … » dans la bulle du détective, sur les téléphones qui regardent. */
 function netWatchBanner() {
@@ -19498,6 +19863,14 @@ function bindNet(click) {
     b.addEventListener('click', () => {
       if (net.role !== 'host' || g.net) return;
       g.level = b.dataset.netlevel;
+      render();
+      netBroadcastLobby();
+    })
+  );
+  document.querySelectorAll('[data-netseries]').forEach(b =>
+    b.addEventListener('click', () => {
+      if (net.role !== 'host' || g.net) return;
+      g.seriesPref = Number(b.dataset.netseries) || 0;
       render();
       netBroadcastLobby();
     })
@@ -19768,6 +20141,17 @@ function bind() {
       save();
     })
   );
+  app.querySelectorAll('[data-series]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.seriesPref = Number(b.dataset.series) || 0;
+      app.querySelectorAll('[data-series]').forEach(x => {
+        x.classList.toggle('on', x === b);
+        x.setAttribute('aria-checked', x === b);
+      });
+      sfx('tap');
+      save();
+    })
+  );
   click('namesGo', () => {
     for (let i = 0; i < g.players; i++) {
       const el = document.getElementById('name' + i);
@@ -19788,14 +20172,10 @@ function bind() {
   click('again', () => {
     sfx('tap');
     if (g.mode === 'challenge') return startChallenge(g.chKind, g.chDiff);
-    if (g.net && g.net.role === 'client') {
-      // invité : on demande à l'hôte de relancer la partie pour tout le monde
-      netSend('host', { t: 'again' });
-      g.netAgainAsked = true;
-      return render();
-    }
+    // V9.16 Wi-Fi : « Rejouer » = « je suis prêt » ; la revanche part quand tout le monde est prêt
+    if (g.net) return netAgain();
     if (g.players > 1) g.starter = ((g.starter || 0) + 1) % g.players;
-    if (g.net) return netRelaunch();
+    g.seriesContinue = true; // « Manche suivante » : la série continue (si elle n'est pas finie)
     start();
   });
   click('quitYes', () => {

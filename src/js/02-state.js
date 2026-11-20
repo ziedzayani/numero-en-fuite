@@ -30,6 +30,10 @@ const esc = x =>
   );
 /** État d'une partie neuve. Les réglages sont recopiés par start(). */
 const initial = () => ({
+  seriesPref: 0, // V9.16 : 0 = une seule partie, 2 / 3 = « premier à 2 / 3 victoires »
+  series: null,
+  netReady: [], // Wi-Fi : joueurs prêts pour la revanche
+
   screen: 'home',
   settingsFrom: 'home',
   lang: deviceLang(), // premier lancement : langue du téléphone (puis la langue choisie est mémorisée)
@@ -270,5 +274,18 @@ function load() {
     if (g.screen === 'home' && !['rules', 'names', 'challenge'].includes(g.modal)) g.modal = null;
     if (!['normal', 'long', 'off'].includes(g.timerMode)) g.timerMode = 'normal';
     g.mathElapsed = Number(g.mathElapsed) || 0;
+    // V9.16 : séries (anciennes sauvegardes : aucune série)
+    if (![0, 2, 3].includes(g.seriesPref)) g.seriesPref = 0;
+    const s = g.series;
+    if (
+      !s ||
+      typeof s !== 'object' ||
+      ![2, 3].includes(s.target) ||
+      !Array.isArray(s.wins) ||
+      s.wins.length !== g.players ||
+      g.players < 2
+    )
+      g.series = null;
+    g.netReady = [];
   } catch (e) {}
 }

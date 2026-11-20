@@ -3682,3 +3682,143 @@ html[lang='ja'] .pause-card .pz-msg {
   font-weight: 800;
   text-align: center;
 }
+/* ===== V9.16 : séries ===== */
+.series-pick {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.series-pick {
+  margin-top: 8px;
+}
+.series-pick .mode-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 3px 2px;
+  text-align: center;
+}
+.series-pick .mode-card b {
+  font-size: 12.5px;
+  line-height: 1.15;
+}
+.chip .ser-w {
+  margin-inline-start: 4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #11286e;
+  border: 1px solid var(--hunt-gold);
+  color: #ffe08a;
+  font-size: 10.5px;
+  font-weight: 800;
+  vertical-align: 1px;
+}
+.series-pill {
+  width: fit-content;
+  max-width: 100%;
+  margin: 8px auto 0;
+  padding: 4px 14px 6px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #1a3a9a, #0f2462);
+  border: 2px solid #ffd54a;
+  box-shadow: 0 0 12px rgba(255, 214, 80, 0.45);
+  color: #fff;
+  text-align: center;
+}
+.series-pill small {
+  display: block;
+  color: #ffe08a;
+  font-size: 12px;
+  font-weight: 800;
+}
+.series-pill .sp-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 12px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.series-pill .sp-p b {
+  color: #ffd54a;
+  font-size: 16px;
+}
+.series-pill .player-dot {
+  margin-inline-end: 4px;
+}
+.series-pill.done {
+  border-color: #fff2a0;
+  box-shadow:
+    0 0 0 2px #a86d00,
+    0 0 18px rgba(255, 214, 80, 0.8);
+}
+.race-hero .series-pill {
+  margin-top: 6px;
+}
+.net-ready {
+  margin: 6px 0 0;
+  font-weight: 800;
+}
+@media (max-height: 700px) {
+  .series-pill {
+    margin-top: 4px;
+    padding: 2px 10px 3px;
+  }
+  .series-pill small {
+    font-size: 10.5px;
+  }
+  .series-pill .sp-line {
+    font-size: 12px;
+  }
+  .series-pill .sp-p b {
+    font-size: 13px;
+  }
+}
+/* à 4 joueurs, la fenêtre des prénoms reste sans défilement malgré le choix de la série */
+.modal:has(.name-row:nth-child(4)) .name-row {
+  min-height: 0;
+}
+.modal:has(.name-row:nth-child(4)) .names {
+  gap: 4px;
+}
+.modal:has(.name-row:nth-child(4)) .name-row input {
+  min-height: 32px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.modal:has(.name-row:nth-child(4)) .name-row .help-chip {
+  min-height: 0;
+  padding: 4px 10px;
+}
+.modal:has(.name-row:nth-child(4)) .mode-card small {
+  line-height: 1.2;
+}
+.modal:has(.name-row:nth-child(4)) .names {
+  margin-bottom: 8px;
+}
+.modal:has(.name-row:nth-child(4)) .help-note {
+  margin-bottom: 4px;
+  line-height: 1.25;
+}
+.modal:has(.name-row:nth-child(4)) .series-pick {
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+.modal:has(.name-row:nth-child(4)) .mode-card {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.ser-badge {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: #11286e;
+  border: 1px solid var(--hunt-gold);
+  color: #ffe08a;
+  font-size: 0.6em;
+  font-style: normal;
+  font-weight: 800;
+  vertical-align: 0.2em;
+}

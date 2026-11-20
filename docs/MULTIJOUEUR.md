@@ -65,7 +65,7 @@ Fourni par `NetBridge.java` (Android) ; simulé par les tests (`tests/game.test.
 |---|---|---|
 | `hello` | invité → hôte | `v` (protocole), `code`, `name`, `token` (pour revenir à sa place) |
 | `welcome` | hôte → invité | `seat`, `token` |
-| `lobby` | hôte → invités | `players` [{ seat, name, connected }], `rules` { level, mode }, `started` |
+| `lobby` | hôte → invités | `players` [{ seat, name, connected }], `rules` { level, mode, series }, `started` |
 | `state` | hôte → invités | `s` : copie de l'état sans secret |
 | `timers` | hôte → invités | `v` : temps écoulés (2 fois par seconde) |
 | `action` | invité → hôte | `name` (tab, ask, math, capture, next, reroll, pause, resume), `args` |
@@ -78,8 +78,11 @@ Changer un message ⇒ incrémenter `NET_PROTOCOL` : deux versions différentes 
 ## Rejouer, premier joueur, prénom (V8.14)
 
 - Premier joueur tiré au sort au lancement, puis rotation à chaque « Rejouer ».
-- « Rejouer » : bouton de l'hôte, ou message `{ t: 'again' }` d'un invité (accepté seulement sur l'écran de fin).
-  S'il ne reste personne de connecté, l'hôte revient à la salle d'attente avec le même code.
+- « Rejouer » (V9.16) : chacun se déclare prêt (`g.netReady`, partagé dans l'état) ; l'invité envoie `{ t: 'again' }`
+  (accepté seulement sur l'écran de fin). La revanche part quand tous les joueurs connectés sont prêts ; un 2e appui
+  de l'hôte lance tout de suite. S'il ne reste personne de connecté, l'hôte revient à la salle d'attente, même code.
+- Séries (V9.16) : `g.series` vit dans l'état de l'hôte et voyage avec lui ; la revanche (`netLaunch(true)`) continue
+  la série si les joueurs, le niveau et le mode sont les mêmes.
 - Le prénom saisi est `g.myName`, propre au téléphone (dans `NET_LOCAL_KEYS`), jamais écrasé par l'état reçu.
 - Carnet « à la main » : `g.marks` reste local ; l'hôte envoie `huntPublic` = le type de chaque saut
   (`{ shift, ev }`), jamais les positions, pour que chacun puisse « Décaler ses marques ».
