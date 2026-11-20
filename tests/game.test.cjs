@@ -5174,6 +5174,147 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await B.ctx.close();
   }
 
+  // V9.22 : équipes 2 contre 2 — réponse secrète pour l'équipe adverse, carnet par équipe, victoire commune
+  {
+    const hosts = {};
+    let seq = 0;
+    const deliver = (pg, ev) =>
+      setTimeout(() => pg.evaluate(e => window.__netEvent(JSON.stringify(e)), ev).catch(() => {}), 5);
+    const hostOf = pg => Object.values(hosts).find(h => h.page === pg);
+    const op = (src, o, a, d) => {
+      if (o === 'hostStart') {
+        hosts[a] = { page: src, peers: new Map(), code: a };
+        deliver(src, { type: 'hosting', ip: '10.0.0.3', port: 4001 });
+      } else if (o === 'joinStart') {
+        const h = hosts[a],
+          id = 't' + ++seq;
+        h.peers.set(id, src);
+        src.__peer = { code: a, id };
+        deliver(h.page, { type: 'peerJoined', peer: id });
+        deliver(src, { type: 'connected' });
+      } else if (o === 'send') {
+        const h = hostOf(src);
+        if (h) {
+          const dst = h.peers.get(a);
+          if (dst) deliver(dst, { type: 'message', peer: 'host', data: d });
+        } else if (src.__peer)
+          deliver(hosts[src.__peer.code].page, { type: 'message', peer: src.__peer.id, data: d });
+      }
+    };
+    const errs = [],
+      ctxs = [];
+    const phone = async () => {
+      const ctx = await browser.newContext({
+        locale: 'fr-FR',
+        viewport: { width: 360, height: 735 },
+        isMobile: true,
+        hasTouch: true
+      });
+      ctxs.push(ctx);
+      const pg = await ctx.newPage();
+      pg.on('pageerror', e => errs.push(String(e)));
+      await pg.exposeBinding('__fakeNet', ({ page: src }, o, a, d) => op(src, o, a, d));
+      await pg.addInitScript(() => {
+        window.NumeroNet = {
+          hostStart: (c, n) => window.__fakeNet('hostStart', c, n),
+          joinStart: c => window.__fakeNet('joinStart', c),
+          send: (p, d) => window.__fakeNet('send', p, d),
+          stop: () => {},
+          keepAwake: () => {}
+        };
+      });
+      await pg.goto(URL);
+      await pg.evaluate(() => localStorage.clear());
+      await pg.reload();
+      await pg.evaluate(() => {
+        const N = window.__numero;
+        N.state.modal = null;
+        N.state.reduceMotion = true;
+        N.render();
+      });
+      return pg;
+    };
+    const w = ms => new Promise(r => setTimeout(r, ms));
+    const SS = pg => pg.evaluate(() => JSON.parse(JSON.stringify(window.__numero.state)));
+    const P = [await phone(), await phone(), await phone(), await phone()];
+    const names = ['Zied', 'Ahlem', 'Sami', 'Lina'];
+    await P[0].evaluate(() => {
+      const N = window.__numero;
+      Object.assign(N.state, { myName: 'Zied', level: 'malin', screen: 'lan', lan: { view: 'menu' } });
+      N.render();
+    });
+    await P[0].click('#netCreate');
+    const code = (await P[0].textContent('.net-code')).trim();
+    await P[0].click('[data-netmode="teams"]');
+    let three = null;
+    for (let i = 1; i < 4; i++) {
+      await P[i].evaluate(n => {
+        const N = window.__numero;
+        Object.assign(N.state, { myName: n, screen: 'lan', lan: { view: 'join' } });
+        N.render();
+      }, names[i]);
+      await P[i].fill('#netCode', code);
+      await P[i].click('#netJoinGo');
+      await w(250);
+      if (i === 2) three = await P[0].isDisabled('#netLaunch');
+    }
+    await w(250);
+    check(
+      three === true &&
+        !(await P[0].isDisabled('#netLaunch')) &&
+        (await P[0].textContent('.teams-line')).includes('Zied + Sami'),
+      '2 contre 2 : lancement seulement à 4, équipes affichées (Zied + Sami / Ahlem + Lina)'
+    );
+    await P[0].click('#netLaunch');
+    await w(300);
+    await P[0].evaluate(() => {
+      const N = window.__numero;
+      N.state.starter = 0;
+      N.state.turn = 0;
+      N.render();
+    });
+    await w(200);
+    await P[0].click('[data-tab="question"]');
+    await P[0].click('[data-question]');
+    await w(300);
+    const [h, adv, mate] = [await SS(P[0]), await SS(P[1]), await SS(P[2])];
+    check(
+      typeof h.last.answer === 'boolean' &&
+        adv.last.answer === null &&
+        adv.history[0].answer === null &&
+        mate.last.answer === h.last.answer,
+      '2 contre 2 : la réponse n’est envoyée qu’à l’équipe qui a posé la question'
+    );
+    check(
+      (await P[1].textContent('.result-card')).includes('secrète') &&
+        !(await P[1].textContent('.result-card')).match(/OUI|NON/),
+      'Équipe adverse : « 🤫 Réponse secrète » à l’écran'
+    );
+    check(
+      adv.candidates.length > mate.candidates.length && mate.candidates.length === h.candidates.length,
+      `Carnet par équipe (adverse ${adv.candidates.length}, équipe ${mate.candidates.length})`
+    );
+    await P[0].click('#next');
+    await w(150);
+    const sec = await P[0].evaluate(() => window.__numero.state.secret);
+    await P[0].click(`[data-guess="${sec}"]`);
+    await P[0].click('#capPrecise');
+    await w(300);
+    await P[0].click('#next');
+    await w(400);
+    const end = await SS(P[2]);
+    const pod = await P[2].$$eval('.pod-row.place-1 strong', e => e.map(x => x.textContent.trim()).join(','));
+    check(
+      end.screen === 'end' &&
+        (await P[2].textContent('.end-hero h1')).includes('Équipe bleue') &&
+        /Zied/.test(pod) &&
+        /Sami/.test(pod),
+      `2 contre 2 : victoire de l’équipe bleue, Zied et Sami 1ers (${pod})`
+    );
+    check(!errs.length, `2 contre 2 : aucune erreur JavaScript (${errs.slice(0, 2).join(' | ')})`);
+    for (const c of ctxs) await c.close();
+  }
+
   await browser.close();
   console.log(`\nRésultat : ${passed} vérifications réussies, ${failed} échec(s).`);
   if (failed) {

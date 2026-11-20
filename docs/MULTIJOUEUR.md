@@ -73,6 +73,13 @@ Fourni par `NetBridge.java` (Android) ; simulé par les tests (`tests/game.test.
 - Actions hors tour : `duelPick` (kind, n) — l'hôte utilise le siège de l'expéditeur ; `duelNext` réservé à l'hôte.
 - `redactState` : pendant `pick`, chacun ne reçoit que son choix + `picked` (sièges ayant choisi).
 
+## Équipes 2 contre 2 (V9.22)
+
+- `g.gameMode = 'teams'`, 4 joueurs ; équipe = siège % 2 (`src/js/09c-teams.js`).
+- `redactState` : pour chaque siège, `history` / `last` sans les réponses de l'équipe adverse (`answer: null,
+  hidden: true`) et `candidates` = carnet de son équipe (`teamCandidates`, recalculé depuis l'historique).
+- L'hôte (siège 0) affiche lui aussi seulement ce que sait son équipe (`knownCands`, `hiddenFor`).
+
 ## Messages du jeu (`NET_PROTOCOL = 2`, depuis V9.15)
 
 | Message | Sens | Contenu |

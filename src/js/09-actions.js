@@ -303,6 +303,7 @@ function revealEscaped() {
  */
 /** Gagnant(s) d'une partie à plusieurs : 1er de la Course, ou meilleur total aux Points (si capture). */
 function roundWinners() {
+  if (isTeams()) return teamWinners(); // V9.22 : les deux membres de l'équipe gagnante
   if (isRace()) return g.placed.filter(p => placeFor(p.round) === 1).map(p => p.player);
   if (!g.captures) return [];
   const tot = g.scores.map((v, i) => v + (g.stars[i] || 0)),

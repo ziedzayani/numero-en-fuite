@@ -119,7 +119,9 @@ function netCreate() {
 function netLaunch(relaunch = false) {
   if (net.role !== 'host') return;
   const seats = net.lobby.filter(p => p.connected);
-  if (seats.length < 2) {
+  // V9.22 : 2 contre 2 = exactement 4 joueurs (sinon on revient à la salle d'attente)
+  if (g.gameMode === 'teams' && seats.length !== 4 && !relaunch) return;
+  if (seats.length < (g.gameMode === 'teams' ? 4 : 2)) {
     if (!relaunch) return;
     net.lobby = seats.map((p, i) => ({ ...p, seat: i }));
     Object.assign(g, { net: null, screen: 'lan', inGame: false, modal: null, absent: [] });
@@ -184,6 +186,13 @@ function redactState(seat) {
   delete s.soloSecret;
   // V9.19 : chacun ne reçoit que SON pronostic (les autres restent secrets jusqu'au résultat)
   s.prono = g.prono && g.prono[seat] ? { [seat]: g.prono[seat] } : {};
+  // V9.22 : en équipes, les réponses de l'équipe adverse ne quittent jamais l'hôte
+  if (isTeams()) {
+    const tm = teamOf(seat);
+    s.history = (g.history || []).map(e => maskFor(e, tm));
+    s.last = maskFor(g.last, tm);
+    s.candidates = teamCandidates(tm);
+  }
   // V9.20 : pendant le choix, chacun ne reçoit que SON choix (+ la liste de ceux qui ont choisi)
   if (g.duel) {
     s.duel = { ...g.duel, picked: Object.keys(g.duel.picks || {}).map(Number) };
@@ -226,7 +235,7 @@ function netBroadcastLobby() {
   const players = net.lobby.map(p => ({ seat: p.seat, name: p.name, connected: p.connected }));
   const rules = {
     level: g.level,
-    mode: ['score', 'duel'].includes(g.gameMode) ? g.gameMode : 'race',
+    mode: ['score', 'duel', 'teams'].includes(g.gameMode) ? g.gameMode : 'race',
     series: g.seriesPref || 0
   };
   for (const p of net.lobby)
@@ -605,7 +614,7 @@ function lanScreen() {
   if (v === 'menu')
     body = `<p class="sub">${t('netIntro')}</p>${nameField}${err}<button class="bigbtn" id="netCreate">📶 ${t('netCreate')}</button><button class="bigbtn light" id="netGoJoin">🔑 ${t('netJoin')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else if (v === 'hostLobby')
-    body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div>${netRulesPicker()}${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < 2 ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
+    body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div>${netRulesPicker()}${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < (g.gameMode === 'teams' ? 4 : 2) || (g.gameMode === 'teams' && (net.lobby || []).filter(p => p.connected).length !== 4) ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
   else if (v === 'join' || v === 'joining')
     body = `${nameField}${v === 'join' ? netRoomsList() : ''}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.typedCode != null && v === 'join' ? net.typedCode : net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else
@@ -622,7 +631,7 @@ const NET_LEVELS = [
 /** « Facile 1–9 · Course · Premier à 3 » (salle d'attente des invités). */
 function netRulesText(level, mode, series) {
   const L = NET_LEVELS.find(x => x[0] === level) || NET_LEVELS[0];
-  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'duel' ? '⚡ ' + t('modeDuel') : mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}${series ? ' · ⚔️ ' + t('seriesTo', { n: series }) : ''}`;
+  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'teams' ? '👥 ' + t('modeTeams') : mode === 'duel' ? '⚡ ' + t('modeDuel') : mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}${series ? ' · ⚔️ ' + t('seriesTo', { n: series }) : ''}`;
 }
 /** Choix de la série (écran des prénoms, salle Wi-Fi) : 1 partie, premier à 2, premier à 3. */
 function seriesPicker(attr) {
@@ -641,14 +650,14 @@ function netRulesPicker() {
     ([id, emo, k]) =>
       `<button type="button" role="radio" class="mode-card net-lv ${g.level === id ? 'on' : ''}" data-netlevel="${id}" aria-checked="${g.level === id}"><b>${emo} ${t(k)}</b><small dir="ltr">1–${LEVELS[id].max}</small></button>`
   ).join('');
-  const cur = ['score', 'duel'].includes(g.gameMode) ? g.gameMode : 'race';
-  const md = ['race', 'score', 'duel']
+  const cur = ['score', 'duel', 'teams'].includes(g.gameMode) ? g.gameMode : 'race';
+  const md = ['race', 'score', 'duel', 'teams']
     .map(
       m =>
-        `<button type="button" role="radio" class="mode-card ${cur === m ? 'on' : ''}" data-netmode="${m}" aria-checked="${cur === m}"><b>${{ race: '🏁 ' + t('modeRace'), score: '🏆 ' + t('modeScore'), duel: '⚡ ' + t('modeDuel') }[m]}</b></button>`
+        `<button type="button" role="radio" class="mode-card ${cur === m ? 'on' : ''}" data-netmode="${m}" aria-checked="${cur === m}"><b>${{ race: '🏁<br>' + t('modeRace'), score: '🏆<br>' + t('modeScore'), duel: '⚡<br>' + t('modeDuel'), teams: '👥<br>' + t('modeTeams') }[m]}</b></button>`
     )
     .join('');
-  return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}</div>`;
+  return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}${g.gameMode === 'teams' ? ((net.lobby || []).filter(p => p.connected).length === 4 ? teamsLine(net.lobby.filter(p => p.connected).map(p => p.name)) : `<p class="sub small centered">⚠️ ${t('teamsNeed4')}</p>`) : ''}</div>`;
 }
 function bindRooms() {
   document.querySelectorAll('[data-room]').forEach(b =>
@@ -781,7 +790,7 @@ function bindNet(click) {
   document.querySelectorAll('[data-netmode]').forEach(b =>
     b.addEventListener('click', () => {
       if (net.role !== 'host' || g.net) return;
-      g.gameMode = ['score', 'duel'].includes(b.dataset.netmode) ? b.dataset.netmode : 'race';
+      g.gameMode = ['score', 'duel', 'teams'].includes(b.dataset.netmode) ? b.dataset.netmode : 'race';
       render();
       netBroadcastLobby();
     })

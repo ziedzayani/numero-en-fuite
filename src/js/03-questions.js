@@ -61,6 +61,19 @@ function qbyid(id) {
 }
 /** Choisit les 3 questions du tour dans g.choices (en évitant celles déjà montrées). */
 function makeChoices() {
+  // V9.22 : en équipes, les questions utiles se calculent avec ce que SAIT l'équipe du joueur actif
+  if (isTeams() && !makeChoices.inner) {
+    const full = g.candidates;
+    g.candidates = teamCandidates(teamOf(active()));
+    makeChoices.inner = true;
+    try {
+      makeChoices();
+    } finally {
+      makeChoices.inner = false;
+      g.candidates = full;
+    }
+    return;
+  }
   const pool = qpool();
   let unused = pool.filter(q => !g.shownIds.includes(q.id));
   if (unused.length < 3) {

@@ -4437,3 +4437,45 @@ html[lang='ja'] .pause-card .pz-msg {
 .modal:has(.daily-opt) .modal-actions {
   gap: 8px;
 }
+/* ===== V9.22 : équipes 2 contre 2 ===== */
+.net-rules-pick .net-modes:has(> :nth-child(4)) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.net-rules-pick .net-modes:has(> :nth-child(4)) .mode-card b {
+  font-size: 11.5px;
+  line-height: 1.1;
+}
+.team-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-inline-end: 4px;
+  border-radius: 3px;
+  vertical-align: 0;
+  background: #2a86f5;
+  box-shadow: 0 0 0 1.5px #0b2f8f;
+}
+.team-dot.t1 {
+  background: #ffc83d;
+  box-shadow: 0 0 0 1.5px #a86d00;
+}
+.teams-line {
+  display: grid;
+  gap: 4px;
+  margin: 2px 0 4px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.teams-line .tl {
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: #11286e;
+  border: 2px solid #2a86f5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.teams-line .tl.t1 {
+  border-color: #ffc83d;
+}

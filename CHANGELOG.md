@@ -1,5 +1,18 @@
 # Historique des versions
 
+## V9.22 — équipes 2 contre 2 (Wi-Fi)
+
+- Nouveau mode **👥 2 contre 2** dans la salle Wi-Fi (exactement 4 joueurs ; « Lancer » inactif sinon). Les équipes
+  alternent dans l'ordre de jeu : sièges 1 et 3 = équipe bleue, 2 et 4 = équipe dorée (affichées dans la salle et
+  sur les pastilles). Règles de la Course : la première équipe qui attrape le numéro gagne.
+- **Vraie coopération** : la réponse d'une question (ou l'indice d'un calcul) n'est envoyée qu'aux 2 téléphones de
+  l'équipe qui l'a obtenue ; l'autre équipe voit la question avec « 🤫 Réponse secrète ». Chaque équipe a son propre
+  carnet de numéros possibles (indices de l'équipe + captures ratées et sauts, publics). Les questions proposées
+  sont choisies d'après ce que sait l'équipe du joueur actif.
+- Fin : « Équipe bleue gagne ! », les deux coéquipiers ensemble en 1re place ; séries et duels comptent la victoire
+  pour les deux.
+- Salle Wi-Fi : les 4 modes sur une seule ligne.
+
 ## V9.21 — pour la famille : Défi du jour, coup de pouce, coup décisif
 
 - **📅 Défi du jour** (fenêtre « Défi solo ») : même numéro de départ et mêmes sauts pour tout le monde ce jour-là,

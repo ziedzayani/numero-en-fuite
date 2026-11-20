@@ -270,7 +270,7 @@ function load() {
     g.capturing = null;
     if (!(g.sel >= 1 && g.sel <= max)) g.sel = null;
     g.reduceMotion = !!g.reduceMotion;
-    if (!['race', 'score', 'duel'].includes(g.gameMode)) g.gameMode = 'race';
+    if (!['race', 'score', 'duel', 'teams'].includes(g.gameMode)) g.gameMode = 'race';
     if (!Array.isArray(g.netsLeft) || g.netsLeft.length !== g.players)
       g.netsLeft = Array(g.players).fill(NETS_MAX);
     g.starter = Number.isInteger(g.starter) ? g.starter : 0;

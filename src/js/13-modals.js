@@ -213,10 +213,10 @@ function cluesView() {
 /** Carnet automatique (aide « numéros possibles » activée) : il suit chaque déplacement tout seul. */
 function autoNotebookView() {
   const max = maxN();
-  return `<div class="nb-count">${t('nbCount', { count: g.candidates.length, max })}</div><div class="nb-grid ${max > 15 ? 'dense' : ''} ${max > 50 ? 'huge' : ''}" dir="ltr">${all(
+  return `<div class="nb-count">${t('nbCount', { count: knownCands().length, max })}</div><div class="nb-grid ${max > 15 ? 'dense' : ''} ${max > 50 ? 'huge' : ''}" dir="ltr">${all(
     max
   )
-    .map(n => `<span class="${g.candidates.includes(n) ? 'ok' : 'no'}">${n}</span>`)
+    .map(n => `<span class="${knownCands().includes(n) ? 'ok' : 'no'}">${n}</span>`)
     .join(
       ''
     )}</div><div class="nb-legend"><span><i class="ok"></i>${t('nbPossible')}</span><span><i class="no"></i>${t('nbEliminated')}</span></div><p class="nb-note">👣 ${t('nbMoves')}</p>`;

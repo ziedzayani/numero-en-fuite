@@ -11544,6 +11544,48 @@ html[lang='ja'] .pause-card .pz-msg {
 .modal:has(.daily-opt) .modal-actions {
   gap: 8px;
 }
+/* ===== V9.22 : équipes 2 contre 2 ===== */
+.net-rules-pick .net-modes:has(> :nth-child(4)) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.net-rules-pick .net-modes:has(> :nth-child(4)) .mode-card b {
+  font-size: 11.5px;
+  line-height: 1.1;
+}
+.team-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-inline-end: 4px;
+  border-radius: 3px;
+  vertical-align: 0;
+  background: #2a86f5;
+  box-shadow: 0 0 0 1.5px #0b2f8f;
+}
+.team-dot.t1 {
+  background: #ffc83d;
+  box-shadow: 0 0 0 1.5px #a86d00;
+}
+.teams-line {
+  display: grid;
+  gap: 4px;
+  margin: 2px 0 4px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.teams-line .tl {
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: #11286e;
+  border: 2px solid #2a86f5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.teams-line .tl.t1 {
+  border-color: #ffc83d;
+}
 
     </style>
   </head>
@@ -11634,7 +11676,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.21";
+const APP_VERSION = "9.22";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -11871,6 +11913,7 @@ const dictionaries = {
   "modeRaceSub": "Le premier qui attrape le numéro gagne : la partie s’arrête. Personne ? Les points départagent.",
   "modeScore": "Points",
   "modeScoreSub": "{n} tours. Capture +10, filet +4 (3 filets chacun). Le meilleur score gagne.",
+  "modeTeams": "2 contre 2",
   "modeTitle": "Mode de jeu",
   "more": "Plus",
   "motionHint": "Si les mouvements gênent ou le téléphone est lent.",
@@ -12186,6 +12229,12 @@ const dictionaries = {
   "tabGuess": "Deviner",
   "tabMath": "Calcul",
   "tabQuestion": "Indice",
+  "teamA": "Équipe bleue",
+  "teamB": "Équipe dorée",
+  "teamMateWin": "Victoire d’équipe avec son coéquipier",
+  "teamSecret": "Réponse secrète",
+  "teamWin": "{team} gagne !",
+  "teamsNeed4": "Il faut exactement 4 joueurs pour jouer 2 contre 2.",
   "timeUp": "TEMPS ÉCOULÉ !",
   "timeoutLog": "{player} · temps écoulé · {shift}",
   "timerAnswer": "Réponse",
@@ -12492,6 +12541,7 @@ const dictionaries = {
   "modeRaceSub": "First to catch the number wins: the game stops. Nobody? Points decide.",
   "modeScore": "Points",
   "modeScoreSub": "{n} turns. Catch +10, net +4 (3 nets each). Best score wins.",
+  "modeTeams": "2 vs 2",
   "modeTitle": "Game mode",
   "more": "More",
   "motionHint": "If motion bothers you or the phone is slow.",
@@ -12807,6 +12857,12 @@ const dictionaries = {
   "tabGuess": "Guess",
   "tabMath": "Maths",
   "tabQuestion": "Hint",
+  "teamA": "Blue team",
+  "teamB": "Gold team",
+  "teamMateWin": "Team win with their teammate",
+  "teamSecret": "Secret answer",
+  "teamWin": "{team} wins!",
+  "teamsNeed4": "You need exactly 4 players for 2 vs 2.",
   "timeUp": "TIME’S UP!",
   "timeoutLog": "{player} · time’s up · {shift}",
   "timerAnswer": "Answer",
@@ -13113,6 +13169,7 @@ const dictionaries = {
   "modeRaceSub": "أول من يمسك الرقم يفوز وتنتهي اللعبة. لا أحد؟ النقاط تحسم.",
   "modeScore": "نقاط",
   "modeScoreSub": "{n} دورًا. الإمساك +10، الشبكة +4 (3 شباك لكل لاعب). أعلى نتيجة تفوز.",
+  "modeTeams": "2 ضد 2",
   "modeTitle": "طريقة اللعب",
   "more": "المزيد",
   "motionHint": "إذا كانت الحركة مزعجة أو الهاتف بطيئًا.",
@@ -13428,6 +13485,12 @@ const dictionaries = {
   "tabGuess": "تخمين",
   "tabMath": "حساب",
   "tabQuestion": "تلميح",
+  "teamA": "الفريق الأزرق",
+  "teamB": "الفريق الذهبي",
+  "teamMateWin": "فوز الفريق مع زميله",
+  "teamSecret": "إجابة سرية",
+  "teamWin": "{team} يفوز!",
+  "teamsNeed4": "يلزم 4 لاعبين بالضبط للعب 2 ضد 2.",
   "timeUp": "انتهى الوقت!",
   "timeoutLog": "{player} · انتهى الوقت · {shift}",
   "timerAnswer": "الإجابة",
@@ -13734,6 +13797,7 @@ const dictionaries = {
   "modeRaceSub": "El primero que atrapa el número gana: la partida termina. ¿Nadie? Deciden los puntos.",
   "modeScore": "Puntos",
   "modeScoreSub": "{n} turnos. Captura +10, red +4 (3 redes cada uno). Gana la mejor puntuación.",
+  "modeTeams": "2 contra 2",
   "modeTitle": "Modo de juego",
   "more": "Más",
   "motionHint": "Si el movimiento te molesta o el móvil va lento.",
@@ -14049,6 +14113,12 @@ const dictionaries = {
   "tabGuess": "Adivinar",
   "tabMath": "Cálculo",
   "tabQuestion": "Pista",
+  "teamA": "Equipo azul",
+  "teamB": "Equipo dorado",
+  "teamMateWin": "Victoria de equipo con su compañero",
+  "teamSecret": "Respuesta secreta",
+  "teamWin": "¡{team} gana!",
+  "teamsNeed4": "Se necesitan exactamente 4 jugadores para 2 contra 2.",
   "timeUp": "¡TIEMPO!",
   "timeoutLog": "{player} · tiempo agotado · {shift}",
   "timerAnswer": "Respuesta",
@@ -14355,6 +14425,7 @@ const dictionaries = {
   "modeRaceSub": "Il primo che cattura il numero vince: la partita finisce. Nessuno? Decidono i punti.",
   "modeScore": "Punti",
   "modeScoreSub": "{n} turni. Cattura +10, rete +4 (3 reti a testa). Vince il punteggio migliore.",
+  "modeTeams": "2 contro 2",
   "modeTitle": "Modalità di gioco",
   "more": "Altro",
   "motionHint": "Se il movimento ti dà fastidio o il telefono è lento.",
@@ -14670,6 +14741,12 @@ const dictionaries = {
   "tabGuess": "Indovina",
   "tabMath": "Calcolo",
   "tabQuestion": "Indizio",
+  "teamA": "Squadra blu",
+  "teamB": "Squadra oro",
+  "teamMateWin": "Vittoria di squadra con il compagno",
+  "teamSecret": "Risposta segreta",
+  "teamWin": "{team} vince!",
+  "teamsNeed4": "Servono esattamente 4 giocatori per il 2 contro 2.",
   "timeUp": "TEMPO SCADUTO!",
   "timeoutLog": "{player} · tempo scaduto · {shift}",
   "timerAnswer": "Risposta",
@@ -14976,6 +15053,7 @@ const dictionaries = {
   "modeRaceSub": "Wer die Zahl zuerst fängt, gewinnt: Das Spiel endet. Niemand? Die Punkte entscheiden.",
   "modeScore": "Punkte",
   "modeScoreSub": "{n} Runden. Fang +10, Netz +4 (3 Netze pro Person). Die meisten Punkte gewinnen.",
+  "modeTeams": "2 gegen 2",
   "modeTitle": "Spielmodus",
   "more": "Mehr",
   "motionHint": "Wenn dich Bewegung stört oder das Handy langsam ist.",
@@ -15291,6 +15369,12 @@ const dictionaries = {
   "tabGuess": "Raten",
   "tabMath": "Rechnen",
   "tabQuestion": "Hinweis",
+  "teamA": "Team Blau",
+  "teamB": "Team Gold",
+  "teamMateWin": "Teamsieg mit dem Mitspieler",
+  "teamSecret": "Geheime Antwort",
+  "teamWin": "{team} gewinnt!",
+  "teamsNeed4": "Für 2 gegen 2 braucht ihr genau 4 Spieler.",
   "timeUp": "ZEIT UM!",
   "timeoutLog": "{player} · Zeit abgelaufen · {shift}",
   "timerAnswer": "Antwort",
@@ -15597,6 +15681,7 @@ const dictionaries = {
   "modeRaceSub": "谁先抓到数字谁赢，游戏结束。没人抓到？比分数。",
   "modeScore": "积分",
   "modeScoreSub": "{n} 回合。捕捉 +10，网 +4（每人 3 张网）。分数最高者获胜。",
+  "modeTeams": "2 对 2",
   "modeTitle": "游戏模式",
   "more": "更多",
   "motionHint": "如果动画让你不舒服或手机较慢。",
@@ -15912,6 +15997,12 @@ const dictionaries = {
   "tabGuess": "猜",
   "tabMath": "算术",
   "tabQuestion": "线索",
+  "teamA": "蓝队",
+  "teamB": "金队",
+  "teamMateWin": "与队友一起获胜",
+  "teamSecret": "秘密答案",
+  "teamWin": "{team}获胜！",
+  "teamsNeed4": "2 对 2 需要正好 4 名玩家。",
   "timeUp": "时间到！",
   "timeoutLog": "{player} · 时间到 · {shift}",
   "timerAnswer": "回答",
@@ -16218,6 +16309,7 @@ const dictionaries = {
   "modeRaceSub": "最初につかまえた人の勝ちでゲーム終了。だれもいなければ点数で決着。",
   "modeScore": "ポイント",
   "modeScoreSub": "{n} ターン。捕獲 +10、網 +4（1 人 3 枚）。最高得点で勝ち。",
+  "modeTeams": "2 対 2",
   "modeTitle": "ゲームモード",
   "more": "もっと見る",
   "motionHint": "動きが気になる人や、スマホが遅いときに。",
@@ -16533,6 +16625,12 @@ const dictionaries = {
   "tabGuess": "当てる",
   "tabMath": "計算",
   "tabQuestion": "ヒント",
+  "teamA": "青チーム",
+  "teamB": "金チーム",
+  "teamMateWin": "チームメイトといっしょに勝利",
+  "teamSecret": "ひみつの答え",
+  "teamWin": "{team}の勝ち！",
+  "teamsNeed4": "2 対 2 には、ちょうど 4 人が必要です。",
   "timeUp": "時間切れ！",
   "timeoutLog": "{player} · 時間切れ · {shift}",
   "timerAnswer": "回答",
@@ -16922,7 +17020,7 @@ function load() {
     g.capturing = null;
     if (!(g.sel >= 1 && g.sel <= max)) g.sel = null;
     g.reduceMotion = !!g.reduceMotion;
-    if (!['race', 'score', 'duel'].includes(g.gameMode)) g.gameMode = 'race';
+    if (!['race', 'score', 'duel', 'teams'].includes(g.gameMode)) g.gameMode = 'race';
     if (!Array.isArray(g.netsLeft) || g.netsLeft.length !== g.players)
       g.netsLeft = Array(g.players).fill(NETS_MAX);
     g.starter = Number.isInteger(g.starter) ? g.starter : 0;
@@ -17015,6 +17113,19 @@ function qbyid(id) {
 }
 /** Choisit les 3 questions du tour dans g.choices (en évitant celles déjà montrées). */
 function makeChoices() {
+  // V9.22 : en équipes, les questions utiles se calculent avec ce que SAIT l'équipe du joueur actif
+  if (isTeams() && !makeChoices.inner) {
+    const full = g.candidates;
+    g.candidates = teamCandidates(teamOf(active()));
+    makeChoices.inner = true;
+    try {
+      makeChoices();
+    } finally {
+      makeChoices.inner = false;
+      g.candidates = full;
+    }
+    return;
+  }
   const pool = qpool();
   let unused = pool.filter(q => !g.shownIds.includes(q.id));
   if (unused.length < 3) {
@@ -17450,7 +17561,8 @@ function start(skipHandoff = false) {
   g.tipsSeen = tipsSeen && typeof tipsSeen === 'object' ? tipsSeen : {};
   g.chDiffPref = chDiffPref in CHALLENGE_DIFFS ? chDiffPref : 'medium';
   // V9.20 : le Duel express n'existe qu'en Wi-Fi (l'hôte arbitre les choix simultanés)
-  g.gameMode = gameMode === 'score' || (gameMode === 'duel' && net.role === 'host') ? gameMode : 'race';
+  g.gameMode =
+    gameMode === 'score' || (['duel', 'teams'].includes(gameMode) && net.role === 'host') ? gameMode : 'race';
   g.starter = players > 1 ? (starter || 0) % players : 0;
   g.playerHelp = Array.isArray(playerHelp) ? playerHelp.slice(0, 4) : [false, false, false, false];
   g.mode = 'normal';
@@ -18864,6 +18976,7 @@ function revealEscaped() {
  */
 /** Gagnant(s) d'une partie à plusieurs : 1er de la Course, ou meilleur total aux Points (si capture). */
 function roundWinners() {
+  if (isTeams()) return teamWinners(); // V9.22 : les deux membres de l'équipe gagnante
   if (isRace()) return g.placed.filter(p => placeFor(p.round) === 1).map(p => p.player);
   if (!g.captures) return [];
   const tot = g.scores.map((v, i) => v + (g.stars[i] || 0)),
@@ -19283,6 +19396,81 @@ function bindDuel(click) {
   click('duelNext', () => act('duelNext'));
 }
 
+/* ---- 09c-teams.js ---- */
+/*
+ * V9.22 : ÉQUIPES 2 CONTRE 2 (Wi-Fi, exactement 4 joueurs). Ordre de jeu = sièges 1, 2, 3, 4 :
+ * les équipes alternent (sièges 1 et 3 = équipe bleue, 2 et 4 = équipe dorée). Règles de la Course :
+ * la première équipe qui attrape le numéro gagne.
+ * Vraie coopération : la RÉPONSE d'une question (ou du calcul) n'est envoyée qu'aux deux téléphones de
+ * l'équipe qui l'a obtenue ; l'équipe adverse voit la question, pas la réponse (🤫). Chaque équipe a donc
+ * son propre carnet de numéros possibles ; les captures ratées et les sauts restent publics.
+ */
+const isTeams = () => g.gameMode === 'teams' && g.players === 4;
+const teamOf = seat => seat % 2;
+const myTeam = () => (g.net ? teamOf(g.net.seat) : 0);
+const teamName = team => t(team ? 'teamB' : 'teamA');
+
+/** Numéros possibles pour une équipe : on rejoue l'historique depuis la dernière capture avec SES indices. */
+function teamCandidates(team) {
+  const h = g.history || [],
+    max = maxN();
+  let from = 0;
+  for (let i = h.length - 1; i >= 0; i--)
+    if (['found', 'netHit'].includes(h[i].type)) {
+      from = i + 1;
+      break;
+    }
+  let S = all(max);
+  for (const e of h.slice(from)) {
+    const mine = teamOf(e.player) === team;
+    const q = e.qid ? qbyid(e.qid) : null;
+    if (e.type === 'question' && mine && q && e.answer != null) S = S.filter(n => !!q.test(n) === e.answer);
+    else if (e.type === 'math' && e.correct && mine && e.answer != null)
+      S = S.filter(n => (q ? !!q.test(n) : n > e.math.threshold) === e.answer);
+    else if (e.type === 'wrong') S = S.filter(n => n !== e.n);
+    else if (e.type === 'netMiss') S = S.filter(n => !e.nums.includes(n));
+    if (e.shift != null && e.shift !== 0) S = moveImage(S, e.shift);
+  }
+  return S.includes(g.secret) || g.secret == null ? S : [...S, g.secret].sort((a, b) => a - b);
+}
+/** Ce que CE téléphone sait (carnet, aide) : en équipes, seulement les indices de son équipe. */
+function knownCands() {
+  if (!isTeams() || !g.net) return g.candidates;
+  return g.net.role === 'host' ? teamCandidates(myTeam()) : g.candidates;
+}
+/** La réponse de cet événement est-elle cachée à ce téléphone ? (indice de l'équipe adverse) */
+function hiddenFor(e) {
+  if (!isTeams() || !g.net || !e || !['question', 'math'].includes(e.type)) return false;
+  return e.hidden === true || teamOf(e.player) !== myTeam();
+}
+/** Copie d'un événement pour l'équipe `team` : réponse retirée si l'indice est à l'autre équipe. */
+function maskFor(e, team) {
+  if (!e || !['question', 'math'].includes(e.type) || teamOf(e.player) === team) return e;
+  return { ...e, answer: null, hidden: true };
+}
+/** Gagnants en équipes : les deux membres de l'équipe qui a attrapé le numéro (ou au meilleur total). */
+function teamWinners() {
+  let team = null;
+  if (isRace()) {
+    const first = g.placed[0];
+    if (first) team = teamOf(first.player);
+  } else if (g.captures) {
+    const sum = [0, 1].map(tm =>
+      g.scores.reduce((a, s, i) => a + (teamOf(i) === tm ? s + (g.stars[i] || 0) : 0), 0)
+    );
+    team = sum[0] === sum[1] ? null : sum[0] > sum[1] ? 0 : 1;
+  }
+  return team == null ? [] : [0, 1, 2, 3].filter(i => teamOf(i) === team);
+}
+/** Pastille d'équipe (sur les pastilles des joueurs). */
+const teamDot = i =>
+  isTeams() ? `<i class="team-dot t${teamOf(i)}" title="${esc(teamName(teamOf(i)))}"></i>` : '';
+/** Composition des équipes (salle d'attente, écran de fin). */
+function teamsLine(names) {
+  const n = i => esc(names[i] || t('player', { n: i + 1 }));
+  return `<div class="teams-line"><span class="tl t0">🔵 ${t('teamA')} : ${n(0)} + ${n(2)}</span><span class="tl t1">🟡 ${t('teamB')} : ${n(1)} + ${n(3)}</span></div>`;
+}
+
 /* ---- 10-view-mascot.js ---- */
 /*
  * Le détective de « The Number Hunt » (image du logo, V9.2) et les effets de fête.
@@ -19343,7 +19531,7 @@ function confetti() {
 /** Pastilles des joueurs : score, étoiles, joueur actif. */
 function scoreboard() {
   if (g.mode === 'challenge') return '';
-  return `<div class="chips" style="grid-template-columns:repeat(${g.players},minmax(0,1fr))">${g.scores.map((s, i) => `<div class="chip ${active() === i ? 'current' : ''} ${g.phase === 'result' && g.last && g.last.player === i && ['found', 'netHit', 'wrong', 'netMiss'].includes(g.last.type) ? 'bump' : ''}"><span class="cname">${isRace() && isPlaced(i) ? `<b class="podium-medal">${['🥇', '🥈', '🥉', '🎖️'][placeFor(g.placed.find(p => p.player === i).round) - 1]}</b>` : ''}<i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}${g.series ? `<small class="ser-w" title="${esc(t('seriesTitle'))}">⚔️${g.series.wins[i] || 0}</small>` : ''}</span><span class="cscore"><b>${s}</b> <small>⭐${g.stars[i]}</small></span>${scoreDelta(i)}</div>`).join('')}</div>`;
+  return `<div class="chips" style="grid-template-columns:repeat(${g.players},minmax(0,1fr))">${g.scores.map((s, i) => `<div class="chip ${active() === i ? 'current' : ''} ${g.phase === 'result' && g.last && g.last.player === i && ['found', 'netHit', 'wrong', 'netMiss'].includes(g.last.type) ? 'bump' : ''}"><span class="cname">${isRace() && isPlaced(i) ? `<b class="podium-medal">${['🥇', '🥈', '🥉', '🎖️'][placeFor(g.placed.find(p => p.player === i).round) - 1]}</b>` : ''}<i class="player-dot" style="background:${colors[i]}"></i>${teamDot(i)}${esc(pname(i))}${g.series ? `<small class="ser-w" title="${esc(t('seriesTitle'))}">⚔️${g.series.wins[i] || 0}</small>` : ''}</span><span class="cscore"><b>${s}</b> <small>⭐${g.stars[i]}</small></span>${scoreDelta(i)}</div>`).join('')}</div>`;
 }
 /** Gain / perte du dernier coup (+10, +4, −1…) affiché sur la pastille. */
 function scoreDelta(i) {
@@ -19581,7 +19769,7 @@ function questionView() {
          .map(n => {
            const cap = g.capturing && g.capturing.nums.includes(n),
              inNet = netAvailable() && g.sel != null && !g.capturing && netRange(g.sel).includes(n);
-           return `<button class="numtile ${showPossible() ? (g.candidates.includes(n) ? 'possible' : 'impossible') : ''} ${g.sel === n ? 'sel' : ''} ${inNet ? 'in-net' : ''} ${cap ? 'hit-' + g.capturing.mode : ''}" data-guess="${n}" aria-pressed="${g.sel === n}" aria-label="${n}">${n}${cap && g.capturing.mode === 'precise' ? '<i class="loupe-fx" aria-hidden="true"></i>' : ''}</button>`;
+           return `<button class="numtile ${showPossible() ? (knownCands().includes(n) ? 'possible' : 'impossible') : ''} ${g.sel === n ? 'sel' : ''} ${inNet ? 'in-net' : ''} ${cap ? 'hit-' + g.capturing.mode : ''}" data-guess="${n}" aria-pressed="${g.sel === n}" aria-label="${n}">${n}${cap && g.capturing.mode === 'precise' ? '<i class="loupe-fx" aria-hidden="true"></i>' : ''}</button>`;
          })
          .join('')}</div>`
  }<div class="capture-row"><button class="capbtn precise" id="capPrecise" ${g.sel == null || g.capturing ? 'disabled' : ''}><span>🎯 ${g.sel != null ? t('captGoPrecise', { n: g.sel }) : t('captPrecise')}</span><small>${g.mode === 'challenge' ? t('chMissPrecise') : isRace() ? (g.players === 1 ? '' : '🏆') : `<bdi dir="ltr">+${SCORE.precise} / −${-SCORE.miss}</bdi>`}</small></button><button class="capbtn net ${netsLeft() ? '' : 'empty'}" id="capNet" ${g.sel == null || g.capturing || !netsLeft() ? 'disabled' : ''}><span>🕸️ ${!netsLeft() ? t('netsNone') : g.sel != null ? `<bdi dir="ltr">${netRange(g.sel).join('·')}</bdi>` : t('captNet')}</span><b class="nets-left" dir="ltr" title="${t('netsLeft', { n: netsLeft() })}" aria-label="${t('netsLeft', { n: netsLeft() })}">${'●'.repeat(netsLeft())}${'○'.repeat(Math.max(0, NETS_MAX - netsLeft()))}</b><small>${g.mode === 'challenge' ? t('chMissNet') : isRace() ? t('captNumbers', { k: netSize() }) : `${t('captNumbers', { k: netSize() })} · <bdi dir="ltr">+${SCORE.net} / −${netSize()}</bdi>`}</small></button></div></div>`;
@@ -19672,9 +19860,10 @@ function resultView() {
     tone = 'good',
     extra = '';
   if (x.type === 'question') {
-    title = x.answer ? t('yesAnswer') : t('noAnswer');
+    // V9.22 : réponse de l'équipe adverse = secrète
+    title = hiddenFor(x) ? '🤫 ' + t('teamSecret') : x.answer ? t('yesAnswer') : t('noAnswer');
     desc = esc(qbyid(x.qid)?.text || '');
-    tone = x.answer ? 'good' : 'neutral';
+    tone = x.answer && !hiddenFor(x) ? 'good' : 'neutral';
   } else if (x.type === 'found') {
     title = '🎉 ' + t('found');
     desc =
@@ -19738,7 +19927,7 @@ function resultView() {
         (x.frozen
           ? `<div class="ch-bonus">${t('chMathBonus', { p: x.chBonus })}${g.chKind === 'timed' ? t('chTimeBonus') : ''}${x.streak > 1 ? t('chCombo', { n: x.streak }) : ''}</div>`
           : '') +
-        `<div class="move-line bonus"><span>${t('bonusClue')} :</span> <strong>${x.qid ? esc(qbyid(x.qid)?.text || '') : t('qGreater', { k: x.math.threshold })} <span class="answer-pill">${x.answer ? t('yesAnswer') : t('noAnswer')}</span></strong></div>`;
+        `<div class="move-line bonus"><span>${t('bonusClue')} :</span> <strong>${x.qid ? esc(qbyid(x.qid)?.text || '') : t('qGreater', { k: x.math.threshold })} <span class="answer-pill">${hiddenFor(x) ? '🤫' : x.answer ? t('yesAnswer') : t('noAnswer')}</span></strong></div>`;
   }
   const clue = ['question', 'math'].includes(x.type);
   const move = x.pick
@@ -19843,6 +20032,7 @@ function keyClue() {
     const e = h[i];
     if (['found', 'netHit'].includes(e.type)) return null;
     const q = e.qid ? qbyid(e.qid) : null;
+    if (hiddenFor(e) || (['question', 'math'].includes(e.type) && e.answer == null)) continue; // indice adverse
     if (e.type === 'question' && q)
       return { text: `${q.text} ${e.answer ? t('yesAnswer') : t('noAnswer')}`, player: e.player };
     if (e.type === 'math' && e.correct && e.answer != null)
@@ -19860,7 +20050,7 @@ function historyText(x) {
     return t('clueLog', {
       player: p,
       question: qbyid(x.qid)?.text || '',
-      answer: x.answer ? t('yesAnswer') : t('noAnswer'),
+      answer: hiddenFor(x) ? '🤫' : x.answer ? t('yesAnswer') : t('noAnswer'),
       shift: shiftSymbol(x.shift)
     });
   if (x.type === 'math')
@@ -19871,8 +20061,8 @@ function historyText(x) {
       outcome:
         t(x.correct ? 'mathSuccessLog' : x.timeout ? 'mathTimeoutLog' : 'mathFailureLog') +
         // V8.18 : l'indice gagné est noté dans le carnet (seuil, ou question choisie en Difficile)
-        (x.correct && x.answer != null
-          ? ` · ${x.qid ? qbyid(x.qid)?.text || '' : t('qGreater', { k: x.math.threshold })} ${x.answer ? t('yesAnswer') : t('noAnswer')}`
+        (x.correct && (x.answer != null || hiddenFor(x))
+          ? ` · ${x.qid ? qbyid(x.qid)?.text || '' : t('qGreater', { k: x.math.threshold })} ${hiddenFor(x) ? '🤫' : x.answer ? t('yesAnswer') : t('noAnswer')}`
           : ''),
       shift: shiftSymbol(x.shift)
     });
@@ -20037,21 +20227,38 @@ function endRace() {
     next = (g.starter + 1) % g.players,
     medal = n => ['🥇', '🥈', '🥉', '🎖️'][Math.min(n, 4) - 1],
     caughtN = g.lastHunt && g.lastHunt.end && g.lastHunt.end.n;
-  const rows = [
-    ...placed.map(
-      p =>
-        `<div class="finalscore pod-row place-${p.place}"><div class="medal">${medal(p.place)}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${tHtml('podiumCaught', { turn: `<b>${p.turn}</b>` })}.</small></div></div>`
-    ),
-    ...others.map(
-      o =>
-        `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}${seriesBadge(o.i)}</strong><small>${tHtml('podiumNotCaught', { n: `<b dir="ltr">${o.v}</b>` })}.</small></div></div>`
-    )
-  ].join('');
+  // V9.22 : en équipes, les deux membres de l'équipe gagnante partagent la 1re place
+  const tw = isTeams() ? teamWinners() : [];
+  const rows = isTeams()
+    ? [0, 1, 2, 3]
+        .sort((a, b) => (tw.includes(b) ? 1 : 0) - (tw.includes(a) ? 1 : 0))
+        .map(i => {
+          const p = placed.find(x => x.i === i),
+            o = others.find(x => x.i === i);
+          const line = p
+            ? tHtml('podiumCaught', { turn: `<b>${p.turn}</b>` })
+            : tw.includes(i)
+              ? t('teamMateWin')
+              : tHtml('podiumNotCaught', { n: `<b dir="ltr">${o ? o.v : 0}</b>` });
+          const place = tw.includes(i) ? 1 : 2;
+          return `<div class="finalscore pod-row place-${place}"><div class="medal">${medal(place)}</div><div><strong>${teamDot(i)}${esc(pname(i))}${seriesBadge(i)}</strong><small>${line}.</small></div></div>`;
+        })
+        .join('')
+    : [
+        ...placed.map(
+          p =>
+            `<div class="finalscore pod-row place-${p.place}"><div class="medal">${medal(p.place)}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${tHtml('podiumCaught', { turn: `<b>${p.turn}</b>` })}.</small></div></div>`
+        ),
+        ...others.map(
+          o =>
+            `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}${seriesBadge(o.i)}</strong><small>${tHtml('podiumNotCaught', { n: `<b dir="ltr">${o.v}</b>` })}.</small></div></div>`
+        )
+      ].join('');
   const decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
   const caught = caughtN
     ? `<div class="escaped-note race-caught"><span>${tHtml('escapedWas', { n: `<b class="big-n">${caughtN}</b>` })}</span></div>`
     : escapedNote(true);
-  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${seriesTitle() || (winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] }))}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${t('raceWinDesc', { turns: g.raceTurns })}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
+  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${seriesTitle() || (isTeams() && placed.length ? t('teamWin', { team: teamName(teamOf(placed[0].i)) }) : winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] }))}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${t('raceWinDesc', { turns: g.raceTurns })}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
 }
 /**
  * Fin de partie alors que le numéro courait encore : « il était sur le 23 » et le film de son évasion.
@@ -20744,10 +20951,10 @@ function cluesView() {
 /** Carnet automatique (aide « numéros possibles » activée) : il suit chaque déplacement tout seul. */
 function autoNotebookView() {
   const max = maxN();
-  return `<div class="nb-count">${t('nbCount', { count: g.candidates.length, max })}</div><div class="nb-grid ${max > 15 ? 'dense' : ''} ${max > 50 ? 'huge' : ''}" dir="ltr">${all(
+  return `<div class="nb-count">${t('nbCount', { count: knownCands().length, max })}</div><div class="nb-grid ${max > 15 ? 'dense' : ''} ${max > 50 ? 'huge' : ''}" dir="ltr">${all(
     max
   )
-    .map(n => `<span class="${g.candidates.includes(n) ? 'ok' : 'no'}">${n}</span>`)
+    .map(n => `<span class="${knownCands().includes(n) ? 'ok' : 'no'}">${n}</span>`)
     .join(
       ''
     )}</div><div class="nb-legend"><span><i class="ok"></i>${t('nbPossible')}</span><span><i class="no"></i>${t('nbEliminated')}</span></div><p class="nb-note">👣 ${t('nbMoves')}</p>`;
@@ -21013,7 +21220,9 @@ function netCreate() {
 function netLaunch(relaunch = false) {
   if (net.role !== 'host') return;
   const seats = net.lobby.filter(p => p.connected);
-  if (seats.length < 2) {
+  // V9.22 : 2 contre 2 = exactement 4 joueurs (sinon on revient à la salle d'attente)
+  if (g.gameMode === 'teams' && seats.length !== 4 && !relaunch) return;
+  if (seats.length < (g.gameMode === 'teams' ? 4 : 2)) {
     if (!relaunch) return;
     net.lobby = seats.map((p, i) => ({ ...p, seat: i }));
     Object.assign(g, { net: null, screen: 'lan', inGame: false, modal: null, absent: [] });
@@ -21078,6 +21287,13 @@ function redactState(seat) {
   delete s.soloSecret;
   // V9.19 : chacun ne reçoit que SON pronostic (les autres restent secrets jusqu'au résultat)
   s.prono = g.prono && g.prono[seat] ? { [seat]: g.prono[seat] } : {};
+  // V9.22 : en équipes, les réponses de l'équipe adverse ne quittent jamais l'hôte
+  if (isTeams()) {
+    const tm = teamOf(seat);
+    s.history = (g.history || []).map(e => maskFor(e, tm));
+    s.last = maskFor(g.last, tm);
+    s.candidates = teamCandidates(tm);
+  }
   // V9.20 : pendant le choix, chacun ne reçoit que SON choix (+ la liste de ceux qui ont choisi)
   if (g.duel) {
     s.duel = { ...g.duel, picked: Object.keys(g.duel.picks || {}).map(Number) };
@@ -21120,7 +21336,7 @@ function netBroadcastLobby() {
   const players = net.lobby.map(p => ({ seat: p.seat, name: p.name, connected: p.connected }));
   const rules = {
     level: g.level,
-    mode: ['score', 'duel'].includes(g.gameMode) ? g.gameMode : 'race',
+    mode: ['score', 'duel', 'teams'].includes(g.gameMode) ? g.gameMode : 'race',
     series: g.seriesPref || 0
   };
   for (const p of net.lobby)
@@ -21499,7 +21715,7 @@ function lanScreen() {
   if (v === 'menu')
     body = `<p class="sub">${t('netIntro')}</p>${nameField}${err}<button class="bigbtn" id="netCreate">📶 ${t('netCreate')}</button><button class="bigbtn light" id="netGoJoin">🔑 ${t('netJoin')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else if (v === 'hostLobby')
-    body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div>${netRulesPicker()}${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < 2 ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
+    body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div>${netRulesPicker()}${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < (g.gameMode === 'teams' ? 4 : 2) || (g.gameMode === 'teams' && (net.lobby || []).filter(p => p.connected).length !== 4) ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
   else if (v === 'join' || v === 'joining')
     body = `${nameField}${v === 'join' ? netRoomsList() : ''}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.typedCode != null && v === 'join' ? net.typedCode : net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else
@@ -21516,7 +21732,7 @@ const NET_LEVELS = [
 /** « Facile 1–9 · Course · Premier à 3 » (salle d'attente des invités). */
 function netRulesText(level, mode, series) {
   const L = NET_LEVELS.find(x => x[0] === level) || NET_LEVELS[0];
-  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'duel' ? '⚡ ' + t('modeDuel') : mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}${series ? ' · ⚔️ ' + t('seriesTo', { n: series }) : ''}`;
+  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'teams' ? '👥 ' + t('modeTeams') : mode === 'duel' ? '⚡ ' + t('modeDuel') : mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}${series ? ' · ⚔️ ' + t('seriesTo', { n: series }) : ''}`;
 }
 /** Choix de la série (écran des prénoms, salle Wi-Fi) : 1 partie, premier à 2, premier à 3. */
 function seriesPicker(attr) {
@@ -21535,14 +21751,14 @@ function netRulesPicker() {
     ([id, emo, k]) =>
       `<button type="button" role="radio" class="mode-card net-lv ${g.level === id ? 'on' : ''}" data-netlevel="${id}" aria-checked="${g.level === id}"><b>${emo} ${t(k)}</b><small dir="ltr">1–${LEVELS[id].max}</small></button>`
   ).join('');
-  const cur = ['score', 'duel'].includes(g.gameMode) ? g.gameMode : 'race';
-  const md = ['race', 'score', 'duel']
+  const cur = ['score', 'duel', 'teams'].includes(g.gameMode) ? g.gameMode : 'race';
+  const md = ['race', 'score', 'duel', 'teams']
     .map(
       m =>
-        `<button type="button" role="radio" class="mode-card ${cur === m ? 'on' : ''}" data-netmode="${m}" aria-checked="${cur === m}"><b>${{ race: '🏁 ' + t('modeRace'), score: '🏆 ' + t('modeScore'), duel: '⚡ ' + t('modeDuel') }[m]}</b></button>`
+        `<button type="button" role="radio" class="mode-card ${cur === m ? 'on' : ''}" data-netmode="${m}" aria-checked="${cur === m}"><b>${{ race: '🏁<br>' + t('modeRace'), score: '🏆<br>' + t('modeScore'), duel: '⚡<br>' + t('modeDuel'), teams: '👥<br>' + t('modeTeams') }[m]}</b></button>`
     )
     .join('');
-  return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}</div>`;
+  return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}${g.gameMode === 'teams' ? ((net.lobby || []).filter(p => p.connected).length === 4 ? teamsLine(net.lobby.filter(p => p.connected).map(p => p.name)) : `<p class="sub small centered">⚠️ ${t('teamsNeed4')}</p>`) : ''}</div>`;
 }
 function bindRooms() {
   document.querySelectorAll('[data-room]').forEach(b =>
@@ -21675,7 +21891,7 @@ function bindNet(click) {
   document.querySelectorAll('[data-netmode]').forEach(b =>
     b.addEventListener('click', () => {
       if (net.role !== 'host' || g.net) return;
-      g.gameMode = ['score', 'duel'].includes(b.dataset.netmode) ? b.dataset.netmode : 'race';
+      g.gameMode = ['score', 'duel', 'teams'].includes(b.dataset.netmode) ? b.dataset.netmode : 'race';
       render();
       netBroadcastLobby();
     })
