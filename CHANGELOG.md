@@ -14,6 +14,8 @@
   disparaît dès qu'elle n'existe plus — les annonces gardées en cache par Android ne s'affichent plus. La liste
   repart de zéro à chaque recherche. Aucune partie : cartouche « Aucune partie pour l'instant » (la recherche
   continue). L'écran tient sans défiler avec deux parties listées.
+- **Bouton Carnet** (en haut, entre le tour et Pause) : le carnet marron à loupe des planches d'icônes du projet
+  remplace l'emoji 📓 ; même bouton, même place, même action.
 
 ## V9.24 — les Défis comptent dans le Bureau
 

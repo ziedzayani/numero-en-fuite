@@ -5503,3 +5503,15 @@ html[lang='ja'] .pause-card .pz-msg {
 .net-panel:has(.net-room) .net-name {
   margin-block: 4px;
 }
+/* V9.25 : bouton Carnet — le carnet marron à loupe des planches d'icônes du projet (au lieu de 📓) */
+.ic-notebook {
+  display: block;
+  width: 78%;
+  height: 78%;
+  margin: auto;
+  background: url(img/ic-notebook.webp) center / contain no-repeat;
+}
+#openNotebook {
+  display: grid;
+  place-items: center;
+}

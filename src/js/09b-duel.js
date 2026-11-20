@@ -190,7 +190,7 @@ function duelView() {
         : `<p class="duel-wait">⏳ ${t('duelNextSoon')}</p>`
     }</div>`;
   }
-  return `<header class="gbar duel-bar"><span class="duel-title">⚡ ${t('modeDuel')}<small>${t('duelRound', { n: d.round, total: d.rounds })}</small></span><span class="duel-time" id="duelTime"></span><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header><div class="duel-timebar"><span id="duelBar"></span></div>${chips}<section class="panel duel-panel">${clue}${body}</section>`;
+  return `<header class="gbar duel-bar"><span class="duel-title">⚡ ${t('modeDuel')}<small>${t('duelRound', { n: d.round, total: d.rounds })}</small></span><span class="duel-time" id="duelTime"></span><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}"><i class="ic-notebook" aria-hidden="true"></i></button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header><div class="duel-timebar"><span id="duelBar"></span></div>${chips}<section class="panel duel-panel">${clue}${body}</section>`;
 }
 /** Boutons du duel (appelée par bind()). */
 function bindDuel(click) {
