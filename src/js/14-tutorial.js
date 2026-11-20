@@ -132,5 +132,5 @@ function tutorialView() {
 
 /** Fenêtre proposée au tout premier lancement : le tutoriel est conseillé, jamais imposé. */
 function tutInviteView() {
-  return `<div class="hero-mascot small-mascot">${mascot('think')}</div><h2>👋 ${t('tutInviteTitle')}</h2><p>${t('tutInviteText')}</p><button class="bigbtn green" id="inviteTutorial">🎓 ${t('tutTry')}</button><button class="bigbtn light" id="closeModal">${t('tutLater')}</button>`;
+  return `<div class="m-card"><div class="m-det" aria-hidden="true"><i class="pz-spark l"></i><i class="pz-spark r"></i></div><h2 class="m-title"><span>${t('tutInviteTitle')}</span></h2><p class="m-note">${t('tutInviteText')}</p><button class="bigbtn green" id="inviteTutorial"><i class="ico ico-toque" aria-hidden="true"></i>${t('tutTry')}</button><button class="bigbtn light" id="closeModal">${t('tutLater')}</button></div>`;
 }

@@ -1,5 +1,18 @@
 # Historique des versions
 
+## V9.23 — quatre fenêtres d'après les maquettes, boutons à volume unique
+
+- **Quitter la partie ?**, **Au tour de… !**, **Qui joue ?**, **Première partie ?** : panneau bleu royal à rayons et
+  bordure cyan, détective officiel (image existante) en buste derrière un bandeau titre bleu nuit bordé d'or,
+  message dans un cartouche crème. Textes et fonctionnement inchangés, sauf « Oui, quitter » (demandé) et le 😉
+  retiré de « Passe le téléphone… ».
+- Couleurs demandées : « C'est parti ! » et « Essayer en jouant » VERT glossy ; « Oui, quitter » bleu nuit ;
+  « Non » et « Annuler » blanc bleuté ; badge du joueur blanc bleuté, texte bleu marine (seul le point garde sa
+  couleur) ; « Course » jaune, « Points » blanc bleuté.
+- **Boutons à volume unique** (partout) : plus de capsule claire posée au milieu ; le reflet est intégré au bouton.
+- Icônes sans emoji : maison, trophée et toque du jeu ; clap, coche, croix, lecture, ampoule, filet, deux joueurs
+  et drapeau à damier dessinés (aucune image dupliquée).
+
 ## V9.22 — équipes 2 contre 2 (Wi-Fi)
 
 - Nouveau mode **👥 2 contre 2** dans la salle Wi-Fi (exactement 4 joueurs ; « Lancer » inactif sinon). Les équipes

@@ -415,7 +415,9 @@ function resultView() {
         : '';
   const top = ['found', 'netHit'].includes(x.type) ? extra : '';
   if (top)
-    extra = g.lastHunt ? `<button class="mini-btn rp-open" id="openReplay">🎬 ${t('rpButton')}</button>` : '';
+    extra = g.lastHunt
+      ? `<button class="mini-btn rp-open" id="openReplay"><i class="ico ico-clap" aria-hidden="true"></i>${t('rpButton')}</button>`
+      : '';
   // capture : loupe à côté du titre (V8.16, plus compact), puis l'annonce du podium en Course
   // V9.2 : écran « Bravo ! » / « Oups ! » des maquettes pour les captures et les calculs
   const fb = fbKind(x);
@@ -479,7 +481,7 @@ function awayNews(p) {
     .filter(e => e.type !== 'math' || e.correct)
     .slice(-3);
   if (!items.length) return '';
-  return `<div class="away-news"><b>👀 ${t('awayTitle')}</b><ul>${items.map(e => `<li>${historyText(e)}</li>`).join('')}</ul></div>`;
+  return `<div class="away-news"><b>${t('awayTitle')}</b><ul>${items.map(e => `<li>${historyText(e)}</li>`).join('')}</ul></div>`;
 }
 /** V9.19 : bouton « Pronostic » des spectateurs (Wi-Fi), dans la bulle du détective. */
 function pronoChip() {
@@ -743,7 +745,7 @@ function endRace() {
 function escapedNote(withText) {
   if (!g.escaped) return '';
   const film = g.lastHunt
-    ? `<button class="mini-btn rp-open" id="openReplay">🎬 ${t('rpButton')}</button>`
+    ? `<button class="mini-btn rp-open" id="openReplay"><i class="ico ico-clap" aria-hidden="true"></i>${t('rpButton')}</button>`
     : '';
   if (!withText && !film) return '';
   return `<div class="escaped-note">${withText ? `<span><i class="ic ic-runner" aria-hidden="true"></i>${t('escapedWas', { n: g.escaped.n })}</span>` : ''}${film}</div>`;
@@ -822,5 +824,5 @@ function endSoloLegacy() {
 function endChallenge() {
   const r = records(),
     best = r[chRecordKey()] || 0;
-  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${g.chWon ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p>${g.lastHunt ? `<div class="escaped-note"><button class="mini-btn rp-open" id="openReplay">🎬 ${t('rpButton')}</button></div>` : ''}${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
+  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${g.chWon ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p>${g.lastHunt ? `<div class="escaped-note"><button class="mini-btn rp-open" id="openReplay"><i class="ico ico-clap" aria-hidden="true"></i>${t('rpButton')}</button></div>` : ''}${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }
