@@ -42,7 +42,14 @@ function render() {
     if (document.body.className !== bc) document.body.className = bc;
   }
   document.title = t('title');
-  const screens = { home, game, settings, end, office, lan: lanScreen };
+  const screens = {
+    home,
+    game: () => (isDuel() ? duelView() : game()),
+    settings,
+    end,
+    office,
+    lan: lanScreen
+  };
   app.innerHTML = (screens[g.screen] || end)() + modalView();
   {
     const mk = g.screen + '|' + (g.modal || ''),
@@ -429,6 +436,7 @@ function bind() {
     render();
   });
   bindNet(click);
+  bindDuel(click); // V9.20
   click('menu', () => {
     if (g.net) return netLeave();
     g.screen = 'home';

@@ -33,6 +33,8 @@ const initial = () => ({
   seriesPref: 0, // V9.16 : 0 = une seule partie, 2 / 3 = « premier à 2 / 3 victoires »
   series: null,
   netReady: [], // Wi-Fi : joueurs prêts pour la revanche
+  duel: null, // V9.20 : Duel express (Wi-Fi) — manche, choix secrets, révélation
+  duelElapsed: 0,
   prono: {}, // V9.19 Wi-Fi : pronostics secrets des spectateurs { siège: [numéros] }
   pronoHits: [],
 
@@ -99,7 +101,7 @@ const maxN = () => maxFor(g.mode, g.level);
 /** Indice du joueur dont c'est le tour (le premier joueur change à chaque partie : g.starter). */
 const active = () => (g.turn + (g.starter || 0)) % g.players;
 /** Mode « Course » (et solo) : la première capture gagne. Sinon mode « Points » (score après N tours). */
-const isRace = () => g.mode !== 'challenge' && (g.players === 1 || g.gameMode !== 'score');
+const isRace = () => g.mode !== 'challenge' && (g.players === 1 || !['score', 'duel'].includes(g.gameMode));
 /** Filets restants pour le joueur i (NETS_MAX par partie). */
 const netsLeft = (i = active()) =>
   Array.isArray(g.netsLeft) && g.netsLeft[i] != null ? g.netsLeft[i] : NETS_MAX;
@@ -265,7 +267,7 @@ function load() {
     g.capturing = null;
     if (!(g.sel >= 1 && g.sel <= max)) g.sel = null;
     g.reduceMotion = !!g.reduceMotion;
-    if (!['race', 'score'].includes(g.gameMode)) g.gameMode = 'race';
+    if (!['race', 'score', 'duel'].includes(g.gameMode)) g.gameMode = 'race';
     if (!Array.isArray(g.netsLeft) || g.netsLeft.length !== g.players)
       g.netsLeft = Array(g.players).fill(NETS_MAX);
     g.starter = Number.isInteger(g.starter) ? g.starter : 0;

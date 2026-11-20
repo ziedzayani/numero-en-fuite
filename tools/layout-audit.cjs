@@ -223,6 +223,51 @@ const STATES = {
       `N => { N.state.screen = 'office'; N.state.officeTab = '${tab}'; }`
     ])
   ),
+  'duel choix': N => {
+    N.state.players = 4;
+    N.state.level = 'genius';
+    N.state.names = ['Alexandrine', 'Bartholomé', 'Zied', 'Ahlem'];
+    N.start(true);
+    N.state.gameMode = 'duel';
+    N.state.net = { role: 'client', seat: 1 };
+    N.state.duelSel = 37;
+    const qid = N.state.choices.find(id => /plus|minus|double/.test(id)) || N.state.choices[0];
+    N.state.duel = {
+      round: 3,
+      rounds: 8,
+      phase: 'pick',
+      picks: { 1: { kind: 'net', n: 37 } },
+      picked: [0, 1],
+      clue: { qid, answer: true, shift: { op: 'mirror' } },
+      results: null,
+      caught: null
+    };
+    N.state.modal = null;
+  },
+  'duel révélation': N => {
+    N.state.players = 4;
+    N.state.level = 'genius';
+    N.state.names = ['Alexandrine', 'Bartholomé', 'Zied', 'Ahlem'];
+    N.start(true);
+    N.state.gameMode = 'duel';
+    N.state.net = { role: 'host', seat: 0 };
+    const qid = N.state.choices[0];
+    N.state.duel = {
+      round: 8,
+      rounds: 8,
+      phase: 'reveal',
+      picks: {},
+      clue: { qid, answer: false, shift: { op: '×', k: 2 } },
+      caught: 37,
+      results: [
+        { seat: 0, kind: 'precise', n: 12, hit: false, pts: 0 },
+        { seat: 1, kind: 'net', nums: [36, 37, 38], hit: true, pts: 4 },
+        { seat: 2, kind: 'precise', n: 37, hit: true, pts: 10 },
+        { seat: 3, none: true, pts: 0 }
+      ]
+    };
+    N.state.modal = null;
+  },
   'bureau versus rempli': N => {
     // V9.17 : 6 joueurs et 4 face-à-face (le maximum affiché), prénoms longs
     const names = ['Alexandrine', 'Bartholomé', 'Zied', 'Ahlem', 'Maximilien', 'Lina'];

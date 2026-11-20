@@ -4914,6 +4914,183 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
+  // V9.20 : Duel express — 3 téléphones simulés, choix secrets, révélation simultanée, 8 manches
+  {
+    const hosts = {};
+    let seq = 0;
+    const deliver = (pg, ev) =>
+      setTimeout(() => pg.evaluate(e => window.__netEvent(JSON.stringify(e)), ev).catch(() => {}), 5);
+    const hostOf = pg => Object.values(hosts).find(h => h.page === pg);
+    const op = (src, o, a, d) => {
+      if (o === 'hostStart') {
+        hosts[a] = { page: src, peers: new Map(), code: a };
+        deliver(src, { type: 'hosting', ip: '10.0.0.2', port: 4000 });
+      } else if (o === 'joinStart') {
+        const h = hosts[a],
+          id = 'd' + ++seq;
+        h.peers.set(id, src);
+        src.__peer = { code: a, id };
+        deliver(h.page, { type: 'peerJoined', peer: id });
+        deliver(src, { type: 'connected' });
+      } else if (o === 'send') {
+        const h = hostOf(src);
+        if (h) {
+          const dst = h.peers.get(a);
+          if (dst) deliver(dst, { type: 'message', peer: 'host', data: d });
+        } else if (src.__peer)
+          deliver(hosts[src.__peer.code].page, { type: 'message', peer: src.__peer.id, data: d });
+      }
+    };
+    const errs = [];
+    const ctxs = [];
+    const phone = async () => {
+      const ctx = await browser.newContext({
+        locale: 'fr-FR',
+        viewport: { width: 360, height: 735 },
+        isMobile: true,
+        hasTouch: true
+      });
+      ctxs.push(ctx);
+      const pg = await ctx.newPage();
+      pg.on('pageerror', e => errs.push(String(e)));
+      await pg.exposeBinding('__fakeNet', ({ page: src }, o, a, d) => op(src, o, a, d));
+      await pg.addInitScript(() => {
+        window.NumeroNet = {
+          hostStart: (c, n) => window.__fakeNet('hostStart', c, n),
+          joinStart: c => window.__fakeNet('joinStart', c),
+          send: (p, d) => window.__fakeNet('send', p, d),
+          stop: () => {},
+          keepAwake: () => {}
+        };
+      });
+      await pg.goto(URL);
+      await pg.evaluate(() => localStorage.clear());
+      await pg.reload();
+      await pg.evaluate(() => {
+        const N = window.__numero;
+        N.state.modal = null;
+        N.state.reduceMotion = true;
+        N.render();
+      });
+      return pg;
+    };
+    const w = ms => new Promise(r => setTimeout(r, ms));
+    const SS = pg => pg.evaluate(() => JSON.parse(JSON.stringify(window.__numero.state)));
+    const [h, a, b] = [await phone(), await phone(), await phone()];
+    await h.evaluate(() => {
+      const N = window.__numero;
+      Object.assign(N.state, { myName: 'Zied', level: 'expert', screen: 'lan', lan: { view: 'menu' } });
+      N.render();
+    });
+    await h.click('#netCreate');
+    const code = (await h.textContent('.net-code')).trim();
+    for (const [pg, n] of [
+      [a, 'Ahlem'],
+      [b, 'Sami']
+    ]) {
+      await pg.evaluate(n => {
+        const N = window.__numero;
+        Object.assign(N.state, { myName: n, screen: 'lan', lan: { view: 'join' } });
+        N.render();
+      }, n);
+      await pg.fill('#netCode', code);
+      await pg.click('#netJoinGo');
+    }
+    await w(400);
+    await h.click('[data-netmode="duel"]');
+    await w(150);
+    check(
+      (await a.textContent('.net-rules')).includes('Duel express'),
+      'Duel : choisi dans la salle, affiché chez les invités'
+    );
+    await h.click('#netLaunch');
+    await w(400);
+    let hs = await SS(h),
+      as = await SS(a);
+    check(
+      hs.screen === 'game' &&
+        as.screen === 'game' &&
+        as.duel &&
+        as.duel.round === 1 &&
+        as.duel.clue &&
+        (await a.isVisible('.duel-clue')),
+      'Duel : manche 1 chez tous, indice commun affiché'
+    );
+    const sec = await h.evaluate(() => window.__numero.state.secret);
+    await a.click(`[data-dsel="${sec}"]`);
+    await a.click('#duelPrecise');
+    await w(250);
+    const bs = await SS(b);
+    hs = await SS(h);
+    check(
+      bs.secret === undefined &&
+        Object.keys(bs.duel.picks).length === 0 &&
+        bs.duel.picked.join() === '1' &&
+        hs.duel.phase === 'pick',
+      'Duel : le choix d’Ahlem reste secret (les autres voient seulement qu’elle a choisi)'
+    );
+    const far = sec > 15 ? 1 : 30;
+    await b.click(`[data-dsel="${far}"]`);
+    await b.click('#duelNet');
+    await h.click(`[data-dsel="${sec === 1 ? 2 : 1}"]`);
+    await h.click('#duelPrecise');
+    await w(300);
+    hs = await SS(h);
+    as = await SS(a);
+    check(
+      hs.duel.phase === 'reveal' &&
+        hs.scores.join() === '0,10,0' &&
+        hs.duel.caught === sec &&
+        hs.netsLeft[2] === 2 &&
+        as.duel.results.length === 3,
+      `Duel : révélation simultanée, +10 pour la capture précise d’Ahlem, filet de Sami consommé (${hs.scores})`
+    );
+    // manche sans capture : le numéro n'est pas révélé
+    await h.click('#duelNext');
+    await w(300);
+    const s2 = await h.evaluate(() => window.__numero.state.secret);
+    for (const pg of [h, a, b]) {
+      await pg.click(`[data-dsel="${s2 === 1 ? 2 : 1}"]`);
+      await pg.click('#duelPrecise');
+    }
+    await w(300);
+    as = await SS(a);
+    check(
+      as.duel.phase === 'reveal' && as.duel.caught === null && as.secret === undefined,
+      'Duel : personne ne l’a eu → le numéro n’est pas révélé'
+    );
+    // le chrono décide pour ceux qui ne choisissent pas
+    await h.click('#duelNext');
+    await w(200);
+    await h.evaluate(() => {
+      const N = window.__numero;
+      N.state.duelElapsed = 24990;
+    });
+    await w(700);
+    hs = await SS(h);
+    check(
+      hs.duel.phase === 'reveal' && hs.duel.results.every(r => r.none),
+      'Duel : fin du chrono → révélation, sans choix = rien'
+    );
+    for (let r = hs.duel.round; r < 8; r++) {
+      await h.evaluate(() => window.__numero.act('duelNext'));
+      await w(100);
+      await h.evaluate(() => {
+        window.__numero.state.duelElapsed = 25000;
+      });
+      await w(400);
+    }
+    await h.evaluate(() => window.__numero.act('duelNext'));
+    await w(400);
+    [hs, as] = [await SS(h), await SS(a)];
+    check(
+      hs.screen === 'end' && as.screen === 'end' && /Ahlem/.test(await a.textContent('.end-hero')),
+      'Duel : fin après 8 manches, Ahlem gagne chez tous'
+    );
+    check(!errs.length, `Duel : aucune erreur JavaScript (${errs.slice(0, 2).join(' | ')})`);
+    for (const c of ctxs) await c.close();
+  }
+
   await browser.close();
   console.log(`\nRésultat : ${passed} vérifications réussies, ${failed} échec(s).`);
   if (failed) {

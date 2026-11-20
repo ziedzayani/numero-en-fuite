@@ -149,7 +149,8 @@ function start(skipHandoff = false) {
   g.myName = typeof myName === 'string' ? myName : ''; // prénom de CE téléphone en Wi-Fi
   g.tipsSeen = tipsSeen && typeof tipsSeen === 'object' ? tipsSeen : {};
   g.chDiffPref = chDiffPref in CHALLENGE_DIFFS ? chDiffPref : 'medium';
-  g.gameMode = gameMode === 'score' ? 'score' : 'race';
+  // V9.20 : le Duel express n'existe qu'en Wi-Fi (l'hôte arbitre les choix simultanés)
+  g.gameMode = gameMode === 'score' || (gameMode === 'duel' && net.role === 'host') ? gameMode : 'race';
   g.starter = players > 1 ? (starter || 0) % players : 0;
   g.playerHelp = Array.isArray(playerHelp) ? playerHelp.slice(0, 4) : [false, false, false, false];
   g.mode = 'normal';

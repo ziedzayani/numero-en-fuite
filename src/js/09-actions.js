@@ -403,7 +403,9 @@ const GAME_ACTIONS = {
   reroll: rerollChoices,
   pause: pauseGame,
   resume: resumeGame,
-  prono: (n, seat) => setProno(seat == null ? (g.net ? g.net.seat : 0) : seat, n)
+  prono: (n, seat) => setProno(seat == null ? (g.net ? g.net.seat : 0) : seat, n),
+  duelPick: (kind, n) => duelPick(g.net ? g.net.seat : 0, kind, n),
+  duelNext: () => duelNext()
 };
 
 /** Joueur absent (multijoueur Wi-Fi : parti sans revenir) : ses tours sont sautés. */

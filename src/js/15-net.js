@@ -36,7 +36,8 @@ const NET_LOCAL_KEYS = [
   'marks', // carnet « à la main » : chacun barre sur son téléphone
   'nbTab',
   'nbZoom',
-  'pronoOpen' // fenêtre de pronostic ouverte sur CE téléphone
+  'pronoOpen', // fenêtre de pronostic ouverte sur CE téléphone
+  'duelSel' // numéro sélectionné dans le Duel express (avant envoi)
 ];
 /** Fenêtres partagées par tous (les autres, comme le carnet ou le film, restent locales). */
 const NET_SHARED_MODALS = ['pause', 'netWait'];
@@ -74,7 +75,7 @@ function act(name, ...args) {
   const fn = GAME_ACTIONS[name];
   if (!fn) return;
   if (!g.net) return fn(...args);
-  if (!['pause', 'resume', 'prono'].includes(name) && !myTurn()) return; // seul le joueur dont c'est le tour agit
+  if (!['pause', 'resume', 'prono', 'duelPick', 'duelNext'].includes(name) && !myTurn()) return; // seul le joueur dont c'est le tour agit
   if (g.net.role === 'host') return fn(...args);
   netSend('host', { t: 'action', name, args });
 }
@@ -137,6 +138,7 @@ function netLaunch(relaunch = false) {
   g.net = { role: 'host', seat: 0 };
   g.absent = [];
   g.lan = null;
+  if (g.gameMode === 'duel') duelBegin(); // V9.20
   render();
   netBroadcastLobby();
 }
@@ -181,6 +183,11 @@ function redactState(seat) {
   delete s.soloSecret;
   // V9.19 : chacun ne reçoit que SON pronostic (les autres restent secrets jusqu'au résultat)
   s.prono = g.prono && g.prono[seat] ? { [seat]: g.prono[seat] } : {};
+  // V9.20 : pendant le choix, chacun ne reçoit que SON choix (+ la liste de ceux qui ont choisi)
+  if (g.duel) {
+    s.duel = { ...g.duel, picked: Object.keys(g.duel.picks || {}).map(Number) };
+    if (g.duel.phase === 'pick') s.duel.picks = g.duel.picks[seat] ? { [seat]: g.duel.picks[seat] } : {};
+  }
   if (s.math) s.math = { ...s.math, result: null };
   if (!NET_SHARED_MODALS.includes(s.modal)) s.modal = null;
   s.sel = null;
@@ -206,14 +213,19 @@ let netTimerSent = 0;
 function netBroadcastTimers() {
   if (net.role !== 'host' || !g.net || Date.now() - netTimerSent < 500) return;
   netTimerSent = Date.now();
-  const v = { turnElapsed: g.turnElapsed, answerElapsed: g.answerElapsed, mathElapsed: g.mathElapsed };
+  const v = {
+    turnElapsed: g.turnElapsed,
+    answerElapsed: g.answerElapsed,
+    mathElapsed: g.mathElapsed,
+    duelElapsed: g.duelElapsed
+  };
   for (const p of net.lobby) if (p.peer && p.connected) netSend(p.peer, { t: 'timers', v });
 }
 function netBroadcastLobby() {
   const players = net.lobby.map(p => ({ seat: p.seat, name: p.name, connected: p.connected }));
   const rules = {
     level: g.level,
-    mode: g.gameMode === 'score' ? 'score' : 'race',
+    mode: ['score', 'duel'].includes(g.gameMode) ? g.gameMode : 'race',
     series: g.seriesPref || 0
   };
   for (const p of net.lobby)
@@ -267,6 +279,8 @@ function hostOnMessage(peer, m) {
     const p = net.lobby.find(x => x.peer === peer && x.connected);
     if (!p || !g.net || !GAME_ACTIONS[m.name]) return;
     if (m.name === 'prono') return setProno(p.seat, Array.isArray(m.args) ? m.args[0] : null); // siège de l'expéditeur
+    if (m.name === 'duelPick') return Array.isArray(m.args) && duelPick(p.seat, m.args[0], m.args[1]);
+    if (m.name === 'duelNext') return; // seul l'hôte passe à la manche suivante
     if (!['pause', 'resume'].includes(m.name) && active() !== p.seat) return; // pas son tour : ignoré
     GAME_ACTIONS[m.name](...(Array.isArray(m.args) ? m.args.slice(0, 2) : []));
   }
@@ -349,7 +363,7 @@ function netVisibility(hidden) {
 }
 /** Hôte : si le joueur dont c'est le tour est déconnecté, tout le monde attend (fenêtre « netWait »). */
 function netCheckWaiting() {
-  if (net.role !== 'host' || !g.net || g.screen !== 'game') return;
+  if (net.role !== 'host' || !g.net || g.screen !== 'game' || isDuel()) return;
   const p = net.lobby[active()];
   if (p && !p.connected && !isAbsent(p.seat) && !g.modal) {
     g.modal = 'netWait';
@@ -392,6 +406,7 @@ function clientApplyState(s) {
   const keep = Object.fromEntries(NET_LOCAL_KEYS.map(k => [k, g[k]]));
   const localModal = ['notebook', 'replay', 'netLost'].includes(g.modal) ? g.modal : null;
   const sameTurn = g.turn === s.turn && g.phase === s.phase;
+  if (!s.duel || !g.duel || s.duel.round !== g.duel.round) keep.duelSel = null; // nouvelle manche : rien de sélectionné
   const local = { sel: sameTurn ? g.sel : null, typed: sameTurn ? g.typed : '' };
   g = Object.assign(s, keep, local);
   if (localModal && !s.modal) g.modal = localModal;
@@ -447,6 +462,7 @@ function clientOnMessage(m) {
   else if (m.t === 'timers' && g.net) {
     Object.assign(g, m.v);
     paintTimers();
+    paintDuel();
   } else if (m.t === 'error') {
     netStop();
     g.lan = { view: 'join', error: m.code };
@@ -605,7 +621,7 @@ const NET_LEVELS = [
 /** « Facile 1–9 · Course · Premier à 3 » (salle d'attente des invités). */
 function netRulesText(level, mode, series) {
   const L = NET_LEVELS.find(x => x[0] === level) || NET_LEVELS[0];
-  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}${series ? ' · ⚔️ ' + t('seriesTo', { n: series }) : ''}`;
+  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'duel' ? '⚡ ' + t('modeDuel') : mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}${series ? ' · ⚔️ ' + t('seriesTo', { n: series }) : ''}`;
 }
 /** Choix de la série (écran des prénoms, salle Wi-Fi) : 1 partie, premier à 2, premier à 3. */
 function seriesPicker(attr) {
@@ -624,10 +640,11 @@ function netRulesPicker() {
     ([id, emo, k]) =>
       `<button type="button" role="radio" class="mode-card net-lv ${g.level === id ? 'on' : ''}" data-netlevel="${id}" aria-checked="${g.level === id}"><b>${emo} ${t(k)}</b><small dir="ltr">1–${LEVELS[id].max}</small></button>`
   ).join('');
-  const md = ['race', 'score']
+  const cur = ['score', 'duel'].includes(g.gameMode) ? g.gameMode : 'race';
+  const md = ['race', 'score', 'duel']
     .map(
       m =>
-        `<button type="button" role="radio" class="mode-card ${(g.gameMode === 'score') === (m === 'score') ? 'on' : ''}" data-netmode="${m}" aria-checked="${(g.gameMode === 'score') === (m === 'score')}"><b>${m === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}</b></button>`
+        `<button type="button" role="radio" class="mode-card ${cur === m ? 'on' : ''}" data-netmode="${m}" aria-checked="${cur === m}"><b>${{ race: '🏁 ' + t('modeRace'), score: '🏆 ' + t('modeScore'), duel: '⚡ ' + t('modeDuel') }[m]}</b></button>`
     )
     .join('');
   return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}</div>`;
@@ -763,7 +780,7 @@ function bindNet(click) {
   document.querySelectorAll('[data-netmode]').forEach(b =>
     b.addEventListener('click', () => {
       if (net.role !== 'host' || g.net) return;
-      g.gameMode = b.dataset.netmode === 'score' ? 'score' : 'race';
+      g.gameMode = ['score', 'duel'].includes(b.dataset.netmode) ? b.dataset.netmode : 'race';
       render();
       netBroadcastLobby();
     })

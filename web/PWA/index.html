@@ -10760,7 +10760,7 @@ html[lang='ja'] .pause-card .pz-msg {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .net-rules-pick .net-modes {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .net-rules-pick .mode-card {
   display: flex;
@@ -11265,6 +11265,235 @@ html[lang='ja'] .pause-card .pz-msg {
   color: #7a4d00;
   font-weight: 800;
 }
+/* ===== V9.20 : Duel express ===== */
+.duel-bar {
+  align-items: center;
+}
+.duel-title {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  padding: 4px 14px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #1a3a9a, #0f2462);
+  border: 2px solid #ffd54a;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+.duel-title small {
+  color: #ffe08a;
+  font-size: 12px;
+  font-weight: 800;
+}
+.duel-time {
+  flex: 0 0 auto;
+  min-width: 58px;
+  padding: 6px 8px;
+  border-radius: 14px;
+  background: #fff;
+  border: 2px solid #ffc83d;
+  color: #14205a;
+  font-size: 15px;
+  font-weight: 900;
+  text-align: center;
+}
+.duel-timebar {
+  height: 6px;
+  margin: 6px 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+.duel-timebar span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #ffd54a, #6ff0ff);
+  transition: width 0.25s linear;
+}
+.duel-panel {
+  border: 3px solid #6ff0ff;
+  box-shadow:
+    0 0 0 2px #0a2a7a,
+    0 0 14px rgba(63, 224, 255, 0.6);
+}
+.duel-clue {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fffdf6, #ffeec4);
+  border: 2px solid var(--hunt-gold);
+  color: #14205a;
+  text-align: center;
+}
+.duel-clue small {
+  font-size: 12px;
+  font-weight: 800;
+  color: #7a4d00;
+}
+.duel-clue b {
+  font-size: 15px;
+}
+.duel-move {
+  font-size: 13px;
+  font-weight: 800;
+}
+.duel-move .mv-op {
+  display: inline-block;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #6b3fd6;
+  color: #fff;
+}
+.duel-ask,
+.duel-wait,
+.duel-result {
+  margin: 4px 0 6px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
+.duel-grid {
+  display: grid;
+  gap: 8px;
+  margin: 6px 0 10px;
+}
+.duel-n {
+  min-height: 34px;
+  padding: 0;
+  border-radius: 10px;
+  border: 2px solid #b9d4ff;
+  background: linear-gradient(180deg, #ffffff, #e6eeff);
+  color: #14205a;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.duel-n.out {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+.duel-n.on {
+  opacity: 1;
+  border-color: #ffe066;
+  background: linear-gradient(180deg, #fff3a6, #ffd83a 45%, #ffbf0f);
+  box-shadow: 0 0 0 2px #b87800;
+  text-decoration: none;
+}
+.duel-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.duel-actions .bigbtn {
+  min-height: 54px;
+  margin: 0;
+  padding: 4px 6px;
+  font-size: 16px;
+  line-height: 1.1;
+}
+.duel-actions .bigbtn small {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+.duel-rows {
+  margin: 6px 0 10px;
+  padding: 0;
+  list-style: none;
+}
+.duel-rows li {
+  display: grid;
+  grid-template-columns: 1fr auto 52px;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0;
+  padding: 8px 12px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(40, 90, 220, 0.9), rgba(16, 44, 130, 0.95));
+  border: 2px solid rgba(111, 240, 255, 0.6);
+  color: #fff;
+  font-weight: 800;
+}
+.duel-rows li.hit {
+  border: 3px solid #ffd54a;
+  box-shadow: 0 0 12px rgba(255, 214, 80, 0.7);
+}
+.duel-rows li b {
+  text-align: end;
+  color: #ffd54a;
+  font-size: 18px;
+}
+.duel-rows li.miss b {
+  color: #ff9a8f;
+}
+.duel-result .big-n {
+  font-style: normal;
+  font-size: 20px;
+  color: #ffd54a;
+}
+.duel-reveal .bigbtn {
+  margin-top: 6px;
+}
+
+.duel-rows .cname {
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.duel-title {
+  white-space: nowrap;
+  font-size: 15px;
+}
+.duel-title small {
+  white-space: nowrap;
+}
+/* écrans de fin : bouton Accueil à maison blanche, comme l'écran de victoire */
+.ec-actions .bigbtn.light#menu .ic-home {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 60'%3E%3Cpath d='M32 5 4 29a3.5 3.5 0 0 0 4.6 5.3L12 31.4V53a4 4 0 0 0 4 4h11V41h10v16h11a4 4 0 0 0 4-4V31.4l3.4 2.9A3.5 3.5 0 0 0 60 29Z' fill='%23fff' stroke='%230b2f8f' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+@media (max-height: 760px) {
+  .duel-timebar {
+    margin: 4px 4px 6px;
+  }
+  .duel-clue {
+    margin-bottom: 6px;
+    padding: 5px 10px;
+  }
+  .duel-clue b {
+    font-size: 14px;
+  }
+  .duel-ask,
+  .duel-wait {
+    margin: 2px 0 4px;
+    font-size: 13px;
+  }
+  .duel-grid {
+    margin: 4px 0 8px;
+  }
+  .duel-n {
+    min-height: 29px;
+    font-size: 14px;
+  }
+  .duel-actions .bigbtn {
+    min-height: 48px;
+  }
+  .duel-chips .chip {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+}
 
     </style>
   </head>
@@ -11355,7 +11584,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.19";
+const APP_VERSION = "9.20";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -11471,6 +11700,17 @@ const dictionaries = {
   "conMath": "chrono, il bouge",
   "conQuestion": "il bouge ensuite",
   "continueGuess": "Choisir mon numéro",
+  "duelAsk": "Choisis un numéro, puis ta capture (en secret) :",
+  "duelCaught": "Attrapé ! Il était sur le {n}.",
+  "duelClue": "Indice pour tous",
+  "duelEscaped": "Personne ne l’a eu : le numéro court toujours !",
+  "duelNet": "Filet +4",
+  "duelNextRound": "Manche suivante",
+  "duelNextSoon": "La manche suivante arrive…",
+  "duelPrecise": "Précis +10",
+  "duelRound": "Manche {n} / {total}",
+  "duelSent": "choix envoyé : {pick} (tu peux encore changer)",
+  "duelWaiting": "{n} / {total} ont choisi",
   "emptyHistory": "Pas encore d’indice.",
   "endSolo": "Tu as terminé ta partie !",
   "endTie": "Égalité : {players}",
@@ -11567,6 +11807,7 @@ const dictionaries = {
   "mission_stars": "Gagne avec 3 étoiles",
   "mission_winLevel": "Gagne une enquête au niveau {level}",
   "missionsIntro": "Pas de chrono : prends ton temps. Chaque mission réussie rapporte +{xp} XP et une nouvelle arrive.",
+  "modeDuel": "Duel express",
   "modeRace": "Course",
   "modeRaceSub": "Le premier qui attrape le numéro gagne : la partie s’arrête. Personne ? Les points départagent.",
   "modeScore": "Points",
@@ -12071,6 +12312,17 @@ const dictionaries = {
   "conMath": "timer, it moves",
   "conQuestion": "it moves afterwards",
   "continueGuess": "Choose my number",
+  "duelAsk": "Pick a number, then your catch (in secret):",
+  "duelCaught": "Caught! It was on {n}.",
+  "duelClue": "Clue for everyone",
+  "duelEscaped": "Nobody got it: the number is still on the run!",
+  "duelNet": "Net +4",
+  "duelNextRound": "Next round",
+  "duelNextSoon": "Next round coming…",
+  "duelPrecise": "Exact +10",
+  "duelRound": "Round {n} / {total}",
+  "duelSent": "choice sent: {pick} (you can still change)",
+  "duelWaiting": "{n} / {total} have chosen",
   "emptyHistory": "No clues yet.",
   "endSolo": "You finished your game!",
   "endTie": "It’s a tie: {players}",
@@ -12167,6 +12419,7 @@ const dictionaries = {
   "mission_stars": "Win with 3 stars",
   "mission_winLevel": "Win a case at {level} level",
   "missionsIntro": "No timer: take your time. Each mission gives +{xp} XP and a new one arrives.",
+  "modeDuel": "Express duel",
   "modeRace": "Race",
   "modeRaceSub": "First to catch the number wins: the game stops. Nobody? Points decide.",
   "modeScore": "Points",
@@ -12671,6 +12924,17 @@ const dictionaries = {
   "conMath": "مؤقّت، ويتحرك",
   "conQuestion": "يتحرك بعدها",
   "continueGuess": "اختيار رقمي",
+  "duelAsk": "اختر رقمًا، ثم طريقة الإمساك (سرًّا):",
+  "duelCaught": "أُمسك! كان على {n}.",
+  "duelClue": "تلميح للجميع",
+  "duelEscaped": "لم يمسكه أحد: الرقم ما زال هاربًا!",
+  "duelNet": "شبكة ‎+4",
+  "duelNextRound": "الجولة التالية",
+  "duelNextSoon": "الجولة التالية قادمة…",
+  "duelPrecise": "دقيق ‎+10",
+  "duelRound": "الجولة {n} / {total}",
+  "duelSent": "تم إرسال الاختيار: {pick} (يمكنك التغيير)",
+  "duelWaiting": "اختار {n} / {total}",
   "emptyHistory": "لا تلميحات حتى الآن.",
   "endSolo": "أنهيت اللعبة!",
   "endTie": "تعادل: {players}",
@@ -12767,6 +13031,7 @@ const dictionaries = {
   "mission_stars": "اربح بثلاث نجوم",
   "mission_winLevel": "اربح تحقيقًا في مستوى {level}",
   "missionsIntro": "لا يوجد وقت محدد: خذ وقتك. كل مهمة ناجحة تمنح ‎+{xp} XP وتأتي مهمة جديدة.",
+  "modeDuel": "مبارزة سريعة",
   "modeRace": "سباق",
   "modeRaceSub": "أول من يمسك الرقم يفوز وتنتهي اللعبة. لا أحد؟ النقاط تحسم.",
   "modeScore": "نقاط",
@@ -13271,6 +13536,17 @@ const dictionaries = {
   "conMath": "cronómetro, se mueve",
   "conQuestion": "se mueve después",
   "continueGuess": "Elegir mi número",
+  "duelAsk": "Elige un número y tu captura (en secreto):",
+  "duelCaught": "¡Atrapado! Estaba en el {n}.",
+  "duelClue": "Pista para todos",
+  "duelEscaped": "Nadie lo atrapó: ¡el número sigue huyendo!",
+  "duelNet": "Red +4",
+  "duelNextRound": "Siguiente ronda",
+  "duelNextSoon": "Llega la siguiente ronda…",
+  "duelPrecise": "Exacto +10",
+  "duelRound": "Ronda {n} / {total}",
+  "duelSent": "elección enviada: {pick} (aún puedes cambiar)",
+  "duelWaiting": "{n} / {total} han elegido",
   "emptyHistory": "Aún no hay pistas.",
   "endSolo": "¡Has terminado tu partida!",
   "endTie": "Empate: {players}",
@@ -13367,6 +13643,7 @@ const dictionaries = {
   "mission_stars": "Gana con 3 estrellas",
   "mission_winLevel": "Gana un caso en el nivel {level}",
   "missionsIntro": "Sin reloj: tómate tu tiempo. Cada misión da +{xp} XP y llega otra nueva.",
+  "modeDuel": "Duelo exprés",
   "modeRace": "Carrera",
   "modeRaceSub": "El primero que atrapa el número gana: la partida termina. ¿Nadie? Deciden los puntos.",
   "modeScore": "Puntos",
@@ -13871,6 +14148,17 @@ const dictionaries = {
   "conMath": "cronometro, si muove",
   "conQuestion": "si muove dopo",
   "continueGuess": "Scegli il mio numero",
+  "duelAsk": "Scegli un numero, poi la cattura (in segreto):",
+  "duelCaught": "Preso! Era sul {n}.",
+  "duelClue": "Indizio per tutti",
+  "duelEscaped": "Nessuno l’ha preso: il numero scappa ancora!",
+  "duelNet": "Rete +4",
+  "duelNextRound": "Round successivo",
+  "duelNextSoon": "Arriva il round successivo…",
+  "duelPrecise": "Preciso +10",
+  "duelRound": "Round {n} / {total}",
+  "duelSent": "scelta inviata: {pick} (puoi ancora cambiare)",
+  "duelWaiting": "{n} / {total} hanno scelto",
   "emptyHistory": "Ancora nessun indizio.",
   "endSolo": "Hai finito la partita!",
   "endTie": "Pareggio: {players}",
@@ -13967,6 +14255,7 @@ const dictionaries = {
   "mission_stars": "Vinci con 3 stelle",
   "mission_winLevel": "Vinci un caso al livello {level}",
   "missionsIntro": "Nessun cronometro: prenditi il tuo tempo. Ogni missione dà +{xp} XP e ne arriva una nuova.",
+  "modeDuel": "Duello express",
   "modeRace": "Corsa",
   "modeRaceSub": "Il primo che cattura il numero vince: la partita finisce. Nessuno? Decidono i punti.",
   "modeScore": "Punti",
@@ -14471,6 +14760,17 @@ const dictionaries = {
   "conMath": "Zeitlimit, sie bewegt sich",
   "conQuestion": "sie bewegt sich danach",
   "continueGuess": "Meine Zahl wählen",
+  "duelAsk": "Wähle eine Zahl, dann deinen Fang (geheim):",
+  "duelCaught": "Gefangen! Sie war auf der {n}.",
+  "duelClue": "Hinweis für alle",
+  "duelEscaped": "Niemand hat sie: die Zahl ist noch auf der Flucht!",
+  "duelNet": "Netz +4",
+  "duelNextRound": "Nächste Runde",
+  "duelNextSoon": "Die nächste Runde kommt…",
+  "duelPrecise": "Genau +10",
+  "duelRound": "Runde {n} / {total}",
+  "duelSent": "Wahl gesendet: {pick} (du kannst noch ändern)",
+  "duelWaiting": "{n} / {total} haben gewählt",
   "emptyHistory": "Noch keine Hinweise.",
   "endSolo": "Du hast dein Spiel beendet!",
   "endTie": "Unentschieden: {players}",
@@ -14567,6 +14867,7 @@ const dictionaries = {
   "mission_stars": "Gewinne mit 3 Sternen",
   "mission_winLevel": "Gewinne einen Fall auf Stufe {level}",
   "missionsIntro": "Keine Uhr: Lass dir Zeit. Jede Mission bringt +{xp} XP und eine neue kommt.",
+  "modeDuel": "Express-Duell",
   "modeRace": "Rennen",
   "modeRaceSub": "Wer die Zahl zuerst fängt, gewinnt: Das Spiel endet. Niemand? Die Punkte entscheiden.",
   "modeScore": "Punkte",
@@ -15071,6 +15372,17 @@ const dictionaries = {
   "conMath": "限时，会移动",
   "conQuestion": "之后会移动",
   "continueGuess": "选我的数字",
+  "duelAsk": "选一个数字，再选抓捕方式（保密）：",
+  "duelCaught": "抓到了！它在 {n}。",
+  "duelClue": "所有人的线索",
+  "duelEscaped": "没人抓到：数字还在逃！",
+  "duelNet": "网 +4",
+  "duelNextRound": "下一轮",
+  "duelNextSoon": "下一轮马上开始…",
+  "duelPrecise": "精确 +10",
+  "duelRound": "第 {n} / {total} 轮",
+  "duelSent": "已发送：{pick}（还可以修改）",
+  "duelWaiting": "{n} / {total} 人已选择",
   "emptyHistory": "还没有线索。",
   "endSolo": "你完成了这局游戏！",
   "endTie": "平局：{players}",
@@ -15167,6 +15479,7 @@ const dictionaries = {
   "mission_stars": "三星获胜",
   "mission_winLevel": "在{level}难度赢下一个案件",
   "missionsIntro": "不计时：慢慢来。每完成一个任务得 +{xp} XP，并出现新任务。",
+  "modeDuel": "快速对决",
   "modeRace": "竞速",
   "modeRaceSub": "谁先抓到数字谁赢，游戏结束。没人抓到？比分数。",
   "modeScore": "积分",
@@ -15671,6 +15984,17 @@ const dictionaries = {
   "conMath": "時間制限あり、動く",
   "conQuestion": "そのあと動く",
   "continueGuess": "数字を選ぶ",
+  "duelAsk": "数字を選んで、キャッチ方法も選ぼう（ひみつ）：",
+  "duelCaught": "つかまえた！{n} にいたよ。",
+  "duelClue": "全員へのヒント",
+  "duelEscaped": "だれもつかまえられなかった：数字はまだにげているよ！",
+  "duelNet": "あみ +4",
+  "duelNextRound": "次のラウンド",
+  "duelNextSoon": "次のラウンドがはじまるよ…",
+  "duelPrecise": "ピタリ +10",
+  "duelRound": "ラウンド {n} / {total}",
+  "duelSent": "送信済み：{pick}（まだ変えられるよ）",
+  "duelWaiting": "{n} / {total} 人が選択",
   "emptyHistory": "まだヒントはありません。",
   "endSolo": "ゲームクリア！",
   "endTie": "引き分け：{players}",
@@ -15767,6 +16091,7 @@ const dictionaries = {
   "mission_stars": "星 3 つで勝つ",
   "mission_winLevel": "{level}レベルで事件に勝つ",
   "missionsIntro": "時間制限なし：ゆっくりどうぞ。ミッション 1 つにつき +{xp} XP、そして新しいミッションが登場。",
+  "modeDuel": "スピード対決",
   "modeRace": "レース",
   "modeRaceSub": "最初につかまえた人の勝ちでゲーム終了。だれもいなければ点数で決着。",
   "modeScore": "ポイント",
@@ -16238,6 +16563,8 @@ const initial = () => ({
   seriesPref: 0, // V9.16 : 0 = une seule partie, 2 / 3 = « premier à 2 / 3 victoires »
   series: null,
   netReady: [], // Wi-Fi : joueurs prêts pour la revanche
+  duel: null, // V9.20 : Duel express (Wi-Fi) — manche, choix secrets, révélation
+  duelElapsed: 0,
   prono: {}, // V9.19 Wi-Fi : pronostics secrets des spectateurs { siège: [numéros] }
   pronoHits: [],
 
@@ -16304,7 +16631,7 @@ const maxN = () => maxFor(g.mode, g.level);
 /** Indice du joueur dont c'est le tour (le premier joueur change à chaque partie : g.starter). */
 const active = () => (g.turn + (g.starter || 0)) % g.players;
 /** Mode « Course » (et solo) : la première capture gagne. Sinon mode « Points » (score après N tours). */
-const isRace = () => g.mode !== 'challenge' && (g.players === 1 || g.gameMode !== 'score');
+const isRace = () => g.mode !== 'challenge' && (g.players === 1 || !['score', 'duel'].includes(g.gameMode));
 /** Filets restants pour le joueur i (NETS_MAX par partie). */
 const netsLeft = (i = active()) =>
   Array.isArray(g.netsLeft) && g.netsLeft[i] != null ? g.netsLeft[i] : NETS_MAX;
@@ -16470,7 +16797,7 @@ function load() {
     g.capturing = null;
     if (!(g.sel >= 1 && g.sel <= max)) g.sel = null;
     g.reduceMotion = !!g.reduceMotion;
-    if (!['race', 'score'].includes(g.gameMode)) g.gameMode = 'race';
+    if (!['race', 'score', 'duel'].includes(g.gameMode)) g.gameMode = 'race';
     if (!Array.isArray(g.netsLeft) || g.netsLeft.length !== g.players)
       g.netsLeft = Array(g.players).fill(NETS_MAX);
     g.starter = Number.isInteger(g.starter) ? g.starter : 0;
@@ -16993,7 +17320,8 @@ function start(skipHandoff = false) {
   g.myName = typeof myName === 'string' ? myName : ''; // prénom de CE téléphone en Wi-Fi
   g.tipsSeen = tipsSeen && typeof tipsSeen === 'object' ? tipsSeen : {};
   g.chDiffPref = chDiffPref in CHALLENGE_DIFFS ? chDiffPref : 'medium';
-  g.gameMode = gameMode === 'score' ? 'score' : 'race';
+  // V9.20 : le Duel express n'existe qu'en Wi-Fi (l'hôte arbitre les choix simultanés)
+  g.gameMode = gameMode === 'score' || (gameMode === 'duel' && net.role === 'host') ? gameMode : 'race';
   g.starter = players > 1 ? (starter || 0) % players : 0;
   g.playerHelp = Array.isArray(playerHelp) ? playerHelp.slice(0, 4) : [false, false, false, false];
   g.mode = 'normal';
@@ -17655,6 +17983,7 @@ function tick() {
     dt = Math.min(1000, now - lastTick);
   lastTick = now;
   if (g.net && g.net.role === 'client') return; // invité Wi-Fi : c'est l'hôte qui décompte
+  if (isDuel()) return duelTick(dt); // V9.20 : chrono du Duel express
   netCheckWaiting();
   const l = activeTimers();
   if (!l.length || g.modal || (document.hidden && !g.net)) return;
@@ -18393,7 +18722,9 @@ const GAME_ACTIONS = {
   reroll: rerollChoices,
   pause: pauseGame,
   resume: resumeGame,
-  prono: (n, seat) => setProno(seat == null ? (g.net ? g.net.seat : 0) : seat, n)
+  prono: (n, seat) => setProno(seat == null ? (g.net ? g.net.seat : 0) : seat, n),
+  duelPick: (kind, n) => duelPick(g.net ? g.net.seat : 0, kind, n),
+  duelNext: () => duelNext()
 };
 
 /** Joueur absent (multijoueur Wi-Fi : parti sans revenir) : ses tours sont sautés. */
@@ -18492,6 +18823,220 @@ function nextTurn() {
     return;
   }
   advanceTurn();
+}
+
+/* ---- 09b-duel.js ---- */
+/*
+ * V9.20 : DUEL EXPRESS (Wi-Fi, 2 à 4 joueurs, environ 3 à 5 minutes).
+ * Tout le monde joue EN MÊME TEMPS, à chaque manche :
+ *   1. un indice automatique (question + réponse) est donné à tous, puis le numéro bouge ;
+ *   2. chacun choisit en secret une capture : précise (+10) ou filet (+4, 3 par partie) ; 25 s ;
+ *   3. révélation simultanée : captures réussies, et les numéros essayés en vain sont éliminés pour tous.
+ * 8 manches, puis l'écran de fin des Points. Moteur séparé du jeu tour par tour (aucune régression).
+ * L'hôte arbitre : les choix des autres restent secrets jusqu'à la révélation (redactState).
+ */
+const DUEL_ROUNDS = 8;
+const DUEL_PICK_MS = 25000;
+const DUEL_REVEAL_MS = 7000;
+
+const isDuel = () => g.gameMode === 'duel' && !!g.duel;
+/** Joueurs qui jouent la manche : présents (et connectés, côté hôte). */
+function duelPlayers() {
+  const connected = s =>
+    !(typeof net === 'object' && net.role === 'host' && net.lobby[s] && !net.lobby[s].connected);
+  return Array.from({ length: g.players }, (_, i) => i).filter(s => !isAbsent(s) && connected(s));
+}
+/** Hôte : début du duel (après start). */
+function duelBegin() {
+  g.duel = {
+    round: 0,
+    rounds: DUEL_ROUNDS,
+    phase: 'pick',
+    picks: {},
+    clue: null,
+    results: null,
+    caught: null
+  };
+  g.limit = DUEL_ROUNDS;
+  g.modal = null;
+  duelNewRound();
+}
+/** Nouvelle manche : indice automatique pour tous, puis le numéro bouge. */
+function duelNewRound() {
+  const d = g.duel;
+  if (!d) return;
+  if (d.round >= d.rounds) return duelFinish();
+  d.round++;
+  g.turn = d.round - 1;
+  makeChoices();
+  const qid = g.choices[rnd(g.choices.length)],
+    q = qbyid(qid),
+    answer = !!q.test(g.secret),
+    shift = afterClue(n => !!q.test(n) === answer);
+  d.clue = { qid, answer, shift };
+  d.phase = 'pick';
+  d.picks = {};
+  d.results = null;
+  d.caught = null;
+  g.duelElapsed = 0;
+  g.duelSel = null;
+  sfx('move');
+  render();
+}
+/** Choix secret d'un joueur (modifiable jusqu'à la révélation). */
+function duelPick(seat, kind, n) {
+  const d = g.duel;
+  n = Number(n);
+  if (!d || d.phase !== 'pick' || !duelPlayers().includes(seat) || !(n >= 1 && n <= maxN())) return;
+  kind = kind === 'net' ? 'net' : 'precise';
+  if (kind === 'net' && !((g.netsLeft[seat] || 0) > 0)) return;
+  d.picks = { ...d.picks, [seat]: { kind, n } };
+  if (duelPlayers().every(s => d.picks[s])) duelReveal();
+  else render();
+}
+/** Révélation : points, numéro attrapé (nouveau numéro) ou numéros essayés éliminés pour tous. */
+function duelReveal() {
+  const d = g.duel;
+  if (!d || d.phase !== 'pick') return;
+  const sec = g.secret,
+    res = [];
+  for (const s of duelPlayers()) {
+    const p = d.picks[s];
+    if (!p) {
+      res.push({ seat: s, none: true, pts: 0 });
+      continue;
+    }
+    if (p.kind === 'net') {
+      const nums = netRange(p.n);
+      g.netsLeft[s] = Math.max(0, (g.netsLeft[s] || 0) - 1);
+      const hit = nums.includes(sec);
+      res.push({ seat: s, kind: 'net', nums, hit, pts: hit ? SCORE.net : 0 });
+    } else {
+      const hit = p.n === sec;
+      res.push({ seat: s, kind: 'precise', n: p.n, hit, pts: hit ? SCORE.precise : 0 });
+    }
+  }
+  res.forEach(r => (g.scores[r.seat] += r.pts));
+  const hit = res.some(r => r.hit);
+  d.results = res;
+  d.phase = 'reveal';
+  g.duelElapsed = 0;
+  if (hit) {
+    // le numéro n'est révélé QUE s'il a été attrapé ; un nouveau numéro se cache
+    d.caught = sec;
+    g.captures++;
+    g.secret = 1 + rnd(maxN());
+    g.candidates = all(maxN());
+    g.shownIds = [];
+    g.hunt = null;
+  } else {
+    const tried = new Set(res.flatMap(r => (r.kind === 'net' ? r.nums : r.kind === 'precise' ? [r.n] : [])));
+    g.candidates = g.candidates.filter(x => !tried.has(x));
+  }
+  sfx(hit ? 'win' : 'bad');
+  render();
+}
+/** Hôte : manche suivante (bouton, ou automatiquement après la lecture). */
+function duelNext() {
+  if (!g.duel || g.duel.phase !== 'reveal') return;
+  duelNewRound();
+}
+function duelFinish() {
+  revealEscaped();
+  g.raceWinner = null;
+  g.screen = 'end';
+  g.inGame = false;
+  g.modal = null;
+  g.netReady = [];
+  seriesRecord();
+  versusRecord();
+  sfx('win');
+  render();
+}
+/** Chrono du duel (hôte seulement ; arrêté pendant une pause). */
+function duelTick(dt) {
+  const d = g.duel;
+  if (!d || g.screen !== 'game' || g.modal) return;
+  g.duelElapsed = (g.duelElapsed || 0) + dt;
+  paintDuel();
+  netBroadcastTimers();
+  if (d.phase === 'pick' && g.duelElapsed >= DUEL_PICK_MS) duelReveal();
+  else if (d.phase === 'reveal' && g.duelElapsed >= DUEL_REVEAL_MS) duelNext();
+}
+/** Met à jour le chrono affiché sans tout redessiner. */
+function paintDuel() {
+  const el = document.getElementById('duelTime');
+  if (!el || !g.duel) return;
+  const total = g.duel.phase === 'pick' ? DUEL_PICK_MS : DUEL_REVEAL_MS,
+    left = Math.max(0, Math.ceil((total - (g.duelElapsed || 0)) / 1000));
+  el.textContent = `⏱ ${left} s`;
+  const bar = document.getElementById('duelBar');
+  if (bar) bar.style.width = `${Math.max(0, 100 - (100 * (g.duelElapsed || 0)) / total)}%`;
+}
+/** Texte d'un choix : « 🎯 7 » ou « 🕸️ 6·7·8 ». */
+const duelPickText = p => (p.kind === 'net' ? `🕸️ ${(p.nums || netRange(p.n)).join('·')}` : `🎯 ${p.n}`);
+
+/** Écran du duel (tous les téléphones). */
+function duelView() {
+  const d = g.duel,
+    me = g.net ? g.net.seat : 0,
+    max = maxN(),
+    players = duelPlayers(),
+    picked = d.picked || Object.keys(d.picks || {}).map(Number);
+  const chips = `<div class="chips duel-chips" style="grid-template-columns:repeat(${g.players},minmax(0,1fr))">${g.scores
+    .map(
+      (s, i) =>
+        `<div class="chip ${i === me ? 'current' : ''}"><span class="cname"><i class="player-dot" style="background:${colors[i]}"></i>${esc(pname(i))}</span><span class="cscore"><b>${s}</b> <small>${d.phase === 'pick' ? (picked.includes(i) ? '✅' : '⏳') : ''}</small></span></div>`
+    )
+    .join('')}</div>`;
+  const q = d.clue && qbyid(d.clue.qid);
+  const clue = d.clue
+    ? `<div class="duel-clue"><small>🔎 ${t('duelClue')}</small><b>${esc(q ? q.text : '')} <span class="answer-pill">${d.clue.answer ? t('yesAnswer') : t('noAnswer')}</span></b><div class="duel-move">${t('moved')} <b class="mv-op" dir="ltr">${shiftSymbol(d.clue.shift)}</b>${moveHint(d.clue.shift) ? ` <small>${moveHint(d.clue.shift)}</small>` : ''}</div></div>`
+    : '';
+  let body;
+  if (d.phase === 'pick') {
+    const mine = (d.picks || {})[me],
+      sel = g.duelSel || (mine && mine.n) || null,
+      cols = max <= 15 ? 5 : max <= 30 ? 6 : 8,
+      nets = g.netsLeft[me] || 0;
+    const cells = Array.from({ length: max }, (_, i) => i + 1)
+      .map(
+        n => `<button type="button" class="duel-n ${sel === n ? 'on' : ''}" data-dsel="${n}">${n}</button>`
+      )
+      .join('');
+    body = `<p class="duel-ask">${mine ? `✅ ${t('duelSent', { pick: duelPickText(mine) })}` : t('duelAsk')}</p><div class="duel-grid" dir="ltr" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells}</div><div class="duel-actions"><button class="bigbtn" id="duelPrecise" type="button" ${sel ? '' : 'disabled'}>🎯 ${t('duelPrecise')}</button><button class="bigbtn light" id="duelNet" type="button" ${sel && nets > 0 ? '' : 'disabled'}>🕸️ ${t('duelNet')} <small>${'●'.repeat(nets)}${'○'.repeat(Math.max(0, NETS_MAX - nets))}</small></button></div><p class="duel-wait">⏳ ${t('duelWaiting', { n: picked.length, total: players.length })}</p>`;
+  } else {
+    const rows = (d.results || [])
+      .map(
+        r =>
+          `<li class="${r.hit ? 'hit' : r.none ? 'none' : 'miss'}"><span class="cname"><i class="player-dot" style="background:${colors[r.seat]}"></i>${esc(pname(r.seat))}</span><span class="dpick" dir="ltr">${r.none ? '—' : duelPickText(r)}</span><b dir="ltr">${r.hit ? '+' + r.pts : r.none ? '' : '✗'}</b></li>`
+      )
+      .join('');
+    body = `<div class="duel-reveal"><p class="duel-result">${d.caught ? `🎉 ${tHtml('duelCaught', { n: `<b class="big-n">${d.caught}</b>` })}` : `💨 ${t('duelEscaped')}`}</p><ul class="duel-rows">${rows}</ul>${
+      !g.net || g.net.role === 'host'
+        ? `<button class="bigbtn" id="duelNext" type="button">${d.round >= d.rounds ? t('seeResults') : t('duelNextRound')} ${arrow()}</button>`
+        : `<p class="duel-wait">⏳ ${t('duelNextSoon')}</p>`
+    }</div>`;
+  }
+  return `<header class="gbar duel-bar"><span class="duel-title">⚡ ${t('modeDuel')}<small>${t('duelRound', { n: d.round, total: d.rounds })}</small></span><span class="duel-time" id="duelTime"></span><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header><div class="duel-timebar"><span id="duelBar"></span></div>${chips}<section class="panel duel-panel">${clue}${body}</section>`;
+}
+/** Boutons du duel (appelée par bind()). */
+function bindDuel(click) {
+  if (!isDuel() || g.screen !== 'game') return;
+  paintDuel();
+  document.querySelectorAll('[data-dsel]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.duelSel = Number(b.dataset.dsel);
+      render();
+    })
+  );
+  const send = kind => {
+    if (!g.duelSel) return;
+    act('duelPick', kind, g.duelSel);
+  };
+  click('duelPrecise', () => send('precise'));
+  click('duelNet', () => send('net'));
+  click('duelNext', () => act('duelNext'));
 }
 
 /* ---- 10-view-mascot.js ---- */
@@ -20118,7 +20663,8 @@ const NET_LOCAL_KEYS = [
   'marks', // carnet « à la main » : chacun barre sur son téléphone
   'nbTab',
   'nbZoom',
-  'pronoOpen' // fenêtre de pronostic ouverte sur CE téléphone
+  'pronoOpen', // fenêtre de pronostic ouverte sur CE téléphone
+  'duelSel' // numéro sélectionné dans le Duel express (avant envoi)
 ];
 /** Fenêtres partagées par tous (les autres, comme le carnet ou le film, restent locales). */
 const NET_SHARED_MODALS = ['pause', 'netWait'];
@@ -20156,7 +20702,7 @@ function act(name, ...args) {
   const fn = GAME_ACTIONS[name];
   if (!fn) return;
   if (!g.net) return fn(...args);
-  if (!['pause', 'resume', 'prono'].includes(name) && !myTurn()) return; // seul le joueur dont c'est le tour agit
+  if (!['pause', 'resume', 'prono', 'duelPick', 'duelNext'].includes(name) && !myTurn()) return; // seul le joueur dont c'est le tour agit
   if (g.net.role === 'host') return fn(...args);
   netSend('host', { t: 'action', name, args });
 }
@@ -20219,6 +20765,7 @@ function netLaunch(relaunch = false) {
   g.net = { role: 'host', seat: 0 };
   g.absent = [];
   g.lan = null;
+  if (g.gameMode === 'duel') duelBegin(); // V9.20
   render();
   netBroadcastLobby();
 }
@@ -20263,6 +20810,11 @@ function redactState(seat) {
   delete s.soloSecret;
   // V9.19 : chacun ne reçoit que SON pronostic (les autres restent secrets jusqu'au résultat)
   s.prono = g.prono && g.prono[seat] ? { [seat]: g.prono[seat] } : {};
+  // V9.20 : pendant le choix, chacun ne reçoit que SON choix (+ la liste de ceux qui ont choisi)
+  if (g.duel) {
+    s.duel = { ...g.duel, picked: Object.keys(g.duel.picks || {}).map(Number) };
+    if (g.duel.phase === 'pick') s.duel.picks = g.duel.picks[seat] ? { [seat]: g.duel.picks[seat] } : {};
+  }
   if (s.math) s.math = { ...s.math, result: null };
   if (!NET_SHARED_MODALS.includes(s.modal)) s.modal = null;
   s.sel = null;
@@ -20288,14 +20840,19 @@ let netTimerSent = 0;
 function netBroadcastTimers() {
   if (net.role !== 'host' || !g.net || Date.now() - netTimerSent < 500) return;
   netTimerSent = Date.now();
-  const v = { turnElapsed: g.turnElapsed, answerElapsed: g.answerElapsed, mathElapsed: g.mathElapsed };
+  const v = {
+    turnElapsed: g.turnElapsed,
+    answerElapsed: g.answerElapsed,
+    mathElapsed: g.mathElapsed,
+    duelElapsed: g.duelElapsed
+  };
   for (const p of net.lobby) if (p.peer && p.connected) netSend(p.peer, { t: 'timers', v });
 }
 function netBroadcastLobby() {
   const players = net.lobby.map(p => ({ seat: p.seat, name: p.name, connected: p.connected }));
   const rules = {
     level: g.level,
-    mode: g.gameMode === 'score' ? 'score' : 'race',
+    mode: ['score', 'duel'].includes(g.gameMode) ? g.gameMode : 'race',
     series: g.seriesPref || 0
   };
   for (const p of net.lobby)
@@ -20349,6 +20906,8 @@ function hostOnMessage(peer, m) {
     const p = net.lobby.find(x => x.peer === peer && x.connected);
     if (!p || !g.net || !GAME_ACTIONS[m.name]) return;
     if (m.name === 'prono') return setProno(p.seat, Array.isArray(m.args) ? m.args[0] : null); // siège de l'expéditeur
+    if (m.name === 'duelPick') return Array.isArray(m.args) && duelPick(p.seat, m.args[0], m.args[1]);
+    if (m.name === 'duelNext') return; // seul l'hôte passe à la manche suivante
     if (!['pause', 'resume'].includes(m.name) && active() !== p.seat) return; // pas son tour : ignoré
     GAME_ACTIONS[m.name](...(Array.isArray(m.args) ? m.args.slice(0, 2) : []));
   }
@@ -20431,7 +20990,7 @@ function netVisibility(hidden) {
 }
 /** Hôte : si le joueur dont c'est le tour est déconnecté, tout le monde attend (fenêtre « netWait »). */
 function netCheckWaiting() {
-  if (net.role !== 'host' || !g.net || g.screen !== 'game') return;
+  if (net.role !== 'host' || !g.net || g.screen !== 'game' || isDuel()) return;
   const p = net.lobby[active()];
   if (p && !p.connected && !isAbsent(p.seat) && !g.modal) {
     g.modal = 'netWait';
@@ -20474,6 +21033,7 @@ function clientApplyState(s) {
   const keep = Object.fromEntries(NET_LOCAL_KEYS.map(k => [k, g[k]]));
   const localModal = ['notebook', 'replay', 'netLost'].includes(g.modal) ? g.modal : null;
   const sameTurn = g.turn === s.turn && g.phase === s.phase;
+  if (!s.duel || !g.duel || s.duel.round !== g.duel.round) keep.duelSel = null; // nouvelle manche : rien de sélectionné
   const local = { sel: sameTurn ? g.sel : null, typed: sameTurn ? g.typed : '' };
   g = Object.assign(s, keep, local);
   if (localModal && !s.modal) g.modal = localModal;
@@ -20529,6 +21089,7 @@ function clientOnMessage(m) {
   else if (m.t === 'timers' && g.net) {
     Object.assign(g, m.v);
     paintTimers();
+    paintDuel();
   } else if (m.t === 'error') {
     netStop();
     g.lan = { view: 'join', error: m.code };
@@ -20687,7 +21248,7 @@ const NET_LEVELS = [
 /** « Facile 1–9 · Course · Premier à 3 » (salle d'attente des invités). */
 function netRulesText(level, mode, series) {
   const L = NET_LEVELS.find(x => x[0] === level) || NET_LEVELS[0];
-  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}${series ? ' · ⚔️ ' + t('seriesTo', { n: series }) : ''}`;
+  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'duel' ? '⚡ ' + t('modeDuel') : mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}${series ? ' · ⚔️ ' + t('seriesTo', { n: series }) : ''}`;
 }
 /** Choix de la série (écran des prénoms, salle Wi-Fi) : 1 partie, premier à 2, premier à 3. */
 function seriesPicker(attr) {
@@ -20706,10 +21267,11 @@ function netRulesPicker() {
     ([id, emo, k]) =>
       `<button type="button" role="radio" class="mode-card net-lv ${g.level === id ? 'on' : ''}" data-netlevel="${id}" aria-checked="${g.level === id}"><b>${emo} ${t(k)}</b><small dir="ltr">1–${LEVELS[id].max}</small></button>`
   ).join('');
-  const md = ['race', 'score']
+  const cur = ['score', 'duel'].includes(g.gameMode) ? g.gameMode : 'race';
+  const md = ['race', 'score', 'duel']
     .map(
       m =>
-        `<button type="button" role="radio" class="mode-card ${(g.gameMode === 'score') === (m === 'score') ? 'on' : ''}" data-netmode="${m}" aria-checked="${(g.gameMode === 'score') === (m === 'score')}"><b>${m === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}</b></button>`
+        `<button type="button" role="radio" class="mode-card ${cur === m ? 'on' : ''}" data-netmode="${m}" aria-checked="${cur === m}"><b>${{ race: '🏁 ' + t('modeRace'), score: '🏆 ' + t('modeScore'), duel: '⚡ ' + t('modeDuel') }[m]}</b></button>`
     )
     .join('');
   return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}</div>`;
@@ -20845,7 +21407,7 @@ function bindNet(click) {
   document.querySelectorAll('[data-netmode]').forEach(b =>
     b.addEventListener('click', () => {
       if (net.role !== 'host' || g.net) return;
-      g.gameMode = b.dataset.netmode === 'score' ? 'score' : 'race';
+      g.gameMode = ['score', 'duel'].includes(b.dataset.netmode) ? b.dataset.netmode : 'race';
       render();
       netBroadcastLobby();
     })
@@ -20901,7 +21463,14 @@ function render() {
     if (document.body.className !== bc) document.body.className = bc;
   }
   document.title = t('title');
-  const screens = { home, game, settings, end, office, lan: lanScreen };
+  const screens = {
+    home,
+    game: () => (isDuel() ? duelView() : game()),
+    settings,
+    end,
+    office,
+    lan: lanScreen
+  };
   app.innerHTML = (screens[g.screen] || end)() + modalView();
   {
     const mk = g.screen + '|' + (g.modal || ''),
@@ -21288,6 +21857,7 @@ function bind() {
     render();
   });
   bindNet(click);
+  bindDuel(click); // V9.20
   click('menu', () => {
     if (g.net) return netLeave();
     g.screen = 'home';

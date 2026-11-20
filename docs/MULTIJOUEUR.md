@@ -66,6 +66,13 @@ Fourni par `NetBridge.java` (Android) ; simulé par les tests (`tests/game.test.
   Un toucher sur une partie = `netJoin(code)` (la recherche s'arrête, `joinStart` reprend sa propre recherche).
 - Noms DNS-SD échappés par certains Android (`\032`, octets `\DDD`) : décodés par `NetBridge.unescape`.
 
+## Duel express (V9.20)
+
+- `g.gameMode = 'duel'` (Wi-Fi seulement, choisi par l'hôte) ; état `g.duel` { round, rounds, phase pick|reveal,
+  picks, clue, results, caught } ; moteur `src/js/09b-duel.js`, chrono `g.duelElapsed` (hôte, envoyé avec `timers`).
+- Actions hors tour : `duelPick` (kind, n) — l'hôte utilise le siège de l'expéditeur ; `duelNext` réservé à l'hôte.
+- `redactState` : pendant `pick`, chacun ne reçoit que son choix + `picked` (sièges ayant choisi).
+
 ## Messages du jeu (`NET_PROTOCOL = 2`, depuis V9.15)
 
 | Message | Sens | Contenu |

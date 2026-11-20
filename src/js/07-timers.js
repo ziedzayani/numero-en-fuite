@@ -90,6 +90,7 @@ function tick() {
     dt = Math.min(1000, now - lastTick);
   lastTick = now;
   if (g.net && g.net.role === 'client') return; // invité Wi-Fi : c'est l'hôte qui décompte
+  if (isDuel()) return duelTick(dt); // V9.20 : chrono du Duel express
   netCheckWaiting();
   const l = activeTimers();
   if (!l.length || g.modal || (document.hidden && !g.net)) return;

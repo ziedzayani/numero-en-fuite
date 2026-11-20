@@ -1,5 +1,16 @@
 # Historique des versions
 
+## V9.20 — Duel express (Wi-Fi)
+
+- Nouveau mode **⚡ Duel express** dans la salle Wi-Fi (2 à 4 joueurs, 8 manches, 3 à 5 minutes). Tout le monde joue
+  en même temps : un indice automatique pour tous, le numéro bouge, puis chacun choisit EN SECRET une capture
+  (🎯 précise +10, 🕸️ filet +4, 3 par partie) en 25 s. Révélation simultanée ; le numéro n'est montré que s'il est
+  attrapé. Fin : écran des Points (séries, duels, partage, revanche « Prêt » compris).
+- Choix secrets garantis par l'hôte (chacun ne reçoit que le sien + qui a déjà choisi). Pas de grisage des numéros
+  impossibles : ce serait l'« Aide » (la déduction reste le cœur du jeu).
+- Écrans de fin aux Points : bouton Accueil à maison blanche (charte de l'écran de victoire).
+- Moteur séparé (`09b-duel.js`) : le jeu tour par tour n'est pas modifié.
+
 ## V9.19 — pronostics des spectateurs (Wi-Fi)
 
 - Pendant le tour d'un autre, chaque joueur touche « 🔮 Pronostic » dans la bulle du détective et choisit EN SECRET
