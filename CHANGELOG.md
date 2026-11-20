@@ -1,5 +1,12 @@
 # Historique des versions
 
+## V9.11 — écran de victoire : corrections d'après la maquette
+
+Fond bleu nuit à rayons ; détective du logo pouce levé, yeux ouverts ; bandeau vert glossy (reflet, contour doré
+lumineux) ; trophée agrandi ; bandeau « Podium » fourni (lauriers + couronne, texte traduit par-dessus) ;
+panneau à contour cyan néon ; ligne du gagnant lumineuse ; boutons Rejouer / Accueil glossy ; espacements
+resserrés ; coureur retiré du bandeau du numéro caché. Valeurs toujours calculées par le jeu.
+
 ## V9.10 — écran de victoire avec les images fournies
 
 - Détective pouce levé du pack (en pied, coupé à la taille comme sur la maquette), lauriers dorés découpés du

@@ -2952,3 +2952,250 @@ body.scr-end:has(.podium-box .pod-row:nth-child(3)) .race-hero .win-det {
   height: 2px;
   background: linear-gradient(90deg, transparent, #ffc83d 30% 70%, transparent);
 }
+
+/* ===== V9.11 : corrections d'après la maquette de référence ===== */
+/* 1. fond bleu nuit + rayons lumineux */
+.race-decor {
+  background: radial-gradient(ellipse 55% 30% at 66% 20%, rgba(150, 210, 255, 0.55), transparent 70%),
+    repeating-conic-gradient(from 0deg at 66% 20%, rgba(170, 215, 255, 0.13) 0 5deg, transparent 5deg 14deg),
+    radial-gradient(ellipse 120% 80% at 50% 30%, #1f4fd0 0%, #163a9e 45%, #0b1d5a 100%);
+}
+/* 2. détective du logo, yeux ouverts */
+.race-hero .win-det {
+  left: -10px;
+  bottom: 0;
+  width: 168px;
+  height: 160px;
+  background-position: left bottom;
+}
+.race-hero .hero-mascot {
+  height: 168px;
+}
+/* 3. bandeau vert glossy, reflet blanc, contour doré lumineux */
+.end-hero.race-hero h1 {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #1e9e52 0%, #2bbd62 30%, #189a49 62%, #0f7a37 100%);
+  border: 4px solid #ffd54a;
+  box-shadow:
+    0 0 0 2px #a86d00,
+    0 0 18px rgba(255, 214, 80, 0.9),
+    inset 0 -4px 0 rgba(0, 60, 20, 0.35);
+  text-shadow:
+    0 3px 0 #0b5a28,
+    0 0 6px rgba(0, 0, 0, 0.25);
+}
+.end-hero.race-hero h1::before {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 4px;
+  height: 38%;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+/* 4. trophée plus grand, posé au-dessus du bandeau */
+.race-hero .rh-trophy {
+  width: 112px;
+  height: 92px;
+  margin: 0 auto -22px;
+  filter: drop-shadow(0 0 16px rgba(255, 220, 90, 0.95));
+}
+/* 5. bandeau « Podium » : image avec lauriers + couronne, texte traduit par-dessus */
+.podium-band {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  width: 250px;
+  height: 70px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline-start: 48px;
+  background: url(img/podium-band.webp) center / contain no-repeat;
+  color: #fff;
+  font-size: 21px;
+  font-weight: 900;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+[dir='rtl'] .podium-band {
+  padding-inline-start: 0;
+  padding-left: 48px;
+}
+.podium-band span {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* 6. panneau du classement : contour cyan néon */
+.race-panel {
+  margin-top: 30px;
+  padding-top: 40px;
+  border: 3px solid #6ff0ff;
+  background: linear-gradient(180deg, rgba(31, 79, 208, 0.92), rgba(18, 48, 140, 0.95));
+  box-shadow:
+    0 0 0 2px #0a2a7a,
+    0 0 14px #3fe0ff,
+    0 0 30px rgba(63, 224, 255, 0.55),
+    inset 0 0 18px rgba(63, 224, 255, 0.25);
+}
+/* 7. ligne du gagnant lumineuse */
+.race-panel .podium-box .pod-row.place-1 {
+  background: linear-gradient(180deg, rgba(40, 90, 220, 0.9), rgba(16, 44, 130, 0.95));
+  border: 3px solid #ffd54a;
+  box-shadow:
+    0 0 12px rgba(255, 214, 80, 0.85),
+    inset 0 0 12px rgba(255, 214, 80, 0.25);
+}
+/* 8. boutons glossy */
+.race-actions .bigbtn#again {
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fff3a6 0%, #ffd83a 35%, #ffbf0f 70%, #f0a000 100%);
+  border: 3px solid #fff2a0;
+  box-shadow:
+    0 0 0 2px #b87800,
+    0 0 16px rgba(255, 214, 80, 0.7),
+    inset 0 -5px 0 rgba(170, 100, 0, 0.45);
+  color: #14205a;
+  font-weight: 900;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.race-actions .bigbtn#again::before {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 4px;
+  height: 36%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+.race-actions .home-btn.tile-btn {
+  filter: drop-shadow(0 0 10px rgba(92, 200, 255, 0.7));
+}
+/* 9. espacements resserrés */
+.race-hero {
+  margin: 0;
+}
+.race-hero .rh-line {
+  margin-top: 6px;
+}
+#app > .race-caught {
+  margin: 4px 0 0;
+}
+.race-actions {
+  margin-top: 12px;
+}
+/* 10. bandeau du numéro caché sans coureur, texte centré */
+#app > .race-caught {
+  justify-content: center;
+  text-align: center;
+}
+@media (max-height: 760px) {
+  .race-hero .hero-mascot {
+    height: 140px;
+  }
+  .race-hero .win-det {
+    width: 140px;
+    height: 132px;
+  }
+  .race-hero .rh-trophy {
+    width: 90px;
+    height: 74px;
+  }
+  .race-panel {
+    margin-top: 28px;
+    padding-top: 36px;
+  }
+}
+body.scr-end:has(.podium-box .pod-row:nth-child(3)) .race-hero .win-det {
+  width: 124px;
+  height: 116px;
+}
+body.scr-end:has(.podium-box .pod-row:nth-child(3)) .race-hero .rh-trophy {
+  width: 76px;
+  height: 62px;
+}
+body.scr-end .panel.race-panel {
+  margin-top: 34px;
+  padding-top: 40px;
+}
+@media (max-height: 760px) {
+  body.scr-end .panel.race-panel {
+    margin-top: 30px;
+    padding-top: 34px;
+  }
+}
+/* détective plus grand, comme la maquette */
+.race-hero .win-det {
+  width: 180px;
+  height: 170px;
+  left: -16px;
+}
+.race-hero .hero-mascot {
+  height: 172px;
+}
+@media (max-height: 760px) {
+  .race-hero .win-det {
+    width: 150px;
+    height: 142px;
+  }
+  .race-hero .hero-mascot {
+    height: 148px;
+  }
+}
+@media (max-height: 700px) {
+  .race-hero .win-det {
+    width: 120px;
+    height: 112px;
+  }
+  .race-hero .hero-mascot {
+    height: 116px;
+  }
+  .race-hero .rh-trophy {
+    width: 70px;
+    height: 56px;
+    margin-bottom: -16px;
+  }
+  .end-hero.race-hero h1 {
+    font-size: 21px;
+    padding: 12px 8px 8px;
+  }
+  .race-hero .rh-line {
+    margin-top: 3px;
+    padding-bottom: 5px;
+  }
+  .podium-band {
+    width: 210px;
+    height: 58px;
+    top: -26px;
+    font-size: 18px;
+  }
+  body.scr-end .panel.race-panel {
+    margin-top: 26px;
+    padding-top: 30px;
+  }
+  .race-panel .podium-box .pod-row {
+    padding: 5px 10px;
+  }
+  .race-panel .podium-box .pod-row strong {
+    font-size: 19px;
+  }
+  .race-panel .podium-box .pod-row .medal {
+    width: 40px !important;
+    height: 46px !important;
+  }
+  .race-actions {
+    margin-top: 8px;
+  }
+  .race-actions .bigbtn#again {
+    min-height: 58px;
+  }
+}
