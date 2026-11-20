@@ -4110,3 +4110,51 @@ html[lang='ja'] .pause-card .pz-msg {
   width: 30px;
   height: 28px;
 }
+/* ===== V9.19 : pronostics des spectateurs (Wi-Fi) ===== */
+.prono-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 2px solid #ffe066;
+  background: linear-gradient(180deg, #fff3a6 0%, #ffd83a 45%, #ffbf0f 100%);
+  box-shadow: 0 0 0 2px #b87800;
+  color: #14205a;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.prono-modal h2 {
+  font-size: 20px;
+  line-height: 1.2;
+}
+.prono-grid {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+.prono-n {
+  min-height: 40px;
+  border-radius: 12px;
+  border: 2px solid #b9d4ff;
+  background: linear-gradient(180deg, #ffffff, #e6eeff);
+  color: #14205a;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.prono-n.on {
+  border-color: #ffe066;
+  background: linear-gradient(180deg, #fff3a6, #ffd83a 45%, #ffbf0f);
+  box-shadow: 0 0 0 2px #b87800;
+}
+.prono-hit {
+  display: block;
+  margin-top: 4px;
+  color: #7a4d00;
+  font-weight: 800;
+}

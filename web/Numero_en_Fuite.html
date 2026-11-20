@@ -11216,6 +11216,54 @@ html[lang='ja'] .pause-card .pz-msg {
   width: 30px;
   height: 28px;
 }
+/* ===== V9.19 : pronostics des spectateurs (Wi-Fi) ===== */
+.prono-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 2px solid #ffe066;
+  background: linear-gradient(180deg, #fff3a6 0%, #ffd83a 45%, #ffbf0f 100%);
+  box-shadow: 0 0 0 2px #b87800;
+  color: #14205a;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.prono-modal h2 {
+  font-size: 20px;
+  line-height: 1.2;
+}
+.prono-grid {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+.prono-n {
+  min-height: 40px;
+  border-radius: 12px;
+  border: 2px solid #b9d4ff;
+  background: linear-gradient(180deg, #ffffff, #e6eeff);
+  color: #14205a;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.prono-n.on {
+  border-color: #ffe066;
+  background: linear-gradient(180deg, #fff3a6, #ffd83a 45%, #ffbf0f);
+  box-shadow: 0 0 0 2px #b87800;
+}
+.prono-hit {
+  display: block;
+  margin-top: 4px;
+  color: #7a4d00;
+  font-weight: 800;
+}
 
     </style>
   </head>
@@ -11306,7 +11354,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.18";
+const APP_VERSION = "9.19";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -11323,7 +11371,7 @@ const dictionaries = {
   "answerTimeUp": "⏱ Temps de réponse écoulé : plus d’aide ce tour. Choisis ton numéro !",
   "appVersion": "Version {v}",
   "askQuit": "Quitter la partie",
-  "awayTitle": "Pendant ton absence :",
+  "awayTitle": "Pendant ton absence :",
   "back": "Retour",
   "backupApply": "Remplacer mes progrès",
   "backupCheck": "Vérifier le code",
@@ -11514,12 +11562,12 @@ const dictionaries = {
   "mission_noMiss": "Gagne sans aucune erreur",
   "mission_play": "Mène {n} enquêtes en solo",
   "mission_precise": "Attrape le numéro d’une capture précise",
-  "mission_shift": "Utilise « Décaler mes marques » dans ton carnet",
+  "mission_shift": "Utilise « Décaler mes marques » dans ton carnet",
   "mission_stars": "Gagne avec 3 étoiles",
   "mission_winLevel": "Gagne une enquête au niveau {level}",
   "missionsIntro": "Pas de chrono : prends ton temps. Chaque mission réussie rapporte +{xp} XP et une nouvelle arrive.",
   "modeRace": "Course",
-  "modeRaceSub": "Le premier qui attrape le numéro gagne : la partie s’arrête. Personne ? Les points départagent.",
+  "modeRaceSub": "Le premier qui attrape le numéro gagne : la partie s’arrête. Personne ? Les points départagent.",
   "modeScore": "Points",
   "modeScoreSub": "{n} tours. Capture +10, filet +4 (3 filets chacun). Le meilleur score gagne.",
   "modeTitle": "Mode de jeu",
@@ -11534,7 +11582,7 @@ const dictionaries = {
   "mvHalf": "÷2 (arrondi au-dessus)",
   "mvHidden": "Saut de {k}, sens inconnu : il peut être des deux côtés !",
   "mvMirror": "🪞 Miroir : 1 ↔ {max}, 2 ↔ {max1}… (le 10 devient {ex})",
-  "mvMirrorTitle": "Miroir : il passe de l'autre côté",
+  "mvMirrorTitle": "Miroir : il passe de l'autre côté",
   "mvMulMod": "×{k} : au-delà de 100, on retire 101 ({a} → {b})",
   "mvWrapDown": "🔄 Après 1, il repart de {max}",
   "mvWrapUp": "🔄 Après {max}, il repart de 1",
@@ -11598,12 +11646,12 @@ const dictionaries = {
   "netMissDesc": "Rien dans le filet <b>{nums}</b>. <b>−{p} points</b> (1 par numéro).",
   "netMissLog": "{player} · filet {nums} vide (−{p}) · {shift}",
   "netQuit": "Quitter la partie",
-  "netReadyList": "Revanche — prêts : {list}",
+  "netReadyList": "Revanche — prêts : {list}",
   "netReadyMe": "Prêt ✅",
   "netRetry": "Réessayer",
   "netRetryFailed": "Partie introuvable : l’hôte a peut-être quitté ou créé une nouvelle partie.",
   "netRoomOf": "Partie de {player}",
-  "netRoomsFound": "Parties trouvées sur ce Wi-Fi :",
+  "netRoomsFound": "Parties trouvées sur ce Wi-Fi :",
   "netRoomsSearching": "Recherche des parties sur ce Wi-Fi…",
   "netSameWifi": "Tous les téléphones doivent être sur le même Wi-Fi (ou sur le partage de connexion de l’un d’eux).",
   "netSearching": "Recherche de la partie sur le Wi-Fi…",
@@ -11671,6 +11719,10 @@ const dictionaries = {
   "proGuess": "⚡ Sans aide : il ne bouge pas avant, mais tu n’as aucun indice.",
   "proMath": "⭐ + un indice",
   "proQuestion": "Réponse sûre · 🧠 +1 si tu l’attrapes",
+  "pronoChoose": "Pronostic",
+  "pronoHint": "Choisis en secret : tes voisins sont couverts aussi. Pronostic juste : +1 ⭐.",
+  "pronoHit": "bon pronostic de {players} (+1 ⭐)",
+  "pronoTitle": "Où sera le numéro quand {player} capturera ?",
   "pts": "pts",
   "q1": "Réponse sûre (oui / non).",
   "q2": "Attrape-le juste après : <b>+10 +1 bonus</b> !",
@@ -11790,15 +11842,15 @@ const dictionaries = {
   "seriesNext": "Manche suivante",
   "seriesOne": "1 partie",
   "seriesRound": "Manche {n}",
-  "seriesTie": "Égalité dans la série : {players} !",
+  "seriesTie": "Égalité dans la série : {players} !",
   "seriesTitle": "Série",
   "seriesTo": "Premier à {n}",
-  "seriesWinner": "{player} remporte la série !",
+  "seriesWinner": "{player} remporte la série !",
   "settings": "Réglages",
   "settingsTip": "Tu peux changer la langue sans recommencer la partie.",
   "shareBtn": "Partager la victoire",
   "shareFooter": "Jeu de logique en famille · hors ligne · sans pub",
-  "shareText": "Partie de The Number Hunt terminée ! Viens jouer avec nous :",
+  "shareText": "Partie de The Number Hunt terminée ! Viens jouer avec nous :",
   "shifted": "Il s’est déplacé.",
   "show": "Afficher",
   "showPossible": "Afficher les numéros possibles",
@@ -11902,7 +11954,7 @@ const dictionaries = {
   "vsBest": "Série",
   "vsCaptures": "Captures",
   "vsDuels": "Face-à-face",
-  "vsEmpty": "Jouez à plusieurs en écrivant vos prénoms : victoires, captures et face-à-face s’afficheront ici.",
+  "vsEmpty": "Jouez à plusieurs en écrivant vos prénoms : victoires, captures et face-à-face s’afficheront ici.",
   "vsTab": "Duels",
   "vsTitle": "À plusieurs (ce téléphone)",
   "vsWins": "Victoires",
@@ -12267,6 +12319,10 @@ const dictionaries = {
   "proGuess": "⚡ No help: it won’t move first, but you have no clue.",
   "proMath": "⭐ + a hint",
   "proQuestion": "Sure answer · 🧠 +1 if you catch it",
+  "pronoChoose": "Prediction",
+  "pronoHint": "Pick in secret: the neighbours are covered too. Right prediction: +1 ⭐.",
+  "pronoHit": "good prediction by {players} (+1 ⭐)",
+  "pronoTitle": "Where will the number be when {player} catches?",
   "pts": "pts",
   "q1": "Sure answer (yes / no).",
   "q2": "Catch it right after: <b>+10 +1 bonus</b>!",
@@ -12863,6 +12919,10 @@ const dictionaries = {
   "proGuess": "⚡ بدون مساعدة: لا يتحرك قبلها، لكن لا تلميح لديك.",
   "proMath": "⭐ + تلميح",
   "proQuestion": "إجابة أكيدة · 🧠 +1 إذا أمسكته",
+  "pronoChoose": "توقّع",
+  "pronoHint": "اختر سرًّا: الأرقام المجاورة مشمولة أيضًا. توقّع صحيح: ‎+1 ⭐.",
+  "pronoHit": "توقّع صحيح من {players} (‎+1 ⭐)",
+  "pronoTitle": "أين سيكون الرقم عندما يحاول {player} الإمساك به؟",
   "pts": "نقطة",
   "q1": "إجابة أكيدة (نعم / لا).",
   "q2": "أمسكه بعدها مباشرة: <b>+10 +1 مكافأة</b>!",
@@ -13459,6 +13519,10 @@ const dictionaries = {
   "proGuess": "⚡ Sin ayuda: no se moverá antes, pero no tienes ninguna pista.",
   "proMath": "⭐ + una pista",
   "proQuestion": "Respuesta segura · 🧠 +1 si lo atrapas",
+  "pronoChoose": "Pronóstico",
+  "pronoHint": "Elige en secreto: los vecinos también cuentan. Pronóstico acertado: +1 ⭐.",
+  "pronoHit": "buen pronóstico de {players} (+1 ⭐)",
+  "pronoTitle": "¿Dónde estará el número cuando {player} capture?",
   "pts": "pts",
   "q1": "Respuesta segura (sí / no).",
   "q2": "Atrápalo justo después: ¡<b>+10 +1 de bonus</b>!",
@@ -14055,6 +14119,10 @@ const dictionaries = {
   "proGuess": "⚡ Senza aiuto: non si muove prima, ma non hai indizi.",
   "proMath": "⭐ + un indizio",
   "proQuestion": "Risposta sicura · 🧠 +1 se lo catturi",
+  "pronoChoose": "Pronostico",
+  "pronoHint": "Scegli in segreto: anche i vicini contano. Pronostico giusto: +1 ⭐.",
+  "pronoHit": "pronostico giusto di {players} (+1 ⭐)",
+  "pronoTitle": "Dove sarà il numero quando {player} cattura?",
   "pts": "pt",
   "q1": "Risposta sicura (sì / no).",
   "q2": "Catturalo subito dopo: <b>+10 +1 bonus</b>!",
@@ -14651,6 +14719,10 @@ const dictionaries = {
   "proGuess": "⚡ Ohne Hilfe: Sie bewegt sich nicht vorher, aber du hast keinen Hinweis.",
   "proMath": "⭐ + ein Hinweis",
   "proQuestion": "Sichere Antwort · 🧠 +1, wenn du sie fängst",
+  "pronoChoose": "Tipp",
+  "pronoHint": "Wähle geheim: die Nachbarn zählen mit. Richtiger Tipp: +1 ⭐.",
+  "pronoHit": "richtiger Tipp von {players} (+1 ⭐)",
+  "pronoTitle": "Wo ist die Zahl, wenn {player} fängt?",
   "pts": "P.",
   "q1": "Sichere Antwort (ja / nein).",
   "q2": "Fang sie gleich danach: <b>+10 +1 Bonus</b>!",
@@ -15247,6 +15319,10 @@ const dictionaries = {
   "proGuess": "⚡ 不用帮助：它不会先移动，但你没有线索。",
   "proMath": "⭐ + 一条线索",
   "proQuestion": "答案可靠 · 🧠 抓到再 +1",
+  "pronoChoose": "预测",
+  "pronoHint": "秘密选择：相邻数字也算。预测正确：+1 ⭐。",
+  "pronoHit": "{players} 预测正确（+1 ⭐）",
+  "pronoTitle": "{player} 抓捕时，数字会在哪里？",
   "pts": "分",
   "q1": "答案可靠（是 / 否）。",
   "q2": "紧接着抓住它：<b>+10 +1 奖励</b>！",
@@ -15843,6 +15919,10 @@ const dictionaries = {
   "proGuess": "⚡ ヘルプなし：先に動かないけど、ヒントもない。",
   "proMath": "⭐ + ヒント 1 つ",
   "proQuestion": "答えは確実 · 🧠 つかまえたら +1",
+  "pronoChoose": "予想",
+  "pronoHint": "こっそり選ぼう：となりの数字もふくまれるよ。予想が当たれば +1 ⭐。",
+  "pronoHit": "{players} の予想が的中（+1 ⭐）",
+  "pronoTitle": "{player} がキャッチするとき、数字はどこ？",
   "pts": "点",
   "q1": "答えは確実（はい / いいえ）。",
   "q2": "すぐにつかまえたら：<b>+10 +1 ボーナス</b>！",
@@ -16157,6 +16237,8 @@ const initial = () => ({
   seriesPref: 0, // V9.16 : 0 = une seule partie, 2 / 3 = « premier à 2 / 3 victoires »
   series: null,
   netReady: [], // Wi-Fi : joueurs prêts pour la revanche
+  prono: {}, // V9.19 Wi-Fi : pronostics secrets des spectateurs { siège: [numéros] }
+  pronoHits: [],
 
   screen: 'home',
   settingsFrom: 'home',
@@ -16752,6 +16834,8 @@ function prepareTurn() {
   g.rerolled = false;
   g.showHints = false;
   g.showHistory = false;
+  g.prono = {};
+  g.pronoHits = [];
   makeChoices();
   makeMath();
 }
@@ -17633,6 +17717,7 @@ function mathTimeout() {
 /** Temps du tour écoulé : le numéro s'échappe et on passe au joueur suivant. */
 function turnTimeout() {
   if (g.screen !== 'game' || g.phase !== 'choose') return;
+  pronoSettle();
   const player = active();
   sfx('bad');
   const shift = nextMove();
@@ -17976,8 +18061,39 @@ function passTurn() {
   render();
 }
 /** Tir précis sur le numéro n. */
+/*
+ * V9.19 : pronostics des spectateurs (Wi-Fi). Pendant le tour d'un autre, chacun place EN SECRET un petit filet
+ * (même largeur que le filet magique) : « où sera le numéro quand il capturera ? ». Au moment de la capture
+ * (ou de la fin du chrono), chaque pronostic juste rapporte +1 ⭐. L'hôte n'envoie à chacun que son pronostic.
+ */
+const turnOver = () =>
+  g.phase === 'result' &&
+  !!g.last &&
+  ['found', 'netHit', 'wrong', 'netMiss', 'timeout', 'pass'].includes(g.last.type);
+function pronoAllowed(seat) {
+  return (
+    !!g.net && g.screen === 'game' && seat !== active() && !isAbsent(seat) && seat < g.players && !turnOver()
+  );
+}
+function setProno(seat, n) {
+  n = Number(n);
+  if (!pronoAllowed(seat) || !(n >= 1 && n <= maxN())) return;
+  g.prono = { ...(g.prono || {}), [seat]: netRange(n) };
+  render();
+}
+/** Juste avant la capture : pronostics gagnants (+1 ⭐), puis plus de pronostic pour ce tour. */
+function pronoSettle() {
+  if (!g.net || !g.prono) return;
+  const hits = Object.entries(g.prono)
+    .filter(([s, nums]) => Number(s) !== active() && Array.isArray(nums) && nums.includes(g.secret))
+    .map(([s]) => Number(s));
+  hits.forEach(s => (g.stars[s] = (g.stars[s] || 0) + 1));
+  g.pronoHits = hits;
+  g.prono = {};
+}
 function guess(n) {
   if (g.screen !== 'game' || g.phase !== 'choose' || n < 1 || n > maxN()) return;
+  pronoSettle();
   g.sel = null;
   g.capturing = null;
   const player = active(),
@@ -18017,6 +18133,7 @@ function netRange(n) {
 /** Lance le filet autour de n (consomme un des NETS_MAX filets du joueur). */
 function netCapture(n) {
   if (g.screen !== 'game' || g.phase !== 'choose' || !(n >= 1 && n <= maxN()) || !netAvailable()) return;
+  pronoSettle();
   g.netsLeft[active()] = netsLeft() - 1;
   g.sel = null;
   g.capturing = null;
@@ -18274,7 +18391,8 @@ const GAME_ACTIONS = {
   next: () => nextTurn(),
   reroll: rerollChoices,
   pause: pauseGame,
-  resume: resumeGame
+  resume: resumeGame,
+  prono: (n, seat) => setProno(seat == null ? (g.net ? g.net.seat : 0) : seat, n)
 };
 
 /** Joueur absent (multijoueur Wi-Fi : parti sans revenir) : ses tours sont sautés. */
@@ -18873,6 +18991,9 @@ function resultView() {
     x.type === 'math' && x.correct && !x.pick
       ? `<div class="fb-points">⭐ ${g.mode === 'challenge' ? '+10 ' + t('pts') : '+1'}</div>`
       : '';
+  // V9.19 : pronostics gagnants des spectateurs (Wi-Fi)
+  if ((g.pronoHits || []).length && ['found', 'netHit', 'wrong', 'netMiss', 'timeout'].includes(x.type))
+    desc += `<span class="prono-hit">🔮 ${t('pronoHit', { players: g.pronoHits.map(pname).join(', ') })}</span>`;
   const head = top
     ? `${fbTop}<div class="catch-head">${top}<div>${titleHtml}<p class="result-desc">${desc}</p>${scoreChip}</div></div>${racePodiumNote(x)}`
     : `${fbTop}${titleHtml}${points}${desc ? `<p class="result-desc">${desc}</p>` : ''}${scoreChip}`;
@@ -18898,6 +19019,26 @@ function awayNews(p) {
     .slice(-3);
   if (!items.length) return '';
   return `<div class="away-news"><b>👀 ${t('awayTitle')}</b><ul>${items.map(e => `<li>${historyText(e)}</li>`).join('')}</ul></div>`;
+}
+/** V9.19 : bouton « Pronostic » des spectateurs (Wi-Fi), dans la bulle du détective. */
+function pronoChip() {
+  if (!g.net || myTurn() || !pronoAllowed(g.net.seat)) return '';
+  const mine = (g.prono || {})[g.net.seat];
+  return `<button class="prono-chip" id="pronoOpen" type="button">🔮 ${mine ? `<b dir="ltr">${mine.join('·')}</b>` : t('pronoChoose')}</button>`;
+}
+/** Grille du pronostic (fenêtre locale à ce téléphone, jamais partagée). */
+function pronoOverlay() {
+  if (!g.pronoOpen || !g.net || myTurn() || !pronoAllowed(g.net.seat)) return '';
+  const mine = (g.prono || {})[g.net.seat] || [],
+    max = maxN(),
+    cols = max <= 9 ? 3 : max <= 15 ? 5 : 7;
+  const cells = Array.from({ length: max }, (_, i) => i + 1)
+    .map(
+      n =>
+        `<button type="button" class="prono-n ${mine.includes(n) ? 'on' : ''}" data-prono="${n}">${n}</button>`
+    )
+    .join('');
+  return `<div class="modal-back prono-back" role="dialog" aria-modal="true"><div class="modal prono-modal"><h2>🔮 ${t('pronoTitle', { player: pname(active()) })}</h2><p class="sub small">${t('pronoHint')}</p><div class="prono-grid" dir="ltr" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells}</div><button class="bigbtn light" id="pronoClose" type="button">${t('close')}</button></div></div>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {
@@ -18991,7 +19132,7 @@ function game() {
         : result && ['found', 'netHit'].includes(x.type)
           ? 'cheer'
           : '';
-  return `<header class="gbar"><span class="brand-icon lvl-badge ${logo}" dir="ltr" aria-label="${t('levelBadge')} 1–${maxN()}"><span class="lvl-emo">${g.mode === 'challenge' ? '🏆' : { junior: '🐣', malin: '🧠', expert: '🚀', genius: '🦉' }[g.level]}</span><b class="lvl-range">1–${maxN()}</b>${logo === 'thinking' ? '<i class="logo-bubble">…</i>' : ''}</span><div class="gstatus">${g.mode === 'challenge' ? `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: '∞' })}</b><span>🏆 ${chScore()}</span></div>` : `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: g.limit })}</b><span>🎯 ${g.captures}</span></div><div class="gprogress" dir="ltr"><span style="width:${pct}%"></span></div>`}</div><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header>${scoreboard()}<section class="panel turn-card${result && fbKind(g.last) ? ' fb-mode' : ''}"><div class="turn-top"><div class="mini-mascot">${mascot(anim === 'worried' ? 'idle' : anim, party, anim === 'worried' ? 'worried' : null)}</div><div class="bubble"><b>${head}</b><span class="quip">${netWatchBanner() || quip(qk)}</span></div></div>${result && g.mode !== 'challenge' ? '' : timersHTML()}<div class="turn-body">${result ? resultView() : questionView()}</div></section>`;
+  return `<header class="gbar"><span class="brand-icon lvl-badge ${logo}" dir="ltr" aria-label="${t('levelBadge')} 1–${maxN()}"><span class="lvl-emo">${g.mode === 'challenge' ? '🏆' : { junior: '🐣', malin: '🧠', expert: '🚀', genius: '🦉' }[g.level]}</span><b class="lvl-range">1–${maxN()}</b>${logo === 'thinking' ? '<i class="logo-bubble">…</i>' : ''}</span><div class="gstatus">${g.mode === 'challenge' ? `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: '∞' })}</b><span>🏆 ${chScore()}</span></div>` : `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: g.limit })}</b><span>🎯 ${g.captures}</span></div><div class="gprogress" dir="ltr"><span style="width:${pct}%"></span></div>`}</div><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header>${scoreboard()}<section class="panel turn-card${result && fbKind(g.last) ? ' fb-mode' : ''}"><div class="turn-top"><div class="mini-mascot">${mascot(anim === 'worried' ? 'idle' : anim, party, anim === 'worried' ? 'worried' : null)}</div><div class="bubble"><b>${head}</b><span class="quip">${netWatchBanner() || quip(qk)}${pronoChip()}</span></div></div>${result && g.mode !== 'challenge' ? '' : timersHTML()}<div class="turn-body">${result ? resultView() : questionView()}</div></section>${pronoOverlay()}`;
 }
 /** V9.16 : séries — gagnant(s) de la série (quand elle est finie). */
 function seriesChampions() {
@@ -19975,7 +20116,8 @@ const NET_LOCAL_KEYS = [
   'netLostInfo',
   'marks', // carnet « à la main » : chacun barre sur son téléphone
   'nbTab',
-  'nbZoom'
+  'nbZoom',
+  'pronoOpen' // fenêtre de pronostic ouverte sur CE téléphone
 ];
 /** Fenêtres partagées par tous (les autres, comme le carnet ou le film, restent locales). */
 const NET_SHARED_MODALS = ['pause', 'netWait'];
@@ -20013,7 +20155,7 @@ function act(name, ...args) {
   const fn = GAME_ACTIONS[name];
   if (!fn) return;
   if (!g.net) return fn(...args);
-  if (!['pause', 'resume'].includes(name) && !myTurn()) return; // seul le joueur dont c'est le tour agit
+  if (!['pause', 'resume', 'prono'].includes(name) && !myTurn()) return; // seul le joueur dont c'est le tour agit
   if (g.net.role === 'host') return fn(...args);
   netSend('host', { t: 'action', name, args });
 }
@@ -20118,6 +20260,8 @@ function redactState(seat) {
   // jamais des positions : on n'envoie que le type de chaque saut.
   s.huntPublic = g.hunt ? g.hunt.steps.map(x => ({ shift: publicShift(x.shift), ev: x.ev ? 1 : 0 })) : null;
   delete s.soloSecret;
+  // V9.19 : chacun ne reçoit que SON pronostic (les autres restent secrets jusqu'au résultat)
+  s.prono = g.prono && g.prono[seat] ? { [seat]: g.prono[seat] } : {};
   if (s.math) s.math = { ...s.math, result: null };
   if (!NET_SHARED_MODALS.includes(s.modal)) s.modal = null;
   s.sel = null;
@@ -20203,6 +20347,7 @@ function hostOnMessage(peer, m) {
   if (m.t === 'action') {
     const p = net.lobby.find(x => x.peer === peer && x.connected);
     if (!p || !g.net || !GAME_ACTIONS[m.name]) return;
+    if (m.name === 'prono') return setProno(p.seat, Array.isArray(m.args) ? m.args[0] : null); // siège de l'expéditeur
     if (!['pause', 'resume'].includes(m.name) && active() !== p.seat) return; // pas son tour : ignoré
     GAME_ACTIONS[m.name](...(Array.isArray(m.args) ? m.args.slice(0, 2) : []));
   }
@@ -20658,6 +20803,23 @@ function bindNet(click) {
   click('netQuitGame', leave);
   click('netLaunch', netLaunch);
   click('netWithout', netContinueWithout);
+  // V9.19 : pronostic des spectateurs (la fenêtre se referme d'elle-même quand le tour s'achève)
+  if (g.pronoOpen && (!g.net || myTurn() || !pronoAllowed(g.net.seat))) g.pronoOpen = false;
+  click('pronoOpen', () => {
+    g.pronoOpen = true;
+    render();
+  });
+  click('pronoClose', () => {
+    g.pronoOpen = false;
+    render();
+  });
+  document.querySelectorAll('[data-prono]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.pronoOpen = false;
+      act('prono', Number(b.dataset.prono));
+      render();
+    })
+  );
   // V9.18 : recherche des parties proches seulement sur l'écran « Rejoindre »
   netScan(g.screen === 'lan' && !!g.lan && g.lan.view === 'join');
   bindRooms();

@@ -3088,9 +3088,42 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await wait(100);
     const hs = (await SN(host)).secret,
       miss = hs === 1 ? 2 : 1;
+    // V9.19 : Omar fait un pronostic secret autour du numéro (connu de l'hôte seulement), Zoé un faux
+    const stars0 = (await SN(host)).stars.slice();
+    await p2.click('#pronoOpen');
+    await p2.click(`[data-prono="${hs}"]`);
+    const mx = await host.evaluate(() => window.__numero.maxN()),
+      far = hs > mx / 2 ? 1 : mx;
+    await p3.click('#pronoOpen');
+    await p3.click(`[data-prono="${far}"]`);
+    await wait(250);
+    {
+      const [hp, op, zp] = [await SN(host), await SN(p2), await SN(p3)];
+      check(
+        Array.isArray(hp.prono[1]) &&
+          hp.prono[1].includes(hs) &&
+          Array.isArray(hp.prono[2]) &&
+          op.prono[1] &&
+          !op.prono[2] &&
+          zp.prono[2] &&
+          !zp.prono[1],
+        'Pronostics : reçus par l’hôte, chacun ne voit que le sien'
+      );
+      check(!(await host.$('#pronoOpen')), 'Pronostic : pas de bouton pour le joueur dont c’est le tour');
+    }
     await host.click(`[data-guess="${miss}"]`);
     await host.click('#capPrecise');
-    await wait(150);
+    await wait(250);
+    {
+      const hp = await SN(host);
+      check(
+        hp.stars[1] === stars0[1] + 1 &&
+          hp.stars[2] === stars0[2] &&
+          hp.pronoHits.join() === '1' &&
+          (await p2.textContent('.result-card')).includes('Omar'),
+        `Pronostic juste d’Omar : +1 ⭐ et annonce à tous ; celui de Zoé ne rapporte rien (${hp.stars})`
+      );
+    }
     await host.click('#next');
     await wait(250);
     [h, s2] = [await SN(host), await SN(p2)];

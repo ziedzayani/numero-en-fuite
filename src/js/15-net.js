@@ -35,7 +35,8 @@ const NET_LOCAL_KEYS = [
   'netLostInfo',
   'marks', // carnet « à la main » : chacun barre sur son téléphone
   'nbTab',
-  'nbZoom'
+  'nbZoom',
+  'pronoOpen' // fenêtre de pronostic ouverte sur CE téléphone
 ];
 /** Fenêtres partagées par tous (les autres, comme le carnet ou le film, restent locales). */
 const NET_SHARED_MODALS = ['pause', 'netWait'];
@@ -73,7 +74,7 @@ function act(name, ...args) {
   const fn = GAME_ACTIONS[name];
   if (!fn) return;
   if (!g.net) return fn(...args);
-  if (!['pause', 'resume'].includes(name) && !myTurn()) return; // seul le joueur dont c'est le tour agit
+  if (!['pause', 'resume', 'prono'].includes(name) && !myTurn()) return; // seul le joueur dont c'est le tour agit
   if (g.net.role === 'host') return fn(...args);
   netSend('host', { t: 'action', name, args });
 }
@@ -178,6 +179,8 @@ function redactState(seat) {
   // jamais des positions : on n'envoie que le type de chaque saut.
   s.huntPublic = g.hunt ? g.hunt.steps.map(x => ({ shift: publicShift(x.shift), ev: x.ev ? 1 : 0 })) : null;
   delete s.soloSecret;
+  // V9.19 : chacun ne reçoit que SON pronostic (les autres restent secrets jusqu'au résultat)
+  s.prono = g.prono && g.prono[seat] ? { [seat]: g.prono[seat] } : {};
   if (s.math) s.math = { ...s.math, result: null };
   if (!NET_SHARED_MODALS.includes(s.modal)) s.modal = null;
   s.sel = null;
@@ -263,6 +266,7 @@ function hostOnMessage(peer, m) {
   if (m.t === 'action') {
     const p = net.lobby.find(x => x.peer === peer && x.connected);
     if (!p || !g.net || !GAME_ACTIONS[m.name]) return;
+    if (m.name === 'prono') return setProno(p.seat, Array.isArray(m.args) ? m.args[0] : null); // siège de l'expéditeur
     if (!['pause', 'resume'].includes(m.name) && active() !== p.seat) return; // pas son tour : ignoré
     GAME_ACTIONS[m.name](...(Array.isArray(m.args) ? m.args.slice(0, 2) : []));
   }
@@ -718,6 +722,23 @@ function bindNet(click) {
   click('netQuitGame', leave);
   click('netLaunch', netLaunch);
   click('netWithout', netContinueWithout);
+  // V9.19 : pronostic des spectateurs (la fenêtre se referme d'elle-même quand le tour s'achève)
+  if (g.pronoOpen && (!g.net || myTurn() || !pronoAllowed(g.net.seat))) g.pronoOpen = false;
+  click('pronoOpen', () => {
+    g.pronoOpen = true;
+    render();
+  });
+  click('pronoClose', () => {
+    g.pronoOpen = false;
+    render();
+  });
+  document.querySelectorAll('[data-prono]').forEach(b =>
+    b.addEventListener('click', () => {
+      g.pronoOpen = false;
+      act('prono', Number(b.dataset.prono));
+      render();
+    })
+  );
   // V9.18 : recherche des parties proches seulement sur l'écran « Rejoindre »
   netScan(g.screen === 'lan' && !!g.lan && g.lan.view === 'join');
   bindRooms();

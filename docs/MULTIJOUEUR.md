@@ -75,7 +75,7 @@ Fourni par `NetBridge.java` (Android) ; simulé par les tests (`tests/game.test.
 | `lobby` | hôte → invités | `players` [{ seat, name, connected }], `rules` { level, mode, series }, `started` |
 | `state` | hôte → invités | `s` : copie de l'état sans secret |
 | `timers` | hôte → invités | `v` : temps écoulés (2 fois par seconde) |
-| `action` | invité → hôte | `name` (tab, ask, math, capture, next, reroll, pause, resume), `args` |
+| `action` | invité → hôte | `name` (tab, ask, math, capture, next, reroll, pause, resume, prono), `args` — `prono` est accepté hors de son tour ; l'hôte utilise le siège de l'expéditeur |
 | `error` | hôte → invité | `code` : `version`, `code`, `started`, `full` |
 | `ping` / `pong` | hôte → invités / réponse | battement de cœur toutes les 3 s (V9.15) |
 | `hostAway` / `hostBack` | hôte → invités | l'hôte passe en arrière-plan / revient (V9.15) |

@@ -445,6 +445,9 @@ function resultView() {
     x.type === 'math' && x.correct && !x.pick
       ? `<div class="fb-points">⭐ ${g.mode === 'challenge' ? '+10 ' + t('pts') : '+1'}</div>`
       : '';
+  // V9.19 : pronostics gagnants des spectateurs (Wi-Fi)
+  if ((g.pronoHits || []).length && ['found', 'netHit', 'wrong', 'netMiss', 'timeout'].includes(x.type))
+    desc += `<span class="prono-hit">🔮 ${t('pronoHit', { players: g.pronoHits.map(pname).join(', ') })}</span>`;
   const head = top
     ? `${fbTop}<div class="catch-head">${top}<div>${titleHtml}<p class="result-desc">${desc}</p>${scoreChip}</div></div>${racePodiumNote(x)}`
     : `${fbTop}${titleHtml}${points}${desc ? `<p class="result-desc">${desc}</p>` : ''}${scoreChip}`;
@@ -470,6 +473,26 @@ function awayNews(p) {
     .slice(-3);
   if (!items.length) return '';
   return `<div class="away-news"><b>👀 ${t('awayTitle')}</b><ul>${items.map(e => `<li>${historyText(e)}</li>`).join('')}</ul></div>`;
+}
+/** V9.19 : bouton « Pronostic » des spectateurs (Wi-Fi), dans la bulle du détective. */
+function pronoChip() {
+  if (!g.net || myTurn() || !pronoAllowed(g.net.seat)) return '';
+  const mine = (g.prono || {})[g.net.seat];
+  return `<button class="prono-chip" id="pronoOpen" type="button">🔮 ${mine ? `<b dir="ltr">${mine.join('·')}</b>` : t('pronoChoose')}</button>`;
+}
+/** Grille du pronostic (fenêtre locale à ce téléphone, jamais partagée). */
+function pronoOverlay() {
+  if (!g.pronoOpen || !g.net || myTurn() || !pronoAllowed(g.net.seat)) return '';
+  const mine = (g.prono || {})[g.net.seat] || [],
+    max = maxN(),
+    cols = max <= 9 ? 3 : max <= 15 ? 5 : 7;
+  const cells = Array.from({ length: max }, (_, i) => i + 1)
+    .map(
+      n =>
+        `<button type="button" class="prono-n ${mine.includes(n) ? 'on' : ''}" data-prono="${n}">${n}</button>`
+    )
+    .join('');
+  return `<div class="modal-back prono-back" role="dialog" aria-modal="true"><div class="modal prono-modal"><h2>🔮 ${t('pronoTitle', { player: pname(active()) })}</h2><p class="sub small">${t('pronoHint')}</p><div class="prono-grid" dir="ltr" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells}</div><button class="bigbtn light" id="pronoClose" type="button">${t('close')}</button></div></div>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {
@@ -563,7 +586,7 @@ function game() {
         : result && ['found', 'netHit'].includes(x.type)
           ? 'cheer'
           : '';
-  return `<header class="gbar"><span class="brand-icon lvl-badge ${logo}" dir="ltr" aria-label="${t('levelBadge')} 1–${maxN()}"><span class="lvl-emo">${g.mode === 'challenge' ? '🏆' : { junior: '🐣', malin: '🧠', expert: '🚀', genius: '🦉' }[g.level]}</span><b class="lvl-range">1–${maxN()}</b>${logo === 'thinking' ? '<i class="logo-bubble">…</i>' : ''}</span><div class="gstatus">${g.mode === 'challenge' ? `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: '∞' })}</b><span>🏆 ${chScore()}</span></div>` : `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: g.limit })}</b><span>🎯 ${g.captures}</span></div><div class="gprogress" dir="ltr"><span style="width:${pct}%"></span></div>`}</div><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header>${scoreboard()}<section class="panel turn-card${result && fbKind(g.last) ? ' fb-mode' : ''}"><div class="turn-top"><div class="mini-mascot">${mascot(anim === 'worried' ? 'idle' : anim, party, anim === 'worried' ? 'worried' : null)}</div><div class="bubble"><b>${head}</b><span class="quip">${netWatchBanner() || quip(qk)}</span></div></div>${result && g.mode !== 'challenge' ? '' : timersHTML()}<div class="turn-body">${result ? resultView() : questionView()}</div></section>`;
+  return `<header class="gbar"><span class="brand-icon lvl-badge ${logo}" dir="ltr" aria-label="${t('levelBadge')} 1–${maxN()}"><span class="lvl-emo">${g.mode === 'challenge' ? '🏆' : { junior: '🐣', malin: '🧠', expert: '🚀', genius: '🦉' }[g.level]}</span><b class="lvl-range">1–${maxN()}</b>${logo === 'thinking' ? '<i class="logo-bubble">…</i>' : ''}</span><div class="gstatus">${g.mode === 'challenge' ? `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: '∞' })}</b><span>🏆 ${chScore()}</span></div>` : `<div class="gstatus-row"><b>${t('turn', { current: g.turn + 1, total: g.limit })}</b><span>🎯 ${g.captures}</span></div><div class="gprogress" dir="ltr"><span style="width:${pct}%"></span></div>`}</div><button class="mini-btn icon-btn" id="openNotebook" aria-label="${t('notebook')}" title="${t('notebook')}">📓</button><button class="mini-btn icon-btn pause-btn" id="pause" aria-label="${t('pause')}" title="${t('pause')}">⏸</button></header>${scoreboard()}<section class="panel turn-card${result && fbKind(g.last) ? ' fb-mode' : ''}"><div class="turn-top"><div class="mini-mascot">${mascot(anim === 'worried' ? 'idle' : anim, party, anim === 'worried' ? 'worried' : null)}</div><div class="bubble"><b>${head}</b><span class="quip">${netWatchBanner() || quip(qk)}${pronoChip()}</span></div></div>${result && g.mode !== 'challenge' ? '' : timersHTML()}<div class="turn-body">${result ? resultView() : questionView()}</div></section>${pronoOverlay()}`;
 }
 /** V9.16 : séries — gagnant(s) de la série (quand elle est finie). */
 function seriesChampions() {

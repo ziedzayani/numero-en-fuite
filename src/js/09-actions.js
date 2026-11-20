@@ -72,8 +72,39 @@ function passTurn() {
   render();
 }
 /** Tir précis sur le numéro n. */
+/*
+ * V9.19 : pronostics des spectateurs (Wi-Fi). Pendant le tour d'un autre, chacun place EN SECRET un petit filet
+ * (même largeur que le filet magique) : « où sera le numéro quand il capturera ? ». Au moment de la capture
+ * (ou de la fin du chrono), chaque pronostic juste rapporte +1 ⭐. L'hôte n'envoie à chacun que son pronostic.
+ */
+const turnOver = () =>
+  g.phase === 'result' &&
+  !!g.last &&
+  ['found', 'netHit', 'wrong', 'netMiss', 'timeout', 'pass'].includes(g.last.type);
+function pronoAllowed(seat) {
+  return (
+    !!g.net && g.screen === 'game' && seat !== active() && !isAbsent(seat) && seat < g.players && !turnOver()
+  );
+}
+function setProno(seat, n) {
+  n = Number(n);
+  if (!pronoAllowed(seat) || !(n >= 1 && n <= maxN())) return;
+  g.prono = { ...(g.prono || {}), [seat]: netRange(n) };
+  render();
+}
+/** Juste avant la capture : pronostics gagnants (+1 ⭐), puis plus de pronostic pour ce tour. */
+function pronoSettle() {
+  if (!g.net || !g.prono) return;
+  const hits = Object.entries(g.prono)
+    .filter(([s, nums]) => Number(s) !== active() && Array.isArray(nums) && nums.includes(g.secret))
+    .map(([s]) => Number(s));
+  hits.forEach(s => (g.stars[s] = (g.stars[s] || 0) + 1));
+  g.pronoHits = hits;
+  g.prono = {};
+}
 function guess(n) {
   if (g.screen !== 'game' || g.phase !== 'choose' || n < 1 || n > maxN()) return;
+  pronoSettle();
   g.sel = null;
   g.capturing = null;
   const player = active(),
@@ -113,6 +144,7 @@ function netRange(n) {
 /** Lance le filet autour de n (consomme un des NETS_MAX filets du joueur). */
 function netCapture(n) {
   if (g.screen !== 'game' || g.phase !== 'choose' || !(n >= 1 && n <= maxN()) || !netAvailable()) return;
+  pronoSettle();
   g.netsLeft[active()] = netsLeft() - 1;
   g.sel = null;
   g.capturing = null;
@@ -370,7 +402,8 @@ const GAME_ACTIONS = {
   next: () => nextTurn(),
   reroll: rerollChoices,
   pause: pauseGame,
-  resume: resumeGame
+  resume: resumeGame,
+  prono: (n, seat) => setProno(seat == null ? (g.net ? g.net.seat : 0) : seat, n)
 };
 
 /** Joueur absent (multijoueur Wi-Fi : parti sans revenir) : ses tours sont sautés. */

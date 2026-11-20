@@ -153,6 +153,7 @@ function mathTimeout() {
 /** Temps du tour écoulé : le numéro s'échappe et on passe au joueur suivant. */
 function turnTimeout() {
   if (g.screen !== 'game' || g.phase !== 'choose') return;
+  pronoSettle();
   const player = active();
   sfx('bad');
   const shift = nextMove();

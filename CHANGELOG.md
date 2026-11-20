@@ -1,5 +1,14 @@
 # Historique des versions
 
+## V9.19 — pronostics des spectateurs (Wi-Fi)
+
+- Pendant le tour d'un autre, chaque joueur touche « 🔮 Pronostic » dans la bulle du détective et choisit EN SECRET
+  où sera le numéro quand le joueur actif capturera (petit filet de la même largeur que le filet magique).
+  Pronostic juste au moment de la capture (ou de la fin du chrono) : +1 ⭐, annoncé à tous dans le résultat.
+  Plus de temps mort : tout le monde déduit à chaque tour.
+- Secret garanti par l'hôte : chaque téléphone ne reçoit que SON pronostic ; le joueur actif ne voit aucun pronostic.
+- Français : espaces insécables corrigées dans plusieurs textes (« : », « ; », « » »).
+
 ## V9.18 — parties proches, carte de victoire, charte des boutons
 
 - **Rejoindre d'un toucher** : l'écran « Rejoindre » liste les parties Wi-Fi trouvées (« Partie de Zied · 4933 ») ;

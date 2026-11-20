@@ -155,6 +155,8 @@ function prepareTurn() {
   g.rerolled = false;
   g.showHints = false;
   g.showHistory = false;
+  g.prono = {};
+  g.pronoHits = [];
   makeChoices();
   makeMath();
 }

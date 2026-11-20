@@ -33,6 +33,8 @@ const initial = () => ({
   seriesPref: 0, // V9.16 : 0 = une seule partie, 2 / 3 = « premier à 2 / 3 victoires »
   series: null,
   netReady: [], // Wi-Fi : joueurs prêts pour la revanche
+  prono: {}, // V9.19 Wi-Fi : pronostics secrets des spectateurs { siège: [numéros] }
+  pronoHits: [],
 
   screen: 'home',
   settingsFrom: 'home',
