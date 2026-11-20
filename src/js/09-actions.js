@@ -269,17 +269,19 @@ function revealEscaped() {
  * V9.16 : fin d'une manche d'une série. Gagnant(s) : 1re place de la Course, ou meilleur total aux Points
  * (seulement si quelqu'un a attrapé le numéro : sinon, manche nulle). Une seule fois par partie (gameId).
  */
+/** Gagnant(s) d'une partie à plusieurs : 1er de la Course, ou meilleur total aux Points (si capture). */
+function roundWinners() {
+  if (isRace()) return g.placed.filter(p => placeFor(p.round) === 1).map(p => p.player);
+  if (!g.captures) return [];
+  const tot = g.scores.map((v, i) => v + (g.stars[i] || 0)),
+    best = Math.max(...tot);
+  return tot.map((v, i) => (v === best ? i : -1)).filter(i => i >= 0);
+}
 function seriesRecord() {
   const s = g.series;
   if (!s || g.players < 2 || s.recorded === g.gameId) return;
   s.recorded = g.gameId;
-  let win = [];
-  if (isRace()) win = g.placed.filter(p => placeFor(p.round) === 1).map(p => p.player);
-  else if (g.captures) {
-    const tot = g.scores.map((v, i) => v + (g.stars[i] || 0)),
-      best = Math.max(...tot);
-    win = tot.map((v, i) => (v === best ? i : -1)).filter(i => i >= 0);
-  }
+  const win = roundWinners();
   win.forEach(i => (s.wins[i] = (s.wins[i] || 0) + 1));
   s.last = win;
   s.done = Math.max(...s.wins) >= s.target;
@@ -295,6 +297,7 @@ function finishRace(escaped = false) {
   g.modal = null;
   g.netReady = [];
   seriesRecord();
+  versusRecord();
   sfx('win');
 }
 /*
@@ -407,6 +410,7 @@ function advanceTurn() {
     g.modal = null;
     g.netReady = [];
     seriesRecord();
+    versusRecord();
     sfx(g.players === 1 ? 'bad' : 'win');
   } else {
     g.phase = 'choose';

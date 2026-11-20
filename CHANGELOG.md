@@ -1,5 +1,16 @@
 # Historique des versions
 
+## V9.17 — Duels et « Pendant ton absence »
+
+- **Mon bureau → onglet « Duels »** (statistiques à plusieurs, sur ce téléphone, sans serveur) : victoires / parties,
+  captures, meilleure série de victoires, et les face-à-face (« Zied 5 – 3 Ahlem »). Seuls les prénoms saisis
+  comptent ; chaque partie ne compte qu'une fois (même en Wi-Fi, où chaque téléphone garde ses statistiques).
+  Nouvelle clé `numeroEnFuiteVersusV1` : la sauvegarde de partie, la carrière solo et les records ne changent pas.
+- **« Pendant ton absence »** (même téléphone) : à l'écran « Passe le téléphone », les 3 derniers indices ou captures
+  ratées des autres joueurs depuis ton dernier tour.
+- Fenêtre des prénoms à 4 joueurs : marge de sécurité (la V9.16 défilait de 11 px sur la machine de compilation).
+- La V9.16 n'a pas été publiée (contrôle de mise en page refusé) : son contenu (séries, revanche « Prêt ») est inclus ici.
+
 ## V9.16 — Séries et revanche
 
 - **Séries** à plusieurs (même téléphone et Wi-Fi) : « 1 partie », « Premier à 2 » ou « Premier à 3 » victoires.

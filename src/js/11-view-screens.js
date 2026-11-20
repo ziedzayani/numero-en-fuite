@@ -62,12 +62,13 @@ function home() {
 /** « Mon bureau de détective » : rang, XP, compteurs et records des 4 niveaux (lecture seule). */
 function office() {
   const p = careerProfile(loadCareer()),
-    tab = ['records', 'badges', 'missions'].includes(g.officeTab) ? g.officeTab : 'rank';
+    tab = ['records', 'badges', 'missions', 'versus'].includes(g.officeTab) ? g.officeTab : 'rank';
   const tabs = [
     ['rank', '🕵️', 'officeTabRank'],
     ['records', '📂', 'officeTabRecords'],
     ['badges', '🏅', 'officeTabBadges'],
-    ['missions', '🎯', 'officeTabMissions']
+    ['missions', '🎯', 'officeTabMissions'],
+    ['versus', '🏆', 'vsTab'] // V9.17 : statistiques à plusieurs
   ]
     .map(
       ([id, icon, k]) =>
@@ -77,13 +78,15 @@ function office() {
     )
     .join('');
   const body =
-    tab === 'badges'
-      ? officeBadges(p)
-      : tab === 'missions'
-        ? officeMissions(p)
-        : tab === 'records'
-          ? officeRecords(p)
-          : officeRank(p);
+    tab === 'versus'
+      ? officeVersus()
+      : tab === 'badges'
+        ? officeBadges(p)
+        : tab === 'missions'
+          ? officeMissions(p)
+          : tab === 'records'
+            ? officeRecords(p)
+            : officeRank(p);
   return `<header class="top">${brand()}<button class="mini-btn" id="closeOffice">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel office-panel"><h1 class="settings-title office-title"><i class="ot-desk" aria-hidden="true"></i>${t('officeTitle')}</h1><div class="office-tabs">${tabs}</div>${body}<button class="bigbtn" id="officePlay">▶ ${t('officePlay')}</button></section>`;
 }
 /** Onglet « Rang » : barre d'XP, frise des 8 chapeaux, compteurs. */
@@ -143,6 +146,30 @@ function officeRecords(p) {
     })
     .join('');
   return `<div class="label"><i class="ot-ico ot-records sm" aria-hidden="true"></i>${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}${levels.some(([id]) => (p.levels[id] || {}).bestHelped) ? ' ' + t('officeHelpNote') : ''}</p>`;
+}
+/** V9.17 : « À plusieurs » — victoires, captures, meilleure série de victoires, face-à-face (ce téléphone). */
+function officeVersus() {
+  const d = loadVersus(),
+    ps = Object.entries(d.players)
+      .sort((a, b) => b[1].wins - a[1].wins || b[1].games - a[1].games)
+      .slice(0, 4);
+  const head = `<div class="label vs-label"><i class="ot-ico ot-versus sm" aria-hidden="true"></i>${t('vsTitle')}</div>`;
+  if (!ps.length) return `${head}<p class="sub small centered">${t('vsEmpty')}</p>`;
+  const rows = ps
+    .map(
+      ([n, p]) =>
+        `<tr><th scope="row">${esc(n)}</th><td dir="ltr"><b>${p.wins}</b><small>/${p.games}</small></td><td dir="ltr">${p.captures}</td><td dir="ltr">${p.best}</td></tr>`
+    )
+    .join('');
+  const duels = Object.entries(d.pairs)
+    .sort((a, b) => b[1].games - a[1].games)
+    .slice(0, 3)
+    .map(([k, pr]) => {
+      const [a, b] = k.split('|');
+      return `<li><span>${esc(a)}</span><b dir="ltr">${pr.w[a] || 0} – ${pr.w[b] || 0}</b><span>${esc(b)}</span></li>`;
+    })
+    .join('');
+  return `${head}<table class="vs-table"><thead><tr><th></th><th>🏆 ${t('vsWins')}</th><th>🎯 ${t('vsCaptures')}</th><th>🔥 ${t('vsBest')}</th></tr></thead><tbody>${rows}</tbody></table>${duels ? `<div class="vs-duels-t">⚔️ ${t('vsDuels')}</div><ul class="vs-duels">${duels}</ul>` : ''}`;
 }
 /** Onglet « Badges » : étagère des 6 badges ; ceux à gagner disent comment les obtenir. */
 function officeBadges(p) {
@@ -422,6 +449,27 @@ function resultView() {
     ? `${fbTop}<div class="catch-head">${top}<div>${titleHtml}<p class="result-desc">${desc}</p>${scoreChip}</div></div>${racePodiumNote(x)}`
     : `${fbTop}${titleHtml}${points}${desc ? `<p class="result-desc">${desc}</p>` : ''}${scoreChip}`;
   return `<div class="result-card ${tone}${fb ? ' fb-card fb-' + fb : ''}">${head}${extra}${move}${clue && !x.pick ? `<p class="keep">🧠 ${t('stillYourTurn')}</p>` : ''}</div>${g.net && !myTurn() ? `<p class="net-wait-next">⏳ ${t('netWatching', { player: pname(active()) })}</p>` : ''}<button class="bigbtn ${clue ? '' : 'green'}" id="next" ${(g.net && !myTurn()) || x.pick ? 'hidden' : ''}>${clue ? '🎯 ' + t('continueGuess') : g.mode === 'challenge' && ['found', 'netHit'].includes(x.type) ? t('chSeeScore') : isRace() && g.players > 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('seeResults') : g.players === 1 && ['found', 'netHit'].includes(x.type) ? '🏆 ' + t('soloSeeWin') : g.limit && g.turn + 1 >= g.limit ? t('seeResults') : g.players === 1 ? t('nextTurn') : t('nextPlayer')} ${clue ? '' : arrow()}</button>`;
+}
+/**
+ * V9.17 : « Pendant ton absence » — sur le même téléphone, ce que les autres ont appris depuis le dernier
+ * tour du joueur qui prend le téléphone (3 derniers indices ou captures ratées, sur le numéro en cours).
+ */
+function awayNews(p) {
+  if (g.players < 2 || g.net) return '';
+  const h = g.history || [];
+  let from = 0;
+  for (let i = h.length - 1; i >= 0; i--)
+    if (h[i].player === p || ['found', 'netHit'].includes(h[i].type)) {
+      from = i + 1;
+      break;
+    }
+  const items = h
+    .slice(from)
+    .filter(e => e.player !== p && ['question', 'math', 'wrong', 'netMiss'].includes(e.type))
+    .filter(e => e.type !== 'math' || e.correct)
+    .slice(-3);
+  if (!items.length) return '';
+  return `<div class="away-news"><b>👀 ${t('awayTitle')}</b><ul>${items.map(e => `<li>${historyText(e)}</li>`).join('')}</ul></div>`;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {

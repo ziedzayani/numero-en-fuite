@@ -4715,6 +4715,95 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
+  // V9.17 : statistiques à plusieurs (clé à part) et « Pendant ton absence »
+  {
+    const { ctx, page } = await fresh(browser);
+    const r = await page.evaluate(() => {
+      const N = window.__numero;
+      localStorage.removeItem('numeroEnFuiteVersusV1');
+      Object.assign(N.state, {
+        names: ['Zied', 'Ahlem', 'Sami', ''],
+        gameMode: 'race',
+        level: 'junior',
+        seriesPref: 0
+      });
+      for (const [n, w] of [
+        [2, 0],
+        [2, 0],
+        [2, 1],
+        [3, 2]
+      ]) {
+        N.state.players = n;
+        N.start(true);
+        N.state.modal = null;
+        N.state.starter = w;
+        N.state.turn = 0;
+        N.guess(N.state.secret);
+        N.nextTurn();
+        N.render();
+      }
+      const d = JSON.parse(localStorage.getItem('numeroEnFuiteVersusV1'));
+      // 3 joueurs : Zied pose une question puis rate ; Ahlem rate ; au tour de Sami, l'encart résume
+      N.state.players = 3;
+      N.start(true);
+      N.state.modal = null;
+      N.state.starter = 0;
+      N.state.turn = 0;
+      N.ask(N.state.choices[0]);
+      N.nextTurn();
+      N.guess(N.state.secret === 1 ? 2 : 1);
+      N.nextTurn();
+      N.state.modal = null;
+      N.guess(N.state.secret === 1 ? 2 : 1);
+      N.nextTurn();
+      N.render();
+      const away = document.querySelector('.away-news');
+      return {
+        d,
+        keys: ['numeroEnFuiteV6', 'numeroEnFuiteCareerV1', 'numeroEnFuiteRecords'].map(
+          k => typeof localStorage.getItem(k)
+        ),
+        away: away ? away.textContent : '',
+        modal: N.state.modal
+      };
+    });
+    const z = r.d.players.Zied,
+      pr = r.d.pairs['Ahlem|Zied'];
+    check(
+      z.games === 4 &&
+        z.wins === 2 &&
+        z.best === 2 &&
+        z.streak === 0 &&
+        r.d.players.Sami.wins === 1 &&
+        pr.games === 4 &&
+        pr.w.Zied === 2 &&
+        pr.w.Ahlem === 1,
+      `Statistiques à plusieurs : victoires, série, face-à-face (${JSON.stringify(z)} ${JSON.stringify(pr)})`
+    );
+    check(
+      !r.d.players[''] && !Object.keys(r.d.players).some(n => /Joueur/.test(n)),
+      'Statistiques : seulement les prénoms saisis'
+    );
+    check(
+      r.modal === 'handoff' &&
+        /Pendant ton absence/.test(r.away) &&
+        /Zied/.test(r.away) &&
+        /Ahlem/.test(r.away),
+      `« Pendant ton absence » au passage du téléphone (${r.away.slice(0, 80)})`
+    );
+    await page.evaluate(() => {
+      const N = window.__numero;
+      Object.assign(N.state, { screen: 'office', officeTab: 'versus', modal: null, inGame: false });
+      N.render();
+    });
+    check(
+      (await page.textContent('.vs-table')).includes('Zied') &&
+        (await page.textContent('.vs-duels')).includes('1 – 2'),
+      'Mon bureau : tableau « À plusieurs » et face-à-face'
+    );
+    await ctx.close();
+  }
+
   await browser.close();
   console.log(`\nRésultat : ${passed} vérifications réussies, ${failed} échec(s).`);
   if (failed) {

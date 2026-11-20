@@ -1510,6 +1510,9 @@ body.scr-home .start-panel .lvl-sub {
 .ot-missions {
   background-image: url(img/off-missions.webp);
 }
+.ot-versus {
+  background-image: url(img/ic-trophy.webp);
+}
 .ot-desk {
   background-image: url(img/off-desk.webp);
   width: 58px;
@@ -1527,7 +1530,7 @@ body.scr-home .start-panel .lvl-sub {
 /* onglets : tuiles claires, image au-dessus ; l'onglet choisi en violet brillant */
 .office-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   margin: 10px 0 8px;
 }
@@ -3821,4 +3824,117 @@ html[lang='ja'] .pause-card .pz-msg {
   font-style: normal;
   font-weight: 800;
   vertical-align: 0.2em;
+}
+/* ===== V9.17 : « Pendant ton absence » et statistiques à plusieurs ===== */
+.away-news {
+  margin: 6px 0 8px;
+  padding: 8px 12px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fffdf6, #ffeec4);
+  border: 2px solid var(--hunt-gold);
+  color: #14205a;
+  text-align: start;
+}
+.away-news b {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 13px;
+}
+.away-news ul {
+  margin: 0;
+  padding-inline-start: 18px;
+  font-size: 12.5px;
+  line-height: 1.3;
+}
+.vs-label {
+  margin-top: 6px !important;
+}
+.vs-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  color: #14205a;
+  font-size: 13px;
+}
+.vs-table thead th {
+  color: #ffe08a;
+  font-size: 11.5px;
+  font-weight: 800;
+}
+.vs-table tbody th,
+.vs-table tbody td {
+  padding: 4px 6px;
+  background: linear-gradient(180deg, #fffaf0, #ffeec4);
+  text-align: center;
+}
+.vs-table tbody th {
+  border-radius: 12px 0 0 12px;
+  text-align: start;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vs-table tbody td:last-child {
+  border-radius: 0 12px 12px 0;
+}
+[dir='rtl'] .vs-table tbody th {
+  border-radius: 0 12px 12px 0;
+}
+[dir='rtl'] .vs-table tbody td:last-child {
+  border-radius: 12px 0 0 12px;
+}
+.vs-table small {
+  opacity: 0.7;
+}
+.vs-duels-t {
+  margin: 8px 0 4px;
+  color: #ffe08a;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+.vs-duels {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.vs-duels li {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+  margin: 4px 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #11286e;
+  border: 2px solid var(--hunt-gold);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+.vs-duels li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vs-duels li span:first-child {
+  text-align: end;
+}
+.vs-duels li b {
+  color: #ffd54a;
+  font-size: 15px;
+}
+/* fenêtre des prénoms à 4 joueurs : marge de sécurité (polices un peu différentes selon les téléphones) */
+.modal:has(.name-row:nth-child(4)) .name-row input {
+  min-height: 30px;
+}
+.modal:has(.name-row:nth-child(4)) .mode-card small {
+  font-size: 11px;
+}
+.modal:has(.name-row:nth-child(4)) .help-note {
+  font-size: 12px;
+}
+.modal:has(.name-row:nth-child(4)) #namesGo {
+  min-height: 52px;
 }

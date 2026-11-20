@@ -303,3 +303,60 @@ function importProgress(code) {
   for (const k of BACKUP_PREFS) if (r.data.prefs && k in r.data.prefs) g[k] = r.data.prefs[k];
   return true;
 }
+
+/*
+ * V9.17 : statistiques « à plusieurs », sur CE téléphone (aucun serveur). Clé à part, qui ne touche ni
+ * à la sauvegarde de la partie ni à la carrière solo : numeroEnFuiteVersusV1.
+ *   players : { prénom: { games, wins, captures, streak, best } }   (seulement les prénoms saisis)
+ *   pairs   : { « A|B » (ordre alphabétique) : { games, w: { A: n, B: n } } }
+ *   processed : derniers gameId comptés (une partie ne compte qu'une fois, même relue ou reçue en Wi-Fi)
+ */
+const VERSUS_STORAGE = 'numeroEnFuiteVersusV1';
+function loadVersus() {
+  try {
+    const d = JSON.parse(localStorage.getItem(VERSUS_STORAGE));
+    if (d && typeof d === 'object' && d.players && d.pairs && Array.isArray(d.processed)) return d;
+  } catch (e) {
+    // sauvegarde illisible : on repart de zéro
+  }
+  return { players: {}, pairs: {}, processed: [] };
+}
+function versusRecord() {
+  if (g.players < 2 || g.mode === 'challenge' || !g.gameId) return;
+  const d = loadVersus();
+  if (d.processed.includes(g.gameId)) return;
+  d.processed = [...d.processed, g.gameId].slice(-60);
+  const name = i => String((g.names || [])[i] || '').trim();
+  const named = Array.from({ length: g.players }, (_, i) => i).filter(i => name(i) && !isAbsent(i));
+  const win = roundWinners();
+  const caps = i =>
+    (g.history || []).filter(e => e.player === i && ['found', 'netHit'].includes(e.type)).length;
+  for (const i of named) {
+    const p =
+      d.players[name(i)] || (d.players[name(i)] = { games: 0, wins: 0, captures: 0, streak: 0, best: 0 });
+    p.games++;
+    p.captures += caps(i);
+    if (win.includes(i)) {
+      p.wins++;
+      p.streak++;
+      p.best = Math.max(p.best, p.streak);
+    } else p.streak = 0;
+  }
+  for (const a of named)
+    for (const b of named) {
+      if (a >= b || name(a) === name(b)) continue;
+      const [x, y] = [name(a), name(b)].sort();
+      const key = x + '|' + y,
+        pr = d.pairs[key] || (d.pairs[key] = { games: 0, w: {} });
+      pr.games++;
+      const wa = win.includes(a),
+        wb = win.includes(b);
+      if (wa && !wb) pr.w[name(a)] = (pr.w[name(a)] || 0) + 1;
+      if (wb && !wa) pr.w[name(b)] = (pr.w[name(b)] || 0) + 1;
+    }
+  try {
+    localStorage.setItem(VERSUS_STORAGE, JSON.stringify(d));
+  } catch (e) {
+    // stockage plein : les statistiques ne sont pas enregistrées, le jeu continue
+  }
+}

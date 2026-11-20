@@ -376,6 +376,7 @@ function clientApplyState(s) {
   g = Object.assign(s, keep, local);
   if (localModal && !s.modal) g.modal = localModal;
   g.lan = null;
+  if (g.screen === 'end' && g.mode !== 'challenge') versusRecord(); // V9.17 : chaque téléphone garde ses statistiques
   render();
 }
 

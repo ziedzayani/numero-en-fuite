@@ -218,11 +218,26 @@ const STATES = {
     N.state.modal = 'netLost';
   },
   ...Object.fromEntries(
-    ['rank', 'records', 'badges', 'missions'].map(tab => [
+    ['rank', 'records', 'badges', 'missions', 'versus'].map(tab => [
       'bureau ' + tab,
       `N => { N.state.screen = 'office'; N.state.officeTab = '${tab}'; }`
     ])
   ),
+  'bureau versus rempli': N => {
+    // V9.17 : 6 joueurs et 4 face-à-face (le maximum affiché), prénoms longs
+    const names = ['Alexandrine', 'Bartholomé', 'Zied', 'Ahlem', 'Maximilien', 'Lina'];
+    const d = { players: {}, pairs: {}, processed: [] };
+    names.forEach(
+      (n, i) => (d.players[n] = { games: 120 - i, wins: 60 - i, captures: 99, streak: 1, best: 12 })
+    );
+    d.pairs['Alexandrine|Bartholomé'] = { games: 40, w: { Alexandrine: 20, Bartholomé: 19 } };
+    d.pairs['Ahlem|Zied'] = { games: 30, w: { Zied: 15, Ahlem: 14 } };
+    d.pairs['Lina|Maximilien'] = { games: 20, w: { Lina: 10, Maximilien: 9 } };
+    d.pairs['Ahlem|Lina'] = { games: 10, w: { Lina: 5, Ahlem: 4 } };
+    localStorage.setItem('numeroEnFuiteVersusV1', JSON.stringify(d));
+    N.state.screen = 'office';
+    N.state.officeTab = 'versus';
+  },
   'fin solo gagnée + récompenses': N => {
     N.state.players = 1;
     N.state.level = 'junior';
