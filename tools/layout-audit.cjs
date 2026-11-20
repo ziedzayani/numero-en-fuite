@@ -401,7 +401,77 @@ const STATES = {
     N.state.replayAsk = false;
     N.guess(N.state.secret);
     N.nextTurn();
-  }
+  },
+  // V9.24 : fin de Défi la plus chargée — record, montée de rang, 4 badges, mission, film, détail ouvert
+  'fin défi : tout gagné': N => {
+    const c = N.loadCareer(),
+      p = c.profiles[c.activeProfileId];
+    p.xpTotal = 95;
+    p.missions = [{ k: 'chTimed', progress: 0, goal: 1 }, ...p.missions.slice(0, 2)];
+    localStorage.setItem('numeroEnFuiteCareerV1', JSON.stringify(c));
+    N.startChallenge('timed', 'hard');
+    N.state.replayAsk = false;
+    N.ask(N.state.choices[0]);
+    if (N.state.last && N.state.last.pick) N.mathPick(N.state.choices[0]);
+    N.nextTurn();
+    N.guess(N.state.secret === 1 ? 2 : N.state.secret - 1);
+    N.nextTurn();
+    N.guess(N.state.secret);
+    N.nextTurn();
+  },
+  'fin défi : détail du score': N => {
+    N.startChallenge('timed', 'hard');
+    N.state.replayAsk = false;
+    N.state.chElapsed = 61000;
+    N.ask(N.state.choices[0]);
+    if (N.state.last && N.state.last.pick) N.mathPick(N.state.choices[0]);
+    N.nextTurn();
+    N.mathAnswer(N.state.math.options.find(o => o !== N.state.math.result));
+    if (N.state.last && N.state.last.pick) N.mathPick(N.state.choices[0]);
+    N.nextTurn();
+    N.netCapture(N.state.secret > 50 ? 1 : 100);
+    N.nextTurn();
+    N.guess(N.state.secret === 1 ? 2 : N.state.secret - 1);
+    N.nextTurn();
+    N.guess(N.state.secret);
+    N.nextTurn();
+    N.state.modal = 'chDetail';
+  },
+  'fin défi perdu (limite du jour)': N => {
+    const c = N.loadCareer(),
+      p = c.profiles[c.activeProfileId];
+    p.challenge = { runs: {}, easyDay: { d: N.todayKey(), n: 99 } };
+    localStorage.setItem('numeroEnFuiteCareerV1', JSON.stringify(c));
+    N.startChallenge('timed', 'easy');
+    N.state.replayAsk = false;
+    N.state.chElapsed = 179999;
+    N.finishChallenge(false);
+  },
+  ...Object.fromEntries(
+    [
+      ['badges', 'challenge'],
+      ['records', 'challenge'],
+      ['records', 'daily'],
+      ['rank', 'challenge']
+    ].map(([tab, set]) => [
+      `bureau ${tab} ${set} rempli`,
+      `N => {
+        const win = (k, d) => { N.startChallenge(k, d); N.state.replayAsk = false; N.guess(N.state.secret); N.nextTurn(); };
+        const c = N.loadCareer(), p = c.profiles[c.activeProfileId];
+        p.xpTotal = 240; p.levels.malin.wins = 7;
+        localStorage.setItem('numeroEnFuiteCareerV1', JSON.stringify(c));
+        for (let i = 0; i < 7; i++) win(i % 2 ? 'timed' : 'endless', ['easy', 'medium', 'hard'][i % 3]);
+        const d = {}, now = new Date();
+        for (let i = 0; i < 30; i++) {
+          if (i % 3 === 1) continue;
+          d[N.todayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - i))] = { won: i % 4 !== 2, turns: 12, score: 1234, ms: 3599000, tries: 9 };
+        }
+        localStorage.setItem('numeroEnFuiteDailyV1', JSON.stringify(d));
+        N.state.screen = 'office'; N.state.mode = 'normal';
+        N.state.officeTab = '${tab}'; N.state.officeBadgeSet = '${set}'; N.state.officeRecSet = '${set}';
+      }`
+    ])
+  )
 };
 (async () => {
   const b = await chromium.launch();

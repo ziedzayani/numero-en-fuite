@@ -58,7 +58,15 @@ function dailyRecord(won) {
     day.tries = (day.tries || 1) + 1;
     g.dailyOfficial = false;
   } else {
-    d[g.daily] = { won: !!won, turns: won ? g.soloTurns : null, secret: g.soloSecret || null, tries: 1 };
+    // V9.24 : score (le même que l'écran de fin) et durée de jeu, pour l'historique
+    d[g.daily] = {
+      won: !!won,
+      turns: won ? g.soloTurns : null,
+      secret: g.soloSecret || null,
+      tries: 1,
+      score: g.soloResult && Number.isFinite(g.soloResult.score) ? g.soloResult.score : null,
+      ms: g.dailyMs > 0 ? Math.round(g.dailyMs) : null
+    };
     g.dailyOfficial = true;
   }
   // on garde les 60 derniers jours
@@ -96,4 +104,30 @@ function dailyBanner() {
   });
   const res = day.won ? t('dailyDoneWin', { n: day.turns }) : t('dailyDoneLose');
   return `<div class="daily-banner"><b>📅 ${t('dailyTitle')} · ${esc(date)}</b><span>${g.dailyOfficial === false ? t('dailyPractice', { res }) : t('dailyCompare')}</span></div>`;
+}
+/**
+ * V9.24 : historique officiel des DAILY_HISTORY_DAYS derniers jours (aujourd'hui compris), du plus récent
+ * au plus ancien : [{ day, res }] ; res = null pour un jour non joué (rien n'est inventé). Seul le premier
+ * essai d'un jour y figure ; les entraînements ne changent que le nombre d'essais.
+ */
+function dailyHistory(today = new Date()) {
+  const d = loadDaily(),
+    num = v => (Number.isFinite(v) && v >= 0 ? v : null);
+  return Array.from({ length: DAILY_HISTORY_DAYS }, (_, i) => {
+    const day = todayKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)),
+      e = d[day];
+    return {
+      day,
+      res:
+        e && typeof e === 'object'
+          ? {
+              won: !!e.won,
+              turns: num(e.turns),
+              score: num(e.score),
+              ms: num(e.ms),
+              tries: num(e.tries) || 1
+            }
+          : null
+    };
+  });
 }

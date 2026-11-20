@@ -4827,3 +4827,401 @@ html[lang='ja'] .pause-card .pz-msg {
   margin-top: 2px;
   margin-bottom: 6px;
 }
+
+/* ===== V9.24 : Défis dans le bureau, fin de Défi détaillée, historique du Défi du jour ===== */
+/* sous-onglets du bureau (Solo / Défis / Du jour) : une pilule, l'onglet choisi en violet doré */
+.oseg {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 2px 0 8px;
+}
+.oseg-b {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 34px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 2px solid #9fcfff;
+  background: linear-gradient(180deg, #ffffff, #e6eeff);
+  color: #14205a;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.oseg-b.is-selected {
+  background: linear-gradient(180deg, #5622ad, #7d45dd);
+  border-color: var(--hunt-gold);
+  color: #fff;
+  box-shadow: 0 0 8px rgba(255, 200, 61, 0.55);
+}
+.badges-count {
+  margin: 4px 0 0;
+  text-align: center;
+  font-weight: 800;
+}
+/* progression d'un badge à plusieurs étapes : 7/10 */
+.b-prog {
+  position: relative;
+  display: block;
+  height: 14px;
+  margin-top: 3px;
+  border-radius: 999px;
+  background: #dfe7fb;
+  overflow: hidden;
+}
+.b-prog i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(180deg, #1f9e55, #137a3e);
+  border-radius: 999px;
+}
+.b-prog em {
+  position: relative;
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 14px;
+  color: #0b2a17;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 2px #fff;
+}
+.office-panel .badge.st-progress {
+  border-color: #6cc8ff;
+}
+/* records des Défis : difficulté + deux cases (⏱ / ♾️) */
+.office-records.ch-records li.rec-row {
+  gap: 6px;
+}
+.crp-pair {
+  display: flex;
+  gap: 6px;
+  margin-inline-start: auto;
+}
+.crp {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: center;
+  align-items: center;
+  column-gap: 4px;
+  width: 72px;
+  padding: 2px 4px;
+  border-radius: 12px;
+  background: #e3ecff;
+  border: 1px solid #9fcfff;
+  color: #3a4675;
+}
+.crp i {
+  font-style: normal;
+  font-size: 13px;
+}
+.crp b {
+  font-size: 15px;
+  font-weight: 900;
+}
+.crp small {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  font-weight: 700;
+  color: #2a4ea8;
+  white-space: nowrap;
+}
+.crp.has {
+  background: linear-gradient(180deg, #173a92, #2f66de);
+  border-color: #173a92;
+  color: #fff;
+}
+.crp.has small {
+  color: #dfe9ff;
+}
+/* Défi du jour : 30 jours en calendrier (le plus récent en dernier) */
+.daily-sum {
+  margin: 0 0 6px;
+  text-align: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+.daily-cal {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+.dcal {
+  min-height: 28px;
+  border-radius: 10px;
+  border: 2px solid #9fcfff;
+  background: linear-gradient(180deg, #ffffff, #e6eeff);
+  color: #3a4675;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 0;
+}
+.dcal.won {
+  background: linear-gradient(180deg, #137a3e, #1f9e55);
+  border-color: #0c5a2c;
+  color: #fff;
+}
+.dcal.lost {
+  background: linear-gradient(180deg, #a8261d, #d13d2f);
+  border-color: #7a1a13;
+  color: #fff;
+}
+.dcal.today {
+  outline: 2px dashed var(--hunt-gold);
+  outline-offset: 1px;
+}
+.dcal.is-selected {
+  box-shadow:
+    0 0 0 3px var(--hunt-gold),
+    0 0 10px rgba(255, 200, 61, 0.7);
+}
+.daily-detail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2px 10px;
+  margin: 8px 0 2px;
+  padding: 4px 10px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff, #eef3ff);
+  border: 2px solid var(--hunt-gold);
+  color: #14205a;
+  font-size: 13px;
+  font-weight: 800;
+}
+.daily-detail .dd-date {
+  flex-basis: 100%;
+  text-align: center;
+  text-transform: capitalize;
+}
+.dd-res {
+  padding: 1px 10px;
+  border-radius: 999px;
+  color: #fff;
+}
+.dd-res.won {
+  background: #137a3e;
+}
+.dd-res.lost {
+  background: #a8261d;
+}
+.daily-detail small,
+.dd-none {
+  color: #46527d;
+  font-weight: 700;
+}
+/* missions : barre de progression sous le texte */
+.mission-list .m-bar {
+  display: block;
+  height: 6px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: #dfe7fb;
+  overflow: hidden;
+}
+.mission-list .m-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1f9e55, #3cc472);
+}
+.mission-list li.m-ch .m-icon {
+  background-image: url(img/ic-trophy.webp);
+}
+.promo-line {
+  margin: 3px 0 0;
+  overflow: hidden;
+  color: #ffe08a;
+  font-size: 11.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* fin de Défi : variante et difficulté, 4 compteurs, détail du score repliable */
+.ch-meta {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.ch-pill {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #173a92;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+.ch-pill.diff-easy {
+  background: #137a3e;
+}
+.ch-pill.diff-hard {
+  background: #a8261d;
+}
+.ch-end .ch-score {
+  margin: 0;
+}
+.ch-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 6px 0 4px;
+}
+.ch-stats div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3px 2px;
+  border-width: 2px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff, #eef3ff);
+}
+.ch-stats b {
+  font-size: 18px;
+  color: #14205a;
+}
+.ch-stats small {
+  display: block;
+  font-size: 10.5px;
+  line-height: 1.1;
+  color: #46527d;
+}
+.ch-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 2px 0;
+}
+.ch-tools .rp-open {
+  min-height: 0;
+  padding: 4px 12px;
+  font-size: 12.5px;
+}
+.ch-detail-btn {
+  min-height: 0;
+  padding: 4px 12px;
+  font-size: 12.5px;
+}
+.ch-detail-btn .ic-sum {
+  margin-inline-end: 6px;
+  font-style: normal;
+  font-weight: 900;
+}
+/* fenêtre « Détail du score » */
+.ch-lines {
+  margin: 6px 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid #9fcfff;
+}
+.ch-lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 12px;
+  background: #ffffff;
+  color: #14205a;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.ch-lines li:nth-child(even) {
+  background: #eef3ff;
+}
+.ch-lines li b {
+  font-weight: 900;
+  white-space: nowrap;
+}
+.ch-lines li b.pos {
+  color: #137a3e;
+}
+.ch-lines li b.neg {
+  color: #a8261d;
+}
+.ch-lines li.ch-total {
+  background: linear-gradient(180deg, #173a92, #2f66de);
+  color: #fff;
+  font-size: 15px;
+}
+.ch-lines li.ch-total b {
+  color: #ffe08a;
+}
+.ch-formula {
+  font-size: 11px;
+  line-height: 1.3;
+}
+.ch-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 2px 0;
+}
+.ch-tools .rp-open {
+  min-height: 0;
+  padding: 4px 12px;
+  font-size: 12.5px;
+}
+.ch-end .reward-chip.rank-up {
+  background: linear-gradient(180deg, #fff6d6, #ffe08a);
+  border-color: var(--hunt-gold);
+  color: #14205a;
+  font-weight: 800;
+}
+.ch-tools .rp-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  padding: 4px 0;
+}
+.ch-tools .rp-icon .ico {
+  margin: 0;
+}
+/* Défi chronométré : pause de lecture en cours (le chrono repart ensuite tout seul) */
+.tmr.challenge.reading .timer-bar span {
+  opacity: 0.45;
+}
+.tmr.challenge.reading b {
+  opacity: 0.7;
+}
+
+.office-records.ch-records .rec-lv {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 6px;
+}
+.office-records.ch-records .rec-ico {
+  width: 32px;
+  height: 30px;
+}
+.office-records.ch-records .crp-pair {
+  flex: 0 0 auto;
+}
+.ch-records + p.sub,
+.daily-detail + p.sub {
+  font-size: 11px;
+  line-height: 1.25;
+}
+.office-records.ch-records .rec-lv b {
+  font-size: 15px;
+}
+/* rang obtenu en Défi / Solo : la ligne ajoutée est compensée (aucun défilement, même en arabe) */
+.office-panel:has(.promo-line) .rank-line-hats {
+  margin-top: 0;
+}
+.office-panel:has(.promo-line) .office-tabs {
+  margin-bottom: 4px;
+}
+.office-panel:has(.promo-line) .office-tiles div {
+  padding-block: 3px;
+}
+.office-panel:has(.promo-line) .office-rank .xp-bar {
+  margin-block: 4px 0;
+}

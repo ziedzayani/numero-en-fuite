@@ -17,26 +17,47 @@ function records() {
 // V8.18 : nouvelles règles → nouveaux records (« -v2 ») ; les anciens restent affichés pour mémoire
 const chRecordKey = (kind = g.chKind, diff = g.chDiff) => `${kind}-${diff}-v2`;
 /**
- * Score du défi (voir CHALLENGE_SCORE). withBonus ajoute les éléments de fin de partie :
+ * Détail du score du défi (voir CHALLENGE_SCORE) — SEULE source du calcul (V9.24) : l'écran de fin,
+ * le record et l'XP lisent les mêmes chiffres. withBonus ajoute les éléments de fin de partie :
  * pénalité de victoire au filet et bonus des secondes restantes.
+ * Renvoie { lines: [[clé, points, vars]], base (avant les bonus de fin), total (jamais négatif) }.
  */
-function chScore(withBonus = false) {
+function chScoreParts(withBonus = false) {
   const S = CHALLENGE_SCORE,
-    n = f => g.history.filter(f).length;
-  let sc =
-    S.start -
-    S.perTurn * g.turn -
-    S.question * n(e => e.type === 'question') -
-    S.wrongMath * n(e => e.type === 'math' && !e.correct) +
-    S.goodMath * n(e => e.type === 'math' && e.correct) -
-    S.miss * n(e => e.type === 'wrong') -
-    S.netMiss * n(e => e.type === 'netMiss');
+    n = f => g.history.filter(f).length,
+    nQ = n(e => e.type === 'question'),
+    nBad = n(e => e.type === 'math' && !e.correct),
+    nGood = n(e => e.type === 'math' && e.correct),
+    nMiss = n(e => e.type === 'wrong'),
+    nNet = n(e => e.type === 'netMiss');
+  const lines = [
+    ['chLineStart', S.start, {}],
+    ['chLineTurns', -S.perTurn * g.turn, { n: g.turn }],
+    ['chLineQuestions', -S.question * nQ, { n: nQ }],
+    ['chLineBadMath', -S.wrongMath * nBad, { n: nBad }],
+    ['chLineGoodMath', S.goodMath * nGood, { n: nGood }],
+    ['chLineMiss', -S.miss * nMiss, { n: nMiss }],
+    ['chLineNetMiss', -S.netMiss * nNet, { n: nNet }]
+  ];
+  const base = lines.reduce((s, l) => s + l[1], 0);
   if (withBonus) {
-    if (g.last && g.last.type === 'netHit') sc -= S.netWin;
-    if (g.chKind === 'timed') sc += S.perSecond * Math.ceil(Math.max(0, CH_TIME - g.chElapsed) / 1000);
+    if (g.last && g.last.type === 'netHit') lines.push(['chLineNetWin', -S.netWin, {}]);
+    if (g.chKind === 'timed') {
+      const sec = Math.ceil(Math.max(0, CH_TIME - g.chElapsed) / 1000);
+      lines.push(['chLineTime', S.perSecond * sec, { n: sec }]);
+    }
   }
-  return Math.max(0, sc);
+  return {
+    lines: lines.filter(([k, v]) => v !== 0 || k === 'chLineStart'),
+    base: Math.max(0, base),
+    total: Math.max(
+      0,
+      lines.reduce((s, l) => s + l[1], 0)
+    )
+  };
 }
+/** Score du défi (total de chScoreParts). */
+const chScore = (withBonus = false) => chScoreParts(withBonus).total;
 /** Durée en m:ss. */
 const fmtTime = ms => {
   const sec = Math.max(0, Math.ceil(ms / 1000));
@@ -73,7 +94,10 @@ function startChallenge(kind, diff = g.chDiffPref) {
   sfx('tap');
   render();
 }
-/** Termine le défi, calcule le score final et enregistre un éventuel record. */
+/**
+ * Termine le défi : score final (chScoreParts), record de la variante, puis carrière (XP, badges,
+ * missions, rang) via settleChallenge(), une seule fois par partie.
+ */
 function finishChallenge(won) {
   g.screen = 'end';
   g.inGame = false;
@@ -81,12 +105,13 @@ function finishChallenge(won) {
   g.chWon = won;
   if (!won) revealEscaped(); // V9.4 : film de l'évasion aussi quand le défi est perdu
   g.chSecret = g.last && won ? g.last.n : g.secret;
-  g.chFinal = won ? chScore(true) : 0;
+  const parts = won ? chScoreParts(true) : { lines: [], base: 0, total: 0 };
+  g.chFinal = parts.total;
   g.chRecordNew = false;
+  const r = records(),
+    prevBest = r[chRecordKey()] || 0;
   if (won) {
-    const r = records(),
-      best = r[chRecordKey()] || 0;
-    if (g.chFinal > best) {
+    if (g.chFinal > prevBest) {
       r[chRecordKey()] = g.chFinal;
       g.chRecordNew = true;
       try {
@@ -95,6 +120,7 @@ function finishChallenge(won) {
     }
     sfx('win');
   } else sfx('bad');
+  settleChallenge(won, parts, prevBest, g.chRecordNew);
 }
 /** De retour à l'accueil après un défi : rétablit le niveau et le nombre de joueurs d'avant. */
 function restoreFromChallenge() {

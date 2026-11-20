@@ -89,6 +89,10 @@ const initial = () => ({
   mode: 'normal',
   chKind: null,
   chElapsed: 0,
+  chResult: null, // V9.24 : résumé du Défi terminé (score détaillé, XP, badges, missions, rang)
+  chReadKey: -1, // V9.24 : pause de lecture du Défi chronométré (résultat concerné, temps utilisé)
+  chReadMs: 0,
+  dailyMs: 0, // V9.24 : durée de jeu du Défi du jour
   answerElapsed: 0,
   typed: ''
 });
@@ -263,6 +267,10 @@ function load() {
     if (!(g.chDiff in CHALLENGE_DIFFS)) g.chDiff = 'hard'; // parties de défi sauvegardées avant la V8.4
     if (!(g.chDiffPref in CHALLENGE_DIFFS)) g.chDiffPref = 'medium';
     g.chElapsed = Number(g.chElapsed) || 0;
+    if (!g.chResult || typeof g.chResult !== 'object' || !Array.isArray(g.chResult.lines)) g.chResult = null;
+    g.chReadKey = Number.isInteger(g.chReadKey) ? g.chReadKey : -1;
+    g.chReadMs = Number(g.chReadMs) || 0;
+    g.dailyMs = Number(g.dailyMs) || 0;
     g.answerElapsed = Number(g.answerElapsed) || 0;
     g.typed = typeof g.typed === 'string' ? g.typed : '';
     if (g.screen === 'game' && !g.modal && g.phase === 'choose') g.modal = 'pause';

@@ -66,7 +66,7 @@ function back() {
     return true;
   }
   if (g.screen === 'office') {
-    g.screen = g.officeFrom === 'end' && g.soloResult ? 'end' : 'home';
+    g.screen = officeBackScreen();
     render();
     return true;
   }
@@ -169,6 +169,15 @@ window.__numero = {
   rankOf,
   loadCareer,
   finishChallenge,
+  settleChallenge,
+  chScoreParts,
+  challengeXp,
+  badgeProgress,
+  dailyHistory,
+  todayKey,
+  loadDaily,
+  CH_BADGES,
+  ALL_BADGES,
   chScore,
   pressKey,
   moveFn,

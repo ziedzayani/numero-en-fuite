@@ -309,6 +309,16 @@ function bind() {
     start();
   });
   click('shareWin', () => shareVictory()); // V9.18 : carte de victoire
+  click('openChDetail', () => {
+    g.modal = 'chDetail';
+    sfx('tap');
+    render();
+  });
+  click('chDetailClose', () => {
+    g.modal = null;
+    sfx('tap');
+    render();
+  });
   click('quitYes', () => {
     g.quitSeen = false;
     if (g.net) return netLeave();
@@ -389,6 +399,8 @@ function bind() {
   });
   click('openOffice', () => {
     g.officeFrom = g.screen === 'end' ? 'end' : 'home';
+    // V9.24 : depuis la fin d'un Défi, le bureau montre directement les Défis
+    if (g.screen === 'end' && g.mode === 'challenge') g.officeBadgeSet = g.officeRecSet = 'challenge';
     g.screen = 'office';
     g.modal = null;
     sfx('tap');
@@ -401,6 +413,19 @@ function bind() {
       render();
     })
   );
+  // V9.24 : sous-onglets du bureau (Solo / Défis / Jour) et jour choisi dans le calendrier
+  for (const [attr, key] of [
+    ['rset', 'officeRecSet'],
+    ['bset', 'officeBadgeSet'],
+    ['dday', 'officeDay']
+  ])
+    app.querySelectorAll(`[data-${attr}]`).forEach(b =>
+      b.addEventListener('click', () => {
+        g[key] = b.dataset[attr];
+        sfx('tap');
+        render();
+      })
+    );
   app.querySelectorAll('[data-otab]').forEach(b =>
     b.addEventListener('click', () => {
       g.officeTab = b.dataset.otab;
@@ -409,7 +434,7 @@ function bind() {
     })
   );
   click('closeOffice', () => {
-    g.screen = g.officeFrom === 'end' && g.soloResult ? 'end' : 'home';
+    g.screen = officeBackScreen();
     sfx('tap');
     render();
   });
@@ -580,3 +605,6 @@ function bind() {
   );
   click('reroll', () => act('reroll'));
 }
+/** V9.24 : écran à rouvrir en quittant le bureau (fin de partie Solo ou de Défi, sinon l'accueil). */
+const officeBackScreen = () =>
+  g.officeFrom === 'end' && (g.soloResult || g.mode === 'challenge') ? 'end' : 'home';

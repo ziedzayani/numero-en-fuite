@@ -28,13 +28,14 @@ analyse le script **assemblé** et signale les variables non définies ou inutil
 
 | Fichier | Rôle |
 |---|---|
-| `00-constants.js` | Règles chiffrées : `LEVELS`, `SCORE`, `NETS_MAX`, `CHALLENGE_SCORE`, `CHALLENGE_DIFFS`, `APP_VERSION` |
+| `00-constants.js` | Règles chiffrées : `LEVELS`, `SCORE`, `NETS_MAX`, `CHALLENGE_SCORE`, `CHALLENGE_DIFFS`, `CHALLENGE_XP`, `CH_READ_PAUSE_MS`, `APP_VERSION` |
 | `01-i18n.js` | `dictionaries` (généré à partir de `src/i18n/`) |
 | `02-state.js` | État `g`, `t()` (traduction), utilitaires, sons Web Audio, `save()` / `load()` |
 | `03-questions.js` | Questions-indices, choix de 3 questions utiles par tour |
 | `04-math.js` | Calculs adaptés à l'âge, `prepareTurn()` |
-| `05-challenge.js` | Défi solo (score, records) et `start()` (nouvelle partie) |
+| `05-challenge.js` | Défi solo (`chScoreParts()` : seul calcul du score, records) et `start()` (nouvelle partie) |
 | `06-career.js` | Carrière Solo : `scoreSolo()`, `settleSolo()` (idempotent par `g.gameId`), XP, rangs, migration V8.4 |
+| `06c-challenge-career.js` | Défis dans la carrière : `settleChallenge()` (idempotent par `g.gameId`), XP et anti-abus du Facile, compteurs par variante, dernière promotion |
 | `07-timers.js` | Chronos global / réponse / calcul / défi, `tick()` toutes les 200 ms |
 | `08-moves.js` | Déplacements du numéro (jamais nuls), parcours pour le film |
 | `09-actions.js` | Actions du joueur : `ask`, `mathAnswer`, `guess`, `netCapture`, `nextTurn` |

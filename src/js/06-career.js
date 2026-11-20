@@ -114,6 +114,7 @@ function loadCareer() {
   p.levels = p.levels || {};
   for (const l of Object.keys(LEVELS)) p.levels[l] = { ...emptyLevel(), ...(p.levels[l] || {}) };
   normalizeOffice(p); // badges et missions (V8.15), complétés si absents
+  normalizeChallenge(p); // V9.24 : compteurs des Défis (à zéro pour une ancienne carrière)
   if (fresh) {
     const r = records();
     for (const l of Object.keys(LEVELS))
@@ -179,8 +180,10 @@ function settleSolo(won) {
   p.xpTotal += xp;
   // badges et missions : seulement sans l'aide (V9.6)
   const rewards = helped
-    ? { newBadges: [], missionsDone: [], missionXp: 0, badgeTier: 0 }
+    ? { newBadges: [], badgeTiers: {}, missionsDone: [], missionXp: 0, badgeTier: 0 }
     : settleOffice(p, gameFacts(won, turns, stars), lv);
+  if (rankOf(p.xpTotal).rank > rankBefore)
+    p.lastPromo = { rank: rankOf(p.xpTotal).rank, src: 'solo', level: g.level, d: todayKey() };
   const result = {
     won,
     helped,
@@ -196,6 +199,7 @@ function settleSolo(won) {
     rankUp: rankOf(p.xpTotal).rank > rankBefore,
     newBadges: rewards.newBadges,
     badgeTier: rewards.badgeTier || 0,
+    badgeTiers: rewards.badgeTiers || {},
     missionsDone: rewards.missionsDone,
     missionXp: rewards.missionXp,
     tip: soloTip(won, turns, stars, g.history, g.last)

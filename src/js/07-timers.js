@@ -92,10 +92,12 @@ function tick() {
   if (g.net && g.net.role === 'client') return; // invité Wi-Fi : c'est l'hôte qui décompte
   if (isDuel()) return duelTick(dt); // V9.20 : chrono du Duel express
   netCheckWaiting();
+  // V9.24 : durée de jeu du Défi du jour (partie visible, hors Pause) pour son historique
+  if (g.daily && g.screen === 'game' && !document.hidden && g.modal !== 'pause')
+    g.dailyMs = (Number(g.dailyMs) || 0) + dt;
   const l = activeTimers();
-  if (!l.length || g.modal || (document.hidden && !g.net)) return;
-  // Défi : le chrono s'arrête pendant la lecture du résultat (temps de lecture non pénalisé).
-  if (g.mode === 'challenge' && g.phase !== 'choose') return;
+  if (!l.length || (document.hidden && !g.net)) return;
+  if (g.mode === 'challenge' ? chClockHeld(dt) : g.modal) return;
   for (const k of l) {
     if (k === 'global') g.turnElapsed += dt;
     else if (k === 'math') g.mathElapsed += dt;
@@ -126,6 +128,33 @@ function tick() {
   if (l.includes('answer') && answerLeft() <= 0) {
     answerTimeout();
   }
+}
+/**
+ * Défi : le chrono doit-il rester arrêté pendant ce tick ? (V9.24)
+ *   - sans limite : arrêté pendant toute fenêtre et toute lecture de résultat (inchangé) ;
+ *   - chronométré : arrêté par la Pause (et les fenêtres qui en dépendent), l'arrière-plan et la
+ *     capture réussie ; après un résultat (ou dans le carnet), seulement CH_READ_PAUSE_MS, une fois par
+ *     résultat : ouvrir / fermer des fenêtres ne redonne pas de temps. Ensuite, il repart tout seul.
+ */
+function chClockHeld(dt) {
+  const reading = g.phase !== 'choose' || !!g.modal;
+  if (!reading) return chReadingMark(false);
+  if (g.chKind !== 'timed') return true;
+  if (g.modal && !CH_READ_MODALS.includes(g.modal)) return true;
+  if (g.phase === 'result' && g.last && ['found', 'netHit'].includes(g.last.type)) return true;
+  const key = g.history.length; // un nouveau résultat = une nouvelle pause de lecture
+  if (g.chReadKey !== key) {
+    g.chReadKey = key;
+    g.chReadMs = 0;
+  }
+  g.chReadMs = (Number(g.chReadMs) || 0) + dt;
+  return chReadingMark(g.chReadMs <= CH_READ_PAUSE_MS);
+}
+/** Chrono du Défi « en pause de lecture » : signalé sur sa barre (sans tout redessiner). */
+function chReadingMark(on) {
+  const el = document.querySelector('[data-tk="challenge"]');
+  if (el) el.classList.toggle('reading', on);
+  return on;
 }
 /** Temps écoulé pour la question : l'aide est perdue, il reste à choisir un numéro. */
 function answerTimeout() {

@@ -47,3 +47,15 @@ Difficile : le carnet (et « Décaler mes marques ») fait partie du jeu.
 
 `tests/game.test.cjs` (section V8.18) rejoue 150 parties « calculatrice » par difficulté sur le vrai moteur et
 vérifie que les médianes restent ordonnées (Facile ≤ 6 < Moyen < Difficile ≤ 12).
+
+## Défis et Bureau (V9.24)
+
+- Un Défi terminé passe par `settleChallenge()` (une seule fois par `g.gameId`) : XP de `CHALLENGE_XP`, badges
+  `CH_BADGES` et missions `chWin` / `chTimed` dans la même carrière que le Solo classique.
+- Le score n'est calculé qu'à un endroit, `chScoreParts()` : l'écran de fin (avec son détail), le record et l'XP
+  utilisent les mêmes chiffres. Formule inchangée.
+- « Excellent » = score de base (avant victoire au filet et secondes restantes) ≥ `CH_EXCELLENT_SCORE` (800), soit
+  une capture en 4 ou 5 tours environ (médianes : Moyen 7, Difficile 9).
+- Anti-abus : `CH_EASY_XP_PER_DAY` Défis Faciles récompensés par jour (compteur `p.challenge.easyDay`).
+- Contre la montre : `CH_READ_PAUSE_MS` de lecture par résultat (`g.chReadKey` = taille de l'historique,
+  `g.chReadMs`), aussi dans les fenêtres `CH_READ_MODALS` ; Pause, arrière-plan et capture réussie arrêtent le chrono.

@@ -40,9 +40,77 @@ const BADGES = [
   { id: 'ace', icon: '🃏', test: (f, lv) => lv.wins >= 10 }
 ];
 
+/**
+ * V9.24 : badges des Défis, dans le même coffre `p.badges` que ceux du Solo classique.
+ * `tier(p, f)` renvoie le palier atteint par cette partie (0 = rien). `single` : badge sans palier
+ * (pas de médaille). « Défis gagnés » a 4 paliers (CH_WINS_TIERS victoires, tous Défis confondus).
+ */
+const CH_DIFF_ORDER = ['easy', 'medium', 'hard'];
+const chDiffIdx = d => Math.max(0, CH_DIFF_ORDER.indexOf(d));
+const CH_BADGES = [
+  { id: 'chFirst', icon: '🎯', single: true, tier: (p, f) => (f.won ? 1 : 0) },
+  { id: 'chMedium', icon: '🧩', single: true, tier: (p, f) => (f.won && chDiffIdx(f.diff) >= 1 ? 1 : 0) },
+  { id: 'chHard', icon: '🔥', single: true, tier: (p, f) => (f.won && f.diff === 'hard' ? 1 : 0) },
+  { id: 'chTimed', icon: '⏱️', single: true, tier: (p, f) => (f.won && f.kind === 'timed' ? 1 : 0) },
+  {
+    id: 'chExcellent',
+    icon: '🌟',
+    single: true,
+    tier: (p, f) => (f.won && f.diff !== 'easy' && f.base >= CH_EXCELLENT_SCORE ? 1 : 0)
+  },
+  { id: 'chWins', icon: '🏅', tier: p => CH_WINS_TIERS.filter(n => chWinsTotal(p) >= n).length }
+];
+/** Tous les badges (Solo classique puis Défis) : étagère, compteur, pastilles de récompense. */
+const ALL_BADGES = [...BADGES, ...CH_BADGES];
+const badgeById = id => ALL_BADGES.find(b => b.id === id);
+/**
+ * Progression d'un badge pour le Bureau : { state: 'locked' | 'progress' | 'got' | 'max', tier, cur, goal }.
+ * cur / goal seulement pour les badges à plusieurs étapes (« As du détective », « Défis gagnés »).
+ */
+function badgeProgress(p, b) {
+  const tier = p.badges[b.id] || 0;
+  if (b.id === 'chWins') {
+    const cur = chWinsTotal(p),
+      goal = CH_WINS_TIERS[tier];
+    if (goal == null) return { state: 'max', tier, cur, goal: CH_WINS_TIERS[CH_WINS_TIERS.length - 1] };
+    return { state: tier ? 'got' : cur ? 'progress' : 'locked', tier, cur, goal };
+  }
+  if (b.id === 'ace') {
+    if (tier >= 4) return { state: 'max', tier };
+    // niveau (au-dessus du palier actuel) où il y a le plus de victoires, vers les 10 du badge
+    let best = tier,
+      cur = -1;
+    for (let i = tier; i < LEVEL_ORDER.length; i++) {
+      const w = (p.levels[LEVEL_ORDER[i]] || {}).wins || 0;
+      if (w > cur) [best, cur] = [i, w];
+    }
+    return {
+      state: tier ? 'got' : cur ? 'progress' : 'locked',
+      tier,
+      cur: Math.min(cur, 10),
+      goal: 10,
+      level: best
+    };
+  }
+  if (b.single) return { state: tier ? 'max' : 'locked', tier };
+  return { state: tier >= 4 ? 'max' : tier ? 'got' : 'locked', tier };
+}
+
 /** Modèles de missions, tirés à tour de rôle (jamais deux fois la même en même temps). */
 // ordre de tirage : les 3 premières (mener 3 enquêtes, décaler ses marques, gagner au niveau Moyen) sont pour débuter
-const MISSION_KINDS = ['play', 'shift', 'winLevel', 'math', 'precise', 'fast', 'noMiss', 'stars'];
+// V9.24 : chWin / chTimed se jouent en Défi (ajoutées en fin de cycle : les missions en cours ne changent pas)
+const MISSION_KINDS = [
+  'play',
+  'shift',
+  'winLevel',
+  'math',
+  'precise',
+  'fast',
+  'noMiss',
+  'stars',
+  'chWin',
+  'chTimed'
+];
 function makeMission(kind, seq, min = 0) {
   // V9.6 : chaque mission vise le niveau du joueur (ou le suivant, pour progresser) ; `min` = niveau minimum
   switch (kind) {
@@ -54,14 +122,24 @@ function makeMission(kind, seq, min = 0) {
       return { k: kind, n: 5, min, progress: 0, goal: 1 };
     case 'play':
       return { k: kind, n: 3, min, progress: 0, goal: 3 };
+    case 'chWin': // gagner 2 Défis, au moins à la difficulté qui suit le niveau du joueur
+      return { k: kind, diff: CH_DIFF_ORDER[Math.min(2, min)], progress: 0, goal: 2 };
+    case 'chTimed':
+      return { k: kind, progress: 0, goal: 1 };
     default:
       return { k: kind, min, progress: 0, goal: 1 };
   }
 }
 /** Une partie fait-elle avancer la mission ? (nombre de pas gagnés) */
 function missionStep(m, f) {
+  // V9.24 : une mission de Défi n'avance qu'en Défi, une mission Solo qu'en Solo classique
+  if (!!f.challenge !== isChMission(m)) return 0;
   if (m.min && levelIdx(f.level) < m.min) return 0; // partie jouée à un niveau trop facile
   switch (m.k) {
+    case 'chWin':
+      return f.won && chDiffIdx(f.diff) >= chDiffIdx(m.diff) ? 1 : 0;
+    case 'chTimed':
+      return f.won && f.kind === 'timed' ? 1 : 0;
     case 'winLevel':
       return f.won && f.level === m.level ? 1 : 0;
     case 'math':
@@ -83,6 +161,7 @@ function missionStep(m, f) {
   }
 }
 const missionKey = m => m.k + (m.level ? ':' + m.level : '');
+const isChMission = m => m.k === 'chWin' || m.k === 'chTimed';
 
 /** Prochaine mission : la suivante du cycle qui n'est pas déjà en cours. */
 function nextMission(p) {
@@ -110,7 +189,14 @@ function normalizeOffice(p) {
     if (!(Number.isInteger(v) && v >= 1 && v <= 4)) p.badges[id] = 1;
   }
   if (!Array.isArray(p.missions)) p.missions = [];
-  p.missions = p.missions.filter(m => m && MISSION_KINDS.includes(m.k) && m.goal > 0 && m.progress < m.goal);
+  p.missions = p.missions.filter(
+    m =>
+      m &&
+      MISSION_KINDS.includes(m.k) &&
+      m.goal > 0 &&
+      m.progress < m.goal &&
+      (m.k !== 'chWin' || CH_DIFF_ORDER.includes(m.diff))
+  );
   while (p.missions.length < 3) p.missions.push(nextMission(p));
   return p;
 }
@@ -132,15 +218,19 @@ function gameFacts(won, turns, stars) {
 }
 
 /**
- * Appelée UNE fois par partie (dans settleSolo, protégée par le journal `processed`) :
+ * Appelée UNE fois par partie (settleSolo ou settleChallenge, protégées par le journal `processed`) :
  * nouveaux badges, missions avancées / réussies (remplacées), XP des missions.
+ * f.challenge : partie de Défi (badges CH_BADGES), sinon Solo classique (BADGES, palier = niveau).
  */
 function settleOffice(p, f, lv) {
   normalizeOffice(p);
-  // palier du badge = niveau de la partie (🥉 Petit … 💎 Génie) ; nouveau si plus haut que l'actuel
-  const badgeTier = levelIdx(f.level) + 1;
-  const newBadges = BADGES.filter(b => (p.badges[b.id] || 0) < badgeTier && b.test(f, lv)).map(b => b.id);
-  for (const id of newBadges) p.badges[id] = badgeTier;
+  const badgeTier = f.challenge ? 0 : levelIdx(f.level) + 1;
+  const reached = f.challenge
+    ? CH_BADGES.map(b => [b.id, b.tier(p, f)])
+    : BADGES.map(b => [b.id, b.test(f, lv) ? badgeTier : 0]);
+  const badgeTiers = Object.fromEntries(reached.filter(([id, tier]) => tier > (p.badges[id] || 0)));
+  const newBadges = Object.keys(badgeTiers);
+  for (const id of newBadges) p.badges[id] = badgeTiers[id];
   const done = [];
   p.missions = p.missions.map(m => {
     const progress = Math.min(m.goal, m.progress + missionStep(m, f));
@@ -152,7 +242,7 @@ function settleOffice(p, f, lv) {
   while (p.missions.length < 3) p.missions.push(nextMission(p));
   const missionXp = done.length * MISSION_XP;
   p.xpTotal += missionXp;
-  return { newBadges, missionsDone: done, missionXp, badgeTier };
+  return { newBadges, badgeTiers, missionsDone: done, missionXp, badgeTier };
 }
 
 /** Texte d'une mission (traduit). */
@@ -163,8 +253,11 @@ const LEVEL_NAME_KEYS = {
   genius: 'levelGenius'
 };
 const missionText = m =>
-  t('mission_' + m.k, { n: m.n, level: m.level ? t(LEVEL_NAME_KEYS[m.level]) : '' }) +
-  (m.min ? ' ' + t('missionMinLevel', { level: t(LEVEL_NAME_KEYS[LEVEL_ORDER[m.min]]) }) : '');
+  t('mission_' + m.k, {
+    n: m.n ?? m.goal,
+    level: m.level ? t(LEVEL_NAME_KEYS[m.level]) : '',
+    diff: m.diff ? t('chDiff_' + m.diff) : ''
+  }) + (m.min ? ' ' + t('missionMinLevel', { level: t(LEVEL_NAME_KEYS[LEVEL_ORDER[m.min]]) }) : '');
 
 /** Rang du joueur, gardé en mémoire (le chapeau du détective en dépend à chaque affichage). */
 let rankCache = null;

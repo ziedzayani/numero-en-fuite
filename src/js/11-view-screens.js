@@ -73,7 +73,7 @@ function office() {
     .map(
       ([id, icon, k]) =>
         `<button class="nb-tab ${tab === id ? 'is-selected' : ''}" data-otab="${id}" aria-pressed="${tab === id}"><i class="ot-ico ot-${id}" aria-hidden="true"></i>${t(k)}${
-          id === 'badges' ? ` <small dir="ltr">${Object.keys(p.badges).length}/${BADGES.length}</small>` : ''
+          id === 'badges' ? ` <small dir="ltr">${badgeCount(p)}/${ALL_BADGES.length}</small>` : ''
         }</button>`
     )
     .join('');
@@ -125,10 +125,43 @@ function officeRank(p) {
         `<div><b>${n}</b><small>${t(k)}</small>${k === 'officeWins' && L.helpWins ? `<small class="help-wins">${t('officeHelpWins', { n: L.helpWins })}</small>` : ''}</div>`
     )
     .join('');
-  return `<div class="office-rank"><span class="office-badge" aria-hidden="true"><i class="ot-ico ot-rank"></i></span><div>${rankBar(p.xpTotal)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="label">📊 ${t('officeStatsLevel')}</div><div class="olv-row">${lvTabs}</div><div class="office-tiles">${tiles}</div>`;
+  return `<div class="office-rank"><span class="office-badge" aria-hidden="true"><i class="ot-ico ot-rank"></i></span><div>${rankBar(p.xpTotal)}${promoLine(p)}</div></div><div class="label">🎩 ${t('officeHats')}</div><div class="rank-line-hats" dir="ltr">${hats}</div><p class="sub small">${t('officeHatsNext', { name: rankName(Math.min(cur + 1, RANKS.length)) })}</p><div class="label">📊 ${t('officeStatsLevel')}</div><div class="olv-row">${lvTabs}</div><div class="office-tiles">${tiles}</div>`;
 }
-/** Onglet « Records » : meilleur score et meilleur nombre de tours par niveau. */
+/** V9.24 : petit sélecteur à onglets d'un onglet du bureau (Solo / Défis / Jour…). */
+function officeSeg(attr, cur, items) {
+  return `<div class="oseg" role="tablist">${items
+    .map(
+      ([id, k]) =>
+        `<button class="oseg-b ${cur === id ? 'is-selected' : ''}" ${attr}="${id}" role="tab" aria-selected="${cur === id}">${t(k)}</button>`
+    )
+    .join('')}</div>`;
+}
+/**
+ * V9.24 : comment le rang actuel a été obtenu (dernière montée de rang, Solo classique ou Défi),
+ * enregistrée par settleSolo / settleChallenge. Rien pour une carrière d'avant la V9.24.
+ */
+function promoLine(p) {
+  const lp = p.lastPromo;
+  if (!lp || lp.rank !== rankOf(p.xpTotal).rank) return '';
+  const how =
+    lp.src === 'challenge'
+      ? t('promoChallenge', { diff: t('chDiff_' + lp.diff) }) + (lp.kind === 'timed' ? ' ⏱' : ' ♾️')
+      : t('promoSolo', { level: t(LEVEL_NAME_KEYS[lp.level] || 'levelJunior') });
+  return `<p class="promo-line" title="${esc(how)}">🎉 ${t('promoLast', { how })}</p>`;
+}
+/** Onglet « Records » : Solo classique (par niveau), Défis (par difficulté et variante), Défi du jour. */
 function officeRecords(p) {
+  const set = ['challenge', 'daily'].includes(g.officeRecSet) ? g.officeRecSet : 'solo';
+  const seg = officeSeg('data-rset', set, [
+    ['solo', 'officeSetSolo'],
+    ['challenge', 'officeSetChallenge'],
+    ['daily', 'officeSetDaily']
+  ]);
+  return (
+    seg + (set === 'challenge' ? officeChRecords(p) : set === 'daily' ? officeDaily() : officeSoloRecords(p))
+  );
+}
+function officeSoloRecords(p) {
   const levels = [
     ['junior', '🐣', 'levelJunior'],
     ['malin', '🧠', 'levelMalin'],
@@ -145,7 +178,51 @@ function officeRecords(p) {
       }${lv.bestTurns != null ? `<small>${t('officeBestTurns', { n: lv.bestTurns })}</small>` : ''}${lv.helpWins ? `<small class="help-wins">${t('officeHelpWins', { n: lv.helpWins })}</small>` : ''}</span></li>`;
     })
     .join('');
-  return `<div class="label"><i class="ot-ico ot-records sm" aria-hidden="true"></i>${t('officeRecords')}</div><ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}${levels.some(([id]) => (p.levels[id] || {}).bestHelped) ? ' ' + t('officeHelpNote') : ''}</p>`;
+  return `<ul class="office-records">${rows}</ul><p class="sub small">${t('officeNote')}${levels.some(([id]) => (p.levels[id] || {}).bestHelped) ? ' ' + t('officeHelpNote') : ''}</p>`;
+}
+/** V9.24 : records des Défis — Facile / Moyen / Difficile × chronométré / sans limite (clés chRecordKey). */
+function officeChRecords(p) {
+  const r = records();
+  const rows = CH_DIFF_ORDER.map(d => {
+    const cell = kind => {
+      const best = r[chRecordKey(kind, d)],
+        run = p.challenge.runs[d + '-' + kind];
+      return `<span class="crp ${best ? 'has' : ''}" title="${esc(t(kind === 'timed' ? 'chTimed' : 'chEndless'))}"><i aria-hidden="true">${kind === 'timed' ? '⏱' : '♾️'}</i><b dir="ltr">${best ? best : '—'}</b><small dir="ltr">${t('officeChWins', { n: run.wins, m: run.played })}</small></span>`;
+    };
+    return `<li class="rec-row ch-rec ${r[chRecordKey('timed', d)] || r[chRecordKey('endless', d)] ? 'has' : ''}"><span class="rec-lv"><i class="rec-ico lvl-${CHALLENGE_DIFFS[d]}" aria-hidden="true"></i><b>${t('chDiff_' + d)}</b></span><span class="crp-pair">${cell('timed')}${cell('endless')}</span></li>`;
+  }).join('');
+  return `<ul class="office-records ch-records">${rows}</ul><p class="sub small">${t('officeChNote')}</p>`;
+}
+/** V9.24 : historique du Défi du jour — 30 jours en calendrier, détail du jour choisi (résultats officiels). */
+function officeDaily() {
+  const hist = dailyHistory(),
+    played = hist.filter(x => x.res),
+    won = played.filter(x => x.res.won).length;
+  const sel = hist.find(x => x.day === g.officeDay) || played[0] || hist[0];
+  const dateOf = day => {
+    const [y, m, d] = day.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  };
+  const cells = hist
+    .slice()
+    .reverse()
+    .map(({ day, res }) => {
+      const st = res ? (res.won ? 'won' : 'lost') : 'none';
+      return `<button class="dcal ${st} ${day === sel.day ? 'is-selected' : ''} ${day === hist[0].day ? 'today' : ''}" data-dday="${day}" aria-pressed="${day === sel.day}" aria-label="${esc(dateOf(day).toLocaleDateString(g.lang, { day: 'numeric', month: 'long' }))}"><b dir="ltr">${dateOf(day).getDate()}</b></button>`;
+    })
+    .join('');
+  const r = sel.res,
+    date = dateOf(sel.day).toLocaleDateString(g.lang, { weekday: 'long', day: 'numeric', month: 'long' });
+  const facts = r
+    ? [
+        `<b class="dd-res ${r.won ? 'won' : 'lost'}">${t(r.won ? 'dailyWon' : 'dailyLost')}</b>`,
+        r.score != null ? `<span dir="ltr">${r.score} ${t('pts')}</span>` : '',
+        r.won && r.turns != null ? `<span>${t('dailyTurns', { n: r.turns })}</span>` : '',
+        r.ms != null ? `<span dir="ltr">⏱ ${fmtTime(r.ms)}</span>` : '',
+        r.tries > 1 ? `<small>${t('dailyTries', { n: r.tries - 1 })}</small>` : ''
+      ].join('')
+    : `<span class="dd-none">${t('dailyNotPlayed')}</span>`;
+  return `<p class="daily-sum">${t('dailySummary', { n: played.length, d: DAILY_HISTORY_DAYS, w: won })}</p><div class="daily-cal" dir="ltr">${cells}</div><div class="daily-detail"><b class="dd-date">${esc(date)}</b>${facts}</div><p class="sub small">${t('dailyHistNote')}</p>`;
 }
 /** V9.17 : « À plusieurs » — victoires, captures, meilleure série de victoires, face-à-face (ce téléphone). */
 function officeVersus() {
@@ -171,30 +248,73 @@ function officeVersus() {
     .join('');
   return `${head}<table class="vs-table"><thead><tr><th></th><th>🏆 ${t('vsWins')}</th><th>🎯 ${t('vsCaptures')}</th><th>🔥 ${t('vsBest')}</th></tr></thead><tbody>${rows}</tbody></table>${duels ? `<div class="vs-duels-t">⚔️ ${t('vsDuels')}</div><ul class="vs-duels">${duels}</ul>` : ''}`;
 }
-/** Onglet « Badges » : étagère des 6 badges ; ceux à gagner disent comment les obtenir. */
+/** Badges gagnés (Solo classique et Défis). */
+const badgeCount = p => ALL_BADGES.filter(b => p.badges[b.id]).length;
+/**
+ * Onglet « Badges » : Solo classique (6 badges à 4 paliers, un par niveau) ou Défis (V9.24).
+ * Chaque badge montre son état : à gagner, en cours (7/10), gagné (palier), au maximum.
+ */
 function officeBadges(p) {
-  // V9.6 : chaque badge a 4 paliers, un par niveau (🥉 Petit, 🥈 Moyen, 🥇 Grand, 💎 Génie)
-  return `<div class="label badges-head"><i class="ot-ico ot-badges sm" aria-hidden="true"></i>${t('officeTabBadges')} <span class="bh-count" dir="ltr">${Object.keys(p.badges).length}/${BADGES.length}</span></div><div class="badge-shelf">${BADGES.map(
-    b => {
-      const tier = p.badges[b.id] || 0,
-        only = b.id === 'hound' ? 4 : 0, // « Fin limier » : niveau Génie seulement
-        next = tier >= 4 ? 0 : only || tier + 1,
-        lvName = i => t(LEVEL_NAME_KEYS[LEVEL_ORDER[i - 1]]);
-      const line = tier
-        ? `<span class="b-got">${TIER_MEDALS[tier]} ${t('badgeGotAt', { level: lvName(tier) })}</span>${next ? `<span class="b-next">${t('badgeNextAt', { medal: TIER_MEDALS[next], level: lvName(next) })}</span>` : ''}`
-        : t('badgeHow_' + b.id);
-      return `<div class="badge ${tier ? 'got tier-' + tier : 'locked'}"><span class="b-icon b-${b.id}" aria-hidden="true">${b.icon}</span><b>${t('badge_' + b.id)}${tier ? ` <i class="b-medal">${TIER_MEDALS[tier]}</i>` : ''}</b><small>${line}</small></div>`;
-    }
-  ).join('')}</div>`;
+  const set = g.officeBadgeSet === 'challenge' ? 'challenge' : 'solo',
+    list = set === 'challenge' ? CH_BADGES : BADGES,
+    got = list.filter(b => p.badges[b.id]).length;
+  const seg = officeSeg('data-bset', set, [
+    ['solo', 'officeSetSolo'],
+    ['challenge', 'officeSetChallenge']
+  ]);
+  const lvName = i => t(LEVEL_NAME_KEYS[LEVEL_ORDER[i - 1]]);
+  const shelf = list
+    .map(b => {
+      const pr = badgeProgress(p, b),
+        tier = pr.tier,
+        bar =
+          pr.goal && pr.state !== 'max'
+            ? `<span class="b-prog" dir="ltr"><i style="width:${Math.round((Math.min(pr.cur, pr.goal) / pr.goal) * 100)}%"></i><em>${pr.cur}/${pr.goal}</em></span>`
+            : '';
+      let line;
+      if (b.id === 'chWins')
+        line =
+          pr.state === 'max'
+            ? `<span class="b-got">${t('badgeChWinsGot', { n: pr.cur })}</span>`
+            : tier
+              ? ''
+              : t('badgeHow_chWins', { n: CH_WINS_TIERS[0] });
+      else if (b.single)
+        line = tier
+          ? `<span class="b-got">${t('badgeGot')}</span>`
+          : t('badgeHow_' + b.id, { n: CH_EXCELLENT_SCORE });
+      else {
+        // badges du Solo : 4 paliers, un par niveau (🥉 Petit, 🥈 Moyen, 🥇 Grand, 💎 Génie)
+        const only = b.id === 'hound' ? 4 : 0, // « Fin limier » : niveau Génie seulement
+          next = tier >= 4 ? 0 : only || tier + 1;
+        line = tier
+          ? `<span class="b-got">${TIER_MEDALS[tier]} ${t('badgeGotAt', { level: lvName(tier) })}</span>${next ? `<span class="b-next">${t('badgeNextAt', { medal: TIER_MEDALS[next], level: lvName(next) })}</span>` : ''}`
+          : t('badgeHow_' + b.id);
+      }
+      return `<div class="badge ${tier ? 'got tier-' + (b.single ? 1 : tier) : 'locked'} st-${pr.state}"><span class="b-icon b-${b.id}" aria-hidden="true">${b.icon}</span><b>${t('badge_' + b.id)}${tier && !b.single ? ` <i class="b-medal">${TIER_MEDALS[tier]}</i>` : ''}</b><small>${line}${bar}</small></div>`;
+    })
+    .join('');
+  return `${seg}<div class="badge-shelf">${shelf}</div><p class="badges-count sub small" dir="ltr">${got}/${list.length}</p>`;
 }
 /** Onglet « Missions » : 3 missions sans limite de temps ; une mission réussie est remplacée. */
 function officeMissions(p) {
   return `<div class="missions-intro"><i class="ot-ico ot-missions" aria-hidden="true"></i><p>${t('missionsIntro', { xp: MISSION_XP })}</p></div><ul class="mission-list">${p.missions
     .map(
       m =>
-        `<li><span class="m-icon" aria-hidden="true"></span><span class="m-txt">${missionText(m)}</span><span class="m-prog" dir="ltr">${m.progress}/${m.goal}</span></li>`
+        `<li class="${isChMission(m) ? 'm-ch' : ''}"><span class="m-icon" aria-hidden="true"></span><span class="m-txt">${missionText(m)}<span class="m-bar" aria-hidden="true"><i style="width:${Math.round((m.progress / m.goal) * 100)}%"></i></span></span><span class="m-prog" dir="ltr" role="progressbar" aria-valuenow="${m.progress}" aria-valuemin="0" aria-valuemax="${m.goal}">${m.progress}/${m.goal}</span></li>`
     )
     .join('')}</ul>`;
+}
+/** V9.24 : fenêtre « Détail du score » d'un Défi gagné (lignes de chScoreParts, total = score affiché). */
+function chDetailView() {
+  const res = g.chResult;
+  const rows = res.lines
+    .map(([key, v, vars]) => {
+      const label = t(key, vars);
+      return `<li><span>${label}</span><b dir="ltr" class="${v < 0 ? 'neg' : 'pos'}">${key === 'chLineStart' ? '' : v > 0 ? '+' : '−'}${Math.abs(v)}</b></li>`;
+    })
+    .join('');
+  return `<h2 class="m-title">${t('chScoreDetail')}</h2><ul class="ch-lines">${rows}<li class="ch-total"><span>${t('chLineTotal')}</span><b dir="ltr">${res.score} ${t('pts')}</b></li></ul><p class="sub small ch-formula">${t(res.kind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p><button class="bigbtn" id="chDetailClose">${t('close')}</button>`;
 }
 /** Ferme la fenêtre « Langue » et rétablit la fenêtre d'avant (pause d'une partie, etc.). */
 function closeLang() {
@@ -416,7 +536,7 @@ function resultView() {
   const top = ['found', 'netHit'].includes(x.type) ? extra : '';
   if (top)
     extra = g.lastHunt
-      ? `<button class="mini-btn rp-open" id="openReplay"><i class="ico ico-clap" aria-hidden="true"></i>${t('rpButton')}</button>`
+      ? `<button class="mini-btn rp-open rp-icon" id="openReplay" aria-label="${esc(t('rpButton'))}" title="${esc(t('rpButton'))}"><i class="ico ico-clap" aria-hidden="true"></i></button>`
       : '';
   // capture : loupe à côté du titre (V8.16, plus compact), puis l'annonce du podium en Course
   // V9.2 : écran « Bravo ! » / « Oups ! » des maquettes pour les captures et les calculs
@@ -745,7 +865,7 @@ function endRace() {
 function escapedNote(withText) {
   if (!g.escaped) return '';
   const film = g.lastHunt
-    ? `<button class="mini-btn rp-open" id="openReplay"><i class="ico ico-clap" aria-hidden="true"></i>${t('rpButton')}</button>`
+    ? `<button class="mini-btn rp-open rp-icon" id="openReplay" aria-label="${esc(t('rpButton'))}" title="${esc(t('rpButton'))}"><i class="ico ico-clap" aria-hidden="true"></i></button>`
     : '';
   if (!withText && !film) return '';
   return `<div class="escaped-note">${withText ? `<span><i class="ic ic-runner" aria-hidden="true"></i>${t('escapedWas', { n: g.escaped.n })}</span>` : ''}${film}</div>`;
@@ -753,11 +873,16 @@ function escapedNote(withText) {
 /** Récompenses du bureau gagnées pendant la partie : nouveaux badges, missions réussies (V8.15). */
 function rewardLine(res, lead = '') {
   // regroupées pour rester sur une ligne : « 🏅 👁️ ⚡ » et « 🎯 ×2 : +40 XP »
-  const badges = (res.newBadges || []).map(id => BADGES.find(x => x.id === id)).filter(Boolean),
+  const badges = (res.newBadges || []).map(badgeById).filter(Boolean),
     done = res.missionsDone || [];
+  // palier de chaque nouveau badge (V9.24) ; anciens résumés : res.badgeTier pour tous
+  const medal = b => {
+    const tier = (res.badgeTiers && res.badgeTiers[b.id]) || res.badgeTier;
+    return !b.single && tier ? ' ' + TIER_MEDALS[tier] : '';
+  };
   const chips = [
     badges.length
-      ? `<span class="reward-chip" title="${esc(badges.map(b => t('badge_' + b.id)).join(', '))}">${badges.length === 1 ? t('rewardBadge', { name: badges[0].icon + ' ' + t('badge_' + badges[0].id) + (res.badgeTier ? ' ' + TIER_MEDALS[res.badgeTier] : '') }) : t('rewardBadges', { icons: badges.map(b => b.icon).join(' ') })}</span>`
+      ? `<span class="reward-chip" title="${esc(badges.map(b => t('badge_' + b.id)).join(', '))}">${badges.length === 1 ? t('rewardBadge', { name: badges[0].icon + ' ' + t('badge_' + badges[0].id) + medal(badges[0]) }) : t('rewardBadges', { icons: badges.map(b => b.icon).join(' ') })}</span>`
       : '',
     done.length
       ? `<span class="reward-chip" title="${esc(done.map(missionText).join(' · '))}">${done.length === 1 ? t('rewardMission', { xp: MISSION_XP }) : t('rewardMissions', { n: done.length, xp: done.length * MISSION_XP })}</span>`
@@ -821,8 +946,47 @@ function endSoloLegacy() {
  ${won ? (g.soloNewRecord ? `<div class="ch-new">${t('soloNewRecord')}</div>` : g.soloBest ? `<p class="sub">${t('soloBest', { n: g.soloBest })}</p>` : '') : ''}
  ${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }
+/**
+ * Fin de Défi (V9.24) : score et son détail (chScoreParts, les mêmes chiffres que le record), tours,
+ * temps, calculs justes, erreurs, record de la variante, XP, badges, missions et rang.
+ * Défi terminé avant la V9.24 (sans g.chResult) : même écran sans récompenses (rien d'inventé).
+ */
 function endChallenge() {
-  const r = records(),
-    best = r[chRecordKey()] || 0;
-  return `${g.chWon && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${g.chWon ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(g.chWon ? 'caught' : 'grimace')}</div><h1>${g.chWon ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${g.chWon ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></section><section class="panel centered"><div class="label">${g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless')} · ${t('chDiff_' + g.chDiff)}</div><div class="ch-score">${g.chFinal}</div>${g.chRecordNew ? `<div class="ch-new">${t('chNewRecord')}</div>` : `<p class="sub">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</p>`}<p class="sub small">${t(g.chKind === 'timed' ? 'chFormulaTimed' : 'chFormulaEndless')}</p>${g.lastHunt ? `<div class="escaped-note"><button class="mini-btn rp-open" id="openReplay"><i class="ico ico-clap" aria-hidden="true"></i>${t('rpButton')}</button></div>` : ''}${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
+  const res = g.chResult,
+    won = !!g.chWon,
+    best = records()[chRecordKey()] || 0,
+    kindLabel = g.chKind === 'timed' ? '⏱ ' + t('chTimed') : '♾️ ' + t('chEndless');
+  const meta = `<div class="ch-meta"><span class="ch-pill">${kindLabel}</span><span class="ch-pill diff-${esc(g.chDiff)}">${t('chDiff_' + g.chDiff)}</span></div>`;
+  const record = won
+    ? g.chRecordNew
+      ? `<div class="ch-new">${t(res && res.prevBest ? 'chNewRecord' : 'chFirstRecord')}</div>`
+      : `<div class="record-chip">${best ? t('chRecord', { n: best }) : t('chNoRecord')}</div>`
+    : '';
+  const stat = (n, k) => `<div><b dir="ltr">${n}</b><small>${t(k)}</small></div>`;
+  const stats = res
+    ? `<div class="solo-stats ch-stats">${stat(res.turns, 'statTurns')}${stat(fmtTime(res.timeMs), g.chKind === 'timed' ? 'chStatTimeUsed' : 'chStatTime')}${stat(res.goodMath, 'chStatGoodMath')}${stat(res.errors, 'chStatErrors')}</div>`
+    : '';
+  // V9.24 : le détail du score s'ouvre dans une fenêtre (l'écran de fin ne défile jamais)
+  const detail =
+    res && won && res.lines.length
+      ? `<button class="mini-btn ch-detail-btn" id="openChDetail"><i class="ic-sum" aria-hidden="true">Σ</i>${t('chScoreDetail')}</button>`
+      : '';
+  const top = won
+    ? `${meta}<div class="ec-score"><div class="solo-score ch-score" dir="ltr"><b data-count="${g.chFinal}" data-count-id="${esc('ch-' + (g.gameId || ''))}">${g.chFinal}</b><small> ${t('pts')}</small></div></div>${record}`
+    : `${meta}<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.chSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('chLoseEncourage')}</small></div></div>`;
+  // XP (détail au survol), badges, missions ; Facile au-delà de la limite du jour : 0 XP expliqué
+  const xpTitle = res ? res.xpLines.map(([k, v]) => `${t(k)} +${v}`).join(' · ') : '';
+  const xp = res
+    ? `<span class="reward-chip xp" title="${esc(res.xpCapped ? t('chXpCapped', { n: CH_EASY_XP_PER_DAY }) : xpTitle)}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b>${res.xpCapped ? ` <small>· ${t('chXpCappedShort')}</small>` : ''}</span>`
+    : '';
+  const career = res
+    ? `${rewardLine(res, xp + (res.rankUp ? `<span class="reward-chip rank-up">${t('rankUp', { name: rankName(res.rank) })}</span>` : ''))}${rankBar(res.xpTotal)}`
+    : '';
+  const film = g.lastHunt
+    ? `<button class="mini-btn rp-open rp-icon" id="openReplay" aria-label="${esc(t('rpButton'))}" title="${esc(t('rpButton'))}"><i class="ico ico-clap" aria-hidden="true"></i></button>`
+    : '';
+  const tools = detail || film ? `<div class="ch-tools">${detail}${film}</div>` : '';
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head ${won ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(won ? (g.chRecordNew ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('chWin') : '⏱ ' + t('chFail')}</h1><p class="intro">${won ? t('chStats', { turns: g.turn + 1, time: fmtTime(g.chElapsed) }) : t('chFailDesc', { n: g.chSecret })}</p></div></section>
+ <section class="panel centered solo-card career-card ec-card ch-end">${top}${stats}${tools}${career}${netEndNote()}
+ <div class="ec-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="openOffice" aria-label="${esc(t('officeBtn'))}">📚</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }

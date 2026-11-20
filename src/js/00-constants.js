@@ -78,5 +78,32 @@ const CHALLENGE_SCORE = {
 /** Difficultés du défi → niveau utilisé pour les calculs, les questions et le filet (numéros toujours 1–100). */
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
+/*
+ * V9.24 : les Défis comptent dans la carrière (même XP, mêmes rangs que le Solo classique).
+ * win / loss : XP de base ; recordBonus : nouveau record de la variante ; excellent : score « de base »
+ * (avant les bonus de fin) ≥ CH_EXCELLENT_SCORE ; timed : bonus d'un Défi chronométré gagné.
+ * Le Difficile rapporte le plus. Anti-abus du Facile : seuls CH_EASY_XP_PER_DAY Défis Faciles par jour
+ * rapportent de l'XP (les records, statistiques, badges et missions comptent toujours).
+ */
+const CHALLENGE_XP = {
+  easy: { win: 6, loss: 1, recordBonus: 3, excellent: 2, timed: 1 },
+  medium: { win: 15, loss: 2, recordBonus: 8, excellent: 5, timed: 3 },
+  hard: { win: 25, loss: 4, recordBonus: 12, excellent: 8, timed: 5 }
+};
+const CH_EXCELLENT_SCORE = 800;
+const CH_EASY_XP_PER_DAY = 5;
+/** Badge « Défis gagnés » : victoires pour les paliers 🥉 🥈 🥇 💎. */
+const CH_WINS_TIERS = [5, 15, 30, 50];
+/**
+ * V9.24 : Défi chronométré — courte pause de lecture après chaque résultat (et dans les fenêtres
+ * d'information) ; au-delà, le chrono repart tout seul. La fenêtre Pause et l'arrière-plan arrêtent
+ * toujours le chrono. Le Défi sans limite n'est pas concerné.
+ */
+const CH_READ_PAUSE_MS = 5000;
+/** Fenêtres qui comptent comme « lecture » (pause limitée) en Défi chronométré ; les autres arrêtent le chrono. */
+const CH_READ_MODALS = ['notebook'];
+/** V9.24 : historique du Défi du jour affiché (jours). */
+const DAILY_HISTORY_DAYS = 30;
+
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
 const APP_VERSION = /* @inject version */ '';

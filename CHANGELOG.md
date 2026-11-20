@@ -1,5 +1,28 @@
 # Historique des versions
 
+## V9.24 — les Défis comptent dans le Bureau
+
+- **XP des Défis** (même carrière, mêmes 8 rangs que le Solo classique) : victoire Facile 6 / Moyen 15 /
+  Difficile 25 XP, + bonus de nouveau record (3 / 8 / 12), de score excellent (≥ 800 points avant les bonus de fin :
+  2 / 5 / 8) et de Défi chronométré gagné (1 / 3 / 5). Défi perdu : 1 / 2 / 4 XP. Anti-abus : seuls 5 Défis
+  Faciles par jour rapportent de l'XP (records, badges et missions comptent toujours). Une partie n'est récompensée
+  qu'une fois (même relue ou rechargée) ; rien n'est attribué après coup aux anciens Défis.
+- **6 badges de Défi** : Premier Défi, Cap du Moyen, Tête brûlée (Difficile), Contre la montre, Score d'élite et
+  Défis gagnés (🥉 5, 🥈 15, 🥇 30, 💎 50). **2 missions de Défi** dans le cycle des missions (gagner 2 Défis à une
+  difficulté donnée, gagner un Défi chronométré) ; les missions Solo n'avancent qu'en Solo.
+- **Bureau** : sous-onglets Solo / Défis ; progression des badges à plusieurs étapes (« As du détective 7/10 »,
+  « Défis gagnés 7/15 ») ; records des Défis par difficulté et par variante (⏱ / ♾️) avec victoires / parties ;
+  barre de progression des missions ; le rang indique comment il a été obtenu (Solo ou Défi).
+- **Fin de Défi** : difficulté et variante, score (le même calcul pour l'écran, le record et l'XP), détail du score
+  repliable, tours, temps, calculs justes, erreurs, record de la variante, XP, badges, missions, montée de rang ;
+  Rejouer, Bureau, Accueil. Défaite : numéro révélé et message encourageant.
+- **Défi chronométré** : après chaque résultat (et dans le carnet), 5 s de lecture au plus, puis le chrono repart
+  tout seul ; ouvrir / fermer des fenêtres ne redonne pas de temps. La Pause et l'arrière-plan l'arrêtent toujours ;
+  une capture réussie le fige. Défi sans limite inchangé.
+- **Historique du Défi du jour** (Bureau › Records › Du jour) : 30 derniers jours en calendrier, résultat officiel
+  (gagné / perdu, score, tours, durée) ; les entraînements ne changent pas le résultat ; jours non joués laissés vides.
+  Les jours joués avant la V9.24 s'affichent sans score ni durée (rien n'est inventé).
+
 ## V9.23 — quatre fenêtres d'après les maquettes, boutons à volume unique
 
 - **Quitter la partie ?**, **Au tour de… !**, **Qui joue ?**, **Première partie ?** : panneau bleu royal à rayons et

@@ -5315,6 +5315,605 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     for (const c of ctxs) await c.close();
   }
 
+  // V9.24 : Défis dans la carrière (XP, badges, missions, rang, anti-abus, une seule fois par partie),
+  //         score détaillé, records séparés, chrono du Défi chronométré, historique du Défi du jour
+  {
+    const { ctx, page } = await fresh(browser);
+    const career = () =>
+      page.evaluate(() => {
+        const c = window.__numero.loadCareer();
+        return c.profiles[c.activeProfileId];
+      });
+    // victoire au 1er tour, sans aide : score de base 1000 (≥ 800 : « excellent »)
+    const win = (kind, diff) =>
+      page.evaluate(
+        ([kind, diff]) => {
+          const N = window.__numero;
+          N.startChallenge(kind, diff);
+          N.state.modal = null;
+          N.guess(N.state.secret);
+          N.nextTurn();
+          return JSON.parse(JSON.stringify(N.state.chResult));
+        },
+        [kind, diff]
+      );
+    const p0 = await career();
+    const e = await win('endless', 'easy');
+    const m = await win('endless', 'medium');
+    const h = await win('timed', 'hard');
+    const p1 = await career();
+    check(
+      e.xp === 6 + 3 + 2 && m.xp === 15 + 8 + 5 && h.xp === 25 + 12 + 8 + 5,
+      `XP des Défis gagnés : Facile ${e.xp}, Moyen ${m.xp}, Difficile chrono ${h.xp} (le Difficile rapporte le plus)`
+    );
+    check(
+      p1.xpTotal - p0.xpTotal === e.xp + m.xp + h.xp + e.missionXp + m.missionXp + h.missionXp,
+      `XP des Défis ajoutée à la carrière existante (${p0.xpTotal} → ${p1.xpTotal})`
+    );
+    check(
+      p1.challenge.runs['easy-endless'].wins === 1 &&
+        p1.challenge.runs['hard-timed'].played === 1 &&
+        p1.challenge.runs['medium-timed'].played === 0,
+      'Compteurs des Défis par difficulté et par variante'
+    );
+    check(
+      e.newBadges.includes('chFirst') &&
+        m.newBadges.includes('chMedium') &&
+        m.newBadges.includes('chExcellent') &&
+        !m.newBadges.includes('chFirst') &&
+        h.newBadges.includes('chHard') &&
+        h.newBadges.includes('chTimed'),
+      `Badges des Défis : 1er Défi (${e.newBadges}), Moyen + excellent (${m.newBadges}), Difficile + chrono (${h.newBadges})`
+    );
+    check(!e.newBadges.includes('chExcellent'), 'Score d’élite : jamais en Facile');
+    // une seule fois par partie : relancer la clôture, puis recharger l'écran de fin
+    const again = await page.evaluate(() => {
+      const N = window.__numero,
+        before = N.loadCareer().profiles['local-default'].xpTotal;
+      const r = N.settleChallenge(true, N.chScoreParts(true), 0, true);
+      N.finishChallenge(true);
+      return { same: r.xp, before, after: N.loadCareer().profiles['local-default'].xpTotal };
+    });
+    check(
+      again.before === again.after,
+      `Défi déjà clôturé : aucune XP en double (${again.before} → ${again.after})`
+    );
+    await page.reload();
+    await page.waitForTimeout(300);
+    const rl = await page.evaluate(() => ({
+      screen: window.__numero.state.screen,
+      xp: window.__numero.state.chResult && window.__numero.state.chResult.xp,
+      chip: (document.querySelector('.reward-chip.xp') || {}).textContent || ''
+    }));
+    const p2 = await career();
+    check(
+      rl.screen === 'end' &&
+        rl.xp === h.xp &&
+        rl.chip.includes('+' + (h.xp + h.missionXp)) &&
+        p2.xpTotal === p1.xpTotal,
+      `Rechargement sur l’écran de fin du Défi : même résumé, rien de plus (${rl.chip.trim()}, ${p2.xpTotal} XP)`
+    );
+    // score détaillé = score affiché = record enregistré
+    const sc = await page.evaluate(() => {
+      const N = window.__numero;
+      N.startChallenge('timed', 'medium');
+      N.state.modal = null;
+      N.state.chElapsed = 61000;
+      N.ask(N.state.choices[0]);
+      if (N.state.last && N.state.last.pick) N.mathPick(N.state.choices[0]);
+      N.nextTurn();
+      N.guess(N.state.secret === 1 ? 2 : N.state.secret - 1);
+      N.nextTurn();
+      N.guess(N.state.secret);
+      N.nextTurn();
+      const r = N.state.chResult;
+      return {
+        sum: r.lines.reduce((s, l) => s + l[1], 0),
+        total: r.score,
+        fin: N.state.chFinal,
+        rec: N.records()['timed-medium-v2'],
+        shown: document.querySelector('.ch-score b').dataset.count,
+        lines: (() => {
+          document.getElementById('openChDetail').click();
+          const n = document.querySelectorAll('.ch-lines li:not(.ch-total)').length,
+            tot = document.querySelector('.ch-lines .ch-total b').textContent;
+          document.getElementById('chDetailClose').click();
+          return n + (tot.startsWith(String(N.state.chFinal)) ? 0 : -100) + (N.state.modal ? -100 : 0);
+        })(),
+        keys: r.lines.map(l => l[0]).join(),
+        stats: [...document.querySelectorAll('.ch-stats b')].map(b => b.textContent).join('|')
+      };
+    });
+    check(
+      sc.sum === sc.total && sc.total === sc.fin && String(sc.fin) === sc.shown && sc.rec === sc.fin,
+      `Score du Défi : détail (${sc.sum}) = écran (${sc.shown}) = record (${sc.rec})`
+    );
+    check(
+      sc.lines >= 5 &&
+        /chLineTurns/.test(sc.keys) &&
+        /chLineMiss/.test(sc.keys) &&
+        /chLineTime/.test(sc.keys),
+      `Détail du score : tours, capture ratée, secondes restantes (${sc.keys})`
+    );
+    check(
+      /^2\|\d:\d\d\|\d\|[12]$/.test(sc.stats),
+      `Fin de Défi : tours, temps, calculs justes, erreurs (${sc.stats})`
+    );
+    // record plus faible : ancien record gardé, pas de bonus de record
+    const low = await page.evaluate(() => {
+      const N = window.__numero;
+      N.startChallenge('endless', 'easy');
+      N.state.modal = null;
+      N.guess(N.state.secret === 1 ? 2 : N.state.secret - 1);
+      N.nextTurn();
+      N.guess(N.state.secret);
+      N.nextTurn();
+      return {
+        rec: N.records()['endless-easy-v2'],
+        recNew: N.state.chRecordNew,
+        lines: N.state.chResult.xpLines.map(l => l[0]).join(),
+        other: N.records()['timed-easy-v2']
+      };
+    });
+    check(
+      low.rec === 1000 && !low.recNew && !/chXpRecord/.test(low.lines) && low.other === undefined,
+      `Records séparés et jamais perdus : Facile sans limite reste 1000, aucun bonus de record (${low.lines})`
+    );
+    // anti-abus du Facile : CH_EASY_XP_PER_DAY (5) Défis Faciles récompensés par jour
+    const farm = await page.evaluate(() => {
+      const N = window.__numero,
+        out = [];
+      for (let i = 0; i < 6; i++) {
+        N.startChallenge('endless', 'easy');
+        N.state.modal = null;
+        N.guess(N.state.secret);
+        N.nextTurn();
+        out.push([N.state.chResult.xp, N.state.chResult.xpCapped]);
+      }
+      // le lendemain : de nouveau de l'XP
+      const c = N.loadCareer();
+      c.profiles['local-default'].challenge.easyDay.d = '2000-01-01';
+      localStorage.setItem('numeroEnFuiteCareerV1', JSON.stringify(c));
+      N.startChallenge('endless', 'easy');
+      N.state.modal = null;
+      N.guess(N.state.secret);
+      N.nextTurn();
+      out.push([N.state.chResult.xp, N.state.chResult.xpCapped]);
+      // le Moyen n'est pas limité
+      N.startChallenge('endless', 'medium');
+      N.state.modal = null;
+      N.guess(N.state.secret);
+      N.nextTurn();
+      out.push([N.state.chResult.xp, N.state.chResult.xpCapped]);
+      return { out, chip: document.querySelector('.reward-chip.xp').textContent };
+    });
+    // déjà 2 Défis Faciles récompensés aujourd'hui (plus haut) : 3 de plus, puis plus rien
+    const capped = farm.out.slice(0, 6).map(x => x[1]);
+    check(
+      capped.join() === 'false,false,false,true,true,true' &&
+        farm.out[5][0] === 0 &&
+        farm.out[6][0] > 0 &&
+        farm.out[7][0] > 0 &&
+        !farm.out[7][1],
+      `Facile : plus d’XP après 5 Défis récompensés dans la journée, de nouveau le lendemain (${JSON.stringify(farm.out)})`
+    );
+    // défaite (temps écoulé) : petite XP, compteur joué, aucune victoire ni record
+    const lose = await page.evaluate(() => {
+      const N = window.__numero,
+        recs = JSON.stringify(N.records());
+      N.startChallenge('timed', 'hard');
+      N.state.modal = null;
+      N.state.chElapsed = 179999;
+      N.finishChallenge(false);
+      N.render();
+      const p = N.loadCareer().profiles['local-default'];
+      return {
+        xp: N.state.chResult.xp,
+        run: p.challenge.runs['hard-timed'],
+        recs: recs === JSON.stringify(N.records()),
+        txt: document.querySelector('.ch-end').textContent
+      };
+    });
+    check(
+      lose.xp === 4 && lose.run.played === 2 && lose.run.wins === 1 && lose.recs && /approché/.test(lose.txt),
+      `Défi perdu : +4 XP en Difficile, partie comptée, records intacts, message encourageant (${JSON.stringify(lose.run)})`
+    );
+    // missions des Défis et montée de rang grâce à un Défi
+    const mr = await page.evaluate(() => {
+      const N = window.__numero,
+        c = N.loadCareer(),
+        p = c.profiles['local-default'];
+      p.xpTotal = 90;
+      p.missions = [
+        { k: 'chTimed', progress: 0, goal: 1 },
+        { k: 'chWin', diff: 'medium', progress: 0, goal: 2 },
+        { k: 'play', n: 3, min: 0, progress: 1, goal: 3 }
+      ];
+      localStorage.setItem('numeroEnFuiteCareerV1', JSON.stringify(c));
+      const play = (k, d) => {
+        N.startChallenge(k, d);
+        N.state.modal = null;
+        N.guess(N.state.secret);
+        N.nextTurn();
+        return N.state.chResult;
+      };
+      const a = play('endless', 'easy'); // ne fait avancer aucune mission (Facile < Moyen, pas chrono)
+      const ms1 = JSON.parse(JSON.stringify(N.loadCareer().profiles['local-default'].missions));
+      const b = play('timed', 'hard');
+      const after = N.loadCareer().profiles['local-default'];
+      N.render();
+      return {
+        aDone: a.missionsDone.length,
+        ms1,
+        bDone: b.missionsDone.map(m => m.k).join(),
+        bMxp: b.missionXp,
+        rankUp: b.rankUp,
+        rank: b.rank,
+        promo: after.lastPromo,
+        missions: after.missions,
+        banner: !!document.querySelector('.ch-end .rank-up'),
+        missionChip: /Mission/.test(document.querySelector('.ch-end .reward-line').textContent)
+      };
+    });
+    check(
+      mr.aDone === 0 &&
+        mr.ms1.find(m => m.k === 'chWin').progress === 0 &&
+        mr.ms1.find(m => m.k === 'play').progress === 1,
+      'Missions : un Défi Facile ne fait avancer ni « 2 Défis en Moyen » ni les missions du Solo classique'
+    );
+    check(
+      mr.bDone === 'chTimed' && mr.bMxp === 20 && mr.missions.find(m => m.k === 'chWin').progress === 1,
+      `Missions : Défi chronométré réussie (+20 XP), « 2 Défis en Moyen ou plus » à 1/2 (${mr.bDone})`
+    );
+    check(
+      mr.rankUp &&
+        mr.rank === 2 &&
+        mr.promo &&
+        mr.promo.src === 'challenge' &&
+        mr.promo.diff === 'hard' &&
+        mr.banner &&
+        mr.missionChip,
+      `Montée de rang grâce à un Défi : enregistrée (${JSON.stringify(mr.promo)}) et affichée`
+    );
+    // Bureau : badges (états et progression), records des Défis, missions, promotion
+    await page.click('#openOffice');
+    const of = await page.evaluate(async () => {
+      const N = window.__numero,
+        q = s => document.querySelector(s),
+        out = {};
+      N.state.officeTab = 'badges';
+      N.render();
+      out.set = q('.oseg-b.is-selected').dataset.bset;
+      out.got = document.querySelectorAll('.badge.got').length;
+      out.wins = (q('.badge .b-prog em') || {}).textContent;
+      q('[data-bset="solo"]').click();
+      out.solo = document.querySelectorAll('.badge').length;
+      N.state.officeTab = 'records';
+      N.render();
+      out.rset = q('.oseg-b.is-selected').dataset.rset;
+      out.recs = [...document.querySelectorAll('.ch-records .crp b')].map(b => b.textContent).join(',');
+      N.state.officeTab = 'missions';
+      N.render();
+      out.bars = document.querySelectorAll('.mission-list .m-bar i').length;
+      N.state.officeTab = 'rank';
+      N.render();
+      out.promo = (q('.promo-line') || {}).textContent || '';
+      return out;
+    });
+    check(
+      of.set === 'challenge' && of.got >= 5 && /^\d+\/\d+$/.test(of.wins) && of.solo === 6,
+      `Bureau › Badges : Défis (${of.got} gagnés, « Défis gagnés » ${of.wins}) et Solo classique (${of.solo})`
+    );
+    check(
+      of.rset === 'challenge' && of.recs.split(',').length === 6 && /1000/.test(of.recs),
+      `Bureau › Records des Défis : 3 difficultés × 2 variantes (${of.recs})`
+    );
+    check(of.bars === 3, 'Bureau › Missions : barre de progression');
+    check(/Difficile/.test(of.promo), `Bureau › Rang : promotion due au Défi (${of.promo.trim()})`);
+    // progression « As du détective » 7/10 sur le niveau le plus avancé
+    const ace = await page.evaluate(() => {
+      const N = window.__numero,
+        c = N.loadCareer(),
+        p = c.profiles['local-default'];
+      p.levels.malin.wins = 7;
+      p.levels.junior.wins = 3;
+      return N.badgeProgress(
+        p,
+        N.BADGES.find(b => b.id === 'ace')
+      );
+    });
+    check(
+      ace.state === 'progress' && ace.cur === 7 && ace.goal === 10,
+      `Badge en cours : As du détective ${ace.cur}/${ace.goal}`
+    );
+    check(
+      !page.errors.length,
+      `V9.24 Défis : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
+    );
+    await ctx.close();
+  }
+  // V9.24 : ancienne sauvegarde (V9.22) et données abîmées — rien de perdu, rien attribué après coup
+  {
+    const { ctx, page } = await fresh(browser);
+    const r = await page.evaluate(() => {
+      const old = {
+        schemaVersion: 1,
+        activeProfileId: 'local-default',
+        profiles: {
+          'local-default': {
+            displayName: 'Détective',
+            xpTotal: 333,
+            totalWins: 12,
+            totalLosses: 3,
+            totalStars: 20,
+            levels: { malin: { bestScore: 210, bestTurns: 3, gamesPlayed: 15, wins: 12, stars: 20 } },
+            processed: {},
+            badges: { lynx: 2, ace: 1 },
+            missions: [{ k: 'math', n: 2, min: 1, progress: 0, goal: 1 }],
+            missionSeq: 4
+          }
+        }
+      };
+      localStorage.setItem('numeroEnFuiteCareerV1', JSON.stringify(old));
+      localStorage.setItem(
+        'numeroEnFuiteRecords',
+        JSON.stringify({ 'timed-hard-v2': 888, 'endless-medium-v2': 700, solo_malin: 3 })
+      );
+      const N = window.__numero,
+        p = N.loadCareer().profiles['local-default'];
+      const out = {
+        xp: p.xpTotal,
+        badges: JSON.stringify(p.badges),
+        ch: Object.values(p.challenge.runs).every(x => x.played === 0 && x.wins === 0),
+        promo: p.lastPromo,
+        mission: p.missions[0].k,
+        recs: N.records()['timed-hard-v2']
+      };
+      // abîmé : compteurs négatifs, texte, victoires > parties
+      const bad = JSON.parse(JSON.stringify(old));
+      bad.profiles['local-default'].challenge = {
+        runs: { 'easy-timed': { played: -3, wins: 'x' }, 'hard-endless': { played: 2, wins: 9 } },
+        easyDay: 5
+      };
+      bad.profiles['local-default'].lastPromo = 'oops';
+      bad.profiles['local-default'].badges = { chWins: 9, chFirst: true };
+      localStorage.setItem('numeroEnFuiteCareerV1', JSON.stringify(bad));
+      const q = N.loadCareer().profiles['local-default'];
+      out.fixed =
+        q.challenge.runs['easy-timed'].played === 0 &&
+        q.challenge.runs['hard-endless'].wins === 2 &&
+        q.challenge.easyDay.n === 0 &&
+        q.lastPromo === null &&
+        q.badges.chWins === 1 &&
+        q.badges.chFirst === 1;
+      // écran de fin d'un Défi sauvegardé en V9.22 (sans résumé) : affiché, sans récompense inventée
+      Object.assign(N.state, {
+        screen: 'end',
+        mode: 'challenge',
+        chKind: 'timed',
+        chDiff: 'medium',
+        chWon: true,
+        chFinal: 777,
+        chRecordNew: false,
+        chResult: null,
+        inGame: false,
+        modal: null
+      });
+      N.render(); // sauvegarde de la partie, comme une V9.22 sur l'écran de fin (sans résumé)
+      return out;
+    });
+    check(
+      r.xp === 333 &&
+        r.badges === '{"lynx":2,"ace":1}' &&
+        r.ch &&
+        r.promo === null &&
+        r.mission === 'math' &&
+        r.recs === 888,
+      `Carrière V9.22 : XP, badges, missions et records gardés, compteurs des Défis à zéro (${r.badges})`
+    );
+    check(r.fixed, 'Carrière abîmée : compteurs des Défis et promotion réparés sans planter');
+    await page.reload();
+    await page.waitForTimeout(300);
+    const leg = await page.evaluate(() => ({
+      screen: window.__numero.state.screen,
+      score: (document.querySelector('.ch-score b') || {}).textContent,
+      xp: !!document.querySelector('.reward-chip.xp'),
+      xpTotal: window.__numero.loadCareer().profiles['local-default'].xpTotal
+    }));
+    check(
+      leg.screen === 'end' && leg.score === '777' && !leg.xp && leg.xpTotal === 333,
+      `Fin de Défi d’avant la V9.24 rechargée : score affiché, aucune XP inventée (${JSON.stringify(leg)})`
+    );
+    check(
+      !page.errors.length,
+      `Sauvegardes anciennes : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
+    );
+    await ctx.close();
+  }
+  // V9.24 : chrono du Défi chronométré — courte pause de lecture, reprise automatique, sans abus
+  {
+    const { ctx, page } = await fresh(browser);
+    const w = ms => page.waitForTimeout(ms);
+    const el = () => page.evaluate(() => window.__numero.state.chElapsed);
+    await page.evaluate(() => {
+      const N = window.__numero;
+      N.startChallenge('timed', 'medium');
+      N.state.modal = null;
+      N.render();
+      N.ask(N.state.choices[0]);
+    });
+    const a = await el();
+    await w(1000);
+    const b = await el();
+    // fin de la pause de lecture (on avance le compteur au lieu d'attendre 5 s)
+    await page.evaluate(() => (window.__numero.state.chReadMs = 4900));
+    await w(1200);
+    const c = await el();
+    check(b - a === 0, `Chrono : arrêté pendant la lecture du résultat (+${b - a} ms)`);
+    check(
+      c - b >= 700,
+      `Chrono : repart tout seul après la pause de lecture, résultat encore ouvert (+${c - b} ms)`
+    );
+    // ouvrir / fermer le carnet ne redonne pas de pause
+    await page.evaluate(() => {
+      const N = window.__numero;
+      N.state.modal = 'notebook';
+      N.render();
+      N.state.modal = null;
+      N.render();
+      N.state.modal = 'notebook';
+      N.render();
+    });
+    const d = await el();
+    await w(800);
+    const e2 = await el();
+    check(e2 - d >= 500, `Chrono : fenêtres ouvertes / fermées vite, pas de nouvelle pause (+${e2 - d} ms)`);
+    // la vraie Pause et l'arrière-plan arrêtent toujours le chrono
+    await page.evaluate(() => {
+      window.__numero.state.modal = 'pause';
+      window.__numero.render();
+    });
+    const f = await el();
+    await w(700);
+    const f2 = await el();
+    await page.evaluate(() => {
+      const N = window.__numero;
+      N.state.modal = null;
+      N.nextTurn();
+      N.render();
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    });
+    const hb = await el();
+    await w(700);
+    const ha = await el();
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+      window.__numero.state.modal = null;
+    });
+    const r0 = await el();
+    await w(1000);
+    const r1 = await el();
+    check(
+      f2 === f && ha === hb,
+      `Chrono : Pause (+${f2 - f} ms) et arrière-plan (+${ha - hb} ms) l’arrêtent`
+    );
+    // un seul chrono : 1 s réelle ≈ 1 s de jeu, même après plusieurs relances du Défi
+    check(
+      r1 - r0 >= 700 && r1 - r0 <= 1300,
+      `Chrono : reprise au retour, un seul chrono (+${r1 - r0} ms pour 1 s)`
+    );
+    const multi = await page.evaluate(async () => {
+      const N = window.__numero;
+      for (let i = 0; i < 4; i++) N.startChallenge('timed', 'hard');
+      N.state.modal = null;
+      const s = N.state.chElapsed;
+      await new Promise(r => setTimeout(r, 1000));
+      return N.state.chElapsed - s;
+    });
+    check(
+      multi >= 700 && multi <= 1300,
+      `Chrono : 4 relances, toujours un seul chrono (+${multi} ms pour 1 s)`
+    );
+    // capture réussie : le chrono ne court plus (on ne peut pas perdre en lisant « Trouvé ! »)
+    const won = await page.evaluate(async () => {
+      const N = window.__numero;
+      N.state.chElapsed = 179000;
+      N.guess(N.state.secret);
+      N.state.chReadMs = 99999;
+      await new Promise(r => setTimeout(r, 1500));
+      return { phase: N.state.phase, screen: N.state.screen, el: N.state.chElapsed };
+    });
+    check(
+      won.screen === 'game' && won.el === 179000,
+      `Chrono : figé sur une capture réussie (${won.el} ms, écran ${won.screen})`
+    );
+    // sans limite : inchangé, arrêté pendant toute la lecture
+    const endless = await page.evaluate(async () => {
+      const N = window.__numero;
+      N.startChallenge('endless', 'medium');
+      N.state.modal = null;
+      N.ask(N.state.choices[0]);
+      N.state.chReadMs = 99999;
+      const s = N.state.chElapsed;
+      await new Promise(r => setTimeout(r, 800));
+      return N.state.chElapsed - s;
+    });
+    check(endless === 0, `Défi sans limite : chrono toujours arrêté pendant la lecture (+${endless} ms)`);
+    check(
+      !page.errors.length,
+      `Chrono du Défi : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
+    );
+    await ctx.close();
+  }
+  // V9.24 : historique du Défi du jour (résultats officiels seulement, 30 jours, hors ligne)
+  {
+    const { ctx, page } = await fresh(browser);
+    const r = await page.evaluate(async () => {
+      const N = window.__numero;
+      Object.assign(N.state, { screen: 'home', modal: 'challenge' });
+      N.render();
+      document.getElementById('dailyGo').click();
+      N.state.modal = null;
+      await new Promise(r => setTimeout(r, 700));
+      N.guess(N.state.secret);
+      N.nextTurn();
+      const official = JSON.parse(JSON.stringify(N.loadDaily()[N.todayKey()]));
+      const score = N.state.soloResult.score;
+      // 2e essai le même jour : entraînement (perdu exprès)
+      Object.assign(N.state, { screen: 'home', modal: 'challenge' });
+      N.render();
+      document.getElementById('dailyGo').click();
+      N.state.modal = null;
+      for (let i = 0; i < 14 && N.state.screen === 'game'; i++) {
+        N.guess(N.state.secret === 1 ? 2 : 1);
+        N.nextTurn();
+      }
+      const after = N.loadDaily()[N.todayKey()];
+      const now = new Date(),
+        tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const h = N.dailyHistory(),
+        h2 = N.dailyHistory(tomorrow);
+      N.state.screen = 'office';
+      N.state.officeTab = 'records';
+      N.state.officeRecSet = 'daily';
+      N.render();
+      return {
+        official,
+        score,
+        after,
+        len: h.length,
+        today: h[0],
+        played: h.filter(x => x.res).length,
+        tomorrow: h2[0].res,
+        yesterdayOfTomorrow: h2[1].res && h2[1].res.won,
+        cells: document.querySelectorAll('.daily-cal .dcal').length,
+        wonCells: document.querySelectorAll('.daily-cal .dcal.won').length,
+        detail: document.querySelector('.daily-detail').textContent
+      };
+    });
+    check(
+      r.official.won && r.official.score === r.score && r.official.ms >= 400 && r.official.turns === 1,
+      `Défi du jour officiel : gagné, score ${r.official.score}, ${r.official.turns} tour, ${r.official.ms} ms`
+    );
+    check(
+      r.after.won && r.after.score === r.official.score && r.after.tries === 2,
+      'Entraînement le même jour : le résultat officiel n’est pas remplacé (essais : 2)'
+    );
+    check(
+      r.len === 30 && r.played === 1 && r.today.res && r.tomorrow === null && r.yesterdayOfTomorrow === true,
+      'Historique : 30 jours, jours non joués vides, changement de date sans résultat inventé'
+    );
+    check(
+      r.cells === 30 && r.wonCells === 1 && /Gagné/.test(r.detail) && /entraînement/.test(r.detail),
+      `Bureau › Records › Du jour : calendrier et détail (${r.detail.trim()})`
+    );
+    check(
+      !page.errors.length,
+      `Historique du jour : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
+    );
+    await ctx.close();
+  }
+
   await browser.close();
   console.log(`\nRésultat : ${passed} vérifications réussies, ${failed} échec(s).`);
   if (failed) {
