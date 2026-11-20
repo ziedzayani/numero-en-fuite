@@ -177,5 +177,8 @@ jobs:
           gh release delete "$TAG" --yes --cleanup-tag || true
           gh release create "$TAG" "livraison/$APK_NAME" "livraison/$APK_NAME.sha256" \
             --target "$GITHUB_SHA" --prerelease \
-            --title "Le Numéro en fuite $VERSION" \
+            --title "The Number Hunt $VERSION" \
             --notes "APK release compilé automatiquement (Gradle + SDK Android officiel), vérifié par apksigner et aapt2. $NOTE Certificat SHA-256 : $CERT_SHA256. Commit : $GITHUB_SHA."
+          # le lien « apk-latest » doit rester public : jamais de brouillon (vu le 20/11/2026)
+          gh release edit "$TAG" --draft=false --prerelease
+          test "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = "false"
