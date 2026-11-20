@@ -1,5 +1,19 @@
 # Historique des versions
 
+## V9.18 — parties proches, carte de victoire, charte des boutons
+
+- **Rejoindre d'un toucher** : l'écran « Rejoindre » liste les parties Wi-Fi trouvées (« Partie de Zied · 4933 ») ;
+  le code reste possible en dessous. L'hôte annonce son prénom (« NEF-code-Prénom », 63 octets maximum).
+- **Carte de victoire à partager** : bouton « Partager » (Rejouer | Partager | Accueil) sur les écrans de victoire à
+  plusieurs. Le jeu dessine une image 1080 × 1350 (titre, numéro, podium, série) avec ses propres images, puis ouvre
+  le menu de partage Android, avec un lien de téléchargement. Aucune autorisation ni connexion du jeu
+  (petit `ShareProvider` en lecture seule, sans bibliothèque). Pas de bouton quand personne n'a trouvé le numéro.
+- **Charte des boutons** (comme l'écran de victoire et la Pause) : actions principales jaune-or glossy (les anciens
+  boutons verts comme « C'est parti ! » ou « Lancer la partie » aussi), secondaires bleu électrique glossy,
+  « Oui, quitter » / remplacer en bleu nuit bordé cyan (plus d'orange) ; boutons de choix en pastilles claires,
+  le choix en jaune-or. Icônes Wi-Fi et Partager dessinées (pas d'emoji).
+- À tester sur de vrais téléphones : la liste des parties proches et le menu de partage (code Android).
+
 ## V9.17 — Duels et « Pendant ton absence »
 
 - **Mon bureau → onglet « Duels »** (statistiques à plusieurs, sur ce téléphone, sans serveur) : victoires / parties,

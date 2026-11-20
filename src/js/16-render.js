@@ -286,6 +286,7 @@ function bind() {
     g.seriesContinue = true; // « Manche suivante » : la série continue (si elle n'est pas finie)
     start();
   });
+  click('shareWin', () => shareVictory()); // V9.18 : carte de victoire
   click('quitYes', () => {
     g.quitSeen = false;
     if (g.net) return netLeave();

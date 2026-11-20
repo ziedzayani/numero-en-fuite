@@ -113,6 +113,8 @@ window.__numero = {
   maxN,
   qbyid,
   netHeartbeat,
+  drawVictoryCard,
+  shareVictory,
   get netState() {
     return net;
   },

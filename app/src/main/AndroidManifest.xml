@@ -33,5 +33,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- V9.18 : image de victoire partagée (lecture seule, accordée au moment du partage) -->
+        <provider
+            android:name=".ShareProvider"
+            android:authorities="com.atelier.numeroenfuite.share"
+            android:exported="false"
+            android:grantUriPermissions="true" />
     </application>
 </manifest>

@@ -71,6 +71,8 @@ public final class NetBridge {
     private int peerSeq;
     private NsdManager.RegistrationListener registration;
     private NsdManager.DiscoveryListener discovery;
+    /** V9.18 : recherche des parties proches (liste « Partie de Zied »), indépendante de joinStart. */
+    private NsdManager.DiscoveryListener scan;
     private WifiManager.MulticastLock multicastLock;
     private Runnable joinTimeout;
 
@@ -82,9 +84,18 @@ public final class NetBridge {
 
     /* ---------------- Hôte ---------------- */
 
-    /** Crée la partie : serveur TCP + annonce « NEF-code » sur le réseau local. */
+    /** Ancienne signature (sans prénom), gardée pour compatibilité. */
     @JavascriptInterface
     public void hostStart(final String code) {
+        hostStart(code, "");
+    }
+
+    /**
+     * Crée la partie : serveur TCP + annonce « NEF-code-Prénom » sur le réseau local.
+     * V9.18 : le prénom de l'hôte permet aux autres de voir « Partie de Zied » sans taper le code.
+     */
+    @JavascriptInterface
+    public void hostStart(final String code, final String hostName) {
         stop();
         running = true;
         acquireMulticast();
@@ -93,7 +104,7 @@ public final class NetBridge {
                 final ServerSocket ss = new ServerSocket(0);
                 server = ss;
                 final int port = ss.getLocalPort();
-                main.post(() -> register(clean(code), port));
+                main.post(() -> register(clean(code), port, hostName));
                 JSONObject ev = event("hosting");
                 ev.put("port", port);
                 String ip = localIp();
@@ -117,10 +128,10 @@ public final class NetBridge {
         });
     }
 
-    private void register(String code, int port) {
+    private void register(String code, int port, String hostName) {
         if (nsd == null || !running) return;
         NsdServiceInfo info = new NsdServiceInfo();
-        info.setServiceName(SERVICE_PREFIX + code);
+        info.setServiceName(serviceName(code, hostName));
         info.setServiceType(SERVICE_TYPE);
         info.setPort(port);
         registration = new NsdManager.RegistrationListener() {
@@ -135,6 +146,93 @@ public final class NetBridge {
             registration = null;
             emitError("host");
         }
+    }
+
+    /** « NEF-1234-Zied » : 63 octets au plus (limite DNS-SD), sans caractères de contrôle ni point. */
+    static String serviceName(String code, String hostName) {
+        String base = SERVICE_PREFIX + code;
+        String n = hostName == null ? "" : hostName.replaceAll("[\\p{Cntrl}.\\\\]", " ").trim().replaceAll("\\s+", " ");
+        if (n.isEmpty()) return base;
+        String full = base + "-" + n;
+        while (full.getBytes(StandardCharsets.UTF_8).length > 63)
+            full = full.substring(0, full.offsetByCodePoints(0, full.codePointCount(0, full.length()) - 1));
+        return full.trim();
+    }
+
+    /* ---------------- Parties proches (V9.18) ---------------- */
+
+    /** Cherche les parties annoncées sur le Wi-Fi : événements « room » / « roomLost » avec code et prénom. */
+    @JavascriptInterface
+    public void scanStart() {
+        main.post(() -> {
+            stopScan();
+            if (nsd == null) return;
+            acquireMulticast();
+            scan = new NsdManager.DiscoveryListener() {
+                @Override public void onDiscoveryStarted(String type) { }
+                @Override public void onDiscoveryStopped(String type) { }
+                @Override public void onStartDiscoveryFailed(String type, int err) { scan = null; }
+                @Override public void onStopDiscoveryFailed(String type, int err) { }
+                @Override public void onServiceFound(NsdServiceInfo info) { room("room", info.getServiceName()); }
+                @Override public void onServiceLost(NsdServiceInfo info) { room("roomLost", info.getServiceName()); }
+            };
+            try {
+                nsd.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, scan);
+            } catch (RuntimeException e) {
+                scan = null;
+            }
+        });
+    }
+
+    @JavascriptInterface
+    public void scanStop() {
+        main.post(this::stopScan);
+    }
+
+    private void stopScan() {
+        if (scan != null && nsd != null) {
+            try {
+                nsd.stopServiceDiscovery(scan);
+            } catch (RuntimeException ignored) {
+                // déjà arrêtée
+            }
+        }
+        scan = null;
+    }
+
+    /** « NEF-1234-Zied (2) » → { code: 1234, name: Zied } (NSD ajoute « (2) » aux doublons). */
+    private void room(String type, String serviceName) {
+        String name = unescape(serviceName);
+        if (name == null || !name.startsWith(SERVICE_PREFIX)) return;
+        String rest = name.substring(SERVICE_PREFIX.length()).replaceAll(" \\(\\d+\\)$", "");
+        if (rest.length() < 4 || !rest.substring(0, 4).matches("\\d{4}")) return;
+        String host = rest.length() > 5 && rest.charAt(4) == '-' ? rest.substring(5) : "";
+        try {
+            emit(event(type).put("code", rest.substring(0, 4)).put("name", host));
+        } catch (JSONException ignored) {
+            // impossible : valeurs simples
+        }
+    }
+
+    /** Certains Android renvoient les noms DNS-SD échappés (« \\032 » pour une espace, octets UTF-8 en « \\DDD »). */
+    static String unescape(String s) {
+        if (s == null || s.indexOf('\\') < 0) return s;
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '\\' && i + 3 < s.length() && s.substring(i + 1, i + 4).matches("\\d{3}")) {
+                out.write(Integer.parseInt(s.substring(i + 1, i + 4)));
+                i += 3;
+            } else if (c == '\\' && i + 1 < s.length()) {
+                byte[] b = String.valueOf(s.charAt(i + 1)).getBytes(StandardCharsets.UTF_8);
+                out.write(b, 0, b.length);
+                i += 1;
+            } else {
+                byte[] b = String.valueOf(c).getBytes(StandardCharsets.UTF_8);
+                out.write(b, 0, b.length);
+            }
+        }
+        return new String(out.toByteArray(), StandardCharsets.UTF_8);
     }
 
     /* ---------------- Invité ---------------- */
@@ -286,6 +384,7 @@ public final class NetBridge {
                 registration = null;
             }
             stopDiscovery();
+            stopScan();
             if (multicastLock != null && multicastLock.isHeld()) multicastLock.release();
         });
     }

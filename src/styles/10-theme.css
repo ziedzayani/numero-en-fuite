@@ -3938,3 +3938,175 @@ html[lang='ja'] .pause-card .pz-msg {
 .modal:has(.name-row:nth-child(4)) #namesGo {
   min-height: 52px;
 }
+
+/* ===== V9.18 : charte des boutons, alignée sur l'écran de victoire et la Pause =====
+   action principale = jaune-or glossy (texte bleu marine) ; secondaire = bleu électrique glossy ;
+   « quitter / remplacer » = bleu nuit bordé cyan (plus d'orange) ; reflet blanc sous le texte (::before). */
+.bigbtn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 28px;
+  font-weight: 900;
+}
+.bigbtn::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 9%;
+  right: 9%;
+  top: 4px;
+  height: 34%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+.bigbtn,
+.bigbtn.green {
+  background: linear-gradient(180deg, #ffe066 0%, #ffd83a 30%, #ffbf0f 70%, #f0a000 100%);
+  border: 3px solid #ffe066;
+  box-shadow:
+    0 0 0 2px #b87800,
+    0 5px 12px rgba(5, 20, 70, 0.4),
+    0 0 12px rgba(255, 214, 80, 0.45),
+    inset 0 -5px 0 rgba(170, 100, 0, 0.4);
+  color: #14205a;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.bigbtn.light {
+  background: linear-gradient(180deg, #1c6ae6 0%, #2a86f5 30%, #1662dc 72%, #0f4cc0 100%);
+  border: 3px solid #8fdcff;
+  box-shadow:
+    0 0 0 2px #0b2f8f,
+    0 5px 12px rgba(5, 20, 70, 0.4),
+    0 0 12px rgba(92, 200, 255, 0.5),
+    inset 0 -5px 0 rgba(8, 40, 130, 0.45);
+  color: #fff;
+  text-shadow: 0 2px 0 #0b2f8f;
+}
+.bigbtn.pink {
+  background: linear-gradient(180deg, #142f7e 0%, #2a4fae 30%, #142f7e 60%, #0b1d5a 100%);
+  border: 3px solid #6ff0ff;
+  box-shadow:
+    0 0 0 2px #071a52,
+    0 5px 12px rgba(5, 20, 70, 0.45),
+    0 0 12px rgba(63, 224, 255, 0.5),
+    inset 0 -4px 0 rgba(0, 10, 40, 0.45);
+  color: #fff;
+  text-shadow: 0 2px 0 #071a52;
+}
+.bigbtn.light::before,
+.bigbtn.pink::before {
+  opacity: 0.55;
+}
+.bigbtn:disabled {
+  filter: saturate(0.4);
+  opacity: 0.75;
+}
+/* boutons de choix (mode, niveau, série) : pastilles claires, le choix en jaune-or glossy */
+.mode-card {
+  background: linear-gradient(180deg, #ffffff 0%, #e6eeff 100%);
+  border: 2px solid #b9d4ff;
+  box-shadow: 0 3px 8px rgba(5, 20, 70, 0.3);
+  color: #14205a;
+}
+.mode-card.on {
+  background: linear-gradient(180deg, #fff3a6 0%, #ffd83a 45%, #ffbf0f 100%);
+  border-color: #ffe066;
+  box-shadow:
+    0 0 0 2px #b87800,
+    0 0 12px rgba(255, 214, 80, 0.6);
+}
+/* Partager (bleu glossy rond, icône dessinée) */
+.share-btn {
+  position: relative;
+  flex: 0 0 auto;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  border-radius: 20px;
+  border: 3px solid #8fdcff;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%230b2f8f' stroke-width='9' stroke-linecap='round'%3E%3Cpath d='M14 24 33 13M14 24l19 11'/%3E%3C/g%3E%3Cg fill='none' stroke='%23fff' stroke-width='4.5' stroke-linecap='round'%3E%3Cpath d='M14 24 33 13M14 24l19 11'/%3E%3C/g%3E%3Cg fill='%23fff' stroke='%230b2f8f' stroke-width='3'%3E%3Ccircle cx='13' cy='24' r='7'/%3E%3Ccircle cx='35' cy='12' r='7'/%3E%3Ccircle cx='35' cy='36' r='7'/%3E%3C/g%3E%3C/svg%3E")
+      center / 58% auto no-repeat,
+    linear-gradient(180deg, #4aa8ff 0%, #1f74ee 45%, #1450c8 100%);
+  box-shadow:
+    0 0 0 2px #0b2f8f,
+    0 5px 12px rgba(5, 20, 70, 0.45),
+    0 0 12px rgba(92, 200, 255, 0.6),
+    inset 0 -4px 0 rgba(8, 40, 130, 0.45);
+  cursor: pointer;
+}
+.race-actions:has(.share-btn) .bigbtn#again {
+  font-size: clamp(16px, 5.2vw, 22px);
+}
+.ec-actions.two:has(.share-btn) {
+  align-items: center;
+}
+@media (max-height: 760px) {
+  .share-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 17px;
+  }
+}
+/* parties trouvées sur le Wi-Fi */
+.net-rooms {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+.net-rooms .sub {
+  margin: 0;
+}
+.bigbtn.net-room {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  margin: 0;
+  padding: 6px 16px;
+  font-size: 17px;
+  text-align: start;
+}
+.net-room span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.net-room small {
+  font-size: 13px;
+  opacity: 0.75;
+}
+.ic-wifi {
+  width: 30px;
+  height: 26px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 40'%3E%3Cg fill='none' stroke='%230b2f8f' stroke-linecap='round' stroke-width='9'%3E%3Cpath d='M5 14a27 27 0 0 1 38 0M11 21a18 18 0 0 1 26 0M17 28a9 9 0 0 1 14 0'/%3E%3C/g%3E%3Cg fill='none' stroke='%23fff' stroke-linecap='round' stroke-width='4.5'%3E%3Cpath d='M5 14a27 27 0 0 1 38 0M11 21a18 18 0 0 1 26 0M17 28a9 9 0 0 1 14 0'/%3E%3C/g%3E%3Ccircle cx='24' cy='34' r='4.5' fill='%23fff' stroke='%230b2f8f' stroke-width='2.5'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+/* rangée de fin avec Partager : Rejouer | Partager | Accueil sur une seule ligne */
+.ec-actions.two:has(.share-btn) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+}
+.ec-actions.two:has(.share-btn) > * {
+  margin: 0;
+}
+.ec-actions.two:has(.share-btn) .bigbtn#again {
+  min-width: 0;
+  padding-inline: 10px;
+}
+.ec-actions.two:has(.share-btn) .bigbtn#again {
+  gap: 6px;
+  font-size: clamp(15px, 4.6vw, 19px);
+  line-height: 1.05;
+  white-space: normal;
+  text-align: center;
+}
+.ec-actions.two:has(.share-btn) .bigbtn#again .ic-replay {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 28px;
+}

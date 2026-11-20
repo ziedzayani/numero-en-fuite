@@ -84,6 +84,8 @@ public class MainActivity extends Activity {
         // Multijoueur Wi-Fi local : seul objet exposé au JavaScript (messages texte entre téléphones).
         net = new NetBridge(this, game);
         game.addJavascriptInterface(net, "NumeroNet");
+        // V9.18 : partage de la carte de victoire (menu de partage Android, aucune autorisation)
+        game.addJavascriptInterface(new ShareBridge(this), "NumeroShare");
 
         game.setWebChromeClient(new WebChromeClient());
         game.setWebViewClient(new WebViewClient() {

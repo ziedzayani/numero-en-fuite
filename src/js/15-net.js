@@ -49,6 +49,21 @@ const netTransport = () => (typeof window.NumeroNet === 'object' && window.Numer
  *   role 'client' : code, seat, token, lobby (copie), hostName
  */
 let net = { role: null };
+/** V9.18 : parties trouvées sur le Wi-Fi { code: prénom de l'hôte } (recherche pendant l'écran « Rejoindre »). */
+let netRooms = {};
+let netScanning = false;
+function netScan(on) {
+  const tr = netTransport();
+  if (!tr || typeof tr.scanStart !== 'function' || netScanning === on) return;
+  netScanning = on;
+  if (!on) netRooms = {};
+  try {
+    if (on) tr.scanStart();
+    else tr.scanStop();
+  } catch (e) {
+    netScanning = false; // version de l'application sans recherche : on garde la saisie du code
+  }
+}
 
 /** C'est à ce téléphone de jouer ? (toujours vrai hors multijoueur Wi-Fi) */
 const myTurn = () => !g.net || active() === g.net.seat;
@@ -88,7 +103,7 @@ function netCreate() {
   };
   g.screen = 'lan';
   g.lan = { view: 'hostLobby', error: null };
-  tr.hostStart(net.code);
+  tr.hostStart(net.code, netName()); // V9.18 : le prénom de l'hôte est annoncé (« Partie de Zied »)
   if (tr.keepAwake) tr.keepAwake(true);
   render();
 }
@@ -362,6 +377,7 @@ function netJoin(code) {
   }
   net = { role: 'client', code, seat: null, token: net.code === code ? net.token : null, lobby: [] };
   g.lan = { view: 'joining', error: null };
+  netScanning = false; // joinStart arrête aussi la recherche (une seule recherche à la fois)
   tr.joinStart(code);
   if (tr.keepAwake) tr.keepAwake(true);
   render();
@@ -442,6 +458,14 @@ window.__netEvent = raw => {
   try {
     e = typeof raw === 'string' ? JSON.parse(raw) : raw;
   } catch (err) {
+    return;
+  }
+  if (e && (e.type === 'room' || e.type === 'roomLost')) {
+    // V9.18 : une partie apparaît / disparaît sur le Wi-Fi
+    if (!/^\d{4}$/.test(String(e.code))) return;
+    if (e.type === 'room') netRooms[e.code] = String(e.name || '').slice(0, 20);
+    else delete netRooms[e.code];
+    if (g.lan && g.lan.view === 'join') render();
     return;
   }
   if (!e || !net.role) return;
@@ -557,7 +581,7 @@ function lanScreen() {
   else if (v === 'hostLobby')
     body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div>${netRulesPicker()}${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < 2 ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
   else if (v === 'join' || v === 'joining')
-    body = `${nameField}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
+    body = `${nameField}${v === 'join' ? netRoomsList() : ''}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else
     body = `<p class="sub">✅ ${t('netConnected')}</p>${net.rules ? `<p class="net-rules">${netRulesText(net.rules.level, net.rules.mode, net.rules.series)}</p>` : ''}${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
   return `<header class="top">${brand()}<button class="mini-btn" id="netCancelTop">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel net-panel"><h1 class="settings-title">📶 ${t('netTitle')}</h1>${body}</section>`;
@@ -598,6 +622,17 @@ function netRulesPicker() {
     )
     .join('');
   return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}</div>`;
+}
+/** V9.18 : parties trouvées sur ce Wi-Fi, à rejoindre d'un toucher (le code reste possible en dessous). */
+function netRoomsList() {
+  if (!netScanning) return '';
+  const rooms = Object.entries(netRooms);
+  return `<div class="net-rooms"><p class="sub small">${rooms.length ? t('netRoomsFound') : '🔎 ' + t('netRoomsSearching')}</p>${rooms
+    .map(
+      ([c, n]) =>
+        `<button class="bigbtn net-room" data-room="${c}"><i class="ic ic-wifi" aria-hidden="true"></i><span>${esc(t('netRoomOf', { player: n || t('netDefaultName') }))}</span><small dir="ltr">${c}</small></button>`
+    )
+    .join('')}</div>`;
 }
 /** Fenêtres réseau : attente d'un joueur déconnecté (partagée), connexion perdue (locale). */
 function netModalView() {
@@ -668,6 +703,15 @@ function bindNet(click) {
   click('netQuitGame', leave);
   click('netLaunch', netLaunch);
   click('netWithout', netContinueWithout);
+  // V9.18 : recherche des parties proches seulement sur l'écran « Rejoindre »
+  netScan(g.screen === 'lan' && !!g.lan && g.lan.view === 'join');
+  document.querySelectorAll('[data-room]').forEach(b =>
+    b.addEventListener('click', () => {
+      const input = document.getElementById('netName');
+      if (input) g.myName = input.value;
+      netJoin(b.dataset.room);
+    })
+  );
   document.querySelectorAll('[data-netlevel]').forEach(b =>
     b.addEventListener('click', () => {
       if (net.role !== 'host' || g.net) return;

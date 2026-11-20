@@ -2818,8 +2818,12 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       setTimeout(() => pg.evaluate(e => window.__netEvent(JSON.stringify(e)), ev).catch(() => {}), 5);
     const hostOf = pg => Object.values(hosts).find(h => h.page === pg);
     const netOp = (src, op, a, b) => {
-      if (op === 'hostStart') {
-        hosts[a] = { page: src, code: a, peers: new Map() };
+      if (op === 'scanStart') {
+        // V9.18 : parties proches annoncées (« NEF-code-Prénom »)
+        for (const h of Object.values(hosts))
+          deliver(src, { type: 'room', code: h.code, name: h.name || '' });
+      } else if (op === 'hostStart') {
+        hosts[a] = { page: src, code: a, peers: new Map(), name: b };
         deliver(src, { type: 'hosting', ip: '192.168.1.10', port: 40123 });
       } else if (op === 'joinStart') {
         const h = hosts[a];
@@ -2867,7 +2871,9 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       });
       await page.addInitScript(() => {
         window.NumeroNet = {
-          hostStart: c => window.__fakeNet('hostStart', c),
+          hostStart: (c, n) => window.__fakeNet('hostStart', c, n),
+          scanStart: () => window.__fakeNet('scanStart'),
+          scanStop: () => {},
           joinStart: c => window.__fakeNet('joinStart', c),
           send: (p, d) => window.__fakeNet('send', p, d),
           stop: () => window.__fakeNet('stop'),
@@ -2926,11 +2932,17 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     // deux joueurs rejoignent
     await p2.fill('#netCode', code);
     await p2.click('#netJoinGo');
+    // V9.18 : Zoé rejoint d'un toucher dans la liste des parties proches (« Partie de Léa »), sans taper le code
     await viaMore(p3, 'openLanMore');
     await p3.fill('#netName', 'Zoé');
     await p3.click('#netGoJoin');
-    await p3.fill('#netCode', code);
-    await p3.click('#netJoinGo');
+    await wait(200);
+    check(
+      (await p3.textContent('.net-rooms')).includes('Partie de Léa') &&
+        (await p3.$(`[data-room="${code}"]`)) !== null,
+      'Rejoindre : la partie de Léa apparaît dans la liste des parties proches'
+    );
+    await p3.click(`[data-room="${code}"]`);
     await wait(300);
     const hostList = await host.$$eval('.net-players li b', e => e.map(x => x.textContent).join(','));
     check(
@@ -4801,6 +4813,63 @@ async function playFullGame(browser, players, level, lang = 'fr') {
         (await page.textContent('.vs-duels')).includes('1 – 2'),
       'Mon bureau : tableau « À plusieurs » et face-à-face'
     );
+    await ctx.close();
+  }
+
+  // V9.18 : carte de victoire (dessinée par le jeu) et partage par l'application Android
+  {
+    const { ctx, page } = await fresh(browser);
+    await page.evaluate(() => {
+      window.NumeroShare = {
+        shareImage: (b64, txt) => (window.__shared = { len: b64.length, txt, head: b64.slice(0, 12) })
+      };
+      const N = window.__numero;
+      Object.assign(N.state, {
+        players: 2,
+        names: ['Zied', 'Ahlem', '', ''],
+        gameMode: 'race',
+        level: 'junior',
+        seriesPref: 0,
+        reduceMotion: true
+      });
+      N.start(true);
+      N.state.modal = null;
+      N.state.starter = 0;
+      N.state.turn = 0;
+      N.guess(N.state.secret);
+      N.nextTurn();
+    });
+    check(await page.isVisible('#shareWin'), 'Victoire : bouton « Partager » (Rejouer | Partager | Accueil)');
+    const row = await page.$$eval('.ec-actions > *', els =>
+      els.map(e => Math.round(e.getBoundingClientRect().top))
+    );
+    check(
+      new Set(row).size === 1 || Math.max(...row) - Math.min(...row) < 20,
+      `Victoire : les 3 boutons sur une ligne (${row})`
+    );
+    await page.click('#shareWin');
+    await page.waitForFunction(() => window.__shared, null, { timeout: 8000 }).catch(() => {});
+    const sh = await page.evaluate(() => window.__shared || null);
+    check(
+      sh && sh.len > 20000 && sh.head.startsWith('iVBOR') && /github\.com\/ziedzayani/.test(sh.txt),
+      `Partage : image PNG et lien de téléchargement envoyés à Android (${sh ? sh.len : 0} caractères)`
+    );
+    const dims = await page.evaluate(async () => {
+      const c = await window.__numero.drawVictoryCard();
+      return c.width + 'x' + c.height;
+    });
+    check(dims === '1080x1350', `Carte de victoire 1080×1350 (${dims})`);
+    // pas de bouton Partager quand personne n'a trouvé le numéro
+    await page.evaluate(() => {
+      const N = window.__numero;
+      Object.assign(N.state, { gameMode: 'score' });
+      N.start(true);
+      N.state.turn = N.state.limit;
+      N.state.modal = null;
+      N.guess(N.state.secret === 1 ? 2 : 1);
+      N.nextTurn();
+    });
+    check(!(await page.$('#shareWin')), 'Pas de « Partager » quand personne n’a attrapé le numéro');
     await ctx.close();
   }
 

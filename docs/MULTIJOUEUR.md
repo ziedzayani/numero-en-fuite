@@ -59,6 +59,13 @@ Fourni par `NetBridge.java` (Android) ; simulé par les tests (`tests/game.test.
 | `message` | `peer`, `data` | les deux |
 | `error` | `code` : `host`, `notFound`, `wifi` | les deux |
 
+## Parties proches (V9.18)
+
+- L'hôte annonce `NEF-<code>-<prénom>` (`hostStart(code, prénom)` ; l'ancienne signature `hostStart(code)` reste).
+- L'écran « Rejoindre » appelle `scanStart()` / `scanStop()` : événements `room` / `roomLost` `{ code, name }`.
+  Un toucher sur une partie = `netJoin(code)` (la recherche s'arrête, `joinStart` reprend sa propre recherche).
+- Noms DNS-SD échappés par certains Android (`\032`, octets `\DDD`) : décodés par `NetBridge.unescape`.
+
 ## Messages du jeu (`NET_PROTOCOL = 2`, depuis V9.15)
 
 | Message | Sens | Contenu |

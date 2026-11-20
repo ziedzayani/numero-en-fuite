@@ -11045,6 +11045,178 @@ html[lang='ja'] .pause-card .pz-msg {
   min-height: 52px;
 }
 
+/* ===== V9.18 : charte des boutons, alignée sur l'écran de victoire et la Pause =====
+   action principale = jaune-or glossy (texte bleu marine) ; secondaire = bleu électrique glossy ;
+   « quitter / remplacer » = bleu nuit bordé cyan (plus d'orange) ; reflet blanc sous le texte (::before). */
+.bigbtn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 28px;
+  font-weight: 900;
+}
+.bigbtn::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 9%;
+  right: 9%;
+  top: 4px;
+  height: 34%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+.bigbtn,
+.bigbtn.green {
+  background: linear-gradient(180deg, #ffe066 0%, #ffd83a 30%, #ffbf0f 70%, #f0a000 100%);
+  border: 3px solid #ffe066;
+  box-shadow:
+    0 0 0 2px #b87800,
+    0 5px 12px rgba(5, 20, 70, 0.4),
+    0 0 12px rgba(255, 214, 80, 0.45),
+    inset 0 -5px 0 rgba(170, 100, 0, 0.4);
+  color: #14205a;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.bigbtn.light {
+  background: linear-gradient(180deg, #1c6ae6 0%, #2a86f5 30%, #1662dc 72%, #0f4cc0 100%);
+  border: 3px solid #8fdcff;
+  box-shadow:
+    0 0 0 2px #0b2f8f,
+    0 5px 12px rgba(5, 20, 70, 0.4),
+    0 0 12px rgba(92, 200, 255, 0.5),
+    inset 0 -5px 0 rgba(8, 40, 130, 0.45);
+  color: #fff;
+  text-shadow: 0 2px 0 #0b2f8f;
+}
+.bigbtn.pink {
+  background: linear-gradient(180deg, #142f7e 0%, #2a4fae 30%, #142f7e 60%, #0b1d5a 100%);
+  border: 3px solid #6ff0ff;
+  box-shadow:
+    0 0 0 2px #071a52,
+    0 5px 12px rgba(5, 20, 70, 0.45),
+    0 0 12px rgba(63, 224, 255, 0.5),
+    inset 0 -4px 0 rgba(0, 10, 40, 0.45);
+  color: #fff;
+  text-shadow: 0 2px 0 #071a52;
+}
+.bigbtn.light::before,
+.bigbtn.pink::before {
+  opacity: 0.55;
+}
+.bigbtn:disabled {
+  filter: saturate(0.4);
+  opacity: 0.75;
+}
+/* boutons de choix (mode, niveau, série) : pastilles claires, le choix en jaune-or glossy */
+.mode-card {
+  background: linear-gradient(180deg, #ffffff 0%, #e6eeff 100%);
+  border: 2px solid #b9d4ff;
+  box-shadow: 0 3px 8px rgba(5, 20, 70, 0.3);
+  color: #14205a;
+}
+.mode-card.on {
+  background: linear-gradient(180deg, #fff3a6 0%, #ffd83a 45%, #ffbf0f 100%);
+  border-color: #ffe066;
+  box-shadow:
+    0 0 0 2px #b87800,
+    0 0 12px rgba(255, 214, 80, 0.6);
+}
+/* Partager (bleu glossy rond, icône dessinée) */
+.share-btn {
+  position: relative;
+  flex: 0 0 auto;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  border-radius: 20px;
+  border: 3px solid #8fdcff;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%230b2f8f' stroke-width='9' stroke-linecap='round'%3E%3Cpath d='M14 24 33 13M14 24l19 11'/%3E%3C/g%3E%3Cg fill='none' stroke='%23fff' stroke-width='4.5' stroke-linecap='round'%3E%3Cpath d='M14 24 33 13M14 24l19 11'/%3E%3C/g%3E%3Cg fill='%23fff' stroke='%230b2f8f' stroke-width='3'%3E%3Ccircle cx='13' cy='24' r='7'/%3E%3Ccircle cx='35' cy='12' r='7'/%3E%3Ccircle cx='35' cy='36' r='7'/%3E%3C/g%3E%3C/svg%3E")
+      center / 58% auto no-repeat,
+    linear-gradient(180deg, #4aa8ff 0%, #1f74ee 45%, #1450c8 100%);
+  box-shadow:
+    0 0 0 2px #0b2f8f,
+    0 5px 12px rgba(5, 20, 70, 0.45),
+    0 0 12px rgba(92, 200, 255, 0.6),
+    inset 0 -4px 0 rgba(8, 40, 130, 0.45);
+  cursor: pointer;
+}
+.race-actions:has(.share-btn) .bigbtn#again {
+  font-size: clamp(16px, 5.2vw, 22px);
+}
+.ec-actions.two:has(.share-btn) {
+  align-items: center;
+}
+@media (max-height: 760px) {
+  .share-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 17px;
+  }
+}
+/* parties trouvées sur le Wi-Fi */
+.net-rooms {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+.net-rooms .sub {
+  margin: 0;
+}
+.bigbtn.net-room {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  margin: 0;
+  padding: 6px 16px;
+  font-size: 17px;
+  text-align: start;
+}
+.net-room span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.net-room small {
+  font-size: 13px;
+  opacity: 0.75;
+}
+.ic-wifi {
+  width: 30px;
+  height: 26px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 40'%3E%3Cg fill='none' stroke='%230b2f8f' stroke-linecap='round' stroke-width='9'%3E%3Cpath d='M5 14a27 27 0 0 1 38 0M11 21a18 18 0 0 1 26 0M17 28a9 9 0 0 1 14 0'/%3E%3C/g%3E%3Cg fill='none' stroke='%23fff' stroke-linecap='round' stroke-width='4.5'%3E%3Cpath d='M5 14a27 27 0 0 1 38 0M11 21a18 18 0 0 1 26 0M17 28a9 9 0 0 1 14 0'/%3E%3C/g%3E%3Ccircle cx='24' cy='34' r='4.5' fill='%23fff' stroke='%230b2f8f' stroke-width='2.5'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+/* rangée de fin avec Partager : Rejouer | Partager | Accueil sur une seule ligne */
+.ec-actions.two:has(.share-btn) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+}
+.ec-actions.two:has(.share-btn) > * {
+  margin: 0;
+}
+.ec-actions.two:has(.share-btn) .bigbtn#again {
+  min-width: 0;
+  padding-inline: 10px;
+}
+.ec-actions.two:has(.share-btn) .bigbtn#again {
+  gap: 6px;
+  font-size: clamp(15px, 4.6vw, 19px);
+  line-height: 1.05;
+  white-space: normal;
+  text-align: center;
+}
+.ec-actions.two:has(.share-btn) .bigbtn#again .ic-replay {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 28px;
+}
+
     </style>
   </head>
   <body>
@@ -11134,7 +11306,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.17";
+const APP_VERSION = "9.18";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -11430,6 +11602,9 @@ const dictionaries = {
   "netReadyMe": "Prêt ✅",
   "netRetry": "Réessayer",
   "netRetryFailed": "Partie introuvable : l’hôte a peut-être quitté ou créé une nouvelle partie.",
+  "netRoomOf": "Partie de {player}",
+  "netRoomsFound": "Parties trouvées sur ce Wi-Fi :",
+  "netRoomsSearching": "Recherche des parties sur ce Wi-Fi…",
   "netSameWifi": "Tous les téléphones doivent être sur le même Wi-Fi (ou sur le partage de connexion de l’un d’eux).",
   "netSearching": "Recherche de la partie sur le Wi-Fi…",
   "netSilentText": "Le téléphone de l’hôte ne donne plus de nouvelles depuis 10 secondes (Wi-Fi coupé, écran verrouillé ou application fermée). La partie reprend toute seule s’il revient.",
@@ -11621,6 +11796,9 @@ const dictionaries = {
   "seriesWinner": "{player} remporte la série !",
   "settings": "Réglages",
   "settingsTip": "Tu peux changer la langue sans recommencer la partie.",
+  "shareBtn": "Partager la victoire",
+  "shareFooter": "Jeu de logique en famille · hors ligne · sans pub",
+  "shareText": "Partie de The Number Hunt terminée ! Viens jouer avec nous :",
   "shifted": "Il s’est déplacé.",
   "show": "Afficher",
   "showPossible": "Afficher les numéros possibles",
@@ -12020,6 +12198,9 @@ const dictionaries = {
   "netReadyMe": "Ready ✅",
   "netRetry": "Try again",
   "netRetryFailed": "Game not found: the host may have left or started a new game.",
+  "netRoomOf": "{player}’s game",
+  "netRoomsFound": "Games found on this Wi-Fi:",
+  "netRoomsSearching": "Looking for games on this Wi-Fi…",
   "netSameWifi": "All phones must be on the same Wi-Fi (or on one phone’s hotspot).",
   "netSearching": "Looking for the game on the Wi-Fi…",
   "netSilentText": "The host’s phone has not responded for 10 seconds (Wi-Fi off, screen locked or app closed). The game resumes by itself if it comes back.",
@@ -12211,6 +12392,9 @@ const dictionaries = {
   "seriesWinner": "{player} wins the series!",
   "settings": "Settings",
   "settingsTip": "Switch languages without restarting your game.",
+  "shareBtn": "Share the win",
+  "shareFooter": "Family logic game · offline · no ads",
+  "shareText": "Just finished a game of The Number Hunt! Come play with us:",
   "shifted": "It moved to another spot.",
   "show": "Show",
   "showPossible": "Show possible numbers",
@@ -12610,6 +12794,9 @@ const dictionaries = {
   "netReadyMe": "جاهز ✅",
   "netRetry": "أعد المحاولة",
   "netRetryFailed": "لم يتم العثور على اللعبة: ربما غادر المضيف أو أنشأ لعبة جديدة.",
+  "netRoomOf": "لعبة {player}",
+  "netRoomsFound": "ألعاب موجودة على هذه الشبكة:",
+  "netRoomsSearching": "جارٍ البحث عن ألعاب على هذه الشبكة…",
   "netSameWifi": "يجب أن تكون كل الهواتف على نفس شبكة الواي فاي (أو على نقطة اتصال أحدها).",
   "netSearching": "جارٍ البحث عن اللعبة على الواي فاي…",
   "netSilentText": "هاتف المضيف لا يستجيب منذ 10 ثوانٍ (انقطاع الواي فاي أو قفل الشاشة أو إغلاق التطبيق). ستُستأنف اللعبة تلقائيًا إذا عاد.",
@@ -12801,6 +12988,9 @@ const dictionaries = {
   "seriesWinner": "{player} يفوز بالسلسلة!",
   "settings": "الإعدادات",
   "settingsTip": "غيّر اللغة بدون إعادة بدء اللعبة.",
+  "shareBtn": "شارك الفوز",
+  "shareFooter": "لعبة منطق عائلية · بدون إنترنت · بدون إعلانات",
+  "shareText": "انتهت جولة من The Number Hunt! تعال والعب معنا:",
   "shifted": "انتقل إلى مكان آخر.",
   "show": "إظهار",
   "showPossible": "إظهار الأرقام المحتملة",
@@ -13200,6 +13390,9 @@ const dictionaries = {
   "netReadyMe": "Listo ✅",
   "netRetry": "Reintentar",
   "netRetryFailed": "Partida no encontrada: puede que el anfitrión se haya ido o haya creado una partida nueva.",
+  "netRoomOf": "Partida de {player}",
+  "netRoomsFound": "Partidas en este wifi:",
+  "netRoomsSearching": "Buscando partidas en este wifi…",
   "netSameWifi": "Todos los móviles deben estar en el mismo Wi-Fi (o en el punto de acceso de uno de ellos).",
   "netSearching": "Buscando la partida en el Wi-Fi…",
   "netSilentText": "El teléfono del anfitrión no responde desde hace 10 segundos (wifi cortado, pantalla bloqueada o app cerrada). La partida continúa sola si vuelve.",
@@ -13391,6 +13584,9 @@ const dictionaries = {
   "seriesWinner": "¡{player} gana la serie!",
   "settings": "Ajustes",
   "settingsTip": "Cambia de idioma sin reiniciar la partida.",
+  "shareBtn": "Compartir la victoria",
+  "shareFooter": "Juego de lógica en familia · sin conexión · sin anuncios",
+  "shareText": "¡Partida de The Number Hunt terminada! Ven a jugar con nosotros:",
   "shifted": "Se ha movido a otra casilla.",
   "show": "Mostrar",
   "showPossible": "Mostrar los números posibles",
@@ -13790,6 +13986,9 @@ const dictionaries = {
   "netReadyMe": "Pronto ✅",
   "netRetry": "Riprova",
   "netRetryFailed": "Partita non trovata: forse l’host se n’è andato o ha creato una nuova partita.",
+  "netRoomOf": "Partita di {player}",
+  "netRoomsFound": "Partite trovate su questo Wi-Fi:",
+  "netRoomsSearching": "Ricerca di partite su questo Wi-Fi…",
   "netSameWifi": "Tutti i telefoni devono essere sullo stesso Wi-Fi (o sull’hotspot di uno di loro).",
   "netSearching": "Ricerca della partita sul Wi-Fi…",
   "netSilentText": "Il telefono dell’host non risponde da 10 secondi (Wi-Fi spento, schermo bloccato o app chiusa). La partita riprende da sola se torna.",
@@ -13981,6 +14180,9 @@ const dictionaries = {
   "seriesWinner": "{player} vince la serie!",
   "settings": "Impostazioni",
   "settingsTip": "Cambia lingua senza ricominciare la partita.",
+  "shareBtn": "Condividi la vittoria",
+  "shareFooter": "Gioco di logica in famiglia · offline · senza pubblicità",
+  "shareText": "Partita di The Number Hunt finita! Vieni a giocare con noi:",
   "shifted": "Si è spostato in un’altra casella.",
   "show": "Mostra",
   "showPossible": "Mostra i numeri possibili",
@@ -14380,6 +14582,9 @@ const dictionaries = {
   "netReadyMe": "Bereit ✅",
   "netRetry": "Erneut versuchen",
   "netRetryFailed": "Spiel nicht gefunden: Der Gastgeber ist vielleicht gegangen oder hat ein neues Spiel erstellt.",
+  "netRoomOf": "Spiel von {player}",
+  "netRoomsFound": "Spiele in diesem WLAN:",
+  "netRoomsSearching": "Suche nach Spielen in diesem WLAN…",
   "netSameWifi": "Alle Handys müssen im selben WLAN sein (oder im Hotspot eines Handys).",
   "netSearching": "Suche das Spiel im WLAN …",
   "netSilentText": "Das Handy des Gastgebers antwortet seit 10 Sekunden nicht (WLAN aus, Bildschirm gesperrt oder App geschlossen). Das Spiel geht von selbst weiter, wenn es zurückkommt.",
@@ -14571,6 +14776,9 @@ const dictionaries = {
   "seriesWinner": "{player} gewinnt die Serie!",
   "settings": "Einstellungen",
   "settingsTip": "Sprache wechseln, ohne das Spiel neu zu starten.",
+  "shareBtn": "Sieg teilen",
+  "shareFooter": "Logikspiel für die Familie · offline · ohne Werbung",
+  "shareText": "Eine Runde The Number Hunt ist vorbei! Spiel mit uns:",
   "shifted": "Sie ist auf ein anderes Feld gezogen.",
   "show": "Zeigen",
   "showPossible": "Mögliche Zahlen zeigen",
@@ -14970,6 +15178,9 @@ const dictionaries = {
   "netReadyMe": "已准备 ✅",
   "netRetry": "重试",
   "netRetryFailed": "找不到游戏：房主可能已离开或创建了新游戏。",
+  "netRoomOf": "{player} 的游戏",
+  "netRoomsFound": "在此 Wi-Fi 上找到的游戏：",
+  "netRoomsSearching": "正在此 Wi-Fi 上查找游戏…",
   "netSameWifi": "所有手机都必须连接同一个 Wi-Fi（或其中一部手机的热点）。",
   "netSearching": "正在 Wi-Fi 中寻找游戏……",
   "netSilentText": "房主的手机已经 10 秒没有响应（Wi-Fi 断开、屏幕锁定或应用已关闭）。如果它恢复，游戏会自动继续。",
@@ -15161,6 +15372,9 @@ const dictionaries = {
   "seriesWinner": "{player} 赢得系列赛！",
   "settings": "设置",
   "settingsTip": "切换语言无需重新开始游戏。",
+  "shareBtn": "分享胜利",
+  "shareFooter": "家庭逻辑游戏 · 离线 · 无广告",
+  "shareText": "刚玩完一局 The Number Hunt！快来一起玩：",
   "shifted": "它移到了另一格。",
   "show": "显示",
   "showPossible": "显示可能的数字",
@@ -15560,6 +15774,9 @@ const dictionaries = {
   "netReadyMe": "準備OK ✅",
   "netRetry": "もう一度",
   "netRetryFailed": "ゲームが見つかりません：ホストが退出したか、新しいゲームを作ったかもしれません。",
+  "netRoomOf": "{player} のゲーム",
+  "netRoomsFound": "この Wi-Fi で見つかったゲーム：",
+  "netRoomsSearching": "この Wi-Fi でゲームを探しています…",
   "netSameWifi": "すべてのスマホを同じ Wi-Fi（または 1 台のテザリング）につないでね。",
   "netSearching": "Wi-Fi でゲームをさがしています……",
   "netSilentText": "ホストのスマホから 10 秒間応答がありません（Wi-Fi 切断、画面ロック、またはアプリ終了）。戻ってくれば自動で再開します。",
@@ -15751,6 +15968,9 @@ const dictionaries = {
   "seriesWinner": "{player} がシリーズ優勝！",
   "settings": "設定",
   "settingsTip": "言語を変えてもゲームはそのまま続きます。",
+  "shareBtn": "勝利をシェア",
+  "shareFooter": "家族で遊べるロジックゲーム · オフライン · 広告なし",
+  "shareText": "The Number Hunt の対戦が終わったよ！一緒に遊ぼう：",
   "shifted": "となりのマスに動いた。",
   "show": "表示",
   "showPossible": "ありえる数字を表示",
@@ -18822,7 +19042,7 @@ function end() {
   const soloLost = g.players === 1 && g.soloWon === false;
   // V9.4 : personne n'a trouvé le numéro → pas de fête (même si quelqu'un a plus de points)
   const noCatch = g.players > 1 && (isRace() || !g.captures);
-  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
+  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${noCatch ? '' : shareButton()}<button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {
@@ -18877,7 +19097,7 @@ function endRace() {
   const caught = caughtN
     ? `<div class="escaped-note race-caught"><span>${tHtml('escapedWas', { n: `<b class="big-n">${caughtN}</b>` })}</span></div>`
     : escapedNote(true);
-  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${seriesTitle() || (winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] }))}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${t('raceWinDesc', { turns: g.raceTurns })}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button><button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
+  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${seriesTitle() || (winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] }))}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${t('raceWinDesc', { turns: g.raceTurns })}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
 }
 /**
  * Fin de partie alors que le numéro courait encore : « il était sur le 23 » et le film de son évasion.
@@ -19114,6 +19334,245 @@ function openReplay() {
   g.rpPlaying = g.rpAuto !== false;
   render();
 }
+
+/* ---- 12b-share.js ---- */
+/*
+ * V9.18 : carte de victoire à partager. L'image est DESSINÉE par le jeu (canvas), à partir de l'écran de fin
+ * affiché (titre, numéro, podium : déjà traduits) et des images du jeu (trophée, détective, médailles).
+ * Aucune connexion : sur Android, window.NumeroShare.shareImage(base64, texte) ouvre le menu de partage ;
+ * dans un navigateur, partage du fichier si possible, sinon téléchargement de l'image.
+ */
+const SHARE_LINK = 'https://github.com/ziedzayani/numero-en-fuite/releases/tag/apk-latest';
+const CARD_W = 1080,
+  CARD_H = 1350;
+
+/** Image de fond CSS d'un élément temporaire (les images du jeu sont intégrées dans les styles). */
+function cssImage(html) {
+  const box = document.createElement('div');
+  box.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden';
+  box.innerHTML = html;
+  document.body.appendChild(box);
+  const el = box.querySelector('[data-img]');
+  const bg = el ? getComputedStyle(el).backgroundImage : '';
+  box.remove();
+  const m = /url\(["']?(.*?)["']?\)/.exec(bg || '');
+  if (!m) return Promise.resolve(null);
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => res(im);
+    im.onerror = () => res(null);
+    im.src = m[1];
+  });
+}
+/** Dessine une image dans un cadre en gardant ses proportions (contain). */
+function drawContain(ctx, im, x, y, w, h) {
+  if (!im) return;
+  const r = Math.min(w / im.width, h / im.height),
+    dw = im.width * r,
+    dh = im.height * r;
+  ctx.drawImage(im, x + (w - dw) / 2, y + (h - dh), dw, dh);
+}
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+/** Coupe un texte en lignes qui tiennent dans `max` pixels. */
+function wrapText(ctx, text, max) {
+  const words = String(text).split(/\s+/),
+    lines = [];
+  let cur = '';
+  for (const w of words) {
+    const test = cur ? cur + ' ' + w : w;
+    if (ctx.measureText(test).width > max && cur) {
+      lines.push(cur);
+      cur = w;
+    } else cur = test;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+/** Ce que montre l'écran de fin, pour la carte : titre, numéro, lignes du podium, série. */
+function victoryInfo() {
+  const txt = sel => (document.querySelector(sel) || {}).textContent || '';
+  const rows = [...document.querySelectorAll('.podium-panel .pod-row')].slice(0, 4).map((r, i) => ({
+    name: ((r.querySelector('strong') || {}).firstChild || {}).textContent || '',
+    line: (r.querySelector('small') || {}).textContent || '',
+    place: Number((/place-(\d)/.exec(r.className) || [])[1]) || i + 1
+  }));
+  return {
+    title: txt('.end-hero h1')
+      .replace(/[🏆⏱😅]\s*/gu, '')
+      .trim(),
+    caught: txt('.race-caught') || txt('.escaped-note span'),
+    series: txt('.series-pill small'),
+    rows
+  };
+}
+/** Dessine la carte (1080 × 1350) et renvoie le canvas. */
+async function drawVictoryCard() {
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+  } catch (e) {
+    // polices indisponibles : la police de secours suffit
+  }
+  const info = victoryInfo();
+  const [trophy, det, m1, m2, m3] = await Promise.all([
+    cssImage('<section class="race-hero"><div class="rh-trophy" data-img></div></section>'),
+    cssImage('<section class="race-hero"><span class="win-det" data-img></span></section>'),
+    ...[1, 2, 3].map(n =>
+      cssImage(`<div class="pod-row place-${n}"><div class="medal" data-img></div></div>`)
+    )
+  ]);
+  const c = document.createElement('canvas');
+  c.width = CARD_W;
+  c.height = CARD_H;
+  const ctx = c.getContext('2d'),
+    rtl = g.lang === 'ar',
+    F = (size, w = 800) => `${w} ${size}px Baloo, system-ui, sans-serif`;
+  ctx.direction = rtl ? 'rtl' : 'ltr';
+  // fond bleu nuit à rayons
+  const bg = ctx.createLinearGradient(0, 0, 0, CARD_H);
+  bg.addColorStop(0, '#1f4fd0');
+  bg.addColorStop(0.55, '#163a9e');
+  bg.addColorStop(1, '#0b1d5a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, CARD_W, CARD_H);
+  ctx.save();
+  ctx.translate(CARD_W * 0.62, 300);
+  ctx.fillStyle = 'rgba(170, 215, 255, 0.10)';
+  for (let a = 0; a < 360; a += 14) {
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, 1600, (a * Math.PI) / 180, ((a + 5) * Math.PI) / 180);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+  // en-tête « THE NUMBER HUNT »
+  roundRect(ctx, 250, 40, 580, 90, 45);
+  ctx.fillStyle = '#0f2462';
+  ctx.fill();
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = '#ffd54a';
+  ctx.stroke();
+  ctx.fillStyle = '#ffd54a';
+  ctx.font = F(46, 900);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('THE NUMBER HUNT', 540, 87);
+  // détective et trophée
+  drawContain(ctx, det, rtl ? 690 : 20, 150, 360, 460);
+  drawContain(ctx, trophy, rtl ? 210 : 470, 150, 420, 230);
+  // bandeau vert du titre
+  ctx.font = F(70, 900);
+  const lines = wrapText(ctx, info.title || t('endTitle'), 560).slice(0, 3);
+  const bandX = rtl ? 60 : 400,
+    bandW = 620,
+    bandY = 360,
+    bandH = 60 + lines.length * 78;
+  roundRect(ctx, bandX, bandY, bandW, bandH, 40);
+  const gr = ctx.createLinearGradient(0, bandY, 0, bandY + bandH);
+  gr.addColorStop(0, '#2bbd62');
+  gr.addColorStop(1, '#0f7a37');
+  ctx.fillStyle = gr;
+  ctx.fill();
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = '#ffd54a';
+  ctx.stroke();
+  ctx.fillStyle = '#fff';
+  ctx.shadowColor = '#0b5a28';
+  ctx.shadowOffsetY = 5;
+  lines.forEach((l, i) => ctx.fillText(l, bandX + bandW / 2, bandY + 70 + i * 78));
+  ctx.shadowColor = 'transparent';
+  ctx.shadowOffsetY = 0;
+  // numéro caché (cartouche crème)
+  let y = Math.max(bandY + bandH, 610) + 40;
+  if (info.caught) {
+    roundRect(ctx, 60, y, 960, 100, 30);
+    ctx.fillStyle = '#fff6dd';
+    ctx.fill();
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = '#ffc83d';
+    ctx.stroke();
+    ctx.fillStyle = '#14205a';
+    ctx.font = F(46, 800);
+    ctx.fillText(wrapText(ctx, info.caught.trim(), 900)[0], 540, y + 52);
+    y += 130;
+  }
+  // podium
+  const medals = [m1, m2, m3];
+  for (const r of info.rows) {
+    const h = 120;
+    roundRect(ctx, 60, y, 960, h, 30);
+    ctx.fillStyle = r.place === 1 ? '#1f4fd0' : '#12307f';
+    ctx.fill();
+    ctx.lineWidth = r.place === 1 ? 7 : 3;
+    ctx.strokeStyle = r.place === 1 ? '#ffd54a' : 'rgba(111, 240, 255, 0.7)';
+    ctx.stroke();
+    drawContain(ctx, medals[Math.min(r.place, 3) - 1], rtl ? 900 : 80, y + 10, 100, 100);
+    ctx.textAlign = rtl ? 'right' : 'left';
+    const tx = rtl ? 870 : 210;
+    ctx.fillStyle = '#fff';
+    ctx.font = F(52, 900);
+    ctx.fillText(r.name.trim().slice(0, 22), tx, y + 42);
+    ctx.fillStyle = '#cfe0ff';
+    ctx.font = F(32, 700);
+    ctx.fillText(wrapText(ctx, r.line.trim(), 780)[0] || '', tx, y + 88);
+    ctx.textAlign = 'center';
+    y += h + 18;
+  }
+  // série + pied de carte
+  if (info.series) {
+    ctx.fillStyle = '#ffe08a';
+    ctx.font = F(40, 800);
+    ctx.fillText(info.series.trim(), 540, Math.min(y + 30, CARD_H - 150));
+  }
+  ctx.fillStyle = '#fff';
+  ctx.font = F(36, 700);
+  ctx.fillText(t('shareFooter'), 540, CARD_H - 70);
+  return c;
+}
+/** Bouton « Partager » des écrans de victoire. */
+async function shareVictory() {
+  if (shareVictory.busy) return;
+  shareVictory.busy = true;
+  try {
+    const canvas = await drawVictoryCard(),
+      url = canvas.toDataURL('image/png'),
+      text = t('shareText') + ' ' + SHARE_LINK;
+    const bridge = window.NumeroShare;
+    if (bridge && typeof bridge.shareImage === 'function') {
+      bridge.shareImage(url.split(',')[1], text);
+      return;
+    }
+    try {
+      const blob = await (await fetch(url)).blob(),
+        file = new File([blob], 'the-number-hunt.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text });
+        return;
+      }
+    } catch (e) {
+      // partage refusé ou impossible : on télécharge l'image
+    }
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'the-number-hunt.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } finally {
+    shareVictory.busy = false;
+  }
+}
+/** Bouton rond « Partager » (bleu glossy, icône dessinée), à côté de Rejouer. */
+const shareButton = () =>
+  `<button class="share-btn" id="shareWin" type="button" aria-label="${esc(t('shareBtn'))}" title="${esc(t('shareBtn'))}"></button>`;
 
 /* ---- 13-modals.js ---- */
 /*
@@ -19530,6 +19989,21 @@ const netTransport = () => (typeof window.NumeroNet === 'object' && window.Numer
  *   role 'client' : code, seat, token, lobby (copie), hostName
  */
 let net = { role: null };
+/** V9.18 : parties trouvées sur le Wi-Fi { code: prénom de l'hôte } (recherche pendant l'écran « Rejoindre »). */
+let netRooms = {};
+let netScanning = false;
+function netScan(on) {
+  const tr = netTransport();
+  if (!tr || typeof tr.scanStart !== 'function' || netScanning === on) return;
+  netScanning = on;
+  if (!on) netRooms = {};
+  try {
+    if (on) tr.scanStart();
+    else tr.scanStop();
+  } catch (e) {
+    netScanning = false; // version de l'application sans recherche : on garde la saisie du code
+  }
+}
 
 /** C'est à ce téléphone de jouer ? (toujours vrai hors multijoueur Wi-Fi) */
 const myTurn = () => !g.net || active() === g.net.seat;
@@ -19569,7 +20043,7 @@ function netCreate() {
   };
   g.screen = 'lan';
   g.lan = { view: 'hostLobby', error: null };
-  tr.hostStart(net.code);
+  tr.hostStart(net.code, netName()); // V9.18 : le prénom de l'hôte est annoncé (« Partie de Zied »)
   if (tr.keepAwake) tr.keepAwake(true);
   render();
 }
@@ -19843,6 +20317,7 @@ function netJoin(code) {
   }
   net = { role: 'client', code, seat: null, token: net.code === code ? net.token : null, lobby: [] };
   g.lan = { view: 'joining', error: null };
+  netScanning = false; // joinStart arrête aussi la recherche (une seule recherche à la fois)
   tr.joinStart(code);
   if (tr.keepAwake) tr.keepAwake(true);
   render();
@@ -19923,6 +20398,14 @@ window.__netEvent = raw => {
   try {
     e = typeof raw === 'string' ? JSON.parse(raw) : raw;
   } catch (err) {
+    return;
+  }
+  if (e && (e.type === 'room' || e.type === 'roomLost')) {
+    // V9.18 : une partie apparaît / disparaît sur le Wi-Fi
+    if (!/^\d{4}$/.test(String(e.code))) return;
+    if (e.type === 'room') netRooms[e.code] = String(e.name || '').slice(0, 20);
+    else delete netRooms[e.code];
+    if (g.lan && g.lan.view === 'join') render();
     return;
   }
   if (!e || !net.role) return;
@@ -20038,7 +20521,7 @@ function lanScreen() {
   else if (v === 'hostLobby')
     body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div>${netRulesPicker()}${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < 2 ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
   else if (v === 'join' || v === 'joining')
-    body = `${nameField}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
+    body = `${nameField}${v === 'join' ? netRoomsList() : ''}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else
     body = `<p class="sub">✅ ${t('netConnected')}</p>${net.rules ? `<p class="net-rules">${netRulesText(net.rules.level, net.rules.mode, net.rules.series)}</p>` : ''}${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
   return `<header class="top">${brand()}<button class="mini-btn" id="netCancelTop">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel net-panel"><h1 class="settings-title">📶 ${t('netTitle')}</h1>${body}</section>`;
@@ -20079,6 +20562,17 @@ function netRulesPicker() {
     )
     .join('');
   return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}</div>`;
+}
+/** V9.18 : parties trouvées sur ce Wi-Fi, à rejoindre d'un toucher (le code reste possible en dessous). */
+function netRoomsList() {
+  if (!netScanning) return '';
+  const rooms = Object.entries(netRooms);
+  return `<div class="net-rooms"><p class="sub small">${rooms.length ? t('netRoomsFound') : '🔎 ' + t('netRoomsSearching')}</p>${rooms
+    .map(
+      ([c, n]) =>
+        `<button class="bigbtn net-room" data-room="${c}"><i class="ic ic-wifi" aria-hidden="true"></i><span>${esc(t('netRoomOf', { player: n || t('netDefaultName') }))}</span><small dir="ltr">${c}</small></button>`
+    )
+    .join('')}</div>`;
 }
 /** Fenêtres réseau : attente d'un joueur déconnecté (partagée), connexion perdue (locale). */
 function netModalView() {
@@ -20149,6 +20643,15 @@ function bindNet(click) {
   click('netQuitGame', leave);
   click('netLaunch', netLaunch);
   click('netWithout', netContinueWithout);
+  // V9.18 : recherche des parties proches seulement sur l'écran « Rejoindre »
+  netScan(g.screen === 'lan' && !!g.lan && g.lan.view === 'join');
+  document.querySelectorAll('[data-room]').forEach(b =>
+    b.addEventListener('click', () => {
+      const input = document.getElementById('netName');
+      if (input) g.myName = input.value;
+      netJoin(b.dataset.room);
+    })
+  );
   document.querySelectorAll('[data-netlevel]').forEach(b =>
     b.addEventListener('click', () => {
       if (net.role !== 'host' || g.net) return;
@@ -20468,6 +20971,7 @@ function bind() {
     g.seriesContinue = true; // « Manche suivante » : la série continue (si elle n'est pas finie)
     start();
   });
+  click('shareWin', () => shareVictory()); // V9.18 : carte de victoire
   click('quitYes', () => {
     g.quitSeen = false;
     if (g.net) return netLeave();
@@ -20855,6 +21359,8 @@ window.__numero = {
   maxN,
   qbyid,
   netHeartbeat,
+  drawVictoryCard,
+  shareVictory,
   get netState() {
     return net;
   },
