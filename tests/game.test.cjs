@@ -5091,6 +5091,89 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     for (const c of ctxs) await c.close();
   }
 
+  // V9.21 : défi du jour (même départ et mêmes sauts pour tous), coup de pouce, coup décisif
+  {
+    const mk = async () => {
+      const r = await fresh(browser);
+      await r.page.evaluate(() => localStorage.clear());
+      return r;
+    };
+    const [A, B] = [await mk(), await mk()];
+    const play = (pg, k) =>
+      pg.evaluate(k => {
+        const N = window.__numero;
+        Object.assign(N.state, { screen: 'home', modal: 'challenge' });
+        N.render();
+        document.getElementById('dailyGo').click();
+        const out = [N.state.secret, N.state.level, N.state.players];
+        for (let i = 0; i < 4; i++) {
+          N.state.modal = null;
+          N.ask(N.state.choices[(i + k) % 3]);
+          N.nextTurn();
+          out.push(N.state.secret);
+          N.guess(N.state.secret === 1 ? 2 : 1);
+          N.nextTurn();
+          out.push(N.state.secret);
+        }
+        return out.join();
+      }, k);
+    const [ra, rb] = [await play(A.page, 0), await play(B.page, 2)];
+    check(
+      ra === rb && /,malin,1,/.test(ra),
+      `Défi du jour : même départ et mêmes sauts sur deux téléphones (${ra})`
+    );
+    const fin = await A.page.evaluate(() => {
+      const N = window.__numero;
+      N.state.modal = null;
+      N.ask(N.state.choices[0]);
+      N.nextTurn();
+      N.guess(N.state.secret);
+      const key = (document.querySelector('.key-clue') || {}).textContent || '';
+      N.nextTurn();
+      return {
+        key,
+        banner: (document.querySelector('.daily-banner') || {}).textContent || '',
+        store: JSON.parse(localStorage.getItem('numeroEnFuiteDailyV1'))
+      };
+    });
+    const day = Object.values(fin.store)[0];
+    check(
+      /Coup décisif/.test(fin.key),
+      `Capture : le coup décisif (dernier indice) est rappelé (${fin.key})`
+    );
+    check(
+      /Défi du jour/.test(fin.banner) && day && day.won && day.tries === 1,
+      'Défi du jour : bandeau de fin et résultat officiel enregistré'
+    );
+    await A.page.evaluate(() => {
+      const N = window.__numero;
+      Object.assign(N.state, { screen: 'home', modal: 'challenge' });
+      N.render();
+    });
+    check(
+      (await A.page.textContent('#dailyGo')).includes('5') ||
+        (await A.page.textContent('#dailyGo')).includes('Fait'),
+      'Défi du jour : le bouton affiche le résultat du jour'
+    );
+    // coup de pouce
+    const nets = await B.page.evaluate(() => {
+      const N = window.__numero;
+      Object.assign(N.state, {
+        screen: 'home',
+        modal: 'names',
+        players: 3,
+        playerBoost: [false, false, false, false]
+      });
+      N.render();
+      document.querySelector('[data-boost="1"]').click();
+      document.getElementById('namesGo').click();
+      return new Promise(r => setTimeout(() => r(N.state.netsLeft.join()), 300));
+    });
+    check(nets === '3,4,3', `Coup de pouce : un filet de plus pour le joueur 2 (${nets})`);
+    await A.ctx.close();
+    await B.ctx.close();
+  }
+
   await browser.close();
   console.log(`\nRésultat : ${passed} vérifications réussies, ${failed} échec(s).`);
   if (failed) {

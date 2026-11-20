@@ -1,5 +1,16 @@
 # Historique des versions
 
+## V9.21 — pour la famille : Défi du jour, coup de pouce, coup décisif
+
+- **📅 Défi du jour** (fenêtre « Défi solo ») : même numéro de départ et mêmes sauts pour tout le monde ce jour-là,
+  sans Internet (tout vient de la date). Niveau Moyen, solo. Le premier essai du jour est le résultat officiel
+  (« Fait : trouvé en 5 tours »), les suivants sont des entraînements. Bandeau « comparez vos tours ! » à la fin.
+  Clé à part `numeroEnFuiteDailyV1` (60 derniers jours).
+- **🕸️+1 Coup de pouce** (fenêtre des prénoms, à plusieurs) : un filet de plus pour un joueur (ex. un enfant
+  contre un adulte), sans changer les règles des autres.
+- **🔑 Coup décisif** : à chaque capture, le dernier indice qui y a mené est rappelé (« Est-il pair ? OUI (Zied) »).
+- Correction : l'affichage des filets restants (●○) ne plante plus avec plus de 3 filets.
+
 ## V9.20 — Duel express (Wi-Fi)
 
 - Nouveau mode **⚡ Duel express** dans la salle Wi-Fi (2 à 4 joueurs, 8 manches, 3 à 5 minutes). Tout le monde joue

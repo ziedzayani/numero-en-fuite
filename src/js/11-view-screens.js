@@ -248,7 +248,7 @@ function questionView() {
            return `<button class="numtile ${showPossible() ? (g.candidates.includes(n) ? 'possible' : 'impossible') : ''} ${g.sel === n ? 'sel' : ''} ${inNet ? 'in-net' : ''} ${cap ? 'hit-' + g.capturing.mode : ''}" data-guess="${n}" aria-pressed="${g.sel === n}" aria-label="${n}">${n}${cap && g.capturing.mode === 'precise' ? '<i class="loupe-fx" aria-hidden="true"></i>' : ''}</button>`;
          })
          .join('')}</div>`
- }<div class="capture-row"><button class="capbtn precise" id="capPrecise" ${g.sel == null || g.capturing ? 'disabled' : ''}><span>🎯 ${g.sel != null ? t('captGoPrecise', { n: g.sel }) : t('captPrecise')}</span><small>${g.mode === 'challenge' ? t('chMissPrecise') : isRace() ? (g.players === 1 ? '' : '🏆') : `<bdi dir="ltr">+${SCORE.precise} / −${-SCORE.miss}</bdi>`}</small></button><button class="capbtn net ${netsLeft() ? '' : 'empty'}" id="capNet" ${g.sel == null || g.capturing || !netsLeft() ? 'disabled' : ''}><span>🕸️ ${!netsLeft() ? t('netsNone') : g.sel != null ? `<bdi dir="ltr">${netRange(g.sel).join('·')}</bdi>` : t('captNet')}</span><b class="nets-left" dir="ltr" title="${t('netsLeft', { n: netsLeft() })}" aria-label="${t('netsLeft', { n: netsLeft() })}">${'●'.repeat(netsLeft())}${'○'.repeat(NETS_MAX - netsLeft())}</b><small>${g.mode === 'challenge' ? t('chMissNet') : isRace() ? t('captNumbers', { k: netSize() }) : `${t('captNumbers', { k: netSize() })} · <bdi dir="ltr">+${SCORE.net} / −${netSize()}</bdi>`}</small></button></div></div>`;
+ }<div class="capture-row"><button class="capbtn precise" id="capPrecise" ${g.sel == null || g.capturing ? 'disabled' : ''}><span>🎯 ${g.sel != null ? t('captGoPrecise', { n: g.sel }) : t('captPrecise')}</span><small>${g.mode === 'challenge' ? t('chMissPrecise') : isRace() ? (g.players === 1 ? '' : '🏆') : `<bdi dir="ltr">+${SCORE.precise} / −${-SCORE.miss}</bdi>`}</small></button><button class="capbtn net ${netsLeft() ? '' : 'empty'}" id="capNet" ${g.sel == null || g.capturing || !netsLeft() ? 'disabled' : ''}><span>🕸️ ${!netsLeft() ? t('netsNone') : g.sel != null ? `<bdi dir="ltr">${netRange(g.sel).join('·')}</bdi>` : t('captNet')}</span><b class="nets-left" dir="ltr" title="${t('netsLeft', { n: netsLeft() })}" aria-label="${t('netsLeft', { n: netsLeft() })}">${'●'.repeat(netsLeft())}${'○'.repeat(Math.max(0, NETS_MAX - netsLeft()))}</b><small>${g.mode === 'challenge' ? t('chMissNet') : isRace() ? t('captNumbers', { k: netSize() }) : `${t('captNumbers', { k: netSize() })} · <bdi dir="ltr">+${SCORE.net} / −${netSize()}</bdi>`}</small></button></div></div>`;
 }
 function lens(n) {
   return `<div class="found-lens" aria-hidden="true"><span class="lens-glass"><b>${n}</b></span><i class="lens-handle"></i></div>`;
@@ -445,6 +445,12 @@ function resultView() {
     x.type === 'math' && x.correct && !x.pick
       ? `<div class="fb-points">⭐ ${g.mode === 'challenge' ? '+10 ' + t('pts') : '+1'}</div>`
       : '';
+  // V9.21 : coup décisif — l'indice qui a mené à la capture
+  if (['found', 'netHit'].includes(x.type)) {
+    const k = keyClue();
+    if (k)
+      desc += `<span class="key-clue">🔑 ${t('keyClue', { clue: esc(k.text), player: esc(pname(k.player)) })}</span>`;
+  }
   // V9.19 : pronostics gagnants des spectateurs (Wi-Fi)
   if ((g.pronoHits || []).length && ['found', 'netHit', 'wrong', 'netMiss', 'timeout'].includes(x.type))
     desc += `<span class="prono-hit">🔮 ${t('pronoHit', { players: g.pronoHits.map(pname).join(', ') })}</span>`;
@@ -493,6 +499,23 @@ function pronoOverlay() {
     )
     .join('');
   return `<div class="modal-back prono-back" role="dialog" aria-modal="true"><div class="modal prono-modal"><h2>🔮 ${t('pronoTitle', { player: pname(active()) })}</h2><p class="sub small">${t('pronoHint')}</p><div class="prono-grid" dir="ltr" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells}</div><button class="bigbtn light" id="pronoClose" type="button">${t('close')}</button></div></div>`;
+}
+/** V9.21 : dernier indice (question, ou calcul juste) avant la capture qui vient d'avoir lieu. */
+function keyClue() {
+  const h = g.history || [];
+  for (let i = h.length - 2; i >= 0; i--) {
+    const e = h[i];
+    if (['found', 'netHit'].includes(e.type)) return null;
+    const q = e.qid ? qbyid(e.qid) : null;
+    if (e.type === 'question' && q)
+      return { text: `${q.text} ${e.answer ? t('yesAnswer') : t('noAnswer')}`, player: e.player };
+    if (e.type === 'math' && e.correct && e.answer != null)
+      return {
+        text: `${q ? q.text : t('qGreater', { k: e.math.threshold })} ${e.answer ? t('yesAnswer') : t('noAnswer')}`,
+        player: e.player
+      };
+  }
+  return null;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {
@@ -759,7 +782,7 @@ function endSoloCareer(res) {
     : `<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('soloLoseEncourage')}</small>${escapedNote(false)}</div></div>`;
   // XP gagnée, badges et missions : une seule ligne de pastilles
   const xp = `<span class="reward-chip xp" title="${esc(t('xpGained'))}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b>${res.level && !res.helped ? ` <small>· ${t(LEVEL_NAME_KEYS[res.level])}</small>` : ''}</span>`;
-  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head ${won ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head ${won ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>${dailyBanner()}
  <section class="panel centered solo-card career-card ec-card">${top}${rewardLine(res, xp)}${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
  <div class="ec-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="openOffice" aria-label="${esc(t('officeBtn'))}">📚</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }

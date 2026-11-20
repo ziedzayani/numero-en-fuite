@@ -112,7 +112,8 @@ function nextMove() {
   } else {
     const range = g.level === 'junior' ? 1 : 2;
     m = 0;
-    while (m === 0) m = rnd(2 * range + 1) - range;
+    const draw = g.daily ? dailyRnd : rnd; // V9.21 : sauts du défi du jour identiques pour tous
+    while (m === 0) m = draw(2 * range + 1) - range;
     applyShift(m);
   }
   g.hunt.steps.push({ from, to: g.secret, shift: m, ev: null });

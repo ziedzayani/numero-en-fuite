@@ -33,6 +33,9 @@ const initial = () => ({
   seriesPref: 0, // V9.16 : 0 = une seule partie, 2 / 3 = « premier à 2 / 3 victoires »
   series: null,
   netReady: [], // Wi-Fi : joueurs prêts pour la revanche
+  daily: null, // V9.21 : défi du jour (date « AAAA-MM-JJ ») ; dailyStep = n° du prochain tirage du jour
+  dailyStep: 0,
+  playerBoost: [false, false, false, false], // V9.21 : coup de pouce (1 filet de plus) par joueur
   duel: null, // V9.20 : Duel express (Wi-Fi) — manche, choix secrets, révélation
   duelElapsed: 0,
   prono: {}, // V9.19 Wi-Fi : pronostics secrets des spectateurs { siège: [numéros] }
@@ -272,6 +275,8 @@ function load() {
       g.netsLeft = Array(g.players).fill(NETS_MAX);
     g.starter = Number.isInteger(g.starter) ? g.starter : 0;
     g.playerHelp = Array.from({ length: 4 }, (_, i) => !!(Array.isArray(g.playerHelp) && g.playerHelp[i]));
+    g.playerBoost = Array.from({ length: 4 }, (_, i) => !!(Array.isArray(g.playerBoost) && g.playerBoost[i]));
+    if (g.daily && !/^\d{4}-\d{2}-\d{2}$/.test(g.daily)) g.daily = null;
     g.names = Array.from({ length: 4 }, (_, i) =>
       Array.isArray(g.names) && typeof g.names[i] === 'string' ? g.names[i].slice(0, 12) : ''
     );

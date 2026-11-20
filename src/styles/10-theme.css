@@ -4387,3 +4387,53 @@ html[lang='ja'] .pause-card .pz-msg {
     padding-bottom: 2px;
   }
 }
+/* ===== V9.21 : défi du jour, coup de pouce, coup décisif ===== */
+.daily-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 6px 0 8px;
+  padding: 6px 14px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #1a3a9a, #0f2462);
+  border: 2px solid #ffd54a;
+  box-shadow: 0 0 12px rgba(255, 214, 80, 0.45);
+  color: #fff;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+.daily-banner b {
+  color: #ffe08a;
+  font-size: 14px;
+}
+.boost-chip {
+  padding-inline: 8px !important;
+  font-weight: 900;
+}
+.key-clue {
+  display: block;
+  margin-top: 4px;
+  color: #7a4d00;
+  font-size: 0.92em;
+  font-weight: 800;
+}
+.fb-card .key-clue,
+.fb-card .prono-hit {
+  color: #ffe08a;
+  text-shadow: 0 1px 0 rgba(5, 20, 70, 0.6);
+}
+/* fenêtre du Défi avec le Défi du jour : 3 boutons plus compacts */
+.modal:has(.daily-opt) .ch-opt {
+  padding-top: 5px;
+  padding-bottom: 6px;
+  line-height: 1.15;
+}
+.modal:has(.daily-opt) .ch-opt small {
+  margin-top: 1px;
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+.modal:has(.daily-opt) .modal-actions {
+  gap: 8px;
+}

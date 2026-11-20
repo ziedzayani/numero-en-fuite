@@ -131,7 +131,9 @@ function start(skipHandoff = false) {
     myName,
     seriesPref,
     series,
-    seriesContinue
+    seriesContinue,
+    dailyStart,
+    playerBoost
   } = g;
   g = initial();
   g.players = players;
@@ -165,12 +167,23 @@ function start(skipHandoff = false) {
       ? { ...series, wins: series.wins.slice(), round: series.round + 1, last: null }
       : { target: g.seriesPref, wins: Array(players).fill(0), round: 1, key, done: false, last: null };
   } else g.series = null;
-  g.netsLeft = Array(players).fill(NETS_MAX);
+  // V9.21 : coup de pouce (à plusieurs) = un filet de plus pour ce joueur
+  g.playerBoost = Array.from(
+    { length: 4 },
+    (_, i) => !!(players > 1 && Array.isArray(playerBoost) && playerBoost[i])
+  );
+  g.netsLeft = Array.from({ length: players }, (_, i) => NETS_MAX + (g.playerBoost[i] ? 1 : 0));
   g.screen = 'game';
   g.inGame = true;
   g.modal = players > 1 && skipHandoff !== true ? 'handoff' : null;
   g.limit = TURN_LIMITS[players]; // V8.14 : 10 essais chacun à 2 (au lieu de 8)
   g.secret = 1 + rnd(maxN());
+  // V9.21 : défi du jour — même départ et mêmes sauts pour tout le monde ce jour-là
+  g.daily = players === 1 && dailyStart ? dailyStart : null;
+  if (g.daily) {
+    g.secret = dailySecret(g.daily, maxN());
+    g.dailyStep = 0;
+  }
   g.scores = Array(players).fill(0);
   g.stars = Array(players).fill(0);
   g.candidates = all(maxN());

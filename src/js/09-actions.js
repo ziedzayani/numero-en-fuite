@@ -440,6 +440,7 @@ function advanceTurn() {
     g.soloSecret = g.secret;
     revealEscaped();
     if (g.players === 1 && g.mode !== 'challenge') settleSolo(false); // 12 tours joués : +10 XP
+    if (g.players === 1) dailyRecord(false);
     g.screen = 'end';
     g.inGame = false;
     g.modal = null;
@@ -496,6 +497,7 @@ function nextTurn() {
       }
     }
     settleSolo(true); // score, étoiles, record par niveau, XP (une seule fois par partie)
+    dailyRecord(true);
     g.screen = 'end';
     g.inGame = false;
     g.modal = null;

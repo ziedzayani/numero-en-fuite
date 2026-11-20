@@ -133,6 +133,7 @@ function netLaunch(relaunch = false) {
   g.players = seats.length;
   g.names = net.lobby.map(p => p.name);
   g.playerHelp = [false, false, false, false];
+  g.playerBoost = [false, false, false, false];
   g.seriesContinue = relaunch; // la série continue à la revanche (mêmes joueurs)
   start(true);
   g.net = { role: 'host', seat: 0 };

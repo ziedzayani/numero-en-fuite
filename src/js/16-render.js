@@ -256,6 +256,21 @@ function bind() {
       save();
     })
   );
+  app.querySelectorAll('[data-boost]').forEach(b =>
+    b.addEventListener('click', () => {
+      const i = Number(b.dataset.boost);
+      g.playerBoost = Array.from({ length: 4 }, (_, k) => !!(g.playerBoost || [])[k]);
+      g.playerBoost[i] = !g.playerBoost[i];
+      b.classList.toggle('on', g.playerBoost[i]);
+      b.setAttribute('aria-checked', g.playerBoost[i]);
+      sfx('tap');
+      save();
+    })
+  );
+  click('dailyGo', () => {
+    sfx('tap');
+    startDaily(); // V9.21
+  });
   app.querySelectorAll('[data-series]').forEach(b =>
     b.addEventListener('click', () => {
       g.seriesPref = Number(b.dataset.series) || 0;

@@ -11494,6 +11494,56 @@ html[lang='ja'] .pause-card .pz-msg {
     padding-bottom: 2px;
   }
 }
+/* ===== V9.21 : défi du jour, coup de pouce, coup décisif ===== */
+.daily-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 6px 0 8px;
+  padding: 6px 14px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #1a3a9a, #0f2462);
+  border: 2px solid #ffd54a;
+  box-shadow: 0 0 12px rgba(255, 214, 80, 0.45);
+  color: #fff;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+.daily-banner b {
+  color: #ffe08a;
+  font-size: 14px;
+}
+.boost-chip {
+  padding-inline: 8px !important;
+  font-weight: 900;
+}
+.key-clue {
+  display: block;
+  margin-top: 4px;
+  color: #7a4d00;
+  font-size: 0.92em;
+  font-weight: 800;
+}
+.fb-card .key-clue,
+.fb-card .prono-hit {
+  color: #ffe08a;
+  text-shadow: 0 1px 0 rgba(5, 20, 70, 0.6);
+}
+/* fenêtre du Défi avec le Défi du jour : 3 boutons plus compacts */
+.modal:has(.daily-opt) .ch-opt {
+  padding-top: 5px;
+  padding-bottom: 6px;
+  line-height: 1.15;
+}
+.modal:has(.daily-opt) .ch-opt small {
+  margin-top: 1px;
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+.modal:has(.daily-opt) .modal-actions {
+  gap: 8px;
+}
 
     </style>
   </head>
@@ -11584,7 +11634,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.20";
+const APP_VERSION = "9.21";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -11638,6 +11688,7 @@ const dictionaries = {
   "badge_net": "Maître du filet",
   "bonusClue": "Ton indice bonus",
   "bonusDeduction": "🧠 +1 bonus déduction (question posée) !",
+  "boostLabel": "Coup de pouce : un filet de plus",
   "bravo": "BRAVO !",
   "cancel": "Annuler",
   "captGoPrecise": "Attraper le {n}",
@@ -11700,6 +11751,12 @@ const dictionaries = {
   "conMath": "chrono, il bouge",
   "conQuestion": "il bouge ensuite",
   "continueGuess": "Choisir mon numéro",
+  "dailyCompare": "Même numéro pour toute la famille aujourd’hui : comparez vos tours !",
+  "dailyDoneLose": "Fait : il t’a échappé",
+  "dailyDoneWin": "Fait : trouvé en {n} tours",
+  "dailyPractice": "Entraînement (résultat du jour : {res})",
+  "dailySub": "Le même numéro pour toute la famille aujourd’hui",
+  "dailyTitle": "Défi du jour",
   "duelAsk": "Choisis un numéro, puis ta capture (en secret) :",
   "duelCaught": "Attrapé ! Il était sur le {n}.",
   "duelClue": "Indice pour tous",
@@ -11740,6 +11797,7 @@ const dictionaries = {
   "handoffTitle": "Au tour de {player} !",
   "helpAsk": "Sur demande",
   "helpAuto": "Automatique",
+  "helpBoostHint": "💡 Aide = numéros possibles en vert · 🕸️+1 = un filet de plus (coup de pouce).",
   "helpHint": "Montre les numéros encore possibles. Désactivée par défaut : c’est au détective de déduire !",
   "helpNoXp": "Avec l’aide : ni XP, ni badge, ni mission.",
   "helpOff": "Désactivée",
@@ -11759,6 +11817,7 @@ const dictionaries = {
   "homeMulti": "À plusieurs",
   "homeWifi": "Wi-Fi",
   "infoBtn": "Avantages et risques",
+  "keyClue": "Coup décisif : {clue} ({player})",
   "keypadHint": "Tape un numéro de 1 à {max}, puis choisis ta capture.",
   "language": "Langue du jeu",
   "languageHint": "Le changement s’applique immédiatement, même pendant une partie.",
@@ -12250,6 +12309,7 @@ const dictionaries = {
   "badge_net": "Net master",
   "bonusClue": "Your bonus hint",
   "bonusDeduction": "🧠 +1 deduction bonus (you asked a question)!",
+  "boostLabel": "Head start: one extra net",
   "bravo": "GREAT JOB!",
   "cancel": "Cancel",
   "captGoPrecise": "Catch {n}",
@@ -12312,6 +12372,12 @@ const dictionaries = {
   "conMath": "timer, it moves",
   "conQuestion": "it moves afterwards",
   "continueGuess": "Choose my number",
+  "dailyCompare": "Same number for the whole family today: compare your turns!",
+  "dailyDoneLose": "Done: it got away",
+  "dailyDoneWin": "Done: found in {n} turns",
+  "dailyPractice": "Practice (today’s result: {res})",
+  "dailySub": "The same number for the whole family today",
+  "dailyTitle": "Daily challenge",
   "duelAsk": "Pick a number, then your catch (in secret):",
   "duelCaught": "Caught! It was on {n}.",
   "duelClue": "Clue for everyone",
@@ -12352,6 +12418,7 @@ const dictionaries = {
   "handoffTitle": "{player}, it’s your turn!",
   "helpAsk": "On request",
   "helpAuto": "Automatic",
+  "helpBoostHint": "💡 Help = possible numbers in green · 🕸️+1 = one extra net (head start).",
   "helpHint": "Shows the numbers still possible. Off by default: the detective has to work it out!",
   "helpNoXp": "With help: no XP, badges or missions.",
   "helpOff": "Off",
@@ -12371,6 +12438,7 @@ const dictionaries = {
   "homeMulti": "Multiplayer",
   "homeWifi": "Wi-Fi",
   "infoBtn": "Pros and risks",
+  "keyClue": "Key clue: {clue} ({player})",
   "keypadHint": "Type a number from 1 to {max}, then choose your capture.",
   "language": "Game language",
   "languageHint": "Language changes instantly, even during a game.",
@@ -12862,6 +12930,7 @@ const dictionaries = {
   "badge_net": "سيد الشبكة",
   "bonusClue": "تلميحك الإضافي",
   "bonusDeduction": "🧠 +1 مكافأة استنتاج (طرحت سؤالًا)!",
+  "boostLabel": "دفعة: شبكة إضافية",
   "bravo": "أحسنت!",
   "cancel": "إلغاء",
   "captGoPrecise": "أمسك {n}",
@@ -12924,6 +12993,12 @@ const dictionaries = {
   "conMath": "مؤقّت، ويتحرك",
   "conQuestion": "يتحرك بعدها",
   "continueGuess": "اختيار رقمي",
+  "dailyCompare": "الرقم نفسه للعائلة كلها اليوم: قارنوا أدواركم!",
+  "dailyDoneLose": "تم: لقد هرب",
+  "dailyDoneWin": "تم: وُجد في {n} أدوار",
+  "dailyPractice": "تدريب (نتيجة اليوم: {res})",
+  "dailySub": "الرقم نفسه للعائلة كلها اليوم",
+  "dailyTitle": "تحدي اليوم",
   "duelAsk": "اختر رقمًا، ثم طريقة الإمساك (سرًّا):",
   "duelCaught": "أُمسك! كان على {n}.",
   "duelClue": "تلميح للجميع",
@@ -12964,6 +13039,7 @@ const dictionaries = {
   "handoffTitle": "دور {player}!",
   "helpAsk": "عند الطلب",
   "helpAuto": "تلقائي",
+  "helpBoostHint": "💡 مساعدة = الأرقام الممكنة بالأخضر · 🕸️+1 = شبكة إضافية (دفعة).",
   "helpHint": "يعرض الأرقام التي ما زالت محتملة. متوقفة افتراضيًا: على المحقق أن يستنتج!",
   "helpNoXp": "مع المساعدة: لا خبرة ولا أوسمة ولا مهام.",
   "helpOff": "متوقفة",
@@ -12983,6 +13059,7 @@ const dictionaries = {
   "homeMulti": "عدة لاعبين",
   "homeWifi": "واي فاي",
   "infoBtn": "المزايا والمخاطر",
+  "keyClue": "التلميح الحاسم: {clue} ({player})",
   "keypadHint": "اكتب رقمًا من 1 إلى {max}، ثم اختر طريقة الإمساك.",
   "language": "لغة اللعبة",
   "languageHint": "تتغير اللغة فورًا، حتى أثناء اللعب.",
@@ -13474,6 +13551,7 @@ const dictionaries = {
   "badge_net": "Maestro de la red",
   "bonusClue": "Tu pista extra",
   "bonusDeduction": "🧠 ¡+1 de bonus por deducción (hiciste una pregunta)!",
+  "boostLabel": "Empujón: una red más",
   "bravo": "¡BRAVO!",
   "cancel": "Cancelar",
   "captGoPrecise": "Atrapar el {n}",
@@ -13536,6 +13614,12 @@ const dictionaries = {
   "conMath": "cronómetro, se mueve",
   "conQuestion": "se mueve después",
   "continueGuess": "Elegir mi número",
+  "dailyCompare": "El mismo número para toda la familia hoy: ¡comparad vuestros turnos!",
+  "dailyDoneLose": "Hecho: se te escapó",
+  "dailyDoneWin": "Hecho: encontrado en {n} turnos",
+  "dailyPractice": "Práctica (resultado del día: {res})",
+  "dailySub": "El mismo número para toda la familia hoy",
+  "dailyTitle": "Reto del día",
   "duelAsk": "Elige un número y tu captura (en secreto):",
   "duelCaught": "¡Atrapado! Estaba en el {n}.",
   "duelClue": "Pista para todos",
@@ -13576,6 +13660,7 @@ const dictionaries = {
   "handoffTitle": "¡{player}, te toca!",
   "helpAsk": "A petición",
   "helpAuto": "Automática",
+  "helpBoostHint": "💡 Ayuda = números posibles en verde · 🕸️+1 = una red más (empujón).",
   "helpHint": "Muestra los números aún posibles. Desactivada por defecto: ¡el detective tiene que deducirlo!",
   "helpNoXp": "Con ayuda: sin XP, insignias ni misiones.",
   "helpOff": "Desactivada",
@@ -13595,6 +13680,7 @@ const dictionaries = {
   "homeMulti": "Varios jugadores",
   "homeWifi": "Wi-Fi",
   "infoBtn": "Ventajas y riesgos",
+  "keyClue": "Pista clave: {clue} ({player})",
   "keypadHint": "Escribe un número del 1 al {max} y elige tu captura.",
   "language": "Idioma del juego",
   "languageHint": "El idioma cambia al instante, incluso durante una partida.",
@@ -14086,6 +14172,7 @@ const dictionaries = {
   "badge_net": "Maestro della rete",
   "bonusClue": "Il tuo indizio bonus",
   "bonusDeduction": "🧠 +1 bonus deduzione (hai fatto una domanda)!",
+  "boostLabel": "Spintarella: una rete in più",
   "bravo": "BRAVO!",
   "cancel": "Annulla",
   "captGoPrecise": "Cattura il {n}",
@@ -14148,6 +14235,12 @@ const dictionaries = {
   "conMath": "cronometro, si muove",
   "conQuestion": "si muove dopo",
   "continueGuess": "Scegli il mio numero",
+  "dailyCompare": "Stesso numero per tutta la famiglia oggi: confrontate i turni!",
+  "dailyDoneLose": "Fatto: ti è sfuggito",
+  "dailyDoneWin": "Fatto: trovato in {n} turni",
+  "dailyPractice": "Allenamento (risultato del giorno: {res})",
+  "dailySub": "Lo stesso numero per tutta la famiglia oggi",
+  "dailyTitle": "Sfida del giorno",
   "duelAsk": "Scegli un numero, poi la cattura (in segreto):",
   "duelCaught": "Preso! Era sul {n}.",
   "duelClue": "Indizio per tutti",
@@ -14188,6 +14281,7 @@ const dictionaries = {
   "handoffTitle": "{player}, tocca a te!",
   "helpAsk": "Su richiesta",
   "helpAuto": "Automatico",
+  "helpBoostHint": "💡 Aiuto = numeri possibili in verde · 🕸️+1 = una rete in più (spintarella).",
   "helpHint": "Mostra i numeri ancora possibili. Disattivato di base: il detective deve dedurlo!",
   "helpNoXp": "Con l’aiuto: niente XP, distintivi o missioni.",
   "helpOff": "Disattivato",
@@ -14207,6 +14301,7 @@ const dictionaries = {
   "homeMulti": "In più giocatori",
   "homeWifi": "Wi-Fi",
   "infoBtn": "Vantaggi e rischi",
+  "keyClue": "Indizio decisivo: {clue} ({player})",
   "keypadHint": "Scrivi un numero da 1 a {max}, poi scegli la cattura.",
   "language": "Lingua del gioco",
   "languageHint": "La lingua cambia subito, anche durante una partita.",
@@ -14698,6 +14793,7 @@ const dictionaries = {
   "badge_net": "Netzmeister",
   "bonusClue": "Dein Bonushinweis",
   "bonusDeduction": "🧠 +1 Kombinationsbonus (du hast eine Frage gestellt)!",
+  "boostLabel": "Starthilfe: ein Netz mehr",
   "bravo": "BRAVO!",
   "cancel": "Abbrechen",
   "captGoPrecise": "Die {n} fangen",
@@ -14760,6 +14856,12 @@ const dictionaries = {
   "conMath": "Zeitlimit, sie bewegt sich",
   "conQuestion": "sie bewegt sich danach",
   "continueGuess": "Meine Zahl wählen",
+  "dailyCompare": "Heute dieselbe Zahl für die ganze Familie: vergleicht eure Runden!",
+  "dailyDoneLose": "Geschafft: sie ist entwischt",
+  "dailyDoneWin": "Geschafft: in {n} Runden gefunden",
+  "dailyPractice": "Training (Tagesergebnis: {res})",
+  "dailySub": "Heute dieselbe Zahl für die ganze Familie",
+  "dailyTitle": "Tagesrätsel",
   "duelAsk": "Wähle eine Zahl, dann deinen Fang (geheim):",
   "duelCaught": "Gefangen! Sie war auf der {n}.",
   "duelClue": "Hinweis für alle",
@@ -14800,6 +14902,7 @@ const dictionaries = {
   "handoffTitle": "{player}, du bist dran!",
   "helpAsk": "Auf Wunsch",
   "helpAuto": "Automatisch",
+  "helpBoostHint": "💡 Hilfe = mögliche Zahlen in Grün · 🕸️+1 = ein Netz mehr (Starthilfe).",
   "helpHint": "Zeigt die noch möglichen Zahlen. Standardmäßig aus: Der Detektiv soll selbst kombinieren!",
   "helpNoXp": "Mit Hilfe: keine XP, Abzeichen oder Missionen.",
   "helpOff": "Aus",
@@ -14819,6 +14922,7 @@ const dictionaries = {
   "homeMulti": "Mehrspieler",
   "homeWifi": "WLAN",
   "infoBtn": "Vorteile und Risiken",
+  "keyClue": "Entscheidender Hinweis: {clue} ({player})",
   "keypadHint": "Gib eine Zahl von 1 bis {max} ein und wähle deinen Fang.",
   "language": "Spielsprache",
   "languageHint": "Die Sprache wechselt sofort, auch mitten im Spiel.",
@@ -15310,6 +15414,7 @@ const dictionaries = {
   "badge_net": "撒网大师",
   "bonusClue": "你的额外线索",
   "bonusDeduction": "🧠 推理奖励 +1（你问了一个问题）！",
+  "boostLabel": "助力：多一张网",
   "bravo": "太棒了！",
   "cancel": "取消",
   "captGoPrecise": "抓住 {n}",
@@ -15372,6 +15477,12 @@ const dictionaries = {
   "conMath": "限时，会移动",
   "conQuestion": "之后会移动",
   "continueGuess": "选我的数字",
+  "dailyCompare": "今天全家都是同一个数字：比比谁用的轮数少！",
+  "dailyDoneLose": "已完成：它逃走了",
+  "dailyDoneWin": "已完成：{n} 轮找到",
+  "dailyPractice": "练习（今日成绩：{res}）",
+  "dailySub": "今天全家都是同一个数字",
+  "dailyTitle": "每日挑战",
   "duelAsk": "选一个数字，再选抓捕方式（保密）：",
   "duelCaught": "抓到了！它在 {n}。",
   "duelClue": "所有人的线索",
@@ -15412,6 +15523,7 @@ const dictionaries = {
   "handoffTitle": "{player}，轮到你了！",
   "helpAsk": "按需",
   "helpAuto": "自动",
+  "helpBoostHint": "💡 提示 = 可能的数字显示为绿色 · 🕸️+1 = 多一张网（助力）。",
   "helpHint": "显示仍有可能的数字。默认关闭：侦探要自己推理！",
   "helpNoXp": "使用帮助：没有经验值、徽章或任务。",
   "helpOff": "关闭",
@@ -15431,6 +15543,7 @@ const dictionaries = {
   "homeMulti": "多人",
   "homeWifi": "Wi-Fi",
   "infoBtn": "好处与风险",
+  "keyClue": "关键线索：{clue}（{player}）",
   "keypadHint": "输入 1 到 {max} 的数字，再选择捕捉方式。",
   "language": "游戏语言",
   "languageHint": "语言立即切换，游戏中也可以。",
@@ -15922,6 +16035,7 @@ const dictionaries = {
   "badge_net": "網の名人",
   "bonusClue": "ボーナスのヒント",
   "bonusDeduction": "🧠 推理ボーナス +1（質問したね）！",
+  "boostLabel": "おまけ：あみが 1 つ多い",
   "bravo": "すごい！",
   "cancel": "キャンセル",
   "captGoPrecise": "{n} をつかまえる",
@@ -15984,6 +16098,12 @@ const dictionaries = {
   "conMath": "時間制限あり、動く",
   "conQuestion": "そのあと動く",
   "continueGuess": "数字を選ぶ",
+  "dailyCompare": "今日は家族みんな同じ数字：ターン数をくらべよう！",
+  "dailyDoneLose": "クリア：にげられた",
+  "dailyDoneWin": "クリア：{n} ターンで発見",
+  "dailyPractice": "練習（今日の結果：{res}）",
+  "dailySub": "今日は家族みんな同じ数字",
+  "dailyTitle": "今日のチャレンジ",
   "duelAsk": "数字を選んで、キャッチ方法も選ぼう（ひみつ）：",
   "duelCaught": "つかまえた！{n} にいたよ。",
   "duelClue": "全員へのヒント",
@@ -16024,6 +16144,7 @@ const dictionaries = {
   "handoffTitle": "{player}、きみの番！",
   "helpAsk": "必要なとき",
   "helpAuto": "自動",
+  "helpBoostHint": "💡 ヒント＝ありえる数字が緑 · 🕸️+1＝あみが 1 つ多い（おまけ）。",
   "helpHint": "まだありえる数字を表示。最初はオフ：探偵は自分で推理しよう！",
   "helpNoXp": "ヘルプあり：XP・バッジ・ミッションなし。",
   "helpOff": "オフ",
@@ -16043,6 +16164,7 @@ const dictionaries = {
   "homeMulti": "みんなで",
   "homeWifi": "Wi-Fi",
   "infoBtn": "メリットとリスク",
+  "keyClue": "決め手のヒント：{clue}（{player}）",
   "keypadHint": "1〜{max} の数字を入力して、つかまえ方を選ぼう。",
   "language": "ゲームの言語",
   "languageHint": "言語はすぐに切り替わります。ゲーム中でも OK。",
@@ -16563,6 +16685,9 @@ const initial = () => ({
   seriesPref: 0, // V9.16 : 0 = une seule partie, 2 / 3 = « premier à 2 / 3 victoires »
   series: null,
   netReady: [], // Wi-Fi : joueurs prêts pour la revanche
+  daily: null, // V9.21 : défi du jour (date « AAAA-MM-JJ ») ; dailyStep = n° du prochain tirage du jour
+  dailyStep: 0,
+  playerBoost: [false, false, false, false], // V9.21 : coup de pouce (1 filet de plus) par joueur
   duel: null, // V9.20 : Duel express (Wi-Fi) — manche, choix secrets, révélation
   duelElapsed: 0,
   prono: {}, // V9.19 Wi-Fi : pronostics secrets des spectateurs { siège: [numéros] }
@@ -16802,6 +16927,8 @@ function load() {
       g.netsLeft = Array(g.players).fill(NETS_MAX);
     g.starter = Number.isInteger(g.starter) ? g.starter : 0;
     g.playerHelp = Array.from({ length: 4 }, (_, i) => !!(Array.isArray(g.playerHelp) && g.playerHelp[i]));
+    g.playerBoost = Array.from({ length: 4 }, (_, i) => !!(Array.isArray(g.playerBoost) && g.playerBoost[i]));
+    if (g.daily && !/^\d{4}-\d{2}-\d{2}$/.test(g.daily)) g.daily = null;
     g.names = Array.from({ length: 4 }, (_, i) =>
       Array.isArray(g.names) && typeof g.names[i] === 'string' ? g.names[i].slice(0, 12) : ''
     );
@@ -17302,7 +17429,9 @@ function start(skipHandoff = false) {
     myName,
     seriesPref,
     series,
-    seriesContinue
+    seriesContinue,
+    dailyStart,
+    playerBoost
   } = g;
   g = initial();
   g.players = players;
@@ -17336,17 +17465,129 @@ function start(skipHandoff = false) {
       ? { ...series, wins: series.wins.slice(), round: series.round + 1, last: null }
       : { target: g.seriesPref, wins: Array(players).fill(0), round: 1, key, done: false, last: null };
   } else g.series = null;
-  g.netsLeft = Array(players).fill(NETS_MAX);
+  // V9.21 : coup de pouce (à plusieurs) = un filet de plus pour ce joueur
+  g.playerBoost = Array.from(
+    { length: 4 },
+    (_, i) => !!(players > 1 && Array.isArray(playerBoost) && playerBoost[i])
+  );
+  g.netsLeft = Array.from({ length: players }, (_, i) => NETS_MAX + (g.playerBoost[i] ? 1 : 0));
   g.screen = 'game';
   g.inGame = true;
   g.modal = players > 1 && skipHandoff !== true ? 'handoff' : null;
   g.limit = TURN_LIMITS[players]; // V8.14 : 10 essais chacun à 2 (au lieu de 8)
   g.secret = 1 + rnd(maxN());
+  // V9.21 : défi du jour — même départ et mêmes sauts pour tout le monde ce jour-là
+  g.daily = players === 1 && dailyStart ? dailyStart : null;
+  if (g.daily) {
+    g.secret = dailySecret(g.daily, maxN());
+    g.dailyStep = 0;
+  }
   g.scores = Array(players).fill(0);
   g.stars = Array(players).fill(0);
   g.candidates = all(maxN());
   prepareTurn();
   render();
+}
+
+/* ---- 05b-daily.js ---- */
+/*
+ * V9.21 : DÉFI DU JOUR — le même numéro de départ et les mêmes sauts pour tout le monde ce jour-là,
+ * sans Internet ni serveur : tout est tiré à partir de la date (« 2026-11-20 »). Toute la famille peut
+ * comparer au dîner. Niveau Moyen (1–15), solo, 12 tours. Seul le premier essai du jour compte ;
+ * les suivants sont des entraînements. Résultats dans une clé à part : numeroEnFuiteDailyV1.
+ */
+const DAILY_STORAGE = 'numeroEnFuiteDailyV1';
+const DAILY_LEVEL = 'malin';
+
+function todayKey(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+/** Empreinte stable d'un texte (FNV-1a 32 bits). */
+function hashStr(s) {
+  let h = 2166136261;
+  for (const c of String(s)) {
+    h ^= c.codePointAt(0);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+/** Générateur pseudo-aléatoire reproductible (mulberry32). */
+function seeded(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let x = a;
+    x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+/** k-ième tirage du jour : identique sur tous les téléphones, quel que soit l'ordre des actions. */
+function dailyRnd(n) {
+  const r = seeded(hashStr(g.daily + '#' + (g.dailyStep || 0)))();
+  g.dailyStep = (g.dailyStep || 0) + 1;
+  return Math.floor(r * n);
+}
+/** Numéro de départ du jour. */
+const dailySecret = (day, max) => 1 + Math.floor(seeded(hashStr(day))() * max);
+
+function loadDaily() {
+  try {
+    const d = JSON.parse(localStorage.getItem(DAILY_STORAGE));
+    if (d && typeof d === 'object') return d;
+  } catch (e) {
+    // illisible : on repart de zéro
+  }
+  return {};
+}
+/** Fin d'une partie du jour : le premier essai devient le résultat officiel du jour. */
+function dailyRecord(won) {
+  if (!g.daily || g.dailyRecorded === g.gameId) return;
+  g.dailyRecorded = g.gameId;
+  const d = loadDaily(),
+    day = d[g.daily];
+  if (day) {
+    day.tries = (day.tries || 1) + 1;
+    g.dailyOfficial = false;
+  } else {
+    d[g.daily] = { won: !!won, turns: won ? g.soloTurns : null, secret: g.soloSecret || null, tries: 1 };
+    g.dailyOfficial = true;
+  }
+  // on garde les 60 derniers jours
+  const keep = Object.keys(d).sort().slice(-60);
+  const out = Object.fromEntries(keep.map(k => [k, d[k]]));
+  try {
+    localStorage.setItem(DAILY_STORAGE, JSON.stringify(out));
+  } catch (e) {
+    // stockage plein : pas d'enregistrement
+  }
+}
+/** Lance le défi du jour (depuis la fenêtre « Défi solo »). */
+function startDaily() {
+  g.players = 1;
+  g.level = DAILY_LEVEL;
+  g.gameMode = 'race';
+  g.modal = null;
+  g.dailyStart = todayKey();
+  start(true);
+}
+/** Sous-titre du bouton : déjà joué aujourd'hui ? */
+function dailySub() {
+  const day = loadDaily()[todayKey()];
+  if (!day) return t('dailySub');
+  return day.won ? t('dailyDoneWin', { n: day.turns }) : t('dailyDoneLose');
+}
+/** Bandeau de l'écran de fin solo pour une partie du jour. */
+function dailyBanner() {
+  if (!g.daily) return '';
+  const day = loadDaily()[g.daily] || {};
+  const [y, m, d] = g.daily.split('-');
+  const date = new Date(Number(y), Number(m) - 1, Number(d)).toLocaleDateString(g.lang, {
+    day: 'numeric',
+    month: 'long'
+  });
+  const res = day.won ? t('dailyDoneWin', { n: day.turns }) : t('dailyDoneLose');
+  return `<div class="daily-banner"><b>📅 ${t('dailyTitle')} · ${esc(date)}</b><span>${g.dailyOfficial === false ? t('dailyPractice', { res }) : t('dailyCompare')}</span></div>`;
 }
 
 /* ---- 06-career.js ---- */
@@ -18185,7 +18426,8 @@ function nextMove() {
   } else {
     const range = g.level === 'junior' ? 1 : 2;
     m = 0;
-    while (m === 0) m = rnd(2 * range + 1) - range;
+    const draw = g.daily ? dailyRnd : rnd; // V9.21 : sauts du défi du jour identiques pour tous
+    while (m === 0) m = draw(2 * range + 1) - range;
     applyShift(m);
   }
   g.hunt.steps.push({ from, to: g.secret, shift: m, ev: null });
@@ -18759,6 +19001,7 @@ function advanceTurn() {
     g.soloSecret = g.secret;
     revealEscaped();
     if (g.players === 1 && g.mode !== 'challenge') settleSolo(false); // 12 tours joués : +10 XP
+    if (g.players === 1) dailyRecord(false);
     g.screen = 'end';
     g.inGame = false;
     g.modal = null;
@@ -18815,6 +19058,7 @@ function nextTurn() {
       }
     }
     settleSolo(true); // score, étoiles, record par niveau, XP (une seule fois par partie)
+    dailyRecord(true);
     g.screen = 'end';
     g.inGame = false;
     g.modal = null;
@@ -19340,7 +19584,7 @@ function questionView() {
            return `<button class="numtile ${showPossible() ? (g.candidates.includes(n) ? 'possible' : 'impossible') : ''} ${g.sel === n ? 'sel' : ''} ${inNet ? 'in-net' : ''} ${cap ? 'hit-' + g.capturing.mode : ''}" data-guess="${n}" aria-pressed="${g.sel === n}" aria-label="${n}">${n}${cap && g.capturing.mode === 'precise' ? '<i class="loupe-fx" aria-hidden="true"></i>' : ''}</button>`;
          })
          .join('')}</div>`
- }<div class="capture-row"><button class="capbtn precise" id="capPrecise" ${g.sel == null || g.capturing ? 'disabled' : ''}><span>🎯 ${g.sel != null ? t('captGoPrecise', { n: g.sel }) : t('captPrecise')}</span><small>${g.mode === 'challenge' ? t('chMissPrecise') : isRace() ? (g.players === 1 ? '' : '🏆') : `<bdi dir="ltr">+${SCORE.precise} / −${-SCORE.miss}</bdi>`}</small></button><button class="capbtn net ${netsLeft() ? '' : 'empty'}" id="capNet" ${g.sel == null || g.capturing || !netsLeft() ? 'disabled' : ''}><span>🕸️ ${!netsLeft() ? t('netsNone') : g.sel != null ? `<bdi dir="ltr">${netRange(g.sel).join('·')}</bdi>` : t('captNet')}</span><b class="nets-left" dir="ltr" title="${t('netsLeft', { n: netsLeft() })}" aria-label="${t('netsLeft', { n: netsLeft() })}">${'●'.repeat(netsLeft())}${'○'.repeat(NETS_MAX - netsLeft())}</b><small>${g.mode === 'challenge' ? t('chMissNet') : isRace() ? t('captNumbers', { k: netSize() }) : `${t('captNumbers', { k: netSize() })} · <bdi dir="ltr">+${SCORE.net} / −${netSize()}</bdi>`}</small></button></div></div>`;
+ }<div class="capture-row"><button class="capbtn precise" id="capPrecise" ${g.sel == null || g.capturing ? 'disabled' : ''}><span>🎯 ${g.sel != null ? t('captGoPrecise', { n: g.sel }) : t('captPrecise')}</span><small>${g.mode === 'challenge' ? t('chMissPrecise') : isRace() ? (g.players === 1 ? '' : '🏆') : `<bdi dir="ltr">+${SCORE.precise} / −${-SCORE.miss}</bdi>`}</small></button><button class="capbtn net ${netsLeft() ? '' : 'empty'}" id="capNet" ${g.sel == null || g.capturing || !netsLeft() ? 'disabled' : ''}><span>🕸️ ${!netsLeft() ? t('netsNone') : g.sel != null ? `<bdi dir="ltr">${netRange(g.sel).join('·')}</bdi>` : t('captNet')}</span><b class="nets-left" dir="ltr" title="${t('netsLeft', { n: netsLeft() })}" aria-label="${t('netsLeft', { n: netsLeft() })}">${'●'.repeat(netsLeft())}${'○'.repeat(Math.max(0, NETS_MAX - netsLeft()))}</b><small>${g.mode === 'challenge' ? t('chMissNet') : isRace() ? t('captNumbers', { k: netSize() }) : `${t('captNumbers', { k: netSize() })} · <bdi dir="ltr">+${SCORE.net} / −${netSize()}</bdi>`}</small></button></div></div>`;
 }
 function lens(n) {
   return `<div class="found-lens" aria-hidden="true"><span class="lens-glass"><b>${n}</b></span><i class="lens-handle"></i></div>`;
@@ -19537,6 +19781,12 @@ function resultView() {
     x.type === 'math' && x.correct && !x.pick
       ? `<div class="fb-points">⭐ ${g.mode === 'challenge' ? '+10 ' + t('pts') : '+1'}</div>`
       : '';
+  // V9.21 : coup décisif — l'indice qui a mené à la capture
+  if (['found', 'netHit'].includes(x.type)) {
+    const k = keyClue();
+    if (k)
+      desc += `<span class="key-clue">🔑 ${t('keyClue', { clue: esc(k.text), player: esc(pname(k.player)) })}</span>`;
+  }
   // V9.19 : pronostics gagnants des spectateurs (Wi-Fi)
   if ((g.pronoHits || []).length && ['found', 'netHit', 'wrong', 'netMiss', 'timeout'].includes(x.type))
     desc += `<span class="prono-hit">🔮 ${t('pronoHit', { players: g.pronoHits.map(pname).join(', ') })}</span>`;
@@ -19585,6 +19835,23 @@ function pronoOverlay() {
     )
     .join('');
   return `<div class="modal-back prono-back" role="dialog" aria-modal="true"><div class="modal prono-modal"><h2>🔮 ${t('pronoTitle', { player: pname(active()) })}</h2><p class="sub small">${t('pronoHint')}</p><div class="prono-grid" dir="ltr" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells}</div><button class="bigbtn light" id="pronoClose" type="button">${t('close')}</button></div></div>`;
+}
+/** V9.21 : dernier indice (question, ou calcul juste) avant la capture qui vient d'avoir lieu. */
+function keyClue() {
+  const h = g.history || [];
+  for (let i = h.length - 2; i >= 0; i--) {
+    const e = h[i];
+    if (['found', 'netHit'].includes(e.type)) return null;
+    const q = e.qid ? qbyid(e.qid) : null;
+    if (e.type === 'question' && q)
+      return { text: `${q.text} ${e.answer ? t('yesAnswer') : t('noAnswer')}`, player: e.player };
+    if (e.type === 'math' && e.correct && e.answer != null)
+      return {
+        text: `${q ? q.text : t('qGreater', { k: e.math.threshold })} ${e.answer ? t('yesAnswer') : t('noAnswer')}`,
+        player: e.player
+      };
+  }
+  return null;
 }
 /** Ligne du carnet pour un événement de l'historique. */
 function historyText(x) {
@@ -19851,7 +20118,7 @@ function endSoloCareer(res) {
     : `<div class="solo-reveal with-side"><div class="found-lens"><span class="lens-glass"><b>${g.soloSecret}</b></span><i class="lens-handle"></i></div><div class="reveal-side"><small>${t('soloLoseEncourage')}</small>${escapedNote(false)}</div></div>`;
   // XP gagnée, badges et missions : une seule ligne de pastilles
   const xp = `<span class="reward-chip xp" title="${esc(t('xpGained'))}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b>${res.level && !res.helped ? ` <small>· ${t(LEVEL_NAME_KEYS[res.level])}</small>` : ''}</span>`;
-  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head ${won ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>
+  return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head ${won ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>${dailyBanner()}
  <section class="panel centered solo-card career-card ec-card">${top}${rewardLine(res, xp)}${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
  <div class="ec-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="openOffice" aria-label="${esc(t('officeBtn'))}">📚</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }
@@ -20321,14 +20588,14 @@ function modalView() {
         )
         .join(
           ''
-        )}</div><div class="modal-actions"><button class="bigbtn pink ch-opt" id="chTimed">⏱ ${t('chTimed')}<small>${t('chTimedSub')} · ${rec('timed')}</small></button><button class="bigbtn ch-opt" id="chEndless">♾️ ${t('chEndless')}<small>${t('chEndlessSub')} · ${rec('endless')}</small></button><details class="help-fold"><summary>📏 ${t('chRulesTitle')}</summary><p class="sub small">${t('chDesc')}</p><p class="sub small">${t('chRules_' + diff)}</p><p class="sub small">🏃 ${t('chRulesPass')}</p></details><details class="help-fold"><summary>📊 ${t('chFormulaTitle')}</summary><p class="sub small">⏱ ${t('chFormulaTimed')}</p><p class="sub small">♾️ ${t('chFormulaEndless')}</p></details>${old.length ? `<p class="sub small ch-old">${t('chOldRecords', { list: old.join(' · ') })}</p>` : ''}<button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
+        )}</div><div class="modal-actions"><button class="bigbtn pink ch-opt" id="chTimed">⏱ ${t('chTimed')}<small>${t('chTimedSub')} · ${rec('timed')}</small></button><button class="bigbtn ch-opt" id="chEndless">♾️ ${t('chEndless')}<small>${t('chEndlessSub')} · ${rec('endless')}</small></button><button class="bigbtn light ch-opt daily-opt" id="dailyGo">📅 ${t('dailyTitle')}<small>${dailySub()}</small></button><details class="help-fold"><summary>📏 ${t('chRulesTitle')}</summary><p class="sub small">${t('chDesc')}</p><p class="sub small">${t('chRules_' + diff)}</p><p class="sub small">🏃 ${t('chRulesPass')}</p></details><details class="help-fold"><summary>📊 ${t('chFormulaTitle')}</summary><p class="sub small">⏱ ${t('chFormulaTimed')}</p><p class="sub small">♾️ ${t('chFormulaEndless')}</p></details>${old.length ? `<p class="sub small ch-old">${t('chOldRecords', { list: old.join(' · ') })}</p>` : ''}<button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
     );
   }
   if (g.modal === 'names' && g.screen === 'home') {
     const multi = g.players > 1,
       lim = TURN_LIMITS[g.players];
     return wrapM(
-      `<h2>${multi ? '👥 ' + t('namesTitle') : '🕵️ ' + t('readyTitle')}</h2>${multi ? `<p>${t('namesHint')}</p>` : ''}<div class="names">${Array.from({ length: g.players }, (_, i) => `<div class="name-row"><i class="player-dot" style="background:${colors[i]}"></i>${multi ? `<input id="name${i}" data-name="${i}" type="text" maxlength="12" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('player', { n: i + 1 }))}" value="${esc(g.names[i] || '')}">` : `<strong class="solo-name">${t('you')}</strong>`}<button type="button" class="help-chip ${g.playerHelp[i] ? 'on' : ''}" data-phelp="${i}" role="switch" aria-checked="${!!g.playerHelp[i]}">💡 ${t('helpPlayer')}</button></div>`).join('')}</div><p class="help-note">${t('helpPlayerHint')}${multi ? '' : ' ' + t('helpNoXp')}</p>${multi ? `<div class="label">${t('modeTitle')}</div><div class="mode-pick" role="radiogroup"><button type="button" role="radio" class="mode-card ${g.gameMode !== 'score' ? 'on' : ''}" data-gmode="race" aria-checked="${g.gameMode !== 'score'}"><b>🏁 ${t('modeRace')}</b><small>${t('modeRaceSub')}</small></button><button type="button" role="radio" class="mode-card ${g.gameMode === 'score' ? 'on' : ''}" data-gmode="score" aria-checked="${g.gameMode === 'score'}"><b>🏆 ${t('modeScore')}</b><small>${t('modeScoreSub', { n: lim })}</small></button></div>${seriesPicker('data-series')}` : ''}<div class="modal-actions"><button class="bigbtn green" id="namesGo">▶ ${t('namesGo')}</button><button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
+      `<h2>${multi ? '👥 ' + t('namesTitle') : '🕵️ ' + t('readyTitle')}</h2>${multi ? `<p>${t('namesHint')}</p>` : ''}<div class="names">${Array.from({ length: g.players }, (_, i) => `<div class="name-row"><i class="player-dot" style="background:${colors[i]}"></i>${multi ? `<input id="name${i}" data-name="${i}" type="text" maxlength="12" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('player', { n: i + 1 }))}" value="${esc(g.names[i] || '')}">` : `<strong class="solo-name">${t('you')}</strong>`}<button type="button" class="help-chip ${g.playerHelp[i] ? 'on' : ''}" data-phelp="${i}" role="switch" aria-checked="${!!g.playerHelp[i]}">💡 ${t('helpPlayer')}</button>${multi ? `<button type="button" class="help-chip boost-chip ${(g.playerBoost || [])[i] ? 'on' : ''}" data-boost="${i}" role="switch" aria-checked="${!!(g.playerBoost || [])[i]}" aria-label="${esc(t('boostLabel'))}" title="${esc(t('boostLabel'))}">🕸️+1</button>` : ''}</div>`).join('')}</div><p class="help-note">${multi ? t('helpBoostHint') : t('helpPlayerHint') + ' ' + t('helpNoXp')}</p>${multi ? `<div class="label">${t('modeTitle')}</div><div class="mode-pick" role="radiogroup"><button type="button" role="radio" class="mode-card ${g.gameMode !== 'score' ? 'on' : ''}" data-gmode="race" aria-checked="${g.gameMode !== 'score'}"><b>🏁 ${t('modeRace')}</b><small>${t('modeRaceSub')}</small></button><button type="button" role="radio" class="mode-card ${g.gameMode === 'score' ? 'on' : ''}" data-gmode="score" aria-checked="${g.gameMode === 'score'}"><b>🏆 ${t('modeScore')}</b><small>${t('modeScoreSub', { n: lim })}</small></button></div>${seriesPicker('data-series')}` : ''}<div class="modal-actions"><button class="bigbtn green" id="namesGo">▶ ${t('namesGo')}</button><button class="mini-btn" id="closeModal">${t('cancel')}</button></div>`
     );
   }
   // film : en partie, ou depuis l'écran de fin quand le numéro s'est échappé (V8.14)
@@ -20760,6 +21027,7 @@ function netLaunch(relaunch = false) {
   g.players = seats.length;
   g.names = net.lobby.map(p => p.name);
   g.playerHelp = [false, false, false, false];
+  g.playerBoost = [false, false, false, false];
   g.seriesContinue = relaunch; // la série continue à la revanche (mêmes joueurs)
   start(true);
   g.net = { role: 'host', seat: 0 };
@@ -21677,6 +21945,21 @@ function bind() {
       save();
     })
   );
+  app.querySelectorAll('[data-boost]').forEach(b =>
+    b.addEventListener('click', () => {
+      const i = Number(b.dataset.boost);
+      g.playerBoost = Array.from({ length: 4 }, (_, k) => !!(g.playerBoost || [])[k]);
+      g.playerBoost[i] = !g.playerBoost[i];
+      b.classList.toggle('on', g.playerBoost[i]);
+      b.setAttribute('aria-checked', g.playerBoost[i]);
+      sfx('tap');
+      save();
+    })
+  );
+  click('dailyGo', () => {
+    sfx('tap');
+    startDaily(); // V9.21
+  });
   app.querySelectorAll('[data-series]').forEach(b =>
     b.addEventListener('click', () => {
       g.seriesPref = Number(b.dataset.series) || 0;
