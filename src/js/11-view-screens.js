@@ -569,8 +569,7 @@ function endRace() {
     winners = placed.filter(p => p.place === 1).map(p => pname(p.i)),
     next = (g.starter + 1) % g.players,
     medal = n => ['🥇', '🥈', '🥉', '🎖️'][Math.min(n, 4) - 1],
-    caughtN = g.lastHunt && g.lastHunt.end && g.lastHunt.end.n,
-    gold = v => `<b class="gold">${v}</b>`;
+    caughtN = g.lastHunt && g.lastHunt.end && g.lastHunt.end.n;
   const rows = [
     ...placed.map(
       p =>
@@ -582,8 +581,10 @@ function endRace() {
     )
   ].join('');
   const decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
-  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot">${mascot('caught')}</div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro rh-pill">${tHtml('raceWinDesc', { turns: gold(g.raceTurns) })}</p></div></section>
-<section class="panel podium-panel race-panel">${caughtN ? `<div class="escaped-note race-caught"><i class="ic ic-runner" aria-hidden="true"></i><span>${tHtml('escapedWas', { n: `<b class="big-n">${caughtN}</b>` })}</span></div>` : escapedNote(true)}<div class="podium-head"><span class="laurel l" aria-hidden="true"></span><div class="label centered podium-label">${t('podiumTitle')}</div><span class="laurel r" aria-hidden="true"></span></div><div class="podium-box">${rows}</div><p class="next-starter">🏁 ${tHtml('nextStarter', { player: gold(esc(pname(next))) })}</p>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light home-btn" id="menu" aria-label="${esc(t('menuBack'))}"><svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M12 3 2 11.5h3V21h5.5v-6h3v6H19v-9.5h3z" fill="#fff" stroke="#123a9a" stroke-width="1.2" stroke-linejoin="round"/></svg></button></div></section>`;
+  const caught = caughtN
+    ? `<div class="escaped-note race-caught"><i class="ic ic-runner" aria-hidden="true"></i><span>${tHtml('escapedWas', { n: `<b class="big-n">${caughtN}</b>` })}</span></div>`
+    : escapedNote(true);
+  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] })}</h1><p class="intro rh-line">${t('raceWinDesc', { turns: g.raceTurns })}</p></div></section>${caught}<section class="panel podium-panel race-panel"><div class="podium-head"><span class="laurel l" aria-hidden="true"></span><div class="label centered podium-label">${t('podiumTitle')}</div><span class="laurel r" aria-hidden="true"></span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
 }
 /**
  * Fin de partie alors que le numéro courait encore : « il était sur le 23 » et le film de son évasion.

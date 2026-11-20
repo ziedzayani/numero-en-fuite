@@ -2668,3 +2668,287 @@ body.scr-end:has(.podium-box .pod-row:nth-child(3)) .end-hero.race-hero h1 {
     margin-top: 5px;
   }
 }
+
+/* ===== V9.10 : images fournies (planches d'icônes) sur l'écran de victoire ===== */
+.brand-badge {
+  background-image: url(img/brand-portrait.webp) !important;
+  background-size: cover !important;
+}
+.race-hero .win-det {
+  position: absolute;
+  left: -14px;
+  bottom: -6px;
+  width: 150px;
+  height: 188px;
+  background: url(img/hunter-win.webp) center bottom / contain no-repeat;
+  filter: drop-shadow(0 0 14px rgba(255, 214, 80, 0.55));
+}
+.race-hero .hero-mascot {
+  height: 182px;
+}
+.podium-head .laurel {
+  width: 22px;
+  height: 40px;
+  filter: none;
+  background: center / contain no-repeat;
+}
+.podium-head .laurel::before {
+  content: none !important;
+}
+.podium-head .laurel.l {
+  background-image: url(img/laurel-l.webp);
+}
+.podium-head .laurel.r {
+  background-image: url(img/laurel-r.webp);
+}
+.race-panel .home-btn.tile-btn {
+  flex: 0 0 auto;
+  width: 74px;
+  min-height: 70px;
+  padding: 0;
+  border: 0;
+  background: url(img/ic-home-tile.webp) center / contain no-repeat;
+  box-shadow: none;
+}
+body.scr-end:has(.podium-box .pod-row:nth-child(3)) .race-hero .hero-mascot {
+  height: 132px;
+}
+body.scr-end:has(.podium-box .pod-row:nth-child(3)) .race-hero .win-det {
+  width: 112px;
+  height: 140px;
+}
+@media (max-height: 700px) {
+  .race-hero .hero-mascot {
+    height: 130px;
+  }
+  .race-hero .win-det {
+    width: 104px;
+    height: 132px;
+  }
+  .race-panel .home-btn.tile-btn {
+    width: 60px;
+    min-height: 56px;
+  }
+}
+.podium-head .laurel.l {
+  -webkit-mask-image: linear-gradient(to left, transparent 0, #000 30%);
+  mask-image: linear-gradient(to left, transparent 0, #000 30%);
+}
+.podium-head .laurel.r {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 30%);
+  mask-image: linear-gradient(to right, transparent 0, #000 30%);
+}
+
+/* ===== V9.10 : mise en page exacte de la maquette ===== */
+/* titre vert large, deux lignes, sous le trophée */
+.race-hero {
+  grid-template-columns: 128px 1fr;
+}
+.end-hero.race-hero h1 {
+  padding: 14px 10px 10px;
+  font-size: clamp(24px, 7.6vw, 30px);
+  line-height: 1.02;
+  border-width: 3px;
+}
+/* « Numéro attrapé au tour 4. » : texte blanc + trait doré dessous */
+.race-hero .rh-line {
+  margin: 8px 0 0;
+  padding: 0 0 8px;
+  background: radial-gradient(
+    ellipse 50% 2px at 50% calc(100% - 2px),
+    #ffc83d 0,
+    rgba(255, 200, 61, 0.6) 60%,
+    transparent 100%
+  );
+  border: 0;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+/* bandeau crème hors du cadre, coureur + séparateur */
+#app > .race-caught {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #fffdf6, #ffeec4);
+  border: 3px solid var(--hunt-gold);
+  color: #14205a;
+  font-size: 15px;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+}
+#app > .race-caught .ic-runner {
+  width: 34px;
+  height: 28px;
+  padding-inline-end: 10px;
+  border-inline-end: 2px solid rgba(169, 120, 0, 0.45);
+  box-sizing: content-box;
+}
+#app > .race-caught .big-n {
+  font-size: inherit;
+  font-style: normal;
+  color: #14205a;
+  text-shadow: none;
+}
+/* cadre du podium : titre posé sur le bord, lignes directement dans le cadre */
+.race-panel {
+  padding-top: 22px;
+  overflow: visible;
+  border: 3px solid #7cd8ff;
+  box-shadow:
+    0 0 0 2px #0e2462,
+    0 0 22px rgba(92, 200, 255, 0.7);
+}
+.race-panel .podium-head {
+  position: absolute;
+  top: -19px;
+  left: 0;
+  right: 0;
+  margin: 0;
+}
+.race-panel .podium-box {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.race-panel .podium-box .pod-row {
+  border-bottom: 2px dotted rgba(255, 255, 255, 0.5);
+}
+.race-panel .podium-box .pod-row.place-1 {
+  margin-bottom: 4px;
+  border: 2px solid var(--hunt-gold);
+  box-shadow: 0 0 12px rgba(255, 200, 61, 0.5);
+}
+/* prochaine partie : texte entre deux traits dorés */
+.race-panel .next-starter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font-weight: 800;
+}
+.race-panel .next-starter::before,
+.race-panel .next-starter::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffc83d);
+}
+.race-panel .next-starter::after {
+  background: linear-gradient(90deg, #ffc83d, transparent);
+}
+/* boutons sous le cadre */
+.race-actions {
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
+  align-items: center;
+}
+.race-actions .bigbtn#again {
+  font-size: clamp(18px, 6.4vw, 26px);
+  white-space: nowrap;
+}
+.race-actions .home-btn.tile-btn {
+  flex: 0 0 auto;
+  width: 78px;
+  height: 74px;
+  padding: 0;
+  border: 0;
+  background: url(img/ic-home-tile.webp) center / contain no-repeat;
+  box-shadow: none;
+}
+@media (max-height: 760px) {
+  .end-hero.race-hero h1 {
+    font-size: 22px;
+  }
+  #app > .race-caught {
+    margin-bottom: 14px;
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+  .race-actions {
+    margin-top: 10px;
+  }
+  .race-actions .home-btn.tile-btn {
+    width: 62px;
+    height: 58px;
+  }
+}
+/* fond bleu vif avec rayons, comme la maquette */
+.race-decor {
+  background: radial-gradient(ellipse 70% 40% at 60% 22%, rgba(120, 190, 255, 0.45), transparent 70%),
+    repeating-conic-gradient(from 0deg at 60% 22%, rgba(255, 255, 255, 0.05) 0 6deg, transparent 6deg 16deg),
+    linear-gradient(180deg, #1c48c4 0%, #1a3fae 50%, #12307f 100%);
+}
+.end-hero.race-hero h1 {
+  font-size: clamp(25px, 7.8vw, 31px);
+}
+@media (max-height: 760px) {
+  .end-hero.race-hero h1 {
+    font-size: 26px;
+  }
+}
+#app > .race-caught {
+  font-size: 16px;
+}
+#app > .race-caught .big-n {
+  font-weight: 900;
+}
+/* podium plus grand (2 joueurs) */
+.race-panel .podium-box .pod-row {
+  padding: 12px 12px;
+}
+.race-panel .podium-box .pod-row strong {
+  font-size: 25px;
+}
+.race-panel .podium-box .pod-row small {
+  font-size: 14px;
+}
+.race-panel .podium-box .pod-row .medal {
+  width: 56px !important;
+  height: 64px !important;
+}
+.race-panel .next-starter {
+  margin: 12px 0 4px;
+  font-size: 15px;
+}
+.race-actions .bigbtn#again {
+  min-height: 74px;
+}
+/* 3–4 joueurs : on revient à la taille compacte */
+.race-panel .podium-box:has(.pod-row:nth-child(3)) .pod-row {
+  padding: 4px 10px;
+}
+.race-panel .podium-box:has(.pod-row:nth-child(3)) .pod-row strong {
+  font-size: 17px;
+}
+.race-panel .podium-box:has(.pod-row:nth-child(3)) .pod-row small {
+  font-size: 11.5px;
+}
+.race-panel .podium-box:has(.pod-row:nth-child(3)) .pod-row .medal {
+  width: 32px !important;
+  height: 36px !important;
+}
+/* trait doré sous « Numéro attrapé… » dessiné à part (le texte reste blanc sur bleu) */
+.race-hero .rh-line {
+  position: relative;
+  background: none;
+}
+.race-hero .rh-line::after {
+  content: '';
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  bottom: 1px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffc83d 30% 70%, transparent);
+}

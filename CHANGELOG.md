@@ -1,5 +1,14 @@
 # Historique des versions
 
+## V9.10 — écran de victoire avec les images fournies
+
+- Détective pouce levé du pack (en pied, coupé à la taille comme sur la maquette), lauriers dorés découpés du
+  trophée autour de « Podium », bouton Accueil = tuile bleue à maison dessinée, médaillon du détective dans le
+  bandeau « THE NUMBER HUNT ».
+- Mise en page exacte de la maquette : bandeau « Le numéro se cachait… » hors du cadre, « Podium » posé sur le
+  bord du cadre lumineux, « Prochaine partie » entre deux traits dorés, boutons Rejouer / Accueil sous le cadre,
+  fond bleu vif à rayons.
+
 ## V9.9 — écran de victoire fidèle à la maquette
 
 - Grand détective pouce levé, trophée posé sur le bandeau vert bordé d'or, « Numéro attrapé au **tour 4** » en
