@@ -1,5 +1,17 @@
 # Historique des versions
 
+## V9.15 — fondations du multijoueur
+
+- **Questions : au moins une réponse OUI**, sans rien révéler. Les 3 questions proposées couvrent tous les numéros
+  encore possibles : quel que soit le numéro caché, au moins une répond OUI (OUI/OUI/OUI, OUI/OUI/NON et
+  OUI/NON/NON restent possibles). Comme le trio ne dépend pas du numéro caché, il ne permet aucune déduction
+  gratuite. Partout : solo, à plusieurs, Wi-Fi, 🔀, Défi. Les questions restent « fortes » (≥ 2 × filet).
+- **Wi-Fi : battement de cœur** (protocole 2). Un téléphone muet depuis 10 s est repéré (avant : partie bloquée
+  jusqu'à la fin du chrono) ; il reprend sa place s'il répond de nouveau.
+- **Wi-Fi : hôte en arrière-plan** : les invités sont prévenus tout de suite, la fenêtre se referme à son retour.
+- **Salle Wi-Fi** : l'hôte choisit le niveau et le mode (Course / Points) dans la salle d'attente ; les invités les voient.
+- Deux versions du jeu différentes refusent de jouer ensemble en Wi-Fi : installer la V9.15 sur tous les téléphones.
+
 ## V9.14 — retour des questions comme avant la V9.12
 
 - À ta demande : une question ne change plus le score (ni +1 pour OUI, ni −1 pour NON), et les 3 questions

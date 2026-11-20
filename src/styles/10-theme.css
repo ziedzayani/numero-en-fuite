@@ -3635,3 +3635,50 @@ html[lang='ja'] .pause-card .pz-msg {
 [dir='rtl'] .pause-card .pz-exit {
   transform: scaleX(-1);
 }
+/* V9.15 : niveau et mode choisis dans la salle Wi-Fi de l'hôte */
+.net-rules-pick {
+  display: grid;
+  gap: 8px;
+  margin: 6px 0 10px;
+}
+.net-rules-pick .mode-pick {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+.net-rules-pick .net-levels {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.net-rules-pick .net-modes {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.net-rules-pick .mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 4px 2px;
+  text-align: center;
+}
+.net-rules-pick .mode-card b {
+  display: block;
+  font-size: 13px;
+  line-height: 1.15;
+}
+.net-rules-pick .mode-card small {
+  font-size: 11px;
+}
+.net-rules {
+  width: fit-content;
+  max-width: 100%;
+  margin: 4px auto 8px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: #11286e;
+  border: 2px solid var(--hunt-gold);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}

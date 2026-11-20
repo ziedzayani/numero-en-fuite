@@ -112,6 +112,12 @@ window.__numero = {
   nextTurn,
   maxN,
   qbyid,
+  netHeartbeat,
+  get netState() {
+    return net;
+  },
+  netVisibility,
+  coverChoices,
   wrap,
   dictionaries,
   deviceLang,

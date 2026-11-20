@@ -108,6 +108,71 @@ function makeChoices() {
       if (!chosen.includes(q)) chosen.push(q);
     }
   }
-  g.choices = chosen.slice(0, 3).map(q => q.id);
+  g.choices = coverChoices(chosen.slice(0, 3), candidates, pool).map(q => q.id);
   g.shownIds.push(...g.choices);
+}
+/**
+ * V9.15 : « au moins une question à réponse OUI », sans rien révéler.
+ * Les 3 questions doivent COUVRIR tous les numéros encore possibles : quel que soit le numéro caché,
+ * au moins une répond OUI. Le trio ne dépend donc pas du numéro caché (aucune déduction gratuite,
+ * contrairement à « remplacer une question si les 3 répondent NON », qui éliminerait des numéros).
+ * OUI/OUI/OUI, OUI/OUI/NON et OUI/NON/NON restent possibles.
+ */
+function coverChoices(chosen, ordered, pool) {
+  const cands = g.candidates.length ? g.candidates : [g.secret];
+  const covers = qs => cands.every(n => qs.some(q => q.test(n)));
+  if (chosen.length < 3 || covers(chosen)) return chosen;
+  if (cands.length < 2) {
+    // un seul numéro possible : aucune question ne peut plus couper en deux ; une question vraie suffit
+    const yes = shuffle(pool).find(q => !chosen.includes(q) && q.test(cands[0]));
+    return yes ? [chosen[0], chosen[1], yes] : chosen;
+  }
+  const useful = q => g.candidates.some(n => q.test(n)) && g.candidates.some(n => !q.test(n));
+  // comme makeChoices : d'abord les questions « fortes » (au moins 2 × filet numéros de chaque côté)
+  const side = q => {
+    const yes = g.candidates.filter(n => q.test(n)).length;
+    return Math.min(yes, g.candidates.length - yes);
+  };
+  const every = [...ordered, ...shuffle(pool.filter(q => useful(q) && !ordered.includes(q)))].filter(useful);
+  const pref = [
+    ...every.filter(q => side(q) >= 2 * netSize()),
+    ...every.filter(q => side(q) < 2 * netSize())
+  ];
+  const fresh = q => !chosen.includes(q);
+  const strong = q => side(q) >= 2 * netSize();
+  const keep = chosen.slice(0, 2),
+    head = chosen[0],
+    rest = cands.filter(n => !head.test(n));
+  const tryTier = list => {
+    // 1) on garde les deux premières, la troisième couvre ce qui manque
+    const third = list.find(q => fresh(q) && covers([...keep, q]));
+    if (third) return [...keep, third];
+    // 2) on garde la première, on cherche une paire qui couvre le reste
+    const sub = list.filter(q => fresh(q) && rest.some(n => q.test(n))).slice(0, 60);
+    for (let i = 0; i < sub.length; i++)
+      for (let j = i + 1; j < sub.length; j++)
+        if (rest.every(n => sub[i].test(n) || sub[j].test(n))) return [head, sub[i], sub[j]];
+    return null;
+  };
+  // 3) toujours possible : « plus grand que k » et « plus petit que k+1 » couvrent tout ;
+  //    k coupe les numéros possibles le plus près possible de la moitié
+  const split = () => {
+    let best = null;
+    for (let k = 2; k <= maxN() - 2; k++) {
+      const a = pool.find(q => q.id === `above${k}`),
+        b = pool.find(q => q.id === `below${k + 1}`);
+      if (!a || !b || !useful(a)) continue;
+      if (!best || side(a) > side(best[0])) best = [a, b];
+    }
+    return best ? [best[0], best[1], chosen.find(q => q !== best[0] && q !== best[1]) || chosen[2]] : null;
+  };
+  const strongOnes = pref.filter(strong);
+  const sp = split();
+  return (
+    tryTier(strongOnes) ||
+    (sp && sp.every(q => strong(q) || !strongOnes.length) ? sp : null) ||
+    tryTier(pref) ||
+    sp ||
+    chosen
+  );
 }

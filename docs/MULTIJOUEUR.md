@@ -59,17 +59,19 @@ Fourni par `NetBridge.java` (Android) ; simulé par les tests (`tests/game.test.
 | `message` | `peer`, `data` | les deux |
 | `error` | `code` : `host`, `notFound`, `wifi` | les deux |
 
-## Messages du jeu (`NET_PROTOCOL = 1`)
+## Messages du jeu (`NET_PROTOCOL = 2`, depuis V9.15)
 
 | Message | Sens | Contenu |
 |---|---|---|
 | `hello` | invité → hôte | `v` (protocole), `code`, `name`, `token` (pour revenir à sa place) |
 | `welcome` | hôte → invité | `seat`, `token` |
-| `lobby` | hôte → invités | `players` [{ seat, name, connected }], `started` |
+| `lobby` | hôte → invités | `players` [{ seat, name, connected }], `rules` { level, mode }, `started` |
 | `state` | hôte → invités | `s` : copie de l'état sans secret |
 | `timers` | hôte → invités | `v` : temps écoulés (2 fois par seconde) |
 | `action` | invité → hôte | `name` (tab, ask, math, capture, next, reroll, pause, resume), `args` |
 | `error` | hôte → invité | `code` : `version`, `code`, `started`, `full` |
+| `ping` / `pong` | hôte → invités / réponse | battement de cœur toutes les 3 s (V9.15) |
+| `hostAway` / `hostBack` | hôte → invités | l'hôte passe en arrière-plan / revient (V9.15) |
 
 Changer un message ⇒ incrémenter `NET_PROTOCOL` : deux versions différentes refusent alors de jouer ensemble.
 
@@ -90,6 +92,12 @@ Changer un message ⇒ incrémenter `NET_PROTOCOL` : deux versions différentes 
 - **L'hôte se déconnecte** : « Connexion perdue » chez les invités (Réessayer / Quitter). Pas de changement d'hôte en V1.
   Si « Réessayer » échoue (hôte parti ou nouvelle partie créée), la fenêtre reste ouverte avec « Partie introuvable »
   et « Revenir à l'accueil » ; jamais d'écran de jeu figé. Sur l'écran de fin : « L'hôte a quitté ».
+- **Battement de cœur (V9.15)** : l'hôte envoie `ping` toutes les 3 s, chaque invité répond `pong`. Un invité muet
+  depuis 10 s est traité comme déconnecté (attente / « continuer sans lui ») ; s'il répond de nouveau sur la même
+  connexion, il reprend sa place. Un invité sans nouvelles de l'hôte depuis 10 s voit « Connexion perdue », refermée
+  toute seule si l'hôte revient. Les coupures « silencieuses » (Wi-Fi perdu sans fermeture propre) étaient avant
+  détectées seulement à la fin du chrono.
+- **L'hôte passe en arrière-plan (V9.15)** : `hostAway` prévient tout de suite les invités ; `hostBack` referme la fenêtre.
 - **Le Wi-Fi de l'hôte lâche** (événement `error` en partie) : fenêtre « Wi-Fi coupé » avec retour à l'accueil.
 
 ## Autorisations Android

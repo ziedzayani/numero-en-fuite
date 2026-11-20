@@ -14,7 +14,11 @@
  * Sans transport (version navigateur), le mode Wi-Fi n'est pas proposé.
  */
 
-const NET_PROTOCOL = 1; // à incrémenter si les messages changent : deux versions différentes refusent de jouer ensemble
+const NET_PROTOCOL = 2; // à incrémenter si les messages changent : deux versions différentes refusent de jouer ensemble
+// V9.15 (protocole 2) : « battement de cœur ». Un téléphone qui ne donne plus de nouvelles (Wi-Fi perdu sans
+// coupure propre, écran verrouillé, application en arrière-plan) est repéré en 10 s au lieu de bloquer la partie.
+const NET_PING_MS = 3000;
+const NET_SILENT_MS = 10000;
 const NET_MAX = 4;
 /** Réglages d'affichage propres à chaque téléphone : jamais écrasés par l'état reçu de l'hôte. */
 const NET_LOCAL_KEYS = [
@@ -162,11 +166,18 @@ function netBroadcastTimers() {
 }
 function netBroadcastLobby() {
   const players = net.lobby.map(p => ({ seat: p.seat, name: p.name, connected: p.connected }));
+  const rules = { level: g.level, mode: g.gameMode === 'score' ? 'score' : 'race' };
   for (const p of net.lobby)
-    if (p.peer && p.connected) netSend(p.peer, { t: 'lobby', players, started: !!g.net });
+    if (p.peer && p.connected) netSend(p.peer, { t: 'lobby', players, rules, started: !!g.net });
 }
 
 function hostOnMessage(peer, m) {
+  net.seen = net.seen || {};
+  net.seen[peer] = Date.now();
+  // un joueur qu'on croyait parti (silencieux) donne de nouveau signe de vie : il reprend sa place
+  const revived = net.lobby.find(x => x.peer === peer && !x.connected && x.silent);
+  if (revived) netRevive(revived);
+  if (m.t === 'pong') return;
   if (m.t === 'hello') {
     if (m.v !== NET_PROTOCOL) return netSend(peer, { t: 'error', code: 'version' });
     if (String(m.code) !== net.code) return netSend(peer, { t: 'error', code: 'code' });
@@ -220,6 +231,72 @@ function hostOnLeft(peer) {
   render();
 }
 
+/** Hôte : un joueur jugé silencieux a de nouveau répondu (même connexion). */
+function netRevive(p) {
+  p.connected = true;
+  p.silent = false;
+  delete net.lastSent[p.peer];
+  if (g.modal === 'netWait' && g.netWaitSeat === p.seat) g.modal = null;
+  netBroadcastLobby();
+  render();
+}
+/**
+ * Battement de cœur (appelé chaque seconde ; `now` sert aux tests).
+ * Hôte : envoie « ping » toutes les 3 s ; un invité muet depuis 10 s est traité comme parti
+ * (fenêtre « attente de … » si c'est son tour). Invité : sans nouvelles de l'hôte depuis 10 s,
+ * fenêtre « connexion perdue » (elle se referme seule si l'hôte revient).
+ */
+function netHeartbeat(now = Date.now()) {
+  if (!net.role || !netTransport()) return;
+  if (net.role === 'host') {
+    net.seen = net.seen || {};
+    if (!net.lastPing || now - net.lastPing >= NET_PING_MS) {
+      net.lastPing = now;
+      // les joueurs jugés silencieux reçoivent aussi le ping : s'ils répondent, ils reprennent leur place
+      for (const p of net.lobby) if (p.peer && (p.connected || p.silent)) netSend(p.peer, { t: 'ping' });
+    }
+    let changed = false;
+    for (const p of net.lobby) {
+      if (!p.peer || !p.connected) continue;
+      if (net.seen[p.peer] == null) net.seen[p.peer] = now;
+      if (now - net.seen[p.peer] > NET_SILENT_MS) {
+        p.connected = false;
+        p.silent = true;
+        changed = true;
+      }
+    }
+    if (changed) {
+      if (!g.net) net.lobby = net.lobby.filter(x => x.connected).map((x, i) => ({ ...x, seat: i }));
+      netBroadcastLobby();
+      render();
+    }
+    return;
+  }
+  // invité
+  if (net.seat == null || net.lastHost == null) return;
+  if (now - net.lastHost <= NET_SILENT_MS) return;
+  if (g.net && g.modal !== 'netLost') {
+    g.modal = 'netLost';
+    g.netLostInfo = { silent: true };
+    render();
+  } else if (!g.net && g.lan && g.lan.view === 'clientLobby') {
+    netStop();
+    g.lan = { view: 'join', error: 'lost' };
+    render();
+  }
+}
+/** Hôte qui passe en arrière-plan / revient : les invités sont prévenus tout de suite. */
+function netVisibility(hidden) {
+  if (net.role !== 'host' || !g.net) return;
+  for (const p of net.lobby)
+    if (p.peer && p.connected) netSend(p.peer, { t: hidden ? 'hostAway' : 'hostBack' });
+  if (!hidden) {
+    const now = Date.now();
+    net.seen = net.seen || {};
+    for (const p of net.lobby) if (p.peer) net.seen[p.peer] = now; // pas de faux départs au retour
+    net.lastPing = 0;
+  }
+}
 /** Hôte : si le joueur dont c'est le tour est déconnecté, tout le monde attend (fenêtre « netWait »). */
 function netCheckWaiting() {
   if (net.role !== 'host' || !g.net || g.screen !== 'game') return;
@@ -272,6 +349,29 @@ function clientApplyState(s) {
 }
 
 function clientOnMessage(m) {
+  const now = Date.now();
+  net.lastHost = now;
+  if (m.t === 'ping') netSend('host', { t: 'pong' });
+  if (m.t === 'hostAway') {
+    if (g.net) {
+      net.awayAt = now;
+      g.modal = 'netLost';
+      g.netLostInfo = { away: true };
+      render();
+    }
+    return;
+  }
+  // l'hôte donne de nouveau des nouvelles : la fenêtre ouverte par son silence se referme
+  const info = g.netLostInfo || {};
+  if (
+    g.modal === 'netLost' &&
+    (info.silent || (info.away && (m.t === 'hostBack' || now - (net.awayAt || 0) > 2000)))
+  ) {
+    g.modal = null;
+    g.netLostInfo = null;
+    if (m.t !== 'state') render();
+  }
+  if (m.t === 'hostBack' || m.t === 'ping') return;
   if (m.t === 'welcome') {
     net.seat = m.seat;
     net.token = m.token;
@@ -286,6 +386,7 @@ function clientOnMessage(m) {
     render();
   } else if (m.t === 'lobby') {
     net.lobby = m.players || [];
+    net.rules = m.rules || null;
     if (!m.started && g.lan) {
       g.lan.view = 'clientLobby';
       render();
@@ -422,14 +523,39 @@ function lanScreen() {
   if (v === 'menu')
     body = `<p class="sub">${t('netIntro')}</p>${nameField}${err}<button class="bigbtn" id="netCreate">📶 ${t('netCreate')}</button><button class="bigbtn light" id="netGoJoin">🔑 ${t('netJoin')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else if (v === 'hostLobby')
-    body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div><p class="sub small">${t('netLevelMode', { level: t({ junior: 'levelJunior', malin: 'levelMalin', expert: 'levelExpert', genius: 'levelGenius' }[g.level]), mode: t(g.gameMode === 'score' ? 'modeScore' : 'modeRace') })}</p>${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < 2 ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
+    body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div>${netRulesPicker()}${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < 2 ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
   else if (v === 'join' || v === 'joining')
     body = `${nameField}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else
-    body = `<p class="sub">✅ ${t('netConnected')}</p>${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
+    body = `<p class="sub">✅ ${t('netConnected')}</p>${net.rules ? `<p class="net-rules">${netRulesText(net.rules.level, net.rules.mode)}</p>` : ''}${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
   return `<header class="top">${brand()}<button class="mini-btn" id="netCancelTop">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel net-panel"><h1 class="settings-title">📶 ${t('netTitle')}</h1>${body}</section>`;
 }
 
+const NET_LEVELS = [
+  ['junior', '🐣', 'levelJunior'],
+  ['malin', '🧠', 'levelMalin'],
+  ['expert', '🚀', 'levelExpert'],
+  ['genius', '🦉', 'levelGenius']
+];
+/** « Facile 1–9 · Course » (salle d'attente des invités). */
+function netRulesText(level, mode) {
+  const L = NET_LEVELS.find(x => x[0] === level) || NET_LEVELS[0];
+  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}`;
+}
+/** V9.15 : l'hôte choisit le niveau et le mode DANS la salle d'attente (avant : sur l'accueil seulement). */
+function netRulesPicker() {
+  const lv = NET_LEVELS.map(
+    ([id, emo, k]) =>
+      `<button type="button" role="radio" class="mode-card net-lv ${g.level === id ? 'on' : ''}" data-netlevel="${id}" aria-checked="${g.level === id}"><b>${emo} ${t(k)}</b><small dir="ltr">1–${LEVELS[id].max}</small></button>`
+  ).join('');
+  const md = ['race', 'score']
+    .map(
+      m =>
+        `<button type="button" role="radio" class="mode-card ${(g.gameMode === 'score') === (m === 'score') ? 'on' : ''}" data-netmode="${m}" aria-checked="${(g.gameMode === 'score') === (m === 'score')}"><b>${m === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}</b></button>`
+    )
+    .join('');
+  return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div></div>`;
+}
 /** Fenêtres réseau : attente d'un joueur déconnecté (partagée), connexion perdue (locale). */
 function netModalView() {
   if (g.modal === 'netWait') {
@@ -444,7 +570,9 @@ function netModalView() {
       quit = `<button class="bigbtn light" id="netQuitGame">⌂ ${t('menuBack')}</button>`;
     if (info.host) return `<h2>📵 ${t('netHostLostTitle')}</h2><p>${t('netHostLostText')}</p>${quit}`;
     if (info.ended) return `<h2>👋 ${t('netEndedTitle')}</h2><p>${t('netEndedText')}</p>${quit}`;
-    return `<h2>📵 ${t('netLostTitle')}</h2><p>${info.failed ? '⚠️ ' + t('netRetryFailed') : t('netLostText')}</p>${
+    if (info.away)
+      return `<h2>⏸ ${t('netAwayTitle')}</h2><p>${t('netAwayText')}</p><p class="sub">⏳ ${t('netSearching')}</p>${quit}`;
+    return `<h2>📵 ${t('netLostTitle')}</h2><p>${info.failed ? '⚠️ ' + t('netRetryFailed') : info.silent ? t('netSilentText') : t('netLostText')}</p>${
       info.retrying
         ? `<p class="sub">⏳ ${t('netSearching')}</p>`
         : `<button class="bigbtn" id="netRetry">🔄 ${t('netRetry')}</button>`
@@ -492,5 +620,24 @@ function bindNet(click) {
   click('netQuitGame', leave);
   click('netLaunch', netLaunch);
   click('netWithout', netContinueWithout);
+  document.querySelectorAll('[data-netlevel]').forEach(b =>
+    b.addEventListener('click', () => {
+      if (net.role !== 'host' || g.net) return;
+      g.level = b.dataset.netlevel;
+      render();
+      netBroadcastLobby();
+    })
+  );
+  document.querySelectorAll('[data-netmode]').forEach(b =>
+    b.addEventListener('click', () => {
+      if (net.role !== 'host' || g.net) return;
+      g.gameMode = b.dataset.netmode === 'score' ? 'score' : 'race';
+      render();
+      netBroadcastLobby();
+    })
+  );
   click('netRetry', netRetry);
 }
+// V9.15 : battement de cœur chaque seconde, et hôte qui passe en arrière-plan
+setInterval(() => netHeartbeat(), 1000);
+document.addEventListener('visibilitychange', () => netVisibility(document.hidden));

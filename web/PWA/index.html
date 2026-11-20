@@ -10742,6 +10742,53 @@ html[lang='ja'] .pause-card .pz-msg {
 [dir='rtl'] .pause-card .pz-exit {
   transform: scaleX(-1);
 }
+/* V9.15 : niveau et mode choisis dans la salle Wi-Fi de l'hôte */
+.net-rules-pick {
+  display: grid;
+  gap: 8px;
+  margin: 6px 0 10px;
+}
+.net-rules-pick .mode-pick {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+.net-rules-pick .net-levels {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.net-rules-pick .net-modes {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.net-rules-pick .mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 4px 2px;
+  text-align: center;
+}
+.net-rules-pick .mode-card b {
+  display: block;
+  font-size: 13px;
+  line-height: 1.15;
+}
+.net-rules-pick .mode-card small {
+  font-size: 11px;
+}
+.net-rules {
+  width: fit-content;
+  max-width: 100%;
+  margin: 4px auto 8px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: #11286e;
+  border: 2px solid var(--hunt-gold);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
 
     </style>
   </head>
@@ -10832,7 +10879,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.14";
+const APP_VERSION = "9.15";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -11086,6 +11133,8 @@ const dictionaries = {
   "nbUpToDate": "Tes marques suivent le numéro.",
   "nbZoomHint": "Touche une plage pour barrer ses numéros.",
   "netAgainSent": "Demande envoyée : la partie va repartir.",
+  "netAwayText": "La partie est en pause sur le téléphone de l’hôte. Elle reprendra dès qu’il revient dans le jeu.",
+  "netAwayTitle": "L’hôte a quitté l’application",
   "netCodeLabel": "Code de la partie (4 chiffres)",
   "netConnected": "Connecté à la partie !",
   "netCreate": "Créer une partie",
@@ -11124,6 +11173,7 @@ const dictionaries = {
   "netRetryFailed": "Partie introuvable : l’hôte a peut-être quitté ou créé une nouvelle partie.",
   "netSameWifi": "Tous les téléphones doivent être sur le même Wi-Fi (ou sur le partage de connexion de l’un d’eux).",
   "netSearching": "Recherche de la partie sur le Wi-Fi…",
+  "netSilentText": "Le téléphone de l’hôte ne donne plus de nouvelles depuis 10 secondes (Wi-Fi coupé, écran verrouillé ou application fermée). La partie reprend toute seule s’il revient.",
   "netTitle": "Partie Wi-Fi",
   "netWaitHost": "En attente que l’hôte lance la partie…",
   "netWaitReplay": "C’est l’hôte qui peut relancer une partie.",
@@ -11654,6 +11704,8 @@ const dictionaries = {
   "nbUpToDate": "Your marks follow the number.",
   "nbZoomHint": "Tap a range to cross out its numbers.",
   "netAgainSent": "Request sent: the game is restarting.",
+  "netAwayText": "The game is paused on the host’s phone. It will resume as soon as they come back to the game.",
+  "netAwayTitle": "The host left the app",
   "netCodeLabel": "Game code (4 digits)",
   "netConnected": "Connected to the game!",
   "netCreate": "Create a game",
@@ -11692,6 +11744,7 @@ const dictionaries = {
   "netRetryFailed": "Game not found: the host may have left or started a new game.",
   "netSameWifi": "All phones must be on the same Wi-Fi (or on one phone’s hotspot).",
   "netSearching": "Looking for the game on the Wi-Fi…",
+  "netSilentText": "The host’s phone has not responded for 10 seconds (Wi-Fi off, screen locked or app closed). The game resumes by itself if it comes back.",
   "netTitle": "Wi-Fi game",
   "netWaitHost": "Waiting for the host to start…",
   "netWaitReplay": "Only the host can start a new game.",
@@ -12222,6 +12275,8 @@ const dictionaries = {
   "nbUpToDate": "علاماتك تتبع الرقم.",
   "nbZoomHint": "المس مجالًا لشطب أرقامه.",
   "netAgainSent": "تم إرسال الطلب: اللعبة ستبدأ من جديد.",
+  "netAwayText": "اللعبة متوقفة مؤقتًا على هاتف المضيف. ستُستأنف بمجرد عودته إلى اللعبة.",
+  "netAwayTitle": "المضيف غادر التطبيق",
   "netCodeLabel": "رمز اللعبة (4 أرقام)",
   "netConnected": "متصل باللعبة!",
   "netCreate": "إنشاء لعبة",
@@ -12260,6 +12315,7 @@ const dictionaries = {
   "netRetryFailed": "لم يتم العثور على اللعبة: ربما غادر المضيف أو أنشأ لعبة جديدة.",
   "netSameWifi": "يجب أن تكون كل الهواتف على نفس شبكة الواي فاي (أو على نقطة اتصال أحدها).",
   "netSearching": "جارٍ البحث عن اللعبة على الواي فاي…",
+  "netSilentText": "هاتف المضيف لا يستجيب منذ 10 ثوانٍ (انقطاع الواي فاي أو قفل الشاشة أو إغلاق التطبيق). ستُستأنف اللعبة تلقائيًا إذا عاد.",
   "netTitle": "لعبة واي فاي",
   "netWaitHost": "بانتظار أن يبدأ المضيف اللعبة…",
   "netWaitReplay": "المضيف وحده يمكنه بدء لعبة جديدة.",
@@ -12790,6 +12846,8 @@ const dictionaries = {
   "nbUpToDate": "Tus marcas siguen al número.",
   "nbZoomHint": "Toca un rango para tachar sus números.",
   "netAgainSent": "Petición enviada: la partida vuelve a empezar.",
+  "netAwayText": "La partida está en pausa en el teléfono del anfitrión. Continuará en cuanto vuelva al juego.",
+  "netAwayTitle": "El anfitrión salió de la app",
   "netCodeLabel": "Código de la partida (4 cifras)",
   "netConnected": "¡Conectado a la partida!",
   "netCreate": "Crear una partida",
@@ -12828,6 +12886,7 @@ const dictionaries = {
   "netRetryFailed": "Partida no encontrada: puede que el anfitrión se haya ido o haya creado una partida nueva.",
   "netSameWifi": "Todos los móviles deben estar en el mismo Wi-Fi (o en el punto de acceso de uno de ellos).",
   "netSearching": "Buscando la partida en el Wi-Fi…",
+  "netSilentText": "El teléfono del anfitrión no responde desde hace 10 segundos (wifi cortado, pantalla bloqueada o app cerrada). La partida continúa sola si vuelve.",
   "netTitle": "Partida Wi-Fi",
   "netWaitHost": "Esperando a que el anfitrión empiece…",
   "netWaitReplay": "Solo el anfitrión puede empezar una nueva partida.",
@@ -13358,6 +13417,8 @@ const dictionaries = {
   "nbUpToDate": "I tuoi segni seguono il numero.",
   "nbZoomHint": "Tocca un intervallo per cancellarne i numeri.",
   "netAgainSent": "Richiesta inviata: la partita sta ripartendo.",
+  "netAwayText": "La partita è in pausa sul telefono dell’host. Riprenderà appena torna nel gioco.",
+  "netAwayTitle": "L’host ha lasciato l’app",
   "netCodeLabel": "Codice della partita (4 cifre)",
   "netConnected": "Connesso alla partita!",
   "netCreate": "Crea una partita",
@@ -13396,6 +13457,7 @@ const dictionaries = {
   "netRetryFailed": "Partita non trovata: forse l’host se n’è andato o ha creato una nuova partita.",
   "netSameWifi": "Tutti i telefoni devono essere sullo stesso Wi-Fi (o sull’hotspot di uno di loro).",
   "netSearching": "Ricerca della partita sul Wi-Fi…",
+  "netSilentText": "Il telefono dell’host non risponde da 10 secondi (Wi-Fi spento, schermo bloccato o app chiusa). La partita riprende da sola se torna.",
   "netTitle": "Partita Wi-Fi",
   "netWaitHost": "In attesa che l’host avvii…",
   "netWaitReplay": "Solo l’host può avviare una nuova partita.",
@@ -13926,6 +13988,8 @@ const dictionaries = {
   "nbUpToDate": "Deine Markierungen folgen der Zahl.",
   "nbZoomHint": "Tippe einen Bereich, um seine Zahlen zu streichen.",
   "netAgainSent": "Anfrage gesendet: Das Spiel startet neu.",
+  "netAwayText": "Das Spiel ist auf dem Handy des Gastgebers pausiert. Es geht weiter, sobald er zurück im Spiel ist.",
+  "netAwayTitle": "Der Gastgeber hat die App verlassen",
   "netCodeLabel": "Spielcode (4 Ziffern)",
   "netConnected": "Mit dem Spiel verbunden!",
   "netCreate": "Spiel erstellen",
@@ -13964,6 +14028,7 @@ const dictionaries = {
   "netRetryFailed": "Spiel nicht gefunden: Der Gastgeber ist vielleicht gegangen oder hat ein neues Spiel erstellt.",
   "netSameWifi": "Alle Handys müssen im selben WLAN sein (oder im Hotspot eines Handys).",
   "netSearching": "Suche das Spiel im WLAN …",
+  "netSilentText": "Das Handy des Gastgebers antwortet seit 10 Sekunden nicht (WLAN aus, Bildschirm gesperrt oder App geschlossen). Das Spiel geht von selbst weiter, wenn es zurückkommt.",
   "netTitle": "WLAN-Spiel",
   "netWaitHost": "Warten, bis der Gastgeber startet …",
   "netWaitReplay": "Nur der Gastgeber kann ein neues Spiel starten.",
@@ -14494,6 +14559,8 @@ const dictionaries = {
   "nbUpToDate": "你的标记已跟上数字。",
   "nbZoomHint": "点一个区间来划掉其中的数字。",
   "netAgainSent": "请求已发送：游戏即将重新开始。",
+  "netAwayText": "游戏在房主的手机上暂停了。房主回到游戏后会立即继续。",
+  "netAwayTitle": "房主离开了应用",
   "netCodeLabel": "游戏代码（4 位数）",
   "netConnected": "已连接到游戏！",
   "netCreate": "创建游戏",
@@ -14532,6 +14599,7 @@ const dictionaries = {
   "netRetryFailed": "找不到游戏：房主可能已离开或创建了新游戏。",
   "netSameWifi": "所有手机都必须连接同一个 Wi-Fi（或其中一部手机的热点）。",
   "netSearching": "正在 Wi-Fi 中寻找游戏……",
+  "netSilentText": "房主的手机已经 10 秒没有响应（Wi-Fi 断开、屏幕锁定或应用已关闭）。如果它恢复，游戏会自动继续。",
   "netTitle": "Wi-Fi 游戏",
   "netWaitHost": "等待房主开始……",
   "netWaitReplay": "只有房主能开始新游戏。",
@@ -15062,6 +15130,8 @@ const dictionaries = {
   "nbUpToDate": "メモは数字に追いついているよ。",
   "nbZoomHint": "範囲をタップして、その中の数字を消そう。",
   "netAgainSent": "リクエストを送ったよ：まもなく再スタート。",
+  "netAwayText": "ホストのスマホでゲームが一時停止中です。ホストがゲームに戻るとすぐに再開します。",
+  "netAwayTitle": "ホストがアプリを離れました",
   "netCodeLabel": "ゲームコード（4 けた）",
   "netConnected": "ゲームに接続した！",
   "netCreate": "ゲームを作る",
@@ -15100,6 +15170,7 @@ const dictionaries = {
   "netRetryFailed": "ゲームが見つかりません：ホストが退出したか、新しいゲームを作ったかもしれません。",
   "netSameWifi": "すべてのスマホを同じ Wi-Fi（または 1 台のテザリング）につないでね。",
   "netSearching": "Wi-Fi でゲームをさがしています……",
+  "netSilentText": "ホストのスマホから 10 秒間応答がありません（Wi-Fi 切断、画面ロック、またはアプリ終了）。戻ってくれば自動で再開します。",
   "netTitle": "Wi-Fi ゲーム",
   "netWaitHost": "ホストの開始を待っています……",
   "netWaitReplay": "新しいゲームを始められるのはホストだけです。",
@@ -15810,8 +15881,73 @@ function makeChoices() {
       if (!chosen.includes(q)) chosen.push(q);
     }
   }
-  g.choices = chosen.slice(0, 3).map(q => q.id);
+  g.choices = coverChoices(chosen.slice(0, 3), candidates, pool).map(q => q.id);
   g.shownIds.push(...g.choices);
+}
+/**
+ * V9.15 : « au moins une question à réponse OUI », sans rien révéler.
+ * Les 3 questions doivent COUVRIR tous les numéros encore possibles : quel que soit le numéro caché,
+ * au moins une répond OUI. Le trio ne dépend donc pas du numéro caché (aucune déduction gratuite,
+ * contrairement à « remplacer une question si les 3 répondent NON », qui éliminerait des numéros).
+ * OUI/OUI/OUI, OUI/OUI/NON et OUI/NON/NON restent possibles.
+ */
+function coverChoices(chosen, ordered, pool) {
+  const cands = g.candidates.length ? g.candidates : [g.secret];
+  const covers = qs => cands.every(n => qs.some(q => q.test(n)));
+  if (chosen.length < 3 || covers(chosen)) return chosen;
+  if (cands.length < 2) {
+    // un seul numéro possible : aucune question ne peut plus couper en deux ; une question vraie suffit
+    const yes = shuffle(pool).find(q => !chosen.includes(q) && q.test(cands[0]));
+    return yes ? [chosen[0], chosen[1], yes] : chosen;
+  }
+  const useful = q => g.candidates.some(n => q.test(n)) && g.candidates.some(n => !q.test(n));
+  // comme makeChoices : d'abord les questions « fortes » (au moins 2 × filet numéros de chaque côté)
+  const side = q => {
+    const yes = g.candidates.filter(n => q.test(n)).length;
+    return Math.min(yes, g.candidates.length - yes);
+  };
+  const every = [...ordered, ...shuffle(pool.filter(q => useful(q) && !ordered.includes(q)))].filter(useful);
+  const pref = [
+    ...every.filter(q => side(q) >= 2 * netSize()),
+    ...every.filter(q => side(q) < 2 * netSize())
+  ];
+  const fresh = q => !chosen.includes(q);
+  const strong = q => side(q) >= 2 * netSize();
+  const keep = chosen.slice(0, 2),
+    head = chosen[0],
+    rest = cands.filter(n => !head.test(n));
+  const tryTier = list => {
+    // 1) on garde les deux premières, la troisième couvre ce qui manque
+    const third = list.find(q => fresh(q) && covers([...keep, q]));
+    if (third) return [...keep, third];
+    // 2) on garde la première, on cherche une paire qui couvre le reste
+    const sub = list.filter(q => fresh(q) && rest.some(n => q.test(n))).slice(0, 60);
+    for (let i = 0; i < sub.length; i++)
+      for (let j = i + 1; j < sub.length; j++)
+        if (rest.every(n => sub[i].test(n) || sub[j].test(n))) return [head, sub[i], sub[j]];
+    return null;
+  };
+  // 3) toujours possible : « plus grand que k » et « plus petit que k+1 » couvrent tout ;
+  //    k coupe les numéros possibles le plus près possible de la moitié
+  const split = () => {
+    let best = null;
+    for (let k = 2; k <= maxN() - 2; k++) {
+      const a = pool.find(q => q.id === `above${k}`),
+        b = pool.find(q => q.id === `below${k + 1}`);
+      if (!a || !b || !useful(a)) continue;
+      if (!best || side(a) > side(best[0])) best = [a, b];
+    }
+    return best ? [best[0], best[1], chosen.find(q => q !== best[0] && q !== best[1]) || chosen[2]] : null;
+  };
+  const strongOnes = pref.filter(strong);
+  const sp = split();
+  return (
+    tryTier(strongOnes) ||
+    (sp && sp.every(q => strong(q) || !strongOnes.length) ? sp : null) ||
+    tryTier(pref) ||
+    sp ||
+    chosen
+  );
 }
 
 /* ---- 04-math.js ---- */
@@ -18753,7 +18889,11 @@ function tutInviteView() {
  * Sans transport (version navigateur), le mode Wi-Fi n'est pas proposé.
  */
 
-const NET_PROTOCOL = 1; // à incrémenter si les messages changent : deux versions différentes refusent de jouer ensemble
+const NET_PROTOCOL = 2; // à incrémenter si les messages changent : deux versions différentes refusent de jouer ensemble
+// V9.15 (protocole 2) : « battement de cœur ». Un téléphone qui ne donne plus de nouvelles (Wi-Fi perdu sans
+// coupure propre, écran verrouillé, application en arrière-plan) est repéré en 10 s au lieu de bloquer la partie.
+const NET_PING_MS = 3000;
+const NET_SILENT_MS = 10000;
 const NET_MAX = 4;
 /** Réglages d'affichage propres à chaque téléphone : jamais écrasés par l'état reçu de l'hôte. */
 const NET_LOCAL_KEYS = [
@@ -18901,11 +19041,18 @@ function netBroadcastTimers() {
 }
 function netBroadcastLobby() {
   const players = net.lobby.map(p => ({ seat: p.seat, name: p.name, connected: p.connected }));
+  const rules = { level: g.level, mode: g.gameMode === 'score' ? 'score' : 'race' };
   for (const p of net.lobby)
-    if (p.peer && p.connected) netSend(p.peer, { t: 'lobby', players, started: !!g.net });
+    if (p.peer && p.connected) netSend(p.peer, { t: 'lobby', players, rules, started: !!g.net });
 }
 
 function hostOnMessage(peer, m) {
+  net.seen = net.seen || {};
+  net.seen[peer] = Date.now();
+  // un joueur qu'on croyait parti (silencieux) donne de nouveau signe de vie : il reprend sa place
+  const revived = net.lobby.find(x => x.peer === peer && !x.connected && x.silent);
+  if (revived) netRevive(revived);
+  if (m.t === 'pong') return;
   if (m.t === 'hello') {
     if (m.v !== NET_PROTOCOL) return netSend(peer, { t: 'error', code: 'version' });
     if (String(m.code) !== net.code) return netSend(peer, { t: 'error', code: 'code' });
@@ -18959,6 +19106,72 @@ function hostOnLeft(peer) {
   render();
 }
 
+/** Hôte : un joueur jugé silencieux a de nouveau répondu (même connexion). */
+function netRevive(p) {
+  p.connected = true;
+  p.silent = false;
+  delete net.lastSent[p.peer];
+  if (g.modal === 'netWait' && g.netWaitSeat === p.seat) g.modal = null;
+  netBroadcastLobby();
+  render();
+}
+/**
+ * Battement de cœur (appelé chaque seconde ; `now` sert aux tests).
+ * Hôte : envoie « ping » toutes les 3 s ; un invité muet depuis 10 s est traité comme parti
+ * (fenêtre « attente de … » si c'est son tour). Invité : sans nouvelles de l'hôte depuis 10 s,
+ * fenêtre « connexion perdue » (elle se referme seule si l'hôte revient).
+ */
+function netHeartbeat(now = Date.now()) {
+  if (!net.role || !netTransport()) return;
+  if (net.role === 'host') {
+    net.seen = net.seen || {};
+    if (!net.lastPing || now - net.lastPing >= NET_PING_MS) {
+      net.lastPing = now;
+      // les joueurs jugés silencieux reçoivent aussi le ping : s'ils répondent, ils reprennent leur place
+      for (const p of net.lobby) if (p.peer && (p.connected || p.silent)) netSend(p.peer, { t: 'ping' });
+    }
+    let changed = false;
+    for (const p of net.lobby) {
+      if (!p.peer || !p.connected) continue;
+      if (net.seen[p.peer] == null) net.seen[p.peer] = now;
+      if (now - net.seen[p.peer] > NET_SILENT_MS) {
+        p.connected = false;
+        p.silent = true;
+        changed = true;
+      }
+    }
+    if (changed) {
+      if (!g.net) net.lobby = net.lobby.filter(x => x.connected).map((x, i) => ({ ...x, seat: i }));
+      netBroadcastLobby();
+      render();
+    }
+    return;
+  }
+  // invité
+  if (net.seat == null || net.lastHost == null) return;
+  if (now - net.lastHost <= NET_SILENT_MS) return;
+  if (g.net && g.modal !== 'netLost') {
+    g.modal = 'netLost';
+    g.netLostInfo = { silent: true };
+    render();
+  } else if (!g.net && g.lan && g.lan.view === 'clientLobby') {
+    netStop();
+    g.lan = { view: 'join', error: 'lost' };
+    render();
+  }
+}
+/** Hôte qui passe en arrière-plan / revient : les invités sont prévenus tout de suite. */
+function netVisibility(hidden) {
+  if (net.role !== 'host' || !g.net) return;
+  for (const p of net.lobby)
+    if (p.peer && p.connected) netSend(p.peer, { t: hidden ? 'hostAway' : 'hostBack' });
+  if (!hidden) {
+    const now = Date.now();
+    net.seen = net.seen || {};
+    for (const p of net.lobby) if (p.peer) net.seen[p.peer] = now; // pas de faux départs au retour
+    net.lastPing = 0;
+  }
+}
 /** Hôte : si le joueur dont c'est le tour est déconnecté, tout le monde attend (fenêtre « netWait »). */
 function netCheckWaiting() {
   if (net.role !== 'host' || !g.net || g.screen !== 'game') return;
@@ -19011,6 +19224,29 @@ function clientApplyState(s) {
 }
 
 function clientOnMessage(m) {
+  const now = Date.now();
+  net.lastHost = now;
+  if (m.t === 'ping') netSend('host', { t: 'pong' });
+  if (m.t === 'hostAway') {
+    if (g.net) {
+      net.awayAt = now;
+      g.modal = 'netLost';
+      g.netLostInfo = { away: true };
+      render();
+    }
+    return;
+  }
+  // l'hôte donne de nouveau des nouvelles : la fenêtre ouverte par son silence se referme
+  const info = g.netLostInfo || {};
+  if (
+    g.modal === 'netLost' &&
+    (info.silent || (info.away && (m.t === 'hostBack' || now - (net.awayAt || 0) > 2000)))
+  ) {
+    g.modal = null;
+    g.netLostInfo = null;
+    if (m.t !== 'state') render();
+  }
+  if (m.t === 'hostBack' || m.t === 'ping') return;
   if (m.t === 'welcome') {
     net.seat = m.seat;
     net.token = m.token;
@@ -19025,6 +19261,7 @@ function clientOnMessage(m) {
     render();
   } else if (m.t === 'lobby') {
     net.lobby = m.players || [];
+    net.rules = m.rules || null;
     if (!m.started && g.lan) {
       g.lan.view = 'clientLobby';
       render();
@@ -19161,14 +19398,39 @@ function lanScreen() {
   if (v === 'menu')
     body = `<p class="sub">${t('netIntro')}</p>${nameField}${err}<button class="bigbtn" id="netCreate">📶 ${t('netCreate')}</button><button class="bigbtn light" id="netGoJoin">🔑 ${t('netJoin')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else if (v === 'hostLobby')
-    body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div><p class="sub small">${t('netLevelMode', { level: t({ junior: 'levelJunior', malin: 'levelMalin', expert: 'levelExpert', genius: 'levelGenius' }[g.level]), mode: t(g.gameMode === 'score' ? 'modeScore' : 'modeRace') })}</p>${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < 2 ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
+    body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div>${netRulesPicker()}${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < 2 ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
   else if (v === 'join' || v === 'joining')
     body = `${nameField}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else
-    body = `<p class="sub">✅ ${t('netConnected')}</p>${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
+    body = `<p class="sub">✅ ${t('netConnected')}</p>${net.rules ? `<p class="net-rules">${netRulesText(net.rules.level, net.rules.mode)}</p>` : ''}${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
   return `<header class="top">${brand()}<button class="mini-btn" id="netCancelTop">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel net-panel"><h1 class="settings-title">📶 ${t('netTitle')}</h1>${body}</section>`;
 }
 
+const NET_LEVELS = [
+  ['junior', '🐣', 'levelJunior'],
+  ['malin', '🧠', 'levelMalin'],
+  ['expert', '🚀', 'levelExpert'],
+  ['genius', '🦉', 'levelGenius']
+];
+/** « Facile 1–9 · Course » (salle d'attente des invités). */
+function netRulesText(level, mode) {
+  const L = NET_LEVELS.find(x => x[0] === level) || NET_LEVELS[0];
+  return `${L[1]} ${t(L[2])} <b dir="ltr">1–${LEVELS[L[0]].max}</b> · ${mode === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}`;
+}
+/** V9.15 : l'hôte choisit le niveau et le mode DANS la salle d'attente (avant : sur l'accueil seulement). */
+function netRulesPicker() {
+  const lv = NET_LEVELS.map(
+    ([id, emo, k]) =>
+      `<button type="button" role="radio" class="mode-card net-lv ${g.level === id ? 'on' : ''}" data-netlevel="${id}" aria-checked="${g.level === id}"><b>${emo} ${t(k)}</b><small dir="ltr">1–${LEVELS[id].max}</small></button>`
+  ).join('');
+  const md = ['race', 'score']
+    .map(
+      m =>
+        `<button type="button" role="radio" class="mode-card ${(g.gameMode === 'score') === (m === 'score') ? 'on' : ''}" data-netmode="${m}" aria-checked="${(g.gameMode === 'score') === (m === 'score')}"><b>${m === 'score' ? '🏆 ' + t('modeScore') : '🏁 ' + t('modeRace')}</b></button>`
+    )
+    .join('');
+  return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div></div>`;
+}
 /** Fenêtres réseau : attente d'un joueur déconnecté (partagée), connexion perdue (locale). */
 function netModalView() {
   if (g.modal === 'netWait') {
@@ -19183,7 +19445,9 @@ function netModalView() {
       quit = `<button class="bigbtn light" id="netQuitGame">⌂ ${t('menuBack')}</button>`;
     if (info.host) return `<h2>📵 ${t('netHostLostTitle')}</h2><p>${t('netHostLostText')}</p>${quit}`;
     if (info.ended) return `<h2>👋 ${t('netEndedTitle')}</h2><p>${t('netEndedText')}</p>${quit}`;
-    return `<h2>📵 ${t('netLostTitle')}</h2><p>${info.failed ? '⚠️ ' + t('netRetryFailed') : t('netLostText')}</p>${
+    if (info.away)
+      return `<h2>⏸ ${t('netAwayTitle')}</h2><p>${t('netAwayText')}</p><p class="sub">⏳ ${t('netSearching')}</p>${quit}`;
+    return `<h2>📵 ${t('netLostTitle')}</h2><p>${info.failed ? '⚠️ ' + t('netRetryFailed') : info.silent ? t('netSilentText') : t('netLostText')}</p>${
       info.retrying
         ? `<p class="sub">⏳ ${t('netSearching')}</p>`
         : `<button class="bigbtn" id="netRetry">🔄 ${t('netRetry')}</button>`
@@ -19231,8 +19495,27 @@ function bindNet(click) {
   click('netQuitGame', leave);
   click('netLaunch', netLaunch);
   click('netWithout', netContinueWithout);
+  document.querySelectorAll('[data-netlevel]').forEach(b =>
+    b.addEventListener('click', () => {
+      if (net.role !== 'host' || g.net) return;
+      g.level = b.dataset.netlevel;
+      render();
+      netBroadcastLobby();
+    })
+  );
+  document.querySelectorAll('[data-netmode]').forEach(b =>
+    b.addEventListener('click', () => {
+      if (net.role !== 'host' || g.net) return;
+      g.gameMode = b.dataset.netmode === 'score' ? 'score' : 'race';
+      render();
+      netBroadcastLobby();
+    })
+  );
   click('netRetry', netRetry);
 }
+// V9.15 : battement de cœur chaque seconde, et hôte qui passe en arrière-plan
+setInterval(() => netHeartbeat(), 1000);
+document.addEventListener('visibilitychange', () => netVisibility(document.hidden));
 
 /* ---- 16-render.js ---- */
 /*
@@ -19902,6 +20185,12 @@ window.__numero = {
   nextTurn,
   maxN,
   qbyid,
+  netHeartbeat,
+  get netState() {
+    return net;
+  },
+  netVisibility,
+  coverChoices,
   wrap,
   dictionaries,
   deviceLang,

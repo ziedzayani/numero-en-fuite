@@ -449,6 +449,10 @@ async function playFullGame(browser, players, level, lang = 'fr') {
                   if (s.candidates.some(n => q.test(n)) && s.candidates.some(n => !q.test(n))) informative++;
                 }
               if (/\{\w+\}/.test(qs.map(q => q.text).join())) errors.push('question non remplie');
+              // V9.15 : les 3 questions couvrent tous les numéros possibles (donc au moins un OUI, sans fuite)
+              if (!s.candidates.every(n => qs.some(q => q.test(n))))
+                errors.push('questions qui ne couvrent pas ' + level);
+              if (!qs.some(q => q.test(s.secret))) errors.push('aucune question à réponse OUI');
               const r = Math.random();
               if (r < 0.4) N.ask(s.choices[0]);
               else if (r < 0.7) {
@@ -2792,7 +2796,9 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       N.render();
     });
     check(
-      (await S(page)).screen === 'end' && (await S(page)).raceWinner === 0 && (await page.isVisible('.race-hero')),
+      (await S(page)).screen === 'end' &&
+        (await S(page)).raceWinner === 0 &&
+        (await page.isVisible('.race-hero')),
       'Course : Joueur 1 attrape le numéro → fin immédiate, écran de victoire'
     );
     check(page.errors.length === 0, 'Aucune erreur JavaScript (V8.10) ' + page.errors.join(' | '));
@@ -2933,6 +2939,25 @@ async function playFullGame(browser, players, level, lang = 'fr') {
         !(await host.isDisabled('#netLaunch')),
       'Salle d’attente : Léa (hôte), Omar, Zoé — invités en attente, « Lancer » actif (' + hostList + ')'
     );
+    // V9.15 : l'hôte choisit le niveau et le mode dans la salle ; les invités les voient
+    {
+      const lv0 = (await SN(host)).level,
+        md0 = (await SN(host)).gameMode;
+      await host.click('[data-netlevel="malin"]');
+      await host.click('[data-netmode="score"]');
+      await wait(200);
+      const txt = await p2.textContent('.net-rules');
+      check(
+        (await SN(host)).level === 'malin' &&
+          (await SN(host)).gameMode === 'score' &&
+          /Moyen/.test(txt) &&
+          /Points/.test(txt),
+        `Salle Wi-Fi : niveau et mode choisis par l’hôte, affichés chez les invités (« ${txt.trim()} »)`
+      );
+      await host.click(`[data-netlevel="${lv0}"]`);
+      await host.click(`[data-netmode="${md0 === 'score' ? 'score' : 'race'}"]`);
+      await wait(150);
+    }
     // lancement
     await host.click('#netLaunch');
     await wait(300);
@@ -2947,6 +2972,46 @@ async function playFullGame(browser, players, level, lang = 'fr') {
         N.render();
       });
       await wait(200);
+    }
+    // V9.15 : battement de cœur — joueurs silencieux, hôte silencieux, hôte en arrière-plan
+    {
+      await host.evaluate(() => window.__numero.netHeartbeat(Date.now() + 11000));
+      const lost = await host.evaluate(() => window.__numero.netState.lobby.map(p => p.connected).join());
+      await host.evaluate(() => {
+        window.__numero.netState.lastPing = 0;
+        window.__numero.netHeartbeat(Date.now());
+      });
+      await wait(400);
+      const back = await host.evaluate(() => window.__numero.netState.lobby.map(p => p.connected).join());
+      check(
+        lost === 'true,false,false' && back === 'true,true,true',
+        `Wi-Fi : invités muets 10 s → considérés partis (${lost}), puis reprennent leur place s’ils répondent (${back})`
+      );
+      await p2.evaluate(() => window.__numero.netHeartbeat(Date.now() + 11000));
+      await wait(100);
+      const silent = await SN(p2);
+      const silentTxt = await p2.textContent('.modal');
+      await host.evaluate(() => {
+        window.__numero.netState.lastPing = 0;
+        window.__numero.netHeartbeat(Date.now());
+      });
+      await wait(400);
+      check(
+        silent.modal === 'netLost' && /10 secondes/.test(silentTxt) && (await SN(p2)).modal !== 'netLost',
+        'Wi-Fi : hôte muet 10 s → « connexion perdue » chez l’invité, refermée dès que l’hôte répond'
+      );
+      await host.evaluate(() => window.__numero.netVisibility(true));
+      await wait(300);
+      const away = await SN(p3);
+      const awayTxt = await p3.textContent('.modal');
+      await host.evaluate(() => window.__numero.netVisibility(false));
+      await wait(300);
+      check(
+        away.modal === 'netLost' &&
+          /quitté l’application/.test(awayTxt) &&
+          (await SN(p3)).modal !== 'netLost',
+        'Wi-Fi : hôte en arrière-plan → invités prévenus tout de suite, fenêtre refermée à son retour'
+      );
     }
     let [h, s2, s3] = [await SN(host), await SN(p2), await SN(p3)];
     check(
