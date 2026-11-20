@@ -1,5 +1,12 @@
 # Historique des versions
 
+## V9.14 — retour des questions comme avant la V9.12
+
+- À ta demande : une question ne change plus le score (ni +1 pour OUI, ni −1 pour NON), et les 3 questions
+  proposées ne sont plus forcées à contenir une vraie et une fausse. Le rappel « OUI +1 · NON −1 » et la phrase
+  ajoutée à la règle « Points » sont retirés (8 langues).
+- Écran de victoire (V9.12) et fenêtre Pause (V9.13) inchangés.
+
 ## V9.13 — fenêtre Pause alignée sur la maquette
 
 - Panneau bleu royal à rayons, bordure cyan lumineuse ; détective officiel à la loupe (image existante) posé

@@ -10305,24 +10305,6 @@ body.scr-end .panel.race-panel {
     min-height: 58px;
   }
 }
-/* V9.12 : à plusieurs, rappel du pari de la question (OUI +1 · NON −1) */
-.q-title .q-bet {
-  display: inline-block;
-  margin-inline-start: 6px;
-  padding: 1px 8px;
-  border-radius: 999px;
-  background: #14205a;
-  border: 1px solid #ffc83d;
-  color: #ffe08a;
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-  vertical-align: middle;
-}
-.tradeoff .bet {
-  color: #14205a;
-  font-weight: 700;
-}
 
 /* ===== V9.12 : écran de victoire, corrections d'après le pack fourni ===== */
 /* détective : buste à base fondue (plus de coupe nette), proportions conservées (contain) */
@@ -10461,44 +10443,6 @@ body.scr-end:has(.podium-box .pod-row:nth-child(3)) .race-hero .win-det {
   height: 140px;
   bottom: -12px;
 }
-/* V9.12 : jeton de la question à côté de OUI / NON */
-.q-res-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 6px 10px;
-}
-.q-res-row .result-title {
-  margin: 0;
-}
-.q-res-row .fb-score.q-pts {
-  margin: 0;
-}
-/* le jeton reste sur la même ligne que OUI / NON : son libellé passe sur 2 lignes si besoin (allemand…) */
-.q-res-row {
-  flex-wrap: nowrap;
-}
-.q-res-row .result-title {
-  flex: 0 0 auto;
-}
-.q-res-row .fb-score.q-pts {
-  flex: 0 1 auto;
-  min-width: 0;
-  gap: 6px;
-  padding: 3px 4px 3px 10px;
-}
-.q-res-row .fb-score.q-pts small {
-  white-space: normal;
-  max-width: 92px;
-  font-size: 11.5px;
-  line-height: 1.05;
-  text-align: center;
-}
-.q-res-row .fb-score.q-pts b {
-  padding: 1px 10px;
-}
-
 /* ===== V9.13 : fenêtre Pause, alignée sur les écrans de référence ===== */
 .modal:has(.pause-card) {
   position: relative;
@@ -10861,7 +10805,7 @@ const maxFor = (mode, level) => (mode === 'challenge' ? CHALLENGE_MAX : (LEVELS[
  *   miss            par numéro raté (1 en tir précis, 2 ou 3 avec le filet)
  *   deductionBonus  capture juste après avoir posé une question
  */
-const SCORE = { precise: 10, net: 4, miss: -1, deductionBonus: 1, questionYes: 1, questionNo: -1 };
+const SCORE = { precise: 10, net: 4, miss: -1, deductionBonus: 1 };
 
 /** Nombre de filets par joueur et par partie (tous les modes). */
 const NETS_MAX = 3;
@@ -10887,7 +10831,7 @@ const CHALLENGE_SCORE = {
 const CHALLENGE_DIFFS = { easy: 'junior', medium: 'malin', hard: 'expert' };
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.13";
+const APP_VERSION = "9.14";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -11248,8 +11192,6 @@ const dictionaries = {
   "q3": "Il bouge ensuite (1 ou 2 cases).",
   "q3ch": "−5 points, puis saut fou (+7, ×2, miroir 1 ↔ 100…).",
   "q3g": "Il saute ensuite : ±3, ±5, ×2 ou miroir (1 ↔ 50).",
-  "qBet": "À plusieurs : réponse OUI = <b>+1 point</b>, NON = <b>−1 point</b>. Choisis bien !",
-  "qBetShort": "OUI +1 · NON −1",
   "qBetween": "Est-il entre {a} et {b} inclus ?",
   "qDigitSum": "La somme de ses chiffres dépasse-t-elle {k} ?",
   "qDouble": "Son double dépasse-t-il {k} ?",
@@ -11346,7 +11288,7 @@ const dictionaries = {
   "ruleCard3Title": "Attrape-le",
   "ruleExample": "Le numéro bouge toujours : de 1 case au niveau Facile, de 1 ou 2 cases aux niveaux Moyen et Grand, à gauche ou à droite. Après le maximum, on revient à 1. Niveau Génie : il saute de ±3 ou ±5, double (×2) ou passe dans le miroir (1 ↔ 50, 2 ↔ 49…).",
   "ruleMovesTitle": "Comment bouge le numéro ?",
-  "rulePoints": "Course : le premier qui attrape le numéro gagne ; les points servent seulement à départager. Points : capture précise +10, filet +4, −1 par numéro raté, et chaque ⭐ (calcul juste) vaut +1. À plusieurs, chaque question rapporte +1 si la réponse est OUI et −1 si c’est NON.",
+  "rulePoints": "Course : le premier qui attrape le numéro gagne ; les points servent seulement à départager. Points : capture précise +10, filet +4, −1 par numéro raté, et chaque ⭐ (calcul juste) vaut +1.",
   "rulePointsTitle": "Points et victoire",
   "rulesTitle": "Comment jouer ?",
   "score": "points",
@@ -11818,8 +11760,6 @@ const dictionaries = {
   "q3": "It moves afterwards (1 or 2 steps).",
   "q3ch": "−5 points, then a crazy jump (+7, ×2, mirror 1 ↔ 100…).",
   "q3g": "It jumps afterwards: ±3, ±5, ×2 or mirror (1 ↔ 50).",
-  "qBet": "With several players: answer YES = <b>+1 point</b>, NO = <b>−1 point</b>. Choose well!",
-  "qBetShort": "YES +1 · NO −1",
   "qBetween": "Is it between {a} and {b}, inclusive?",
   "qDigitSum": "Is the sum of its digits greater than {k}?",
   "qDouble": "Is twice the number greater than {k}?",
@@ -11916,7 +11856,7 @@ const dictionaries = {
   "ruleCard3Title": "Catch it",
   "ruleExample": "The number always moves: 1 step on Easy, 1 or 2 steps on Medium and Big, left or right. After the maximum, it wraps to 1. Genius level: it jumps ±3 or ±5, doubles (×2) or goes through the mirror (1 ↔ 50, 2 ↔ 49…).",
   "ruleMovesTitle": "How does the number move?",
-  "rulePoints": "Race: the first to catch the number wins; points only break ties. Points: exact catch +10, net +4, −1 per missed number, and each ⭐ (correct sum) is worth +1. With several players, each question earns +1 if the answer is YES and −1 if it is NO.",
+  "rulePoints": "Race: the first to catch the number wins; points only break ties. Points: exact catch +10, net +4, −1 per missed number, and each ⭐ (correct sum) is worth +1.",
   "rulePointsTitle": "Points and winning",
   "rulesTitle": "How to play",
   "score": "points",
@@ -12388,8 +12328,6 @@ const dictionaries = {
   "q3": "يتحرك بعدها (خانة أو خانتين).",
   "q3ch": "−5 نقاط، ثم قفزة مجنونة (+7، ×2، مرآة 1 ↔ 100…).",
   "q3g": "يقفز بعدها: ±3، ±5، ×2 أو مرآة (1 ↔ 50).",
-  "qBet": "عند اللعب الجماعي: الإجابة نعم = <b>+1 نقطة</b>، لا = <b>−1 نقطة</b>. أحسن الاختيار!",
-  "qBetShort": "نعم +1 · لا −1",
   "qBetween": "هل يقع بين {a} و {b} شاملًا الطرفين؟",
   "qDigitSum": "هل مجموع أرقامه أكبر من {k}؟",
   "qDouble": "هل ضعفه أكبر من {k}؟",
@@ -12486,7 +12424,7 @@ const dictionaries = {
   "ruleCard3Title": "أمسِك به",
   "ruleExample": "الرقم يتحرك دائمًا: خانة واحدة في المستوى السهل، وخانة أو خانتين في المستويين المتوسط والكبير، يمينًا أو يسارًا. وبعد الرقم الأخير نعود إلى 1. مستوى العبقري: يقفز ±3 أو ±5، أو يتضاعف (×2)، أو يمر في المرآة (1 ↔ 50، 2 ↔ 49…).",
   "ruleMovesTitle": "كيف يتحرك الرقم؟",
-  "rulePoints": "السباق: أول من يمسك الرقم يفوز، والنقاط للفصل عند التعادل فقط. النقاط: إمساك دقيق ‎+10، الشبكة ‎+4، ‎−1 لكل رقم خاطئ، وكل ⭐ (حساب صحيح) تساوي ‎+1. في اللعب الجماعي، كل سؤال يمنح +1 إذا كانت الإجابة نعم و−1 إذا كانت لا.",
+  "rulePoints": "السباق: أول من يمسك الرقم يفوز، والنقاط للفصل عند التعادل فقط. النقاط: إمساك دقيق ‎+10، الشبكة ‎+4، ‎−1 لكل رقم خاطئ، وكل ⭐ (حساب صحيح) تساوي ‎+1.",
   "rulePointsTitle": "النقاط والفوز",
   "rulesTitle": "طريقة اللعب",
   "score": "نقاط",
@@ -12958,8 +12896,6 @@ const dictionaries = {
   "q3": "Se mueve después (1 o 2 casillas).",
   "q3ch": "−5 puntos y luego un salto loco (+7, ×2, espejo 1 ↔ 100…).",
   "q3g": "Salta después: ±3, ±5, ×2 o espejo (1 ↔ 50).",
-  "qBet": "Con varios jugadores: respuesta SÍ = <b>+1 punto</b>, NO = <b>−1 punto</b>. ¡Elige bien!",
-  "qBetShort": "SÍ +1 · NO −1",
   "qBetween": "¿Está entre {a} y {b}, ambos incluidos?",
   "qDigitSum": "¿La suma de sus cifras es mayor que {k}?",
   "qDouble": "¿Su doble es mayor que {k}?",
@@ -13056,7 +12992,7 @@ const dictionaries = {
   "ruleCard3Title": "Atrápalo",
   "ruleExample": "El número siempre se mueve: 1 casilla en Fácil, 1 o 2 en Medio y Grande, a la izquierda o a la derecha. Después del máximo, vuelve al 1. Nivel Genio: salta ±3 o ±5, se duplica (×2) o pasa por el espejo (1 ↔ 50, 2 ↔ 49…).",
   "ruleMovesTitle": "¿Cómo se mueve el número?",
-  "rulePoints": "Carrera: gana el primero que atrapa el número; los puntos solo sirven para desempatar. Puntos: captura exacta +10, red +4, −1 por número fallado, y cada ⭐ (cálculo correcto) vale +1. Con varios jugadores, cada pregunta da +1 si la respuesta es SÍ y −1 si es NO.",
+  "rulePoints": "Carrera: gana el primero que atrapa el número; los puntos solo sirven para desempatar. Puntos: captura exacta +10, red +4, −1 por número fallado, y cada ⭐ (cálculo correcto) vale +1.",
   "rulePointsTitle": "Puntos y victoria",
   "rulesTitle": "Cómo se juega",
   "score": "puntos",
@@ -13528,8 +13464,6 @@ const dictionaries = {
   "q3": "Si muove dopo (1 o 2 caselle).",
   "q3ch": "−5 punti, poi un salto pazzo (+7, ×2, specchio 1 ↔ 100…).",
   "q3g": "Salta dopo: ±3, ±5, ×2 o specchio (1 ↔ 50).",
-  "qBet": "In più giocatori: risposta SÌ = <b>+1 punto</b>, NO = <b>−1 punto</b>. Scegli bene!",
-  "qBetShort": "SÌ +1 · NO −1",
   "qBetween": "È tra {a} e {b}, compresi?",
   "qDigitSum": "La somma delle sue cifre è maggiore di {k}?",
   "qDouble": "Il suo doppio è maggiore di {k}?",
@@ -13626,7 +13560,7 @@ const dictionaries = {
   "ruleCard3Title": "Catturalo",
   "ruleExample": "Il numero si muove sempre: 1 casella in Facile, 1 o 2 in Medio e Grande, a sinistra o a destra. Dopo il massimo, riparte da 1. Livello Genio: salta ±3 o ±5, raddoppia (×2) o passa allo specchio (1 ↔ 50, 2 ↔ 49…).",
   "ruleMovesTitle": "Come si muove il numero?",
-  "rulePoints": "Corsa: vince il primo che cattura il numero; i punti servono solo per gli spareggi. Punti: cattura esatta +10, rete +4, −1 per numero mancato, e ogni ⭐ (calcolo giusto) vale +1. In più giocatori, ogni domanda vale +1 se la risposta è SÌ e −1 se è NO.",
+  "rulePoints": "Corsa: vince il primo che cattura il numero; i punti servono solo per gli spareggi. Punti: cattura esatta +10, rete +4, −1 per numero mancato, e ogni ⭐ (calcolo giusto) vale +1.",
   "rulePointsTitle": "Punti e vittoria",
   "rulesTitle": "Come si gioca",
   "score": "punti",
@@ -14098,8 +14032,6 @@ const dictionaries = {
   "q3": "Sie bewegt sich danach (1 oder 2 Felder).",
   "q3ch": "−5 Punkte, dann ein verrückter Sprung (+7, ×2, Spiegel 1 ↔ 100 …).",
   "q3g": "Sie springt danach: ±3, ±5, ×2 oder Spiegel (1 ↔ 50).",
-  "qBet": "Mit mehreren Spielern: Antwort JA = <b>+1 Punkt</b>, NEIN = <b>−1 Punkt</b>. Wähle gut!",
-  "qBetShort": "JA +1 · NEIN −1",
   "qBetween": "Liegt sie zwischen {a} und {b} (einschließlich)?",
   "qDigitSum": "Ist ihre Quersumme größer als {k}?",
   "qDouble": "Ist das Doppelte größer als {k}?",
@@ -14196,7 +14128,7 @@ const dictionaries = {
   "ruleCard3Title": "Fang sie",
   "ruleExample": "Die Zahl bewegt sich immer: 1 Feld auf Leicht, 1 oder 2 Felder auf Mittel und Groß, nach links oder rechts. Nach dem Maximum geht es bei 1 weiter. Stufe Genie: Sie springt ±3 oder ±5, verdoppelt sich (×2) oder geht durch den Spiegel (1 ↔ 50, 2 ↔ 49 …).",
   "ruleMovesTitle": "Wie bewegt sich die Zahl?",
-  "rulePoints": "Rennen: Wer die Zahl zuerst fängt, gewinnt; Punkte entscheiden nur bei Gleichstand. Punkte: genauer Fang +10, Netz +4, −1 pro verfehlter Zahl, und jeder ⭐ (richtige Rechnung) zählt +1. Mit mehreren Spielern bringt jede Frage +1, wenn die Antwort JA ist, und −1 bei NEIN.",
+  "rulePoints": "Rennen: Wer die Zahl zuerst fängt, gewinnt; Punkte entscheiden nur bei Gleichstand. Punkte: genauer Fang +10, Netz +4, −1 pro verfehlter Zahl, und jeder ⭐ (richtige Rechnung) zählt +1.",
   "rulePointsTitle": "Punkte und Sieg",
   "rulesTitle": "So wird gespielt",
   "score": "Punkte",
@@ -14668,8 +14600,6 @@ const dictionaries = {
   "q3": "之后它会移动（1 或 2 格）。",
   "q3ch": "−5 分，然后疯狂一跳（+7、×2、镜像 1 ↔ 100……）。",
   "q3g": "之后它会跳：±3、±5、×2 或镜像（1 ↔ 50）。",
-  "qBet": "多人游戏：答案为“是” = <b>+1 分</b>，“否” = <b>−1 分</b>。好好选择！",
-  "qBetShort": "是 +1 · 否 −1",
   "qBetween": "它在 {a} 到 {b} 之间吗（含两端）？",
   "qDigitSum": "它的各位数字之和大于 {k} 吗？",
   "qDouble": "它的两倍大于 {k} 吗？",
@@ -14766,7 +14696,7 @@ const dictionaries = {
   "ruleCard3Title": "抓住它",
   "ruleExample": "数字总会移动：简单难度 1 格，中、大难度 1 或 2 格，向左或向右。超过最大值后回到 1。天才难度：它会跳 ±3 或 ±5、翻倍（×2）或穿过镜子（1 ↔ 50、2 ↔ 49……）。",
   "ruleMovesTitle": "数字怎么移动？",
-  "rulePoints": "竞速：谁先抓到数字谁赢；分数只用于平局时比较。积分：精准捕捉 +10，网 +4，每个失手的数字 −1，每颗 ⭐（算对）+1。 多人游戏时，每个问题答案为“是”得 +1 分，为“否”得 −1 分。",
+  "rulePoints": "竞速：谁先抓到数字谁赢；分数只用于平局时比较。积分：精准捕捉 +10，网 +4，每个失手的数字 −1，每颗 ⭐（算对）+1。",
   "rulePointsTitle": "得分与胜利",
   "rulesTitle": "玩法",
   "score": "分",
@@ -15238,8 +15168,6 @@ const dictionaries = {
   "q3": "そのあと動く（1 か 2 マス）。",
   "q3ch": "−5 点、そして大ジャンプ（+7、×2、鏡 1 ↔ 100……）。",
   "q3g": "そのあとジャンプ：±3、±5、×2 または鏡（1 ↔ 50）。",
-  "qBet": "みんなで遊ぶとき：答えが「はい」= <b>+1点</b>、「いいえ」= <b>−1点</b>。よく選ぼう！",
-  "qBetShort": "はい +1 · いいえ −1",
   "qBetween": "{a} 以上 {b} 以下？",
   "qDigitSum": "各けたの和は {k} より大きい？",
   "qDouble": "2 倍すると {k} より大きい？",
@@ -15336,7 +15264,7 @@ const dictionaries = {
   "ruleCard3Title": "つかまえろ",
   "ruleExample": "数字はいつも動く：かんたんレベルは 1 マス、中・大レベルは 1 か 2 マス、左か右へ。最大をこえたら 1 に戻る。天才レベル：±3 や ±5 のジャンプ、2 倍（×2）、または鏡を通る（1 ↔ 50、2 ↔ 49……）。",
   "ruleMovesTitle": "数字はどう動く？",
-  "rulePoints": "レース：最初に数字をつかまえた人の勝ち。点数は引き分けのときだけ使う。ポイント：ピタリ捕獲 +10、網 +4、はずれた数字 1 個につき −1、⭐（計算正解）1 つにつき +1。 みんなで遊ぶとき、質問の答えが「はい」なら +1、「いいえ」なら −1。",
+  "rulePoints": "レース：最初に数字をつかまえた人の勝ち。点数は引き分けのときだけ使う。ポイント：ピタリ捕獲 +10、網 +4、はずれた数字 1 個につき −1、⭐（計算正解）1 つにつき +1。",
   "rulePointsTitle": "点数と勝ち方",
   "rulesTitle": "遊び方",
   "score": "点",
@@ -15590,8 +15518,6 @@ const maxN = () => maxFor(g.mode, g.level);
 /** Indice du joueur dont c'est le tour (le premier joueur change à chaque partie : g.starter). */
 const active = () => (g.turn + (g.starter || 0)) % g.players;
 /** Mode « Course » (et solo) : la première capture gagne. Sinon mode « Points » (score après N tours). */
-/** V9.12 : à plusieurs (hors Défi), une question rapporte +1 si la réponse est OUI, −1 si c'est NON. */
-const questionBet = () => g.mode !== 'challenge' && g.players > 1;
 const isRace = () => g.mode !== 'challenge' && (g.players === 1 || g.gameMode !== 'score');
 /** Filets restants pour le joueur i (NETS_MAX par partie). */
 const netsLeft = (i = active()) =>
@@ -15882,29 +15808,6 @@ function makeChoices() {
       if (chosen.length >= 3) break;
       if (!chosen.includes(q)) chosen.push(q);
     }
-  }
-  // V9.12 : à plusieurs, au moins une question VRAIE et une FAUSSE pour le numéro caché (OUI +1 / NON −1) :
-  // il y a toujours une bonne question à trouver, et toujours un piège.
-  if (questionBet() && g.secret) {
-    const picked = chosen.slice(0, 3);
-    for (const want of [true, false]) {
-      if (picked.some(q => !!q.test(g.secret) === want)) continue;
-      const fits = q => !picked.includes(q) && !!q.test(g.secret) === want;
-      const typed = q => fits(q) && !picked.slice(0, 2).some(p => p.type === q.type);
-      const alt =
-        candidates.find(typed) ||
-        candidates.find(fits) ||
-        shuffle(pool.filter(qualifies)).find(typed) ||
-        shuffle(pool.filter(qualifies)).find(fits) ||
-        pool.find(fits);
-      if (!alt) continue;
-      // on remplace la dernière question qui a la même réponse qu'une autre
-      const same = [...picked]
-        .reverse()
-        .find(q => picked.filter(o => !!o.test(g.secret) === !!q.test(g.secret)).length > 1);
-      picked[picked.indexOf(same || picked[picked.length - 1])] = alt;
-    }
-    chosen.splice(0, chosen.length, ...picked);
   }
   g.choices = chosen.slice(0, 3).map(q => q.id);
   g.shownIds.push(...g.choices);
@@ -17165,10 +17068,7 @@ function ask(id) {
   g.helpUsed = true;
   g.helpKind = 'question';
   sfx('move');
-  // V9.12 : à plusieurs, bien choisir sa question compte (OUI +1, NON −1)
-  const qpts = questionBet() ? (answer ? SCORE.questionYes : SCORE.questionNo) : 0;
-  if (qpts) g.scores[player] += qpts;
-  g.last = { type: 'question', qid: id, answer, shift, player, qpts };
+  g.last = { type: 'question', qid: id, answer, shift, player };
   pushHist();
   g.phase = 'result';
   g.showHints = false;
@@ -17667,8 +17567,7 @@ function scoreDelta(i) {
     found: SCORE.precise + (x.bonus || 0),
     netHit: SCORE.net + (x.bonus || 0),
     wrong: SCORE.miss,
-    netMiss: SCORE.miss * (x.nums || []).length,
-    question: x.qpts || 0
+    netMiss: SCORE.miss * (x.nums || []).length
   }[x.type];
   return d ? `<i class="delta ${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : '−'}${Math.abs(d)}</i>` : '';
 }
@@ -17860,7 +17759,7 @@ function questionView() {
     mathOn = g.mathStarted && !g.helpUsed,
     gridclass = maxN() === 30 ? 'expert' : maxN() === 15 ? 'wide' : '';
   return `<div class="actiontabs" role="tablist"><button class="actiontab ${g.tab === 'question' ? 'selected' : ''}" data-tab="question" ${locked || mathOn ? 'disabled' : ''}>💡 ${t('tabQuestion')}</button><button class="actiontab ${g.tab === 'math' ? 'selected' : ''}" data-tab="math" ${locked ? 'disabled' : ''}>🧮 ${t('tabMath')}</button><button class="actiontab ${g.tab === 'guess' ? 'selected' : ''}" data-tab="guess">🎯 ${t('tabGuess')}</button></div>
- <div class="actionpane ${g.tab === 'question' ? 'selected' : ''}"><div class="q-head">${g.showInfo ? `<ul class="tradeoff"><li class="up">👍 ${t('q1')}</li>${g.mode === 'challenge' ? '' : `<li class="gift">🎁 ${t('q2')}</li>`}<li class="down">👎 ${t(g.mode === 'challenge' ? 'q3ch' : g.level === 'genius' ? 'q3g' : 'q3')}</li>${questionBet() ? `<li class="bet">🎲 ${t('qBet')}</li>` : ''}</ul>` : `<p class="q-title">${t('chooseQuestionShort')}${questionBet() ? ` <small class="q-bet" dir="ltr">${t('qBetShort')}</small>` : ''}</p>`}<button class="mini-btn small info-btn ${g.showInfo ? 'on' : ''}" data-info aria-pressed="${!!g.showInfo}" aria-label="${t('infoBtn')}" title="${t('infoBtn')}">ℹ️</button><button class="mini-btn small reroll" id="reroll" ${g.rerolled ? 'disabled' : ''} aria-label="${t('changeQuestions')}" title="${t('changeQuestions')}">🔀</button></div><div class="questions">${options.map(q => `<button class="qbtn" data-question="${q.id}"><span class="qicon">${q.icon}</span><span class="qtext">${esc(q.text)}<small>${esc(q.type)}</small></span></button>`).join('')}</div>${miniNotebook()}</div>
+ <div class="actionpane ${g.tab === 'question' ? 'selected' : ''}"><div class="q-head">${g.showInfo ? `<ul class="tradeoff"><li class="up">👍 ${t('q1')}</li>${g.mode === 'challenge' ? '' : `<li class="gift">🎁 ${t('q2')}</li>`}<li class="down">👎 ${t(g.mode === 'challenge' ? 'q3ch' : g.level === 'genius' ? 'q3g' : 'q3')}</li></ul>` : `<p class="q-title">${t('chooseQuestionShort')}</p>`}<button class="mini-btn small info-btn ${g.showInfo ? 'on' : ''}" data-info aria-pressed="${!!g.showInfo}" aria-label="${t('infoBtn')}" title="${t('infoBtn')}">ℹ️</button><button class="mini-btn small reroll" id="reroll" ${g.rerolled ? 'disabled' : ''} aria-label="${t('changeQuestions')}" title="${t('changeQuestions')}">🔀</button></div><div class="questions">${options.map(q => `<button class="qbtn" data-question="${q.id}"><span class="qicon">${q.icon}</span><span class="qtext">${esc(q.text)}<small>${esc(q.type)}</small></span></button>`).join('')}</div>${miniNotebook()}</div>
  <div class="actionpane ${g.tab === 'math' ? 'selected' : ''}"><div class="mathbox"><div class="math-title"><b dir="ltr" class="${mathText(g.math).length > 12 ? 'long' : ''}">${mathText(g.math)} = ?</b>${g.math.options.length > 3 ? `<small class="prio">${t('mathRewardSix')}</small>` : ''}${g.mode === 'challenge' && g.chFreezes != null ? `<small class="prio freeze-left">🧊 ${t('freezesLeft', { n: g.chFreezes })}</small>` : ''}</div>${!g.showInfo ? `<button class="info-link" data-info>ℹ️ ${t('infoBtn')}</button>` : g.mode === 'challenge' ? `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1ch')}</li><li class="gift">🎁 ${t(g.chKind === 'timed' ? 'm2chT' : 'm2ch')}</li><li class="down">👎 ${t('m3ch')}</li></ul>` : `<ul class="tradeoff" data-info title="✕"><li class="up">👍 ${t('m1')}</li><li class="gift">${t('m2')}</li><li class="down">👎 ${t('m3')}</li></ul>`}<div class="mathform ${g.math.options.length > 3 ? 'six' : ''}" dir="ltr">${g.math.options.map(n => `<button class="mathbtn" data-math="${n}">${n}</button>`).join('')}</div></div></div>
  <div class="actionpane ${g.tab === 'guess' ? 'selected' : ''} ${maxN() > 30 ? 'with-keypad' : ''}"><div class="pane-head"><p class="pick-hint">${g.answerLost ? t('answerTimeUp') : maxN() > 30 ? t('keypadHint', { max: maxN() }) : g.helpUsed ? t('captPick', { max: maxN() }) : t('proGuess')}</p>${helpMode() === 'ask' ? `<button class="mini-btn small ${g.showHints ? 'is-on' : ''}" id="hints" aria-pressed="${g.showHints}">💡 ${t('hintsOn')}</button>` : ''}${g.mode === 'challenge' ? `<button class="mini-btn small pass-btn" id="passTurn" title="${esc(t('passHint'))}">🏃 ${t('passBtn')}</button>` : ''}</div>${
    maxN() > 30
@@ -18053,13 +17952,10 @@ function resultView() {
         ? ''
         : `<div class="fb-hero"><span class="hp hp-${fb === 'good' ? 'bravo' : 'oups'}"></span></div>`)
     : '';
-  let titleHtml = `<div class="result-title${fb ? ' fb-pill' : ''}">${fb ? `<i class="fb-mark">${fb === 'good' ? '✓' : '✕'}</i>` : ''}${title}</div>`;
+  const titleHtml = `<div class="result-title${fb ? ' fb-pill' : ''}">${fb ? `<i class="fb-mark">${fb === 'good' ? '✓' : '✕'}</i>` : ''}${title}</div>`;
   // V9.5 : les points gagnés / perdus vont dans un jeton « Ton score » à part, pour ne pas les confondre
   // avec le déplacement du numéro (« ← −2 »)
   let scoreChip = '';
-  // V9.12 : à plusieurs, le jeton « Ton score » de la question se place à côté de OUI / NON (pas de hauteur en plus)
-  if (x.type === 'question' && x.qpts)
-    titleHtml = `<div class="q-res-row">${titleHtml}<div class="fb-score q-pts ${x.qpts < 0 ? 'neg' : 'pos'}"><small>${t('fbScore')}</small><b dir="ltr">${x.qpts < 0 ? '🔻 −' : '🔺 +'}${Math.abs(x.qpts)}</b></div></div>`;
   if (fb && ['wrong', 'netMiss'].includes(x.type)) {
     const m = /\s*<b>([+−-]\s?[^<]*)<\/b>\s*[.。]?/.exec(desc);
     if (m) {

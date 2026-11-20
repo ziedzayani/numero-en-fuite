@@ -15,10 +15,7 @@ function ask(id) {
   g.helpUsed = true;
   g.helpKind = 'question';
   sfx('move');
-  // V9.12 : à plusieurs, bien choisir sa question compte (OUI +1, NON −1)
-  const qpts = questionBet() ? (answer ? SCORE.questionYes : SCORE.questionNo) : 0;
-  if (qpts) g.scores[player] += qpts;
-  g.last = { type: 'question', qid: id, answer, shift, player, qpts };
+  g.last = { type: 'question', qid: id, answer, shift, player };
   pushHist();
   g.phase = 'result';
   g.showHints = false;
