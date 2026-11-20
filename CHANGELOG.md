@@ -1,5 +1,11 @@
 # Historique des versions
 
+## V9.8 — icônes dessinées des écrans de fin
+
+- Pack d'icônes « victoire » à la place des émojis : engrenage (Réglages), flèches (Rejouer), maison (Accueil),
+  coureur (« le numéro se cachait… »), trophée et confettis (victoire), médailles 1, 2, 3 (podium), couronne
+  (« Podium »). Le détective pouce levé du pack n'est pas repris : il existe déjà.
+
 ## V9.7
 
 - Le niveau **« Petit » s'appelle « Facile »** (8 langues : Easy, Fácil, Facile, Leicht, سهل, 简单, かんたん).

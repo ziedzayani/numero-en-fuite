@@ -2145,3 +2145,115 @@ body.scr-end .podium-panel > .escaped-note {
 body.scr-end .podium-panel > .escaped-note .rp-open {
   margin: 0;
 }
+
+/* ===== V9.8 : icônes dessinées (pack « victoire ») à la place des émojis ===== */
+.ic {
+  display: inline-block;
+  width: 1.35em;
+  height: 1.35em;
+  vertical-align: -0.3em;
+  background: center / contain no-repeat;
+  flex: 0 0 auto;
+}
+.ic-gear {
+  background-image: url(img/ic-gear.webp);
+}
+.ic-replay {
+  background-image: url(img/ic-replay.webp);
+  margin-inline-end: 8px;
+  width: 1.5em;
+  height: 1.5em;
+}
+.ic-home {
+  background-image: url(img/ic-home.webp);
+  width: 1.7em;
+  height: 1.7em;
+}
+.ic-runner {
+  background-image: url(img/ic-runner.webp);
+  width: 1.8em;
+  height: 1.6em;
+  margin-inline-end: 8px;
+  padding-inline-end: 8px;
+  border-inline-end: 2px solid rgba(169, 120, 0, 0.5);
+  background-origin: content-box;
+}
+.icon-btn .ic-gear {
+  width: 26px;
+  height: 26px;
+}
+/* trophée et confettis de la victoire */
+.race-hero {
+  position: relative;
+}
+.race-hero .rh-trophy {
+  width: 64px;
+  height: 52px;
+  font-size: 0;
+  background: url(img/ic-trophy.webp) center / contain no-repeat;
+}
+.rh-confetti {
+  position: absolute;
+  inset: -6px 0 auto auto;
+  width: 120px;
+  height: 120px;
+  background: url(img/ic-confetti.webp) center / contain no-repeat;
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: -1;
+  animation: fb-pop 0.8s ease-out;
+}
+/* médailles dessinées sur le podium (1, 2, 3) */
+.pod-row.place-1 .medal,
+.pod-row.place-2 .medal,
+.pod-row.place-3 .medal {
+  width: 44px;
+  height: 50px;
+  font-size: 0 !important;
+  background: center / contain no-repeat;
+  background-origin: content-box;
+}
+.pod-row.place-1 .medal {
+  background-image: url(img/ic-medal1.webp);
+}
+.pod-row.place-2 .medal {
+  background-image: url(img/ic-medal2.webp);
+}
+.pod-row.place-3 .medal {
+  background-image: url(img/ic-medal3.webp);
+}
+.podium-panel:has(.pod-row:nth-of-type(3)) .pod-row .medal {
+  width: 32px;
+  height: 36px;
+}
+/* « Podium » : couronne + lauriers */
+.podium-panel .podium-label::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 18px;
+  margin: 0 6px 0 0;
+  vertical-align: -2px;
+  background: url(img/ic-crown.webp) center / contain no-repeat;
+}
+.podium-panel .podium-label::after {
+  content: none;
+}
+.next-starter::before {
+  content: '🏁 ';
+}
+.rh-confetti {
+  z-index: 0;
+  inset: -10px 6px auto auto;
+}
+.race-hero .rh-side,
+.race-hero .hero-mascot {
+  position: relative;
+  z-index: 1;
+}
+.pod-row.place-1 .medal,
+.pod-row.place-2 .medal,
+.pod-row.place-3 .medal {
+  width: 52px;
+  height: 58px;
+}
