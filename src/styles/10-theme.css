@@ -5225,3 +5225,12 @@ html[lang='ja'] .pause-card .pz-msg {
 .office-panel:has(.promo-line) .office-rank .xp-bar {
   margin-block: 4px 0;
 }
+/* barre de progression d'un badge : toute la largeur de la carte */
+.office-panel .badge small:has(.b-prog) {
+  justify-self: stretch;
+  width: 100%;
+}
+.office-panel .badge .b-prog {
+  width: 100%;
+  min-width: 64px;
+}
