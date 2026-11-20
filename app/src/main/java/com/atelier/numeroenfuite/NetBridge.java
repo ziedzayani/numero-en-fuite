@@ -25,6 +25,7 @@ import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,6 +74,30 @@ public final class NetBridge {
     private NsdManager.DiscoveryListener discovery;
     /** V9.18 : recherche des parties proches (liste « Partie de Zied »), indépendante de joinStart. */
     private NsdManager.DiscoveryListener scan;
+    /*
+     * V9.25 : une partie n'est montrée que si son hôte répond VRAIMENT (connexion TCP de contrôle), et elle
+     * disparaît dès qu'il ne répond plus. Android garde parfois en cache des annonces de parties terminées
+     * (application fermée sans « au revoir » mDNS) : elles ne s'affichent plus.
+     * Maps lues / écrites sur le fil principal (sauf la connexion de contrôle, sur `io`).
+     */
+    private static final long PROBE_EVERY_MS = 4000;
+    private static final int PROBE_TIMEOUT_MS = 1500;
+    private final Map<String, NsdServiceInfo> scanFound = new ConcurrentHashMap<>();
+    private final Map<String, InetSocketAddress> scanAddr = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> scanAlive = new ConcurrentHashMap<>();
+    private final ArrayDeque<String> resolveQueue = new ArrayDeque<>();
+    private boolean scanResolving;
+    private final Runnable probeTick = new Runnable() {
+        @Override
+        public void run() {
+            if (scan == null) return;
+            for (String name : scanFound.keySet()) {
+                if (scanAddr.containsKey(name)) probe(name);
+                else queueResolve(name);
+            }
+            main.postDelayed(this, PROBE_EVERY_MS);
+        }
+    };
     private WifiManager.MulticastLock multicastLock;
     private Runnable joinTimeout;
 
@@ -173,15 +198,103 @@ public final class NetBridge {
                 @Override public void onDiscoveryStopped(String type) { }
                 @Override public void onStartDiscoveryFailed(String type, int err) { scan = null; }
                 @Override public void onStopDiscoveryFailed(String type, int err) { }
-                @Override public void onServiceFound(NsdServiceInfo info) { room("room", info.getServiceName()); }
-                @Override public void onServiceLost(NsdServiceInfo info) { room("roomLost", info.getServiceName()); }
+                @Override public void onServiceFound(final NsdServiceInfo info) {
+                    final String name = info.getServiceName();
+                    if (name == null) return;
+                    main.post(() -> {
+                        if (scan == null) return;
+                        scanFound.put(name, info);
+                        queueResolve(name);
+                    });
+                }
+                @Override public void onServiceLost(NsdServiceInfo info) {
+                    final String name = info.getServiceName();
+                    if (name == null) return;
+                    main.post(() -> {
+                        scanFound.remove(name);
+                        scanAddr.remove(name);
+                        if (Boolean.TRUE.equals(scanAlive.remove(name))) room("roomLost", name);
+                    });
+                }
             };
             try {
                 nsd.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, scan);
+                main.postDelayed(probeTick, PROBE_EVERY_MS);
             } catch (RuntimeException e) {
                 scan = null;
             }
         });
+    }
+
+    /** Une résolution à la fois (certains Android refusent les résolutions simultanées). Fil principal. */
+    private void queueResolve(String name) {
+        if (!resolveQueue.contains(name)) resolveQueue.add(name);
+        resolveNext();
+    }
+
+    @SuppressWarnings("deprecation")
+    private void resolveNext() {
+        if (scanResolving || scan == null || nsd == null) return;
+        String next;
+        NsdServiceInfo info = null;
+        do {
+            next = resolveQueue.poll();
+            if (next != null) info = scanFound.get(next);
+        } while (next != null && info == null);
+        if (next == null) return;
+        final String name = next;
+        scanResolving = true;
+        try {
+            nsd.resolveService(info, new NsdManager.ResolveListener() {
+                @Override
+                public void onResolveFailed(NsdServiceInfo i, int err) {
+                    main.post(() -> {
+                        scanResolving = false;
+                        setAlive(name, false);
+                        resolveNext();
+                    });
+                }
+
+                @Override
+                public void onServiceResolved(final NsdServiceInfo i) {
+                    main.post(() -> {
+                        scanResolving = false;
+                        if (scanFound.containsKey(name) && i.getHost() != null) {
+                            scanAddr.put(name, new InetSocketAddress(i.getHost(), i.getPort()));
+                            probe(name);
+                        }
+                        resolveNext();
+                    });
+                }
+            });
+        } catch (RuntimeException e) {
+            scanResolving = false;
+        }
+    }
+
+    /** Connexion de contrôle (ouverte puis refermée aussitôt) : l'hôte de cette partie répond-il ? */
+    private void probe(final String name) {
+        final InetSocketAddress addr = scanAddr.get(name);
+        if (addr == null) return;
+        io.execute(() -> {
+            boolean ok;
+            try (Socket s = new Socket()) {
+                s.connect(addr, PROBE_TIMEOUT_MS);
+                ok = true;
+            } catch (IOException e) {
+                ok = false;
+            }
+            final boolean alive = ok;
+            main.post(() -> setAlive(name, alive));
+        });
+    }
+
+    /** Fil principal : n'envoie au jeu que les changements (apparition / disparition d'une partie). */
+    private void setAlive(String name, boolean alive) {
+        if (scan == null || !scanFound.containsKey(name)) return;
+        Boolean was = scanAlive.put(name, alive);
+        if (alive && !Boolean.TRUE.equals(was)) room("room", name);
+        else if (!alive && Boolean.TRUE.equals(was)) room("roomLost", name);
     }
 
     @JavascriptInterface
@@ -190,6 +303,12 @@ public final class NetBridge {
     }
 
     private void stopScan() {
+        main.removeCallbacks(probeTick);
+        resolveQueue.clear();
+        scanResolving = false;
+        scanFound.clear();
+        scanAddr.clear();
+        scanAlive.clear();
         if (scan != null && nsd != null) {
             try {
                 nsd.stopServiceDiscovery(scan);

@@ -353,6 +353,8 @@
   "netRetryFailed": "Partida no encontrada: puede que el anfitrión se haya ido o haya creado una partida nueva.",
   "netRoomOf": "Partida de {player}",
   "netRoomsFound": "Partidas en este wifi:",
+  "netRoomsNone": "Ninguna partida por ahora",
+  "netRoomsNoneHint": "La partida aparecerá aquí en cuanto el anfitrión la cree.",
   "netRoomsSearching": "Buscando partidas en este wifi…",
   "netSameWifi": "Todos los móviles deben estar en el mismo Wi-Fi (o en el punto de acceso de uno de ellos).",
   "netSearching": "Buscando la partida en el Wi-Fi…",

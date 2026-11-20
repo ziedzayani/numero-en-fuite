@@ -353,6 +353,8 @@
   "netRetryFailed": "ゲームが見つかりません：ホストが退出したか、新しいゲームを作ったかもしれません。",
   "netRoomOf": "{player} のゲーム",
   "netRoomsFound": "この Wi-Fi で見つかったゲーム：",
+  "netRoomsNone": "まだゲームはありません",
+  "netRoomsNoneHint": "ホストが作るとここに表示されます。",
   "netRoomsSearching": "この Wi-Fi でゲームを探しています…",
   "netSameWifi": "すべてのスマホを同じ Wi-Fi（または 1 台のテザリング）につないでね。",
   "netSearching": "Wi-Fi でゲームをさがしています……",

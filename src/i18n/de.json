@@ -353,6 +353,8 @@
   "netRetryFailed": "Spiel nicht gefunden: Der Gastgeber ist vielleicht gegangen oder hat ein neues Spiel erstellt.",
   "netRoomOf": "Spiel von {player}",
   "netRoomsFound": "Spiele in diesem WLAN:",
+  "netRoomsNone": "Noch kein Spiel",
+  "netRoomsNoneHint": "Das Spiel erscheint hier, sobald der Gastgeber es erstellt.",
   "netRoomsSearching": "Suche nach Spielen in diesem WLAN…",
   "netSameWifi": "Alle Handys müssen im selben WLAN sein (oder im Hotspot eines Handys).",
   "netSearching": "Suche das Spiel im WLAN …",

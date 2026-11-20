@@ -144,3 +144,11 @@ départ de l'hôte, redémarrage. Mise en page des écrans Wi-Fi : `npm run audi
 4. Un invité éteint son écran ou quitte l'application 30 s, puis revient (Réessayer).
 5. Wi-Fi « invité » / public : vérifier que le message « Partie introuvable » s'affiche (réseaux qui isolent les appareils).
 6. L'hôte quitte en pleine partie.
+
+## Parties proches : seulement celles qui existent (V9.25)
+
+Pendant la recherche (`scanStart`), chaque annonce « NEF-code-Prénom » est résolue (une résolution à la fois), puis
+une **connexion de contrôle** TCP (ouverte puis refermée, 1,5 s au plus) vérifie que l'hôte répond. L'événement
+`room` n'est envoyé qu'après cette vérification ; les annonces sont revérifiées toutes les 4 s et `roomLost` part dès
+qu'un hôte ne répond plus (ou quand Android signale la perte du service). Côté hôte, la connexion de contrôle ne
+dit jamais « hello » : le jeu l'ignore (`peerLeft` d'un pair inconnu). Le jeu vide sa liste à chaque recherche.

@@ -353,6 +353,8 @@
   "netRetryFailed": "Game not found: the host may have left or started a new game.",
   "netRoomOf": "{player}’s game",
   "netRoomsFound": "Games found on this Wi-Fi:",
+  "netRoomsNone": "No game yet",
+  "netRoomsNoneHint": "The game will appear here as soon as the host creates it.",
   "netRoomsSearching": "Looking for games on this Wi-Fi…",
   "netSameWifi": "All phones must be on the same Wi-Fi (or on one phone’s hotspot).",
   "netSearching": "Looking for the game on the Wi-Fi…",

@@ -411,9 +411,10 @@ function blindJump(shift) {
           : s.op === '÷'
             ? 'shrink'
             : 'mirror';
+  // V9.25 : étiquette « ×2 » sans le ✖️ (il débordait de la pastille) ; miroir = 10 cases, la ligne passe exactement entre les deux cases du milieu
   // le pion reste DANS sa piste (64 px) : au plus 17 px de chaque côté du centre, plus loin si le saut est grand
   const dx = s.op === '+' ? Math.round(Math.sign(s.k) * (5 + 2.4 * Math.min(Math.abs(s.k), 5))) : 0;
-  return `<span class="blind-jump ${kind}" dir="ltr" aria-hidden="true" style="--dx:${dx}px;--dir:${dx < 0 ? -1 : 1}"><span class="bj-track">${'<i></i>'.repeat(11)}</span><b class="bj-token">?</b></span><b dir="ltr" class="bj-label">${shiftSymbol(shift)}</b>`;
+  return `<span class="blind-jump ${kind}" dir="ltr" aria-hidden="true" style="--dx:${dx}px;--dir:${dx < 0 ? -1 : 1}"><span class="bj-track">${'<i></i>'.repeat(kind === 'mirror' ? 10 : 11)}</span><b class="bj-token">?</b></span><b dir="ltr" class="bj-label ${kind}">${shiftSymbol(shift).replace(/✖️ /g, '')}</b>`;
 }
 /** Pavé numérique (Génie et défi : trop de numéros pour une grille). */
 function keypadHTML() {
@@ -784,7 +785,41 @@ function end() {
   const soloLost = g.players === 1 && g.soloWon === false;
   // V9.4 : personne n'a trouvé le numéro → pas de fête (même si quelqu'un a plus de points)
   const noCatch = g.players > 1 && (isRace() || !g.captures);
+  // V9.25 : victoire aux points (sur un téléphone ou en Wi-Fi) = même écran que la victoire de la Course
+  if (g.players > 1 && !noCatch) return endPoints(tot, champions);
   return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${noCatch ? '' : shareButton()}<button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
+}
+/**
+ * V9.25 : fin du mode Points avec au moins une capture — structure, couleurs et boutons de l'écran de
+ * victoire de la Course (référence) : détective, trophée, bandeau vert, numéro caché, podium, prochaine partie.
+ * Les valeurs restent celles du jeu : points (captures + ⭐), ex aequo à la même place.
+ */
+function endPoints(tot, champions) {
+  const order = tot
+      .map((v, i) => ({ v, i }))
+      .sort((a, b) => b.v - a.v)
+      .map(o => ({ ...o, place: 1 + tot.filter(x => x > o.v).length })),
+    medal = n => ['🥇', '🥈', '🥉', '🎖️'][Math.min(n, 4) - 1],
+    next = (g.starter + 1) % g.players;
+  const rows = order
+    .map(
+      o =>
+        `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div class="pr-main"><div class="pr-top"><strong>${esc(pname(o.i))}${seriesBadge(o.i)}</strong><b class="pr-pts" dir="ltr" title="${esc(t('starsBonus'))}">${o.v} <small>${t('score')}</small></b></div><small class="pr-sub" title="${esc(t('subtotals', { c: g.scores[o.i], s: g.stars[o.i] || 0 }))}">${t('subtotals', { c: g.scores[o.i], s: g.stars[o.i] || 0 })}</small></div></div>`
+    )
+    .join('');
+  const decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
+  const film = g.lastHunt
+    ? `<button class="mini-btn rp-open rp-icon" id="openReplay" aria-label="${esc(t('rpButton'))}" title="${esc(t('rpButton'))}"><i class="ico ico-clap" aria-hidden="true"></i></button>`
+    : '';
+  const caught = g.escaped
+    ? `<div class="escaped-note race-caught"><span>${tHtml('escapedWas', { n: `<b class="big-n">${g.escaped.n}</b>` })}</span>${film}</div>`
+    : '';
+  const title =
+    seriesTitle() ||
+    (champions.length === 1
+      ? t('endWinner', { player: champions[0] })
+      : t('endTie', { players: champions.join(', ') }));
+  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero points-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${title}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${t('capturesSummary', { count: g.captures, turns: g.limit })}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel points-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {

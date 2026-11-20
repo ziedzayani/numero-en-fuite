@@ -361,7 +361,10 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     (await page.isVisible('#again')) && (await page.isVisible('#menu')),
     `${label} : boutons Rejouer / Accueil`
   );
-  const shown = await page.$$eval('.finalscore .value', els => els.map(e => parseInt(e.textContent)));
+  // V9.25 : victoire aux points = écran de la Course, points à côté du prénom (.pr-pts)
+  const shown = await page.$$eval('.finalscore .value, .finalscore .pr-pts', els =>
+    els.map(e => parseInt(e.textContent))
+  );
   const totals = st.scores.map((v, i) => v + st.stars[i]).sort((a, b) => b - a);
   if (players > 1)
     check(
@@ -2930,6 +2933,26 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       (await p2.inputValue('#netCode')) === (code === '9999' ? '8888' : '9999') &&
         (await p2.textContent('.net-rooms')).includes('Test'),
       'Rejoindre : une partie trouvée pendant la saisie s’ajoute à la liste sans effacer le code tapé'
+    );
+    // V9.25 : une partie qui n'existe plus disparaît ; sans partie, état vide (jamais d'ancienne entrée)
+    await p2.evaluate(c => {
+      window.__netEvent(JSON.stringify({ type: 'roomLost', code: '1111' }));
+      window.__netEvent(JSON.stringify({ type: 'roomLost', code: c }));
+    }, code);
+    await wait(100);
+    const empty = await p2.evaluate(() => ({
+      rows: document.querySelectorAll('.net-room').length,
+      empty: (document.querySelector('.net-rooms-empty') || {}).textContent || ''
+    }));
+    check(
+      empty.rows === 0 && /Aucune partie/.test(empty.empty),
+      `Rejoindre : parties disparues retirées, état vide affiché (« ${empty.empty.trim()} »)`
+    );
+    await p2.evaluate(c => window.__netEvent(JSON.stringify({ type: 'room', code: c, name: 'Léa' })), code);
+    await wait(100);
+    check(
+      (await p2.$$('.net-room')).length === 1 && !(await p2.$('.net-rooms-empty')),
+      'Rejoindre : la partie réapparaît dès qu’elle est de nouveau annoncée'
     );
     await p2.click('#netJoinGo');
     await wait(150);

@@ -5234,3 +5234,272 @@ html[lang='ja'] .pause-card .pz-msg {
   width: 100%;
   min-width: 64px;
 }
+
+/* ===== V9.25 : effets miroir et ×2 du « numéro s'échappe », victoire aux points, parties Wi-Fi ===== */
+/* miroir : ligne pointillée exactement au milieu (entre les cases 5 et 6 sur 10) ; le drap part de la
+   3e case et arrive sur la 8e, symétrique par rapport à la ligne */
+.mv-drap .blind-jump.mirror::before {
+  left: 50%;
+  margin-left: -1.5px;
+  width: 0;
+}
+.mv-drap .blind-jump.mirror {
+  --mir-a: calc(9.5px + (100% - 19px) * 2 / 9);
+  --mir-b: calc(9.5px + (100% - 19px) * 7 / 9);
+}
+.mv-drap .blind-jump.mirror .bj-token {
+  left: var(--mir-b);
+  animation: drap-mirror-c 1.5s ease-in-out 0.2s both;
+}
+@keyframes drap-mirror-c {
+  0% {
+    left: var(--mir-a);
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  45% {
+    left: calc(50% - 14px);
+    transform: scaleX(0.15);
+    opacity: 0.4;
+  }
+  55% {
+    left: calc(50% + 14px);
+    transform: scaleX(0.15);
+    opacity: 0.4;
+  }
+  100% {
+    left: var(--mir-b);
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+.reduce-motion .mv-drap .blind-jump.mirror .bj-token {
+  left: var(--mir-b);
+  transform: none;
+}
+/* ×2 / ×3 : le drap part plus petit et grandit sans dépasser sa piste ; l'étiquette garde de l'air au-dessus */
+.mv-drap .blind-jump.grow .bj-token {
+  bottom: 6px;
+  width: 48px;
+  height: 40px;
+  margin-left: -24px;
+}
+.mv-drap .bj-label.grow {
+  margin-bottom: 10px;
+}
+/* victoire aux points : même écran que la Course ; les points à droite du prénom */
+.points-hero.race-hero h1 {
+  font-size: clamp(19px, 6vw, 24px);
+}
+.points-panel .pr-main {
+  min-width: 0;
+}
+.points-panel .pr-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.points-panel .pr-top strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.points-panel .pr-pts {
+  flex: 0 0 auto;
+  color: var(--hunt-gold);
+  font-size: 19px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.points-panel .pr-pts small {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.points-panel .pr-pts small {
+  display: inline;
+}
+.points-panel .pr-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.points-hero.race-hero h1 {
+  font-size: clamp(18px, 5.6vw, 22px);
+}
+.points-panel .race-caught,
+.race-caught:has(.rp-icon) {
+  gap: 10px;
+}
+.points-panel .podium-box .pod-row {
+  padding-block: 3px;
+}
+.points-panel .pr-top {
+  line-height: 1.1;
+}
+.points-panel .pr-pts {
+  font-size: 17px;
+}
+.points-panel .podium-box .pod-row .pr-sub {
+  margin-top: 1px;
+  line-height: 1.15;
+}
+.points-hero.race-hero h1 {
+  padding: 14px 10px 8px;
+}
+.points-panel:has(.pod-row:nth-of-type(3)) .podium-box .pod-row .medal {
+  height: 36px !important;
+}
+.points-hero .rh-trophy {
+  width: 76px;
+  height: 58px;
+  margin-bottom: -14px;
+}
+.points-hero .rh-line {
+  margin-top: 4px;
+  font-size: 12.5px;
+  line-height: 1.2;
+}
+/* victoire aux points : tout tient sans défiler, même à 4 en Wi-Fi (liste des « prêts ») */
+.points-hero.race-hero .hero-mascot {
+  height: 150px;
+}
+.points-hero .detective-scene .hp {
+  width: 160px;
+  height: 148px;
+}
+.points-panel .podium-box .pod-row .medal {
+  width: 36px !important;
+  height: 38px !important;
+}
+.points-panel .podium-box .pod-row strong {
+  font-size: 18px;
+}
+.points-panel .next-starter {
+  margin: 6px 0 4px;
+  padding: 3px 10px;
+  font-size: 12.5px;
+  line-height: 1.25;
+}
+.points-panel .net-ready {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.points-panel .podium-band {
+  margin-bottom: 2px;
+}
+.race-caught .rp-icon {
+  width: 36px;
+  min-height: 0;
+  height: 32px;
+  padding: 0;
+}
+.points-hero.race-hero h1 {
+  font-size: clamp(17px, 5.2vw, 21px);
+  line-height: 1.05;
+}
+.points-hero.race-hero {
+  grid-template-columns: 116px 1fr;
+}
+.points-hero.race-hero .hero-mascot {
+  width: 116px;
+}
+.points-hero .detective-scene .hp {
+  width: 150px;
+  height: 140px;
+}
+.points-hero .rh-trophy {
+  height: 54px !important;
+}
+/* parties Wi-Fi : état vide (cartouche crème bordé d'or, comme « le numéro se cachait… ») */
+.net-rooms-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fffaf0, #ffeec4);
+  border: 2px solid var(--hunt-gold);
+  color: #14205a;
+  text-align: start;
+}
+.net-rooms-empty .ic-wifi {
+  flex: 0 0 auto;
+  opacity: 0.85;
+}
+.net-rooms-empty > div {
+  flex: 1;
+  min-width: 0;
+}
+.net-rooms-empty b {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+}
+.net-rooms-empty small {
+  display: block;
+  color: #46527d;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+/* la recherche continue : trois points qui s'allument tour à tour */
+.nr-dots {
+  display: flex;
+  gap: 4px;
+}
+.nr-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1f4bb8;
+  animation: nr-dot 1.2s ease-in-out infinite;
+}
+.nr-dots i:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.nr-dots i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes nr-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.reduce-motion .nr-dots i {
+  animation: none;
+  opacity: 0.6;
+}
+.net-rooms-empty {
+  padding: 6px 12px;
+}
+.net-rooms-empty b {
+  font-size: 14px;
+  line-height: 1.2;
+}
+/* « Rejoindre » avec des parties listées : tout tient sur l'écran */
+.net-panel:has(.net-room) #netCode {
+  min-height: 0;
+  height: 54px;
+}
+.net-panel:has(.net-room) .bigbtn.net-room {
+  min-height: 46px;
+}
+.net-panel:has(.net-room) #netJoinGo,
+.net-panel:has(.net-room) #netCancel {
+  min-height: 0;
+  height: 56px;
+}
+.net-panel:has(.net-room) .net-rooms {
+  margin-bottom: 4px;
+}
+.net-panel:has(.net-room) .net-name {
+  margin-block: 4px;
+}

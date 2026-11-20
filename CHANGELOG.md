@@ -1,5 +1,20 @@
 # Historique des versions
 
+## V9.25 — finitions : miroir, ×2, victoire aux points, parties Wi-Fi
+
+- **Miroir** (« le numéro s'échappe ») : 10 cases, la ligne pointillée passe exactement au milieu (entre les deux
+  cases centrales) ; le drap part d'une case et arrive sur la case symétrique.
+- **×2 / ×3** : plus d'air entre l'étiquette et le drap (piste plus haute, le drap grandit sans toucher
+  l'étiquette) ; l'étiquette affiche « ×2 » sans le ✖️ qui débordait.
+- **Victoire aux points** (sur un téléphone et en Wi-Fi) : même écran que la victoire de la Course — détective,
+  trophée, bandeau vert, « le numéro se cachait sur… », podium entre lauriers, prochaine partie, mêmes boutons.
+  Les points (captures + ⭐) restent affichés pour chaque joueur, ex aequo à la même place. Sans capture, l'écran
+  « Personne ne l'a attrapé » ne change pas.
+- **Partie Wi-Fi › Rejoindre** : une partie n'apparaît que si son hôte répond vraiment (vérification toutes les 4 s) et
+  disparaît dès qu'elle n'existe plus — les annonces gardées en cache par Android ne s'affichent plus. La liste
+  repart de zéro à chaque recherche. Aucune partie : cartouche « Aucune partie pour l'instant » (la recherche
+  continue). L'écran tient sans défiler avec deux parties listées.
+
 ## V9.24 — les Défis comptent dans le Bureau
 
 - **XP des Défis** (même carrière, mêmes 8 rangs que le Solo classique) : victoire Facile 6 / Moyen 15 /

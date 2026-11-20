@@ -12342,6 +12342,275 @@ html[lang='ja'] .pause-card .pz-msg {
   min-width: 64px;
 }
 
+/* ===== V9.25 : effets miroir et ×2 du « numéro s'échappe », victoire aux points, parties Wi-Fi ===== */
+/* miroir : ligne pointillée exactement au milieu (entre les cases 5 et 6 sur 10) ; le drap part de la
+   3e case et arrive sur la 8e, symétrique par rapport à la ligne */
+.mv-drap .blind-jump.mirror::before {
+  left: 50%;
+  margin-left: -1.5px;
+  width: 0;
+}
+.mv-drap .blind-jump.mirror {
+  --mir-a: calc(9.5px + (100% - 19px) * 2 / 9);
+  --mir-b: calc(9.5px + (100% - 19px) * 7 / 9);
+}
+.mv-drap .blind-jump.mirror .bj-token {
+  left: var(--mir-b);
+  animation: drap-mirror-c 1.5s ease-in-out 0.2s both;
+}
+@keyframes drap-mirror-c {
+  0% {
+    left: var(--mir-a);
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  45% {
+    left: calc(50% - 14px);
+    transform: scaleX(0.15);
+    opacity: 0.4;
+  }
+  55% {
+    left: calc(50% + 14px);
+    transform: scaleX(0.15);
+    opacity: 0.4;
+  }
+  100% {
+    left: var(--mir-b);
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+.reduce-motion .mv-drap .blind-jump.mirror .bj-token {
+  left: var(--mir-b);
+  transform: none;
+}
+/* ×2 / ×3 : le drap part plus petit et grandit sans dépasser sa piste ; l'étiquette garde de l'air au-dessus */
+.mv-drap .blind-jump.grow .bj-token {
+  bottom: 6px;
+  width: 48px;
+  height: 40px;
+  margin-left: -24px;
+}
+.mv-drap .bj-label.grow {
+  margin-bottom: 10px;
+}
+/* victoire aux points : même écran que la Course ; les points à droite du prénom */
+.points-hero.race-hero h1 {
+  font-size: clamp(19px, 6vw, 24px);
+}
+.points-panel .pr-main {
+  min-width: 0;
+}
+.points-panel .pr-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.points-panel .pr-top strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.points-panel .pr-pts {
+  flex: 0 0 auto;
+  color: var(--hunt-gold);
+  font-size: 19px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.points-panel .pr-pts small {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.points-panel .pr-pts small {
+  display: inline;
+}
+.points-panel .pr-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.points-hero.race-hero h1 {
+  font-size: clamp(18px, 5.6vw, 22px);
+}
+.points-panel .race-caught,
+.race-caught:has(.rp-icon) {
+  gap: 10px;
+}
+.points-panel .podium-box .pod-row {
+  padding-block: 3px;
+}
+.points-panel .pr-top {
+  line-height: 1.1;
+}
+.points-panel .pr-pts {
+  font-size: 17px;
+}
+.points-panel .podium-box .pod-row .pr-sub {
+  margin-top: 1px;
+  line-height: 1.15;
+}
+.points-hero.race-hero h1 {
+  padding: 14px 10px 8px;
+}
+.points-panel:has(.pod-row:nth-of-type(3)) .podium-box .pod-row .medal {
+  height: 36px !important;
+}
+.points-hero .rh-trophy {
+  width: 76px;
+  height: 58px;
+  margin-bottom: -14px;
+}
+.points-hero .rh-line {
+  margin-top: 4px;
+  font-size: 12.5px;
+  line-height: 1.2;
+}
+/* victoire aux points : tout tient sans défiler, même à 4 en Wi-Fi (liste des « prêts ») */
+.points-hero.race-hero .hero-mascot {
+  height: 150px;
+}
+.points-hero .detective-scene .hp {
+  width: 160px;
+  height: 148px;
+}
+.points-panel .podium-box .pod-row .medal {
+  width: 36px !important;
+  height: 38px !important;
+}
+.points-panel .podium-box .pod-row strong {
+  font-size: 18px;
+}
+.points-panel .next-starter {
+  margin: 6px 0 4px;
+  padding: 3px 10px;
+  font-size: 12.5px;
+  line-height: 1.25;
+}
+.points-panel .net-ready {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.points-panel .podium-band {
+  margin-bottom: 2px;
+}
+.race-caught .rp-icon {
+  width: 36px;
+  min-height: 0;
+  height: 32px;
+  padding: 0;
+}
+.points-hero.race-hero h1 {
+  font-size: clamp(17px, 5.2vw, 21px);
+  line-height: 1.05;
+}
+.points-hero.race-hero {
+  grid-template-columns: 116px 1fr;
+}
+.points-hero.race-hero .hero-mascot {
+  width: 116px;
+}
+.points-hero .detective-scene .hp {
+  width: 150px;
+  height: 140px;
+}
+.points-hero .rh-trophy {
+  height: 54px !important;
+}
+/* parties Wi-Fi : état vide (cartouche crème bordé d'or, comme « le numéro se cachait… ») */
+.net-rooms-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fffaf0, #ffeec4);
+  border: 2px solid var(--hunt-gold);
+  color: #14205a;
+  text-align: start;
+}
+.net-rooms-empty .ic-wifi {
+  flex: 0 0 auto;
+  opacity: 0.85;
+}
+.net-rooms-empty > div {
+  flex: 1;
+  min-width: 0;
+}
+.net-rooms-empty b {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+}
+.net-rooms-empty small {
+  display: block;
+  color: #46527d;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+/* la recherche continue : trois points qui s'allument tour à tour */
+.nr-dots {
+  display: flex;
+  gap: 4px;
+}
+.nr-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1f4bb8;
+  animation: nr-dot 1.2s ease-in-out infinite;
+}
+.nr-dots i:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.nr-dots i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes nr-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.reduce-motion .nr-dots i {
+  animation: none;
+  opacity: 0.6;
+}
+.net-rooms-empty {
+  padding: 6px 12px;
+}
+.net-rooms-empty b {
+  font-size: 14px;
+  line-height: 1.2;
+}
+/* « Rejoindre » avec des parties listées : tout tient sur l'écran */
+.net-panel:has(.net-room) #netCode {
+  min-height: 0;
+  height: 54px;
+}
+.net-panel:has(.net-room) .bigbtn.net-room {
+  min-height: 46px;
+}
+.net-panel:has(.net-room) #netJoinGo,
+.net-panel:has(.net-room) #netCancel {
+  min-height: 0;
+  height: 56px;
+}
+.net-panel:has(.net-room) .net-rooms {
+  margin-bottom: 4px;
+}
+.net-panel:has(.net-room) .net-name {
+  margin-block: 4px;
+}
+
     </style>
   </head>
   <body>
@@ -12458,7 +12727,7 @@ const CH_READ_MODALS = ['notebook'];
 const DAILY_HISTORY_DAYS = 30;
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.24";
+const APP_VERSION = "9.25";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -12824,6 +13093,8 @@ const dictionaries = {
   "netRetryFailed": "Partie introuvable : l’hôte a peut-être quitté ou créé une nouvelle partie.",
   "netRoomOf": "Partie de {player}",
   "netRoomsFound": "Parties trouvées sur ce Wi-Fi :",
+  "netRoomsNone": "Aucune partie pour l’instant",
+  "netRoomsNoneHint": "La partie apparaîtra ici dès que l’hôte l’aura créée.",
   "netRoomsSearching": "Recherche des parties sur ce Wi-Fi…",
   "netSameWifi": "Tous les téléphones doivent être sur le même Wi-Fi (ou sur le partage de connexion de l’un d’eux).",
   "netSearching": "Recherche de la partie sur le Wi-Fi…",
@@ -13507,6 +13778,8 @@ const dictionaries = {
   "netRetryFailed": "Game not found: the host may have left or started a new game.",
   "netRoomOf": "{player}’s game",
   "netRoomsFound": "Games found on this Wi-Fi:",
+  "netRoomsNone": "No game yet",
+  "netRoomsNoneHint": "The game will appear here as soon as the host creates it.",
   "netRoomsSearching": "Looking for games on this Wi-Fi…",
   "netSameWifi": "All phones must be on the same Wi-Fi (or on one phone’s hotspot).",
   "netSearching": "Looking for the game on the Wi-Fi…",
@@ -14190,6 +14463,8 @@ const dictionaries = {
   "netRetryFailed": "لم يتم العثور على اللعبة: ربما غادر المضيف أو أنشأ لعبة جديدة.",
   "netRoomOf": "لعبة {player}",
   "netRoomsFound": "ألعاب موجودة على هذه الشبكة:",
+  "netRoomsNone": "لا توجد مباراة حاليًا",
+  "netRoomsNoneHint": "ستظهر المباراة هنا فور إنشائها من المضيف.",
   "netRoomsSearching": "جارٍ البحث عن ألعاب على هذه الشبكة…",
   "netSameWifi": "يجب أن تكون كل الهواتف على نفس شبكة الواي فاي (أو على نقطة اتصال أحدها).",
   "netSearching": "جارٍ البحث عن اللعبة على الواي فاي…",
@@ -14873,6 +15148,8 @@ const dictionaries = {
   "netRetryFailed": "Partida no encontrada: puede que el anfitrión se haya ido o haya creado una partida nueva.",
   "netRoomOf": "Partida de {player}",
   "netRoomsFound": "Partidas en este wifi:",
+  "netRoomsNone": "Ninguna partida por ahora",
+  "netRoomsNoneHint": "La partida aparecerá aquí en cuanto el anfitrión la cree.",
   "netRoomsSearching": "Buscando partidas en este wifi…",
   "netSameWifi": "Todos los móviles deben estar en el mismo Wi-Fi (o en el punto de acceso de uno de ellos).",
   "netSearching": "Buscando la partida en el Wi-Fi…",
@@ -15556,6 +15833,8 @@ const dictionaries = {
   "netRetryFailed": "Partita non trovata: forse l’host se n’è andato o ha creato una nuova partita.",
   "netRoomOf": "Partita di {player}",
   "netRoomsFound": "Partite trovate su questo Wi-Fi:",
+  "netRoomsNone": "Nessuna partita per ora",
+  "netRoomsNoneHint": "La partita apparirà qui appena l’host la crea.",
   "netRoomsSearching": "Ricerca di partite su questo Wi-Fi…",
   "netSameWifi": "Tutti i telefoni devono essere sullo stesso Wi-Fi (o sull’hotspot di uno di loro).",
   "netSearching": "Ricerca della partita sul Wi-Fi…",
@@ -16239,6 +16518,8 @@ const dictionaries = {
   "netRetryFailed": "Spiel nicht gefunden: Der Gastgeber ist vielleicht gegangen oder hat ein neues Spiel erstellt.",
   "netRoomOf": "Spiel von {player}",
   "netRoomsFound": "Spiele in diesem WLAN:",
+  "netRoomsNone": "Noch kein Spiel",
+  "netRoomsNoneHint": "Das Spiel erscheint hier, sobald der Gastgeber es erstellt.",
   "netRoomsSearching": "Suche nach Spielen in diesem WLAN…",
   "netSameWifi": "Alle Handys müssen im selben WLAN sein (oder im Hotspot eines Handys).",
   "netSearching": "Suche das Spiel im WLAN …",
@@ -16922,6 +17203,8 @@ const dictionaries = {
   "netRetryFailed": "找不到游戏：房主可能已离开或创建了新游戏。",
   "netRoomOf": "{player} 的游戏",
   "netRoomsFound": "在此 Wi-Fi 上找到的游戏：",
+  "netRoomsNone": "暂时没有对局",
+  "netRoomsNoneHint": "主持人创建对局后，它会出现在这里。",
   "netRoomsSearching": "正在此 Wi-Fi 上查找游戏…",
   "netSameWifi": "所有手机都必须连接同一个 Wi-Fi（或其中一部手机的热点）。",
   "netSearching": "正在 Wi-Fi 中寻找游戏……",
@@ -17605,6 +17888,8 @@ const dictionaries = {
   "netRetryFailed": "ゲームが見つかりません：ホストが退出したか、新しいゲームを作ったかもしれません。",
   "netRoomOf": "{player} のゲーム",
   "netRoomsFound": "この Wi-Fi で見つかったゲーム：",
+  "netRoomsNone": "まだゲームはありません",
+  "netRoomsNoneHint": "ホストが作るとここに表示されます。",
   "netRoomsSearching": "この Wi-Fi でゲームを探しています…",
   "netSameWifi": "すべてのスマホを同じ Wi-Fi（または 1 台のテザリング）につないでね。",
   "netSearching": "Wi-Fi でゲームをさがしています……",
@@ -21486,9 +21771,10 @@ function blindJump(shift) {
           : s.op === '÷'
             ? 'shrink'
             : 'mirror';
+  // V9.25 : étiquette « ×2 » sans le ✖️ (il débordait de la pastille) ; miroir = 10 cases, la ligne passe exactement entre les deux cases du milieu
   // le pion reste DANS sa piste (64 px) : au plus 17 px de chaque côté du centre, plus loin si le saut est grand
   const dx = s.op === '+' ? Math.round(Math.sign(s.k) * (5 + 2.4 * Math.min(Math.abs(s.k), 5))) : 0;
-  return `<span class="blind-jump ${kind}" dir="ltr" aria-hidden="true" style="--dx:${dx}px;--dir:${dx < 0 ? -1 : 1}"><span class="bj-track">${'<i></i>'.repeat(11)}</span><b class="bj-token">?</b></span><b dir="ltr" class="bj-label">${shiftSymbol(shift)}</b>`;
+  return `<span class="blind-jump ${kind}" dir="ltr" aria-hidden="true" style="--dx:${dx}px;--dir:${dx < 0 ? -1 : 1}"><span class="bj-track">${'<i></i>'.repeat(kind === 'mirror' ? 10 : 11)}</span><b class="bj-token">?</b></span><b dir="ltr" class="bj-label ${kind}">${shiftSymbol(shift).replace(/✖️ /g, '')}</b>`;
 }
 /** Pavé numérique (Génie et défi : trop de numéros pour une grille). */
 function keypadHTML() {
@@ -21859,7 +22145,41 @@ function end() {
   const soloLost = g.players === 1 && g.soloWon === false;
   // V9.4 : personne n'a trouvé le numéro → pas de fête (même si quelqu'un a plus de points)
   const noCatch = g.players > 1 && (isRace() || !g.captures);
+  // V9.25 : victoire aux points (sur un téléphone ou en Wi-Fi) = même écran que la victoire de la Course
+  if (g.players > 1 && !noCatch) return endPoints(tot, champions);
   return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${noCatch ? '' : shareButton()}<button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
+}
+/**
+ * V9.25 : fin du mode Points avec au moins une capture — structure, couleurs et boutons de l'écran de
+ * victoire de la Course (référence) : détective, trophée, bandeau vert, numéro caché, podium, prochaine partie.
+ * Les valeurs restent celles du jeu : points (captures + ⭐), ex aequo à la même place.
+ */
+function endPoints(tot, champions) {
+  const order = tot
+      .map((v, i) => ({ v, i }))
+      .sort((a, b) => b.v - a.v)
+      .map(o => ({ ...o, place: 1 + tot.filter(x => x > o.v).length })),
+    medal = n => ['🥇', '🥈', '🥉', '🎖️'][Math.min(n, 4) - 1],
+    next = (g.starter + 1) % g.players;
+  const rows = order
+    .map(
+      o =>
+        `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div class="pr-main"><div class="pr-top"><strong>${esc(pname(o.i))}${seriesBadge(o.i)}</strong><b class="pr-pts" dir="ltr" title="${esc(t('starsBonus'))}">${o.v} <small>${t('score')}</small></b></div><small class="pr-sub" title="${esc(t('subtotals', { c: g.scores[o.i], s: g.stars[o.i] || 0 }))}">${t('subtotals', { c: g.scores[o.i], s: g.stars[o.i] || 0 })}</small></div></div>`
+    )
+    .join('');
+  const decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
+  const film = g.lastHunt
+    ? `<button class="mini-btn rp-open rp-icon" id="openReplay" aria-label="${esc(t('rpButton'))}" title="${esc(t('rpButton'))}"><i class="ico ico-clap" aria-hidden="true"></i></button>`
+    : '';
+  const caught = g.escaped
+    ? `<div class="escaped-note race-caught"><span>${tHtml('escapedWas', { n: `<b class="big-n">${g.escaped.n}</b>` })}</span>${film}</div>`
+    : '';
+  const title =
+    seriesTitle() ||
+    (champions.length === 1
+      ? t('endWinner', { player: champions[0] })
+      : t('endTie', { players: champions.join(', ') }));
+  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero points-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${title}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${t('capturesSummary', { count: g.captures, turns: g.limit })}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel points-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {
@@ -22877,7 +23197,7 @@ function netScan(on) {
   const tr = netTransport();
   if (!tr || typeof tr.scanStart !== 'function' || netScanning === on) return;
   netScanning = on;
-  if (!on) netRooms = {};
+  netRooms = {}; // V9.25 : jamais d'anciennes parties : la liste repart de zéro à chaque recherche
   try {
     if (on) tr.scanStart();
     else tr.scanStop();
@@ -23492,7 +23812,10 @@ function netRoomsList() {
   const tr = netTransport();
   if (!tr || typeof tr.scanStart !== 'function') return ''; // application sans recherche : le code suffit
   const rooms = Object.entries(netRooms);
-  return `<div class="net-rooms"><p class="sub small">${rooms.length ? t('netRoomsFound') : '🔎 ' + t('netRoomsSearching')}</p>${rooms
+  // V9.25 : aucune partie disponible → état vide (la recherche continue, la liste se remplit toute seule)
+  if (!rooms.length)
+    return `<div class="net-rooms"><div class="net-rooms-empty" role="status"><i class="ic ic-wifi" aria-hidden="true"></i><div><b>${t('netRoomsNone')}</b><small>${t('netRoomsNoneHint')}</small></div><span class="nr-dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div>`;
+  return `<div class="net-rooms"><p class="sub small">${t('netRoomsFound')}</p>${rooms
     .map(
       ([c, n]) =>
         `<button class="bigbtn net-room" data-room="${c}"><i class="ic ic-wifi" aria-hidden="true"></i><span>${esc(t('netRoomOf', { player: n || t('netDefaultName') }))}</span><small dir="ltr">${c}</small></button>`

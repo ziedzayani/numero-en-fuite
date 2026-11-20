@@ -58,7 +58,7 @@ function netScan(on) {
   const tr = netTransport();
   if (!tr || typeof tr.scanStart !== 'function' || netScanning === on) return;
   netScanning = on;
-  if (!on) netRooms = {};
+  netRooms = {}; // V9.25 : jamais d'anciennes parties : la liste repart de zéro à chaque recherche
   try {
     if (on) tr.scanStart();
     else tr.scanStop();
@@ -673,7 +673,10 @@ function netRoomsList() {
   const tr = netTransport();
   if (!tr || typeof tr.scanStart !== 'function') return ''; // application sans recherche : le code suffit
   const rooms = Object.entries(netRooms);
-  return `<div class="net-rooms"><p class="sub small">${rooms.length ? t('netRoomsFound') : '🔎 ' + t('netRoomsSearching')}</p>${rooms
+  // V9.25 : aucune partie disponible → état vide (la recherche continue, la liste se remplit toute seule)
+  if (!rooms.length)
+    return `<div class="net-rooms"><div class="net-rooms-empty" role="status"><i class="ic ic-wifi" aria-hidden="true"></i><div><b>${t('netRoomsNone')}</b><small>${t('netRoomsNoneHint')}</small></div><span class="nr-dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div>`;
+  return `<div class="net-rooms"><p class="sub small">${t('netRoomsFound')}</p>${rooms
     .map(
       ([c, n]) =>
         `<button class="bigbtn net-room" data-room="${c}"><i class="ic ic-wifi" aria-hidden="true"></i><span>${esc(t('netRoomOf', { player: n || t('netDefaultName') }))}</span><small dir="ltr">${c}</small></button>`

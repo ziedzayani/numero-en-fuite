@@ -353,6 +353,8 @@
   "netRetryFailed": "找不到游戏：房主可能已离开或创建了新游戏。",
   "netRoomOf": "{player} 的游戏",
   "netRoomsFound": "在此 Wi-Fi 上找到的游戏：",
+  "netRoomsNone": "暂时没有对局",
+  "netRoomsNoneHint": "主持人创建对局后，它会出现在这里。",
   "netRoomsSearching": "正在此 Wi-Fi 上查找游戏…",
   "netSameWifi": "所有手机都必须连接同一个 Wi-Fi（或其中一部手机的热点）。",
   "netSearching": "正在 Wi-Fi 中寻找游戏……",

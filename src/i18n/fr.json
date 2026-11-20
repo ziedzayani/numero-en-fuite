@@ -353,6 +353,8 @@
   "netRetryFailed": "Partie introuvable : l’hôte a peut-être quitté ou créé une nouvelle partie.",
   "netRoomOf": "Partie de {player}",
   "netRoomsFound": "Parties trouvées sur ce Wi-Fi :",
+  "netRoomsNone": "Aucune partie pour l’instant",
+  "netRoomsNoneHint": "La partie apparaîtra ici dès que l’hôte l’aura créée.",
   "netRoomsSearching": "Recherche des parties sur ce Wi-Fi…",
   "netSameWifi": "Tous les téléphones doivent être sur le même Wi-Fi (ou sur le partage de connexion de l’un d’eux).",
   "netSearching": "Recherche de la partie sur le Wi-Fi…",

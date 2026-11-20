@@ -403,6 +403,78 @@ const STATES = {
     N.nextTurn();
   },
   // V9.24 : fin de Défi la plus chargée — record, montée de rang, 4 badges, mission, film, détail ouvert
+  // V9.25 : victoire aux points (référence : victoire de la Course), en Wi-Fi avec « prêts » affichés
+  ...Object.fromEntries(
+    [2, 3, 4].map(n => [
+      `fin points victoire ${n} joueurs (Wi-Fi)`,
+      `N => {
+        N.state.players = ${n};
+        N.state.level = 'genius';
+        N.state.gameMode = 'score';
+        N.state.names = ['Alexandrine', 'Bartholomé', 'Maximilien', 'Ahlem'];
+        N.start(true);
+        N.state.scores = [-10, -6, 12, 3].slice(0, ${n});
+        N.state.stars = [0, 3, 2, 1].slice(0, ${n});
+        N.state.captures = 2;
+        N.state.escaped = { n: 47 };
+        N.state.lastHunt = { steps: [], end: { n: 47 } };
+        N.state.net = { role: 'client', seat: 1 };
+        N.state.netReady = [1];
+        N.state.screen = 'end';
+        N.state.inGame = false;
+        N.state.modal = null;
+      }`
+    ])
+  ),
+  'wifi rejoindre (aucune partie)': N => {
+    window.NumeroNet = {
+      scanStart() {},
+      scanStop() {},
+      hostStart() {},
+      joinStart() {},
+      send() {},
+      stop() {},
+      keepAwake() {}
+    };
+    N.state.myName = 'Bartholomé';
+    N.state.screen = 'lan';
+    N.state.lan = { view: 'join' };
+  },
+  'wifi rejoindre (2 parties)': N => {
+    window.NumeroNet = {
+      scanStart() {},
+      scanStop() {},
+      hostStart() {},
+      joinStart() {},
+      send() {},
+      stop() {},
+      keepAwake() {}
+    };
+    N.state.myName = 'Bartholomé';
+    N.state.screen = 'lan';
+    N.state.lan = { view: 'join' };
+    N.render();
+    window.__netEvent(JSON.stringify({ type: 'room', code: '4763', name: 'Alexandrine' }));
+    window.__netEvent(JSON.stringify({ type: 'room', code: '7678', name: 'Maximilien' }));
+  },
+  'échappe : miroir': N => {
+    N.state.players = 2;
+    N.state.level = 'genius';
+    N.start(true);
+    N.state.modal = null;
+    N.ask(N.state.choices[0]);
+    N.state.last.shift = { op: 'mirror' };
+    N.state.modal = null;
+  },
+  'échappe : ×2': N => {
+    N.state.players = 2;
+    N.state.level = 'genius';
+    N.start(true);
+    N.state.modal = null;
+    N.ask(N.state.choices[0]);
+    N.state.last.shift = { op: '×', k: 2 };
+    N.state.modal = null;
+  },
   'fin défi : tout gagné': N => {
     const c = N.loadCareer(),
       p = c.profiles[c.activeProfileId];
@@ -499,6 +571,7 @@ const STATES = {
         await p.evaluate(
           ([lang, src]) => {
             localStorage.clear();
+            delete window.NumeroNet; // V9.25 : faux réseau seulement pour les écrans qui le demandent
             const N = window.__numero;
             Object.assign(N.state, {
               lang,
