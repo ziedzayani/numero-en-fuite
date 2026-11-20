@@ -2923,6 +2923,14 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await p2.fill('#netName', 'Omar');
     await p2.click('#netGoJoin');
     await p2.fill('#netCode', code === '9999' ? '8888' : '9999');
+    // V9.18 : une partie qui apparaît pendant la saisie ne doit pas effacer le code tapé
+    await p2.evaluate(() => window.__netEvent(JSON.stringify({ type: 'room', code: '1111', name: 'Test' })));
+    await wait(100);
+    check(
+      (await p2.inputValue('#netCode')) === (code === '9999' ? '8888' : '9999') &&
+        (await p2.textContent('.net-rooms')).includes('Test'),
+      'Rejoindre : une partie trouvée pendant la saisie s’ajoute à la liste sans effacer le code tapé'
+    );
     await p2.click('#netJoinGo');
     await wait(150);
     check(

@@ -20405,7 +20405,12 @@ window.__netEvent = raw => {
     if (!/^\d{4}$/.test(String(e.code))) return;
     if (e.type === 'room') netRooms[e.code] = String(e.name || '').slice(0, 20);
     else delete netRooms[e.code];
-    if (g.lan && g.lan.view === 'join') render();
+    // seule la liste change : on ne redessine pas l'écran (le code en cours de saisie reste intact)
+    const box = document.querySelector('.net-rooms');
+    if (box && g.lan && g.lan.view === 'join') {
+      box.outerHTML = netRoomsList();
+      bindRooms();
+    } else if (g.lan && g.lan.view === 'join') render();
     return;
   }
   if (!e || !net.role) return;
@@ -20521,7 +20526,7 @@ function lanScreen() {
   else if (v === 'hostLobby')
     body = `<p class="sub">${t('netGiveCode')}</p><div class="net-code" dir="ltr">${net.code || '····'}</div>${netRulesPicker()}${players(net.lobby || [])}${err}<button class="bigbtn green" id="netLaunch" ${(net.lobby || []).filter(p => p.connected).length < 2 ? 'disabled' : ''}>▶ ${t('netLaunch')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button>${net.address ? `<p class="sub small" dir="ltr">${net.address}</p>` : ''}`;
   else if (v === 'join' || v === 'joining')
-    body = `${nameField}${v === 'join' ? netRoomsList() : ''}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
+    body = `${nameField}${v === 'join' ? netRoomsList() : ''}<label class="net-name">${t('netCodeLabel')}<input id="netCode" inputmode="numeric" maxlength="4" value="${esc(net.typedCode != null && v === 'join' ? net.typedCode : net.code || '')}" dir="ltr" autocomplete="off"></label>${err}${v === 'joining' ? `<p class="sub">⏳ ${t('netSearching')}</p>` : ''}<button class="bigbtn" id="netJoinGo" ${v === 'joining' ? 'disabled' : ''}>🔑 ${t('netJoinGo')}</button><button class="bigbtn light" id="netCancel">${t('cancel')}</button><p class="sub small">${t('netSameWifi')}</p>`;
   else
     body = `<p class="sub">✅ ${t('netConnected')}</p>${net.rules ? `<p class="net-rules">${netRulesText(net.rules.level, net.rules.mode, net.rules.series)}</p>` : ''}${players(net.lobby || [])}<p class="sub">⏳ ${t('netWaitHost')}</p><button class="bigbtn light" id="netCancel">${t('netQuit')}</button>`;
   return `<header class="top">${brand()}<button class="mini-btn" id="netCancelTop">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel net-panel"><h1 class="settings-title">📶 ${t('netTitle')}</h1>${body}</section>`;
@@ -20563,9 +20568,19 @@ function netRulesPicker() {
     .join('');
   return `<div class="net-rules-pick"><div class="mode-pick net-levels" role="radiogroup" aria-label="${esc(t('levels'))}">${lv}</div><div class="mode-pick net-modes" role="radiogroup" aria-label="${esc(t('modeTitle'))}">${md}</div>${seriesPicker('data-netseries')}</div>`;
 }
+function bindRooms() {
+  document.querySelectorAll('[data-room]').forEach(b =>
+    b.addEventListener('click', () => {
+      const input = document.getElementById('netName');
+      if (input) g.myName = input.value;
+      netJoin(b.dataset.room);
+    })
+  );
+}
 /** V9.18 : parties trouvées sur ce Wi-Fi, à rejoindre d'un toucher (le code reste possible en dessous). */
 function netRoomsList() {
-  if (!netScanning) return '';
+  const tr = netTransport();
+  if (!tr || typeof tr.scanStart !== 'function') return ''; // application sans recherche : le code suffit
   const rooms = Object.entries(netRooms);
   return `<div class="net-rooms"><p class="sub small">${rooms.length ? t('netRoomsFound') : '🔎 ' + t('netRoomsSearching')}</p>${rooms
     .map(
@@ -20645,13 +20660,9 @@ function bindNet(click) {
   click('netWithout', netContinueWithout);
   // V9.18 : recherche des parties proches seulement sur l'écran « Rejoindre »
   netScan(g.screen === 'lan' && !!g.lan && g.lan.view === 'join');
-  document.querySelectorAll('[data-room]').forEach(b =>
-    b.addEventListener('click', () => {
-      const input = document.getElementById('netName');
-      if (input) g.myName = input.value;
-      netJoin(b.dataset.room);
-    })
-  );
+  bindRooms();
+  const codeInput = document.getElementById('netCode');
+  if (codeInput) codeInput.addEventListener('input', () => (net.typedCode = codeInput.value));
   document.querySelectorAll('[data-netlevel]').forEach(b =>
     b.addEventListener('click', () => {
       if (net.role !== 'host' || g.net) return;

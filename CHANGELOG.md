@@ -13,6 +13,8 @@
   « Oui, quitter » / remplacer en bleu nuit bordé cyan (plus d'orange) ; boutons de choix en pastilles claires,
   le choix en jaune-or. Icônes Wi-Fi et Partager dessinées (pas d'emoji).
 - À tester sur de vrais téléphones : la liste des parties proches et le menu de partage (code Android).
+- Corrigé avant publication : une partie trouvée pendant la saisie du code effaçait le code tapé (l'écran était
+  redessiné en entier) ; seule la liste est maintenant mise à jour.
 
 ## V9.17 — Duels et « Pendant ton absence »
 
