@@ -1,5 +1,13 @@
 # Historique des versions
 
+## V9.9 — écran de victoire fidèle à la maquette
+
+- Grand détective pouce levé, trophée posé sur le bandeau vert bordé d'or, « Numéro attrapé au **tour 4** » en
+  pastille, « Le numéro se cachait sur le **50** » en bandeau crème, « Podium » entre deux lauriers avec la
+  couronne, podium dans son cadre (gagnant bordé d'or, lignes en pointillés), « 🏁 Prochaine partie : **Zied**
+  commence » en pastille, maison blanche sur le bouton bleu, confettis et loupe en décor ; version compacte à 3–4
+  joueurs et sur petit écran.
+
 ## V9.8 — icônes dessinées des écrans de fin
 
 - Pack d'icônes « victoire » à la place des émojis : engrenage (Réglages), flèches (Rejouer), maison (Accueil),

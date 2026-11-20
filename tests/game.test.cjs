@@ -1347,7 +1347,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       N.render();
     });
     check(
-      (await page.textContent('.panel .sub')).includes('Joueur 2'),
+      (await page.textContent('.next-starter')).includes('Joueur 2'),
       'Rejouer : le joueur suivant commencera (Joueur 2)'
     );
     await page.click('#again');
