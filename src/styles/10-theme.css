@@ -5521,3 +5521,33 @@ html[lang='ja'] .pause-card .pz-msg {
   width: 140px;
   height: 140px;
 }
+
+/* ===== V9.27 : accueil — icônes Solo, 2, 3, 4 joueurs et Wi-Fi (PNG des planches du projet) =====
+   même place et même hauteur que l'emoji remplacé : les tuiles ne changent pas de taille */
+.players-row .seg .who-ico {
+  display: block;
+  height: 1.1em;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.who-ico.who-1 {
+  width: 0.75em;
+  background-image: url(img/who-1.webp);
+}
+.who-ico.who-2 {
+  width: 1.39em;
+  background-image: url(img/who-2.webp);
+}
+.who-ico.who-3 {
+  width: 1.14em;
+  background-image: url(img/who-3.webp);
+}
+.who-ico.who-4 {
+  width: 1.17em;
+  background-image: url(img/who-4.webp);
+}
+.who-ico.who-wifi {
+  width: 1.26em;
+  background-image: url(img/who-wifi.webp);
+}

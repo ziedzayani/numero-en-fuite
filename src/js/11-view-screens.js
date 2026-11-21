@@ -36,15 +36,16 @@ function home() {
   const xp = careerProfile(loadCareer()).xpTotal,
     rank = rankOf(xp).rank;
   // V9.2 (maquettes) : 4 tuiles 1 à 4 joueurs (+ Wi-Fi sur Android), le choix est coché
-  const icons = ['👤', '👥', '👥', '👥'];
+  // V9.27 : icônes des planches du projet (détectives dorés, Wi-Fi doré) au lieu des emojis 👤 👥 📶
+  const whoIco = id => `<span class="who-ico who-${id}" aria-hidden="true"></span>`;
   const who = `<div class="label">👥 ${t('players')}</div><div class="who-row players-row">${[1, 2, 3, 4]
     .map(
       n =>
-        `<button class="seg who ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}"><b>${icons[n - 1]}</b><small>${n === 1 ? t('onePlayer') : t('nPlayers', { n })}</small></button>`
+        `<button class="seg who ${g.players === n ? 'is-selected' : ''}" data-players="${n}" aria-pressed="${g.players === n}"><b>${whoIco(n)}</b><small>${n === 1 ? t('onePlayer') : t('nPlayers', { n })}</small></button>`
     )
     .join(
       ''
-    )}${netTransport() ? `<button class="seg who lan-chip" id="openLan"><b>📶</b><small>${t('homeWifi')}</small></button>` : ''}</div>`;
+    )}${netTransport() ? `<button class="seg who lan-chip" id="openLan"><b>${whoIco('wifi')}</b><small>${t('homeWifi')}</small></button>` : ''}</div>`;
   const levels = [
     ['junior', '🐣', 'levelJunior', 'levJuniorSub', '1–9'],
     ['malin', '🧠', 'levelMalin', 'levMalinSub', '1–15'],

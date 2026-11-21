@@ -1,5 +1,11 @@
 # Historique des versions
 
+## V9.27 — accueil : icônes des joueurs et du Wi-Fi
+
+- Tuiles Solo, 2, 3, 4 joueurs et Wi-Fi : les détectives dorés et le Wi-Fi doré des planches d'icônes du projet
+  remplacent les emojis 👤 👥 📶, à la même place et à la même hauteur. Tuiles, libellés, sélection jaune avec
+  coche verte et fonctionnement inchangés ; rien d'autre ne change sur l'accueil.
+
 ## V9.26 — missions Défi dès le départ, sauvegarde complète, questions mieux dosées, victoire aux points
 
 - **Missions** : les 3 missions mélangent toujours Solo classique et Défis — une nouvelle carrière a une mission de
