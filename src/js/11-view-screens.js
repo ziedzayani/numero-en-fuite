@@ -391,7 +391,7 @@ function miniNotebook() {
     .reverse();
   return `<div class="mini-notebook">${
     recent.length
-      ? `<b>📓 ${t('miniNotebook')}</b>${recent.map(e => `<p>${historyText(e)}</p>`).join('')}`
+      ? `<b><i class="ic-notebook mini-nb-ico" aria-hidden="true"></i>${t('miniNotebook')}</b>${recent.map(e => `<p>${historyText(e)}</p>`).join('')}`
       : `<p class="tip">${t('miniTip')}</p>`
   }</div>`;
 }
@@ -1006,7 +1006,7 @@ function endSoloCareer(res) {
   const xp = `<span class="reward-chip xp" title="${esc(t('xpGained'))}">🎖️ <b dir="ltr">+${res.xp + (res.missionXp || 0)} XP</b>${res.level && !res.helped ? ` <small>· ${t(LEVEL_NAME_KEYS[res.level])}</small>` : ''}</span>`;
   return `${won && !g.reduceMotion ? confettiRain() : ''}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ec-head ${won ? 'win' : 'lose'}"><div class="hero-mascot">${mascot(won ? (res.newRecord ? 'record' : 'caught') : 'cheer')}</div><div><h1>${won ? '🏆 ' + t('soloWinTitle') : '😅 ' + t('soloLoseTitle')}</h1><p class="intro">${won ? t('soloWinDesc', { turns: res.turns }) : t('soloLoseDesc', { n: g.soloSecret })}</p></div></section>${dailyBanner()}
  <section class="panel centered solo-card career-card ec-card">${top}${rewardLine(res, xp)}${res.rankUp ? `<div class="ch-new">${t('rankUp', { name: rankName(rankOf(res.xpTotal).rank) })}</div>` : ''}${rankBar(res.xpTotal)}<div class="next-goal">💡 <b>${t('nextGoal')}</b> ${tipText(res.tip)}</div>
- <div class="ec-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="openOffice" aria-label="${esc(t('officeBtn'))}">📚</button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
+ <div class="ec-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${t('replay')}</button><button class="bigbtn light" id="openOffice" aria-label="${esc(t('officeBtn'))}"><i class="ec-ico ec-office" aria-hidden="true"></i></button><button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ec-ico ec-home-det" aria-hidden="true"></i></button></div></section>`;
 }
 /** Ancien écran de fin (parties terminées avant la V8.8 : aucune récompense n'est inventée a posteriori). */
 function endSoloLegacy() {

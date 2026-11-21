@@ -1,5 +1,12 @@
 # Historique des versions
 
+## V9.28 — fin du Solo : boutons Bureau et Accueil ; carnet des derniers indices
+
+- Écran de fin du Solo classique : le bouton Bureau prend l'illustration du bureau de l'accueil (au lieu de 📚),
+  le bouton Accueil le médaillon « détective + maison avec flèche de retour » (au lieu de la maison seule).
+  Mêmes boutons, mêmes places, mêmes actions.
+- Encadré « Derniers indices » (sous les questions) : le carnet marron à loupe du bouton Carnet remplace 📓.
+
 ## V9.27 — accueil : icônes des joueurs et du Wi-Fi
 
 - Tuiles Solo, 2, 3, 4 joueurs et Wi-Fi : les détectives dorés et le Wi-Fi doré des planches d'icônes du projet

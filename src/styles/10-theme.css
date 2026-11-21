@@ -5551,3 +5551,34 @@ html[lang='ja'] .pause-card .pz-msg {
   width: 1.26em;
   background-image: url(img/who-wifi.webp);
 }
+
+/* ===== V9.28 : fin du Solo — Bureau (illustration de l'accueil) et Accueil (détective + maison) ;
+   « Derniers indices » avec le carnet à loupe du bouton Carnet ===== */
+.ec-actions .bigbtn.light .ec-ico {
+  display: block;
+  margin: auto;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.ec-actions .bigbtn.light .ec-office {
+  width: 44px;
+  height: 40px;
+  background-image: url(img/home-office.webp);
+}
+.ec-actions .bigbtn.light .ec-home-det {
+  width: 52px;
+  height: 52px;
+  background-image: url(img/ic-home-det.webp);
+}
+.ec-actions .bigbtn.light:has(.ec-ico) {
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.mini-nb-ico.ic-notebook {
+  display: inline-block;
+  width: 1.35em;
+  height: 1.35em;
+  margin: 0 6px -0.3em 0;
+}
