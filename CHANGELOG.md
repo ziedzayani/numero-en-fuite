@@ -1,5 +1,10 @@
 # Historique des versions
 
+## V9.32 — « Langue du jeu » : le détective qui tient la terre
+
+- Ligne « Langue du jeu » des Réglages et titre de la fenêtre des langues : le détective officiel tenant la terre
+  remplace le globe seul. Rien d'autre ne change.
+
 ## V9.31 — Réglages et Langue : pictogrammes du projet
 
 - Écrans « Réglages » et « Langue du jeu » : l'engrenage, le globe, le chrono, le haut-parleur, le coureur et la

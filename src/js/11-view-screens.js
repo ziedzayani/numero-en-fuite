@@ -333,7 +333,7 @@ function langView() {
     ([code, flag, label]) =>
       `<button class="lang-choice ${g.lang === code ? 'is-selected' : ''}" data-language="${code}" lang="${code}" dir="${code === 'ar' ? 'rtl' : 'ltr'}" aria-pressed="${g.lang === code}"><span class="flag">${flag}</span><strong>${label}</strong></button>`
   ).join('');
-  return `<h2>${setIco('globe')}${t('language')}</h2><div class="lang-list lang-grid">${items}</div><p class="sub small">${t('languageHint')}</p><button class="mini-btn" id="closeLang">${t('close')}</button>`;
+  return `<h2>${setIco('lang-det')}${t('language')}</h2><div class="lang-list lang-grid">${items}</div><p class="sub small">${t('languageHint')}</p><button class="mini-btn" id="closeLang">${t('close')}</button>`;
 }
 /** Réglages : langue, chronos, son, mouvements réduits, film. */
 function settings() {
@@ -342,7 +342,7 @@ function settings() {
     `<button class="toggle-row" id="${id}" role="switch" aria-checked="${on}"><span class="flag">${icon}</span><span class="tr-text"><strong>${label}</strong><small>${hint}</small></span><span class="switch ${on ? 'on' : ''}"></span></button>`;
   // 8 langues : une ligne « Langue » qui ouvre la liste complète (fenêtre 'lang', voir langView()).
   const cur = LANGS.find(l => l[0] === g.lang) || LANGS[1];
-  const langs = `<button class="toggle-row lang-row" id="openLang"><span class="flag">${setIco('globe')}</span><span class="tr-text"><strong>${t('language')}</strong><small lang="${cur[0]}">${cur[1]} ${cur[2]}</small></span><span class="chev">›</span></button>`;
+  const langs = `<button class="toggle-row lang-row" id="openLang"><span class="flag">${setIco('lang-det')}</span><span class="tr-text"><strong>${t('language')}</strong><small lang="${cur[0]}">${cur[1]} ${cur[2]}</small></span><span class="chev">›</span></button>`;
   const timers = [
     ['normal', 'timerNormal'],
     ['long', 'timerLong'],

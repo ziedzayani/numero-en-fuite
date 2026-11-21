@@ -5645,9 +5645,6 @@ html[lang='ja'] .pause-card .pz-msg {
 .set-gear {
   background-image: url(img/set-gear.webp);
 }
-.set-globe {
-  background-image: url(img/set-globe.webp);
-}
 .set-timer {
   background-image: url(img/set-timer.webp);
 }
@@ -5659,4 +5656,17 @@ html[lang='ja'] .pause-card .pz-msg {
 }
 .set-save {
   background-image: url(img/set-save.webp);
+}
+/* V9.32 : « Langue du jeu » — le détective officiel qui tient la terre (ligne des Réglages et titre) */
+.set-lang-det {
+  background-image: url(img/set-lang-det.webp);
+}
+.flag .set-ico.set-lang-det {
+  width: 36px;
+  height: 36px;
+}
+h2 .set-ico.set-lang-det {
+  width: 1.6em;
+  height: 1.6em;
+  vertical-align: -0.45em;
 }
