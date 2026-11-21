@@ -1,5 +1,23 @@
 # Historique des versions
 
+## V9.26 — missions Défi dès le départ, sauvegarde complète, questions mieux dosées, victoire aux points
+
+- **Missions** : les 3 missions mélangent toujours Solo classique et Défis — une nouvelle carrière a une mission de
+  Défi dès le départ ; s'il n'en reste plus en cours, la suivante est une mission de Défi (et inversement). Missions
+  commencées, compteurs et XP gardés ; pas de doublon.
+- **Mes progrès** (code v2) : ajoute l'historique du Défi du jour (résultats officiels, essais, scores, durées) et
+  les statistiques à plusieurs (victoires, captures, séries, face-à-face). Les anciens codes (v1) marchent toujours
+  (Défi du jour et statistiques du téléphone gardés). Données vérifiées champ par champ, codes abîmés refusés.
+  Pas de double récompense : les parties déjà comptées sur le téléphone le restent, un Défi du jour joué garde
+  son résultat officiel. La fenêtre de confirmation dit ce qui sera restauré.
+- **Questions** : seuils adaptés à la plage (1–9, 1–15, 1–30, 1–50, 1–100) — une question doit laisser au moins
+  12 % des numéros de chaque côté (« ajoute 3, dépasse-t-il 4 ? » n'est plus proposée en 1–50). Pour garantir un
+  OUI, la paire équilibrée « plus grand que / plus petit que » passe avant une question presque toujours vraie ;
+  les questions faibles restent pour la fin d'enquête. Règle « au moins un OUI », sans fuite, inchangée.
+  Les anciennes questions restent lisibles dans les historiques.
+- **Victoire aux points** : un seul écran de victoire partagé avec la Course (le rendu de la Course est
+  identique, octet pour octet) ; score du gagnant mis en valeur sous le titre, égalités à la même place.
+
 ## V9.25 — finitions : miroir, ×2, victoire aux points, parties Wi-Fi
 
 - **Miroir** (« le numéro s'échappe ») : 10 cases, la ligne pointillée passe exactement au milieu (entre les deux

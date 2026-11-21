@@ -5937,6 +5937,553 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     await ctx.close();
   }
 
+  // V9.26 (1) : missions — une mission de Défi dès une nouvelle carrière, mélange Solo / Défis, compatibilité
+  {
+    const { ctx, page } = await fresh(browser);
+    const r = await page.evaluate(() => {
+      const N = window.__numero,
+        isCh = m => m.k === 'chWin' || m.k === 'chTimed',
+        key = m => m.k + (m.level ? ':' + m.level : '');
+      const p0 = N.loadCareer().profiles['local-default'];
+      const start = p0.missions.map(m => ({ ...m }));
+      // finir la mission de Défi (2 victoires faciles) : +20 XP, remplacée en gardant un Défi
+      const xp0 = p0.xpTotal;
+      const wins = [];
+      for (let i = 0; i < 2; i++) {
+        N.startChallenge('endless', 'easy');
+        N.state.modal = null;
+        N.guess(N.state.secret);
+        N.nextTurn();
+        wins.push(N.state.chResult);
+      }
+      const p1 = N.loadCareer().profiles['local-default'];
+      // ancienne carrière : 3 missions Solo commencées → gardées ; la suivante sera de Défi
+      const c = N.loadCareer(),
+        p = c.profiles['local-default'];
+      p.missions = [
+        { k: 'play', n: 3, min: 0, progress: 2, goal: 3 },
+        { k: 'math', n: 2, min: 0, progress: 0, goal: 1 },
+        { k: 'stars', min: 0, progress: 0, goal: 1 }
+      ];
+      localStorage.setItem('numeroEnFuiteCareerV1', JSON.stringify(c));
+      const kept = N.loadCareer()
+        .profiles['local-default'].missions.map(m => m.k + m.progress)
+        .join();
+      N.state.players = 1;
+      N.state.level = 'junior';
+      N.start(true);
+      N.state.modal = null;
+      N.guess(N.state.secret);
+      N.nextTurn();
+      const after = N.loadCareer().profiles['local-default'].missions;
+      return {
+        start,
+        startCh: start.filter(isCh).length,
+        startSolo: start.filter(m => !isCh(m)).length,
+        uniq: new Set(start.map(key)).size,
+        done: wins.map(w => w.missionsDone.map(m => m.k).join()).join('|'),
+        mxp: wins[1].missionXp,
+        p1Ch: p1.missions.filter(isCh).length,
+        kept,
+        afterKs: after.map(m => m.k).join(),
+        afterCh: after.filter(isCh).length,
+        afterUniq: new Set(after.map(key)).size
+      };
+    });
+    check(
+      r.start.length === 3 && r.startCh >= 1 && r.startSolo >= 1 && r.uniq === 3,
+      `Nouvelle carrière : 3 missions, dont une de Défi (${r.start.map(m => m.k + (m.diff ? ':' + m.diff : '')).join(', ')})`
+    );
+    check(
+      r.done === '|chWin' && r.mxp === 20 && r.p1Ch >= 1,
+      `Mission de Défi réussie (+20 XP) et remplacée en gardant un Défi (${r.done})`
+    );
+    check(
+      r.kept === 'play2,math0,stars0' && r.afterCh === 1 && r.afterUniq === 3,
+      `Ancienne carrière : missions commencées gardées, la nouvelle est de Défi (${r.afterKs})`
+    );
+    check(
+      !page.errors.length,
+      `Missions V9.26 : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
+    );
+    await ctx.close();
+  }
+  // V9.26 (2) : « Mes progrès » — Défi du jour et statistiques à plusieurs, anciens codes, codes invalides
+  {
+    const { ctx, page } = await fresh(browser);
+    const r = await page.evaluate(() => {
+      const N = window.__numero,
+        today = N.todayKey();
+      // progrès à sauvegarder : une partie solo gagnée, un Défi du jour officiel, des stats à plusieurs
+      N.state.players = 1;
+      N.state.level = 'malin';
+      N.start(true);
+      N.state.modal = null;
+      N.guess(N.state.secret);
+      N.nextTurn();
+      const soloId = N.state.gameId;
+      const daily = {
+        [today]: { won: true, turns: 4, secret: 7, tries: 2, score: 210, ms: 61000 },
+        '2026-11-01': { won: false, turns: null, tries: 1, score: 0, ms: 90000 }
+      };
+      localStorage.setItem('numeroEnFuiteDailyV1', JSON.stringify(daily));
+      const vs = {
+        players: {
+          Zied: { games: 5, wins: 3, captures: 4, streak: 2, best: 3 },
+          Ahlem: { games: 5, wins: 2, captures: 3, streak: 0, best: 1 }
+        },
+        pairs: { 'Ahlem|Zied': { games: 5, w: { Zied: 3, Ahlem: 2 } } },
+        processed: ['g1', 'g2']
+      };
+      localStorage.setItem('numeroEnFuiteVersusV1', JSON.stringify(vs));
+      const xp = N.loadCareer().profiles['local-default'].xpTotal;
+      const code = N.exportProgress();
+      const read = N.readBackup(code);
+      // même téléphone : la partie solo déjà comptée ici ne redonne rien après restauration
+      N.importProgress(code);
+      const before0 = N.loadCareer().profiles['local-default'].xpTotal;
+      N.state.gameId = soloId;
+      N.settleSolo(true);
+      const noDouble = N.loadCareer().profiles['local-default'].xpTotal === before0;
+      // nouveau téléphone : tout effacé, puis restauration
+      localStorage.removeItem('numeroEnFuiteDailyV1');
+      localStorage.removeItem('numeroEnFuiteVersusV1');
+      localStorage.removeItem('numeroEnFuiteCareerV1');
+      const ok = N.importProgress(code);
+      const out = {
+        ok,
+        full: read.summary.full,
+        days: read.summary.days,
+        xp,
+        xp2: N.loadCareer().profiles['local-default'].xpTotal,
+        daily: JSON.stringify(N.loadDaily()) === JSON.stringify(N.cleanDaily(daily)),
+        vs: JSON.stringify(N.loadVersus()) === JSON.stringify(N.cleanVersus(vs))
+      };
+      out.noDouble = noDouble;
+      // le Défi du jour officiel garde son statut : un nouvel essai aujourd'hui est un entraînement
+      Object.assign(N.state, { screen: 'home', modal: 'challenge' });
+      N.render();
+      document.getElementById('dailyGo').click();
+      N.state.modal = null;
+      N.guess(N.state.secret);
+      N.nextTurn();
+      out.dailyPractice =
+        N.state.dailyOfficial === false &&
+        N.loadDaily()[today].score === 210 &&
+        N.loadDaily()[today].tries === 3;
+      // ancien code (v1, sans Défi du jour ni statistiques) : accepté, ceux du téléphone sont gardés
+      const c = N.loadCareer();
+      const v1 = { v: 1, career: c, records: { 'timed-hard-v2': 900 }, prefs: { lang: 'fr' } };
+      const b = btoa(unescape(encodeURIComponent(JSON.stringify(v1))));
+      const fnv = s => {
+        let h = 0x811c9dc5;
+        for (let i = 0; i < s.length; i++) {
+          h ^= s.charCodeAt(i);
+          h = Math.imul(h, 0x01000193) >>> 0;
+        }
+        return h.toString(36);
+      };
+      const old = `NEF1-${b}-${fnv(b)}`;
+      const r1 = N.readBackup(old);
+      out.v1 =
+        r1.ok &&
+        r1.summary.full === false &&
+        N.importProgress(old) &&
+        N.loadDaily()[today] &&
+        Object.keys(N.loadVersus().players).length === 2 &&
+        N.records()['timed-hard-v2'] === 900;
+      // codes invalides
+      const bad = { v: 2, career: c, records: {}, daily: 'oops' };
+      const bb = btoa(unescape(encodeURIComponent(JSON.stringify(bad))));
+      out.invalid = [
+        N.readBackup('bonjour').error,
+        N.readBackup(code.slice(0, -3) + 'zzz').error,
+        N.readBackup(`NEF1-${bb}-${fnv(bb)}`).error,
+        N.importProgress('NEF1-abc-def')
+      ].join();
+      // données abîmées dans un code : nettoyées champ par champ
+      out.clean = JSON.stringify(
+        N.cleanDaily({ x: 1, '2026-01-01': { won: 1, turns: -3, tries: 0, score: 'a' } })
+      );
+      Object.assign(N.state, {
+        screen: 'settings',
+        modal: 'backup',
+        backup: { view: 'confirm', summary: read.summary }
+      });
+      N.render();
+      out.warn = document.querySelector('.backup-more').textContent;
+      return out;
+    });
+    check(
+      r.ok && r.full && r.days === 2 && r.xp2 === r.xp && r.daily && r.vs,
+      `Mes progrès v2 : XP, Défi du jour (${r.days} jours) et statistiques à plusieurs restaurés`
+    );
+    check(r.noDouble, 'Restauration : une partie déjà comptée sur ce téléphone ne redonne pas d’XP');
+    check(
+      r.dailyPractice,
+      'Restauration : le Défi du jour officiel garde son statut (nouvel essai = entraînement)'
+    );
+    check(
+      r.v1,
+      'Ancien code « Mes progrès » (v1) accepté ; Défi du jour et statistiques du téléphone gardés'
+    );
+    check(r.invalid === 'format,damaged,damaged,false', `Codes invalides refusés (${r.invalid})`);
+    check(
+      r.clean === '{"2026-01-01":{"won":true,"turns":null,"secret":null,"tries":1,"score":null,"ms":null}}',
+      `Données abîmées nettoyées (${r.clean})`
+    );
+    check(
+      /Défi du jour/.test(r.warn) && /remplac|restaur/.test(r.warn),
+      `Confirmation : le joueur est prévenu de ce qui est restauré (« ${r.warn.trim()} »)`
+    );
+    check(
+      !page.errors.length,
+      `Mes progrès V9.26 : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
+    );
+    await ctx.close();
+  }
+  // V9.26 (3) : générateur de questions — plages 1–9, 1–15, 1–30, 1–50, 1–100
+  {
+    const { ctx, page } = await fresh(browser);
+    const r = await page.evaluate(() => {
+      const N = window.__numero,
+        s = () => N.state,
+        bad = [],
+        stats = {};
+      // formule indépendante, lue dans l'identifiant de la question
+      const ref = (id, n) => {
+        let m;
+        if ((m = /^above(\d+)$/.exec(id))) return n > +m[1];
+        if ((m = /^below(\d+)$/.exec(id))) return n < +m[1];
+        if (id === 'even') return n % 2 === 0;
+        if (id === 'odd') return n % 2 === 1;
+        if ((m = /^plus(\d+)_(\d+)$/.exec(id))) return n + +m[1] > +m[2];
+        if ((m = /^minus(\d+)_(\d+)$/.exec(id))) return n - +m[1] >= +m[2];
+        if ((m = /^double_(\d+)$/.exec(id))) return 2 * n > +m[1];
+        if ((m = /^range\d+_(\d+)$/.exec(id))) return null; // bornes dans le texte : vérifiées plus bas
+        if ((m = /^mult(\d+)$/.exec(id))) return n % +m[1] === 0;
+        if ((m = /^digitsum(\d+)$/.exec(id))) return [...String(n)].reduce((a, b) => a + +b, 0) > +m[1];
+        if ((m = /^near(\d+)_(\d+)$/.exec(id))) return Math.abs(n - +m[2]) < +m[1];
+        return undefined;
+      };
+      let seed = 1;
+      const rnd0 = Math.random;
+      const seeded = v => {
+        seed = v;
+        Math.random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+      };
+      const setups = [
+        ['junior', null],
+        ['malin', null],
+        ['expert', null],
+        ['genius', null],
+        ['junior', 'easy'],
+        ['malin', 'medium'],
+        ['expert', 'hard']
+      ];
+      for (const [lv, ch] of setups) {
+        if (ch) N.startChallenge('endless', ch);
+        else {
+          N.state.players = 1;
+          N.state.level = lv;
+          N.start(true);
+        }
+        N.state.modal = null;
+        const max = N.maxN(),
+          minSide = N.questionMinSide(max),
+          label = ch ? `1–100 ${ch}` : `1–${max}`,
+          all = Array.from({ length: max }, (_, i) => i + 1),
+          ids = new Set();
+        let gens = 0,
+          types = 0,
+          weakStart = 0,
+          leaks = 0;
+        for (let k = 0; k < 400; k++) {
+          // début d'enquête (tous possibles) ou enquête avancée (plage ou ensemble au hasard)
+          const kind = k % 3;
+          let cands = all.slice();
+          if (kind === 1) {
+            const a = 1 + Math.floor(rnd0() * max),
+              len = 2 + Math.floor(rnd0() * Math.max(2, max / 2));
+            cands = all.filter(n => n >= a && n < a + len);
+          } else if (kind === 2) cands = all.filter(() => rnd0() < 0.3);
+          if (!cands.length) cands = [1 + Math.floor(rnd0() * max)];
+          const secret = cands[Math.floor(rnd0() * cands.length)];
+          Object.assign(s(), { candidates: cands, secret, shownIds: [], choices: [] });
+          seeded(1000 + k);
+          N.makeChoices();
+          const ch3 = s().choices.slice(),
+            qs = ch3.map(N.qbyid);
+          gens++;
+          ch3.forEach(id => ids.add(id));
+          types += new Set(qs.map(q => q && q.type)).size;
+          // pas de fuite : avec un autre numéro caché (même tirage), exactement les mêmes questions
+          const other = cands.find(n => n !== secret);
+          if (other != null) {
+            Object.assign(s(), { secret: other, shownIds: [], choices: [] });
+            seeded(1000 + k);
+            N.makeChoices();
+            if (s().choices.join() !== ch3.join()) leaks++;
+          }
+          if (qs.length !== 3 || qs.some(q => !q)) {
+            bad.push(`${label} : ${ch3}`);
+            continue;
+          }
+          for (const q of qs) {
+            for (const n of all) {
+              const want = ref(q.id, n);
+              if (want === undefined) bad.push(`${label} id inconnu ${q.id}`);
+              else if (want !== null && want !== !!q.test(n)) bad.push(`${label} ${q.id}(${n}) faux`);
+            }
+            const m = /^range\d+_(\d+)$/.exec(q.id);
+            if (m) {
+              const [, a, b] = q.text.match(/(\d+)\D+(\d+)/) || [];
+              if (!all.every(n => !!q.test(n) === (n >= +a && n <= +b))) bad.push(`${label} ${q.id} texte`);
+            }
+            // seuil jamais collé aux limites de la plage, sauf en fin d'enquête (question précise légitime)
+            const yes = all.filter(n => q.test(n)).length;
+            if (cands.length > max / 2 && (yes < minSide || max - yes < minSide))
+              bad.push(`${label} ${q.id} seuil limite (${yes}/${max})`);
+            // début d'enquête : aucune question qui ne laisse que 1 ou 2 numéros d'un côté
+            if (kind === 0 && Math.min(yes, max - yes) < Math.min(minSide, 3)) weakStart++;
+          }
+          // au moins un OUI quel que soit le numéro encore possible (donc pour le vrai numéro)
+          if (!cands.every(n => qs.some(q => q.test(n)))) bad.push(`${label} pas de OUI garanti (${ch3})`);
+          if (!qs.some(q => q.test(secret))) bad.push(`${label} aucun OUI pour le secret`);
+        }
+        stats[label] = { gens, distinct: ids.size, types: +(types / gens).toFixed(2), weakStart, leaks };
+      }
+      Math.random = rnd0;
+      // fin d'enquête près des limites (1, 3 / 2, 4, 6 / max−2, max) : la règle du OUI tient toujours
+      for (const [lv, ch] of [
+        ['genius', null],
+        ['expert', null],
+        [null, 'hard']
+      ]) {
+        if (ch) N.startChallenge('endless', ch);
+        else {
+          N.state.players = 1;
+          N.state.level = lv;
+          N.start(true);
+        }
+        const max = N.maxN();
+        for (const cands of [
+          [1, 3],
+          [1, 5],
+          [2, 4, 6],
+          [max - 2, max],
+          [1, max],
+          [1, 2]
+        ])
+          for (let k = 0; k < 60; k++) {
+            Object.assign(s(), {
+              candidates: cands,
+              secret: cands[k % cands.length],
+              shownIds: [],
+              choices: []
+            });
+            N.makeChoices();
+            const qs = s().choices.map(N.qbyid);
+            if (!cands.every(n => qs.some(q => q && q.test(n))))
+              bad.push(`${lv || ch} fin ${cands} : ${s().choices}`);
+          }
+      }
+      // l'exemple signalé : « ajoute 3, dépasse-t-il 4 ? » n'est plus proposé en 1–50
+      N.state.players = 1;
+      N.state.level = 'genius';
+      N.start(true);
+      const offered = N.qpoolBalanced().some(q => q.id === 'plus3_4');
+      const known = !!N.qbyid('plus3_4'); // reste lisible dans un ancien historique
+      return { bad: bad.slice(0, 5), nbad: bad.length, stats, offered, known };
+    });
+    check(
+      r.nbad === 0,
+      `Questions : justesse, seuils, OUI garanti sur 2 800 tirages (${r.nbad} erreurs : ${r.bad.join(' | ')})`
+    );
+    const st = Object.entries(r.stats);
+    check(
+      st.every(([, v]) => v.leaks === 0),
+      `Questions : aucune fuite (même trio quel que soit le numéro caché) ${JSON.stringify(st.map(([k, v]) => k + ':' + v.leaks))}`
+    );
+    check(
+      st.every(([, v]) => v.weakStart === 0),
+      `Questions : jamais de question quasi révélatrice en début d’enquête`
+    );
+    check(
+      st.every(([k, v]) => v.distinct >= (k === '1–9' ? 12 : 30) && v.types >= 2),
+      `Questions : variété ${st.map(([k, v]) => `${k} ${v.distinct} questions, ${v.types} types/tour`).join(' ; ')}`
+    );
+    check(
+      !r.offered && r.known,
+      '« Si on lui ajoute 3, dépasse-t-il 4 ? » plus proposée en 1–50, mais toujours lisible dans un ancien historique'
+    );
+    // cohérence avec les déplacements : le carnet automatique reste exact après des questions et des sauts
+    const nb = [];
+    for (const [lv, ch] of [
+      ['genius', null],
+      ['malin', null],
+      [null, 'hard']
+    ]) {
+      await page.evaluate(
+        ([lv, ch]) => {
+          const N = window.__numero;
+          if (ch) N.startChallenge('endless', ch);
+          else {
+            N.state.players = 2;
+            N.state.level = lv;
+            N.start(true);
+          }
+          for (let i = 0; i < 8; i++) {
+            N.state.modal = null;
+            N.ask(N.state.choices[i % 3]);
+            if (N.state.last && N.state.last.pick) N.mathPick(N.state.choices[0]);
+            N.nextTurn();
+            N.state.modal = null;
+            N.guess(N.state.secret === 1 ? 2 : 1);
+            N.nextTurn();
+          }
+        },
+        [lv, ch]
+      );
+      nb.push(await notebookOK(page));
+    }
+    check(
+      nb.every(x => x.ok),
+      `Questions + déplacements : carnet exact (${nb.map(x => x.got.split(',').length).join(', ')} possibles)`
+    );
+    check(
+      !page.errors.length,
+      `Questions V9.26 : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
+    );
+    await ctx.close();
+  }
+  // V9.26 (4) : victoire aux points (2, 3, 4 joueurs, égalités, prénoms longs) = écran de la Course ; invités = hôte
+  {
+    const { ctx, page } = await fresh(browser);
+    const cases = [
+      [2, [5, 3], [1, 0]],
+      [3, [9, 9, 2], [1, 1, 0]],
+      [4, [-6, 12, 3, -10], [3, 2, 1, 0]],
+      [4, [4, 4, 4, 4], [0, 0, 0, 0]]
+    ];
+    const res = [];
+    for (const [n, sc, stars] of cases)
+      res.push(
+        await page.evaluate(
+          ([n, sc, stars]) => {
+            const N = window.__numero;
+            Object.assign(N.state, {
+              players: n,
+              level: 'genius',
+              gameMode: 'score',
+              names: ['Alexandrine-Marie', 'Bartholomé', 'Maximilien', 'Zied'],
+              reduceMotion: true
+            });
+            N.start(true);
+            Object.assign(N.state, {
+              scores: sc,
+              stars,
+              captures: 2,
+              escaped: { n: 33 },
+              screen: 'end',
+              inGame: false,
+              modal: null
+            });
+            N.render();
+            const rows = [...document.querySelectorAll('.points-panel .pod-row')].map(r => ({
+              place: +r.className.match(/place-(\d)/)[1],
+              name: r.querySelector('strong').textContent,
+              pts: parseInt(r.querySelector('.pr-pts').textContent)
+            }));
+            const hero = document.querySelector('.points-hero h1').textContent,
+              line = document.querySelector('.points-hero .rh-line').textContent;
+            const over = [...document.querySelectorAll('.points-panel .pr-top strong')].filter(
+              e => e.scrollWidth > e.clientWidth + 1
+            ).length;
+            // vue d'un invité Wi-Fi : l'état envoyé par l'hôte donne le même écran
+            const host = document.querySelector('.podium-box').textContent + hero;
+            if (!N.netState.lobby) N.netState.lobby = [];
+            const red = N.redactState(1);
+            return {
+              rows,
+              hero,
+              line,
+              host,
+              red: JSON.stringify(red),
+              over,
+              btns: ['again', 'menu'].every(id => document.getElementById(id))
+            };
+          },
+          [n, sc, stars]
+        )
+      );
+    // l'invité : même rendu à partir de l'état reçu
+    const { ctx: c2, page: guest } = await fresh(browser);
+    const same = [];
+    for (const r of res)
+      same.push(
+        await guest.evaluate(red => {
+          const N = window.__numero,
+            st = JSON.parse(red);
+          Object.assign(N.state, st, { net: { role: 'client', seat: 1 }, secret: 1 });
+          N.render();
+          return (
+            document.querySelector('.podium-box').textContent +
+            document.querySelector('.points-hero h1').textContent
+          );
+        }, r.red)
+      );
+    await c2.close();
+    const tot = (sc, st) => sc.map((v, i) => v + st[i]);
+    res.forEach((r, k) => {
+      const [n, sc, st] = cases[k],
+        t = tot(sc, st),
+        sorted = t.slice().sort((a, b) => b - a),
+        best = sorted[0],
+        nbBest = t.filter(x => x === best).length;
+      check(
+        r.rows.length === n &&
+          r.rows.map(x => x.pts).join() === sorted.join() &&
+          r.rows.every(x => x.place === 1 + t.filter(v => v > x.pts).length) &&
+          r.line.includes(String(best)) &&
+          (nbBest > 1 ? /Égalité/.test(r.hero) : /remporte/.test(r.hero)) &&
+          r.over === 0 &&
+          r.btns,
+        `Victoire aux points ${n} joueurs (${t.join('/')}) : classement, places ex aequo, gagnant(s), score en valeur (« ${r.hero} »)`
+      );
+      check(
+        same[k] === r.host,
+        `Victoire aux points ${n} joueurs : l’invité voit exactement le même classement que l’hôte`
+      );
+    });
+    // boutons : Rejouer relance une partie aux points, Accueil revient au menu
+    await page.click('#again');
+    const st1 = await S(page);
+    await page.evaluate(() => {
+      const N = window.__numero;
+      Object.assign(N.state, {
+        scores: [1, 0, 0, 0],
+        stars: [0, 0, 0, 0],
+        captures: 1,
+        screen: 'end',
+        inGame: false,
+        modal: null
+      });
+      N.render();
+    });
+    await page.click('#menu');
+    const st2 = await S(page);
+    check(
+      st1.screen === 'game' && st1.gameMode === 'score' && st2.screen === 'home',
+      'Victoire aux points : Rejouer et Accueil fonctionnent'
+    );
+    check(
+      !page.errors.length,
+      `Victoire aux points : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
+    );
+    await ctx.close();
+  }
+
   await browser.close();
   console.log(`\nRésultat : ${passed} vérifications réussies, ${failed} échec(s).`);
   if (failed) {

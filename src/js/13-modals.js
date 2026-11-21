@@ -106,7 +106,7 @@ function backupView() {
     return `<h2>📥 ${t('backupImportTitle')}</h2><p>${t('backupImportText')}</p><textarea id="backupInput" class="backup-code" dir="ltr" placeholder="NEF1-…">${esc(b.input || '')}</textarea>${b.error ? `<p class="net-error">⚠️ ${t('backupErr_' + b.error)}</p>` : ''}<button class="bigbtn" id="backupCheck">${t('backupCheck')}</button>${close}`;
   if (b.view === 'confirm') {
     const cur = progressSummary(careerProfile(loadCareer()));
-    return `<h2>📥 ${t('backupConfirmTitle')}</h2><p>${t('backupContains')}<br><b>${sum(b.summary)}</b></p><p>${t('backupReplaces')}<br>${sum(cur)}</p><button class="bigbtn pink" id="backupApply">${t('backupApply')}</button><button class="bigbtn light" id="backupClose">${t('cancel')}</button>`;
+    return `<h2>📥 ${t('backupConfirmTitle')}</h2><p>${t('backupContains')}<br><b>${sum(b.summary)}</b></p><p>${t('backupReplaces')}<br>${sum(cur)}</p><p class="sub small backup-more">${b.summary.full ? t('backupAlsoFull', { n: b.summary.days || 0, p: b.summary.players || 0 }) : t('backupAlsoOld')}</p><button class="bigbtn pink" id="backupApply">${t('backupApply')}</button><button class="bigbtn light" id="backupClose">${t('cancel')}</button>`;
   }
   if (b.view === 'done') return `<h2>✅ ${t('backupDone')}</h2><p>${sum(b.summary)}</p>${close}`;
   return `<h2>💾 ${t('backupTitle')}</h2><p>${t('backupIntro')}</p><button class="bigbtn" id="backupExport">📤 ${t('backupExportTitle')}</button><button class="bigbtn green" id="backupImport">📥 ${t('backupImportTitle')}</button>${close}`;

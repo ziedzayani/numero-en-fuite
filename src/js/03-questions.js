@@ -59,6 +59,25 @@ function qpool() {
 function qbyid(id) {
   return qpool().find(q => q.id === id);
 }
+/**
+ * V9.26 : nombre minimal de numéros de chaque côté d'une question, sur la plage entière du niveau
+ * (1 sur 1–9, 2 sur 1–15, 4 sur 1–30, 6 sur 1–50, 12 sur 1–100).
+ */
+const questionMinSide = (max = maxN()) => Math.max(1, Math.round(max * QUESTION_MIN_SIDE));
+/**
+ * V9.26 : questions PROPOSABLES pour la plage — celles dont le seuil n'est pas collé à une limite
+ * (sinon la réponse est presque toujours la même et l'autre réponse révèle un numéro d'un coup).
+ * Même règle pour toutes les catégories (comparaison, +, −, double, multiples, chiffres, proche de…).
+ */
+function qpoolBalanced() {
+  const max = maxN(),
+    min = questionMinSide(max),
+    range = Array.from({ length: max }, (_, i) => i + 1);
+  return qpool().filter(q => {
+    const yes = range.filter(n => q.test(n)).length;
+    return yes >= min && max - yes >= min;
+  });
+}
 /** Choisit les 3 questions du tour dans g.choices (en évitant celles déjà montrées). */
 function makeChoices() {
   // V9.22 : en équipes, les questions utiles se calculent avec ce que SAIT l'équipe du joueur actif
@@ -74,7 +93,7 @@ function makeChoices() {
     }
     return;
   }
-  const pool = qpool();
+  const pool = qpoolBalanced();
   let unused = pool.filter(q => !g.shownIds.includes(q.id));
   if (unused.length < 3) {
     g.shownIds = [];
@@ -152,7 +171,8 @@ function coverChoices(chosen, ordered, pool) {
     ...every.filter(q => side(q) < 2 * netSize())
   ];
   const fresh = q => !chosen.includes(q);
-  const strong = q => side(q) >= 2 * netSize();
+  const safe2 = () => 2 * netSize();
+  const strong = q => side(q) >= safe2();
   const keep = chosen.slice(0, 2),
     head = chosen[0],
     rest = cands.filter(n => !head.test(n));
@@ -169,23 +189,27 @@ function coverChoices(chosen, ordered, pool) {
   };
   // 3) toujours possible : « plus grand que k » et « plus petit que k+1 » couvrent tout ;
   //    k coupe les numéros possibles le plus près possible de la moitié
-  const split = () => {
+  const full = qpool();
+  // V9.26 : d'abord avec les questions proposables ; en fin d'enquête près d'une limite, avec toutes
+  // (une question très précise est alors légitime) : la paire couvre toujours tous les possibles
+  const splitIn = list => {
     let best = null;
     for (let k = 2; k <= maxN() - 2; k++) {
-      const a = pool.find(q => q.id === `above${k}`),
-        b = pool.find(q => q.id === `below${k + 1}`);
+      const a = list.find(q => q.id === `above${k}`),
+        b = list.find(q => q.id === `below${k + 1}`);
       if (!a || !b || !useful(a)) continue;
       if (!best || side(a) > side(best[0])) best = [a, b];
     }
-    return best ? [best[0], best[1], chosen.find(q => q !== best[0] && q !== best[1]) || chosen[2]] : null;
+    if (!best) return null;
+    const other = chosen.find(q => q.id !== best[0].id && q.id !== best[1].id);
+    return other ? [best[0], best[1], other] : null;
   };
+  const split = () => splitIn(pool) || splitIn(full);
+  // V9.26 : avant une question faible (presque toujours OUI, très révélatrice si NON), on préfère la paire
+  // équilibrée « plus grand que k / plus petit que k+1 » ; une question faible ne sert qu'en fin d'enquête,
+  // quand plus aucune ne coupe vraiment les possibles en deux.
   const strongOnes = pref.filter(strong);
   const sp = split();
-  return (
-    tryTier(strongOnes) ||
-    (sp && sp.every(q => strong(q) || !strongOnes.length) ? sp : null) ||
-    tryTier(pref) ||
-    sp ||
-    chosen
-  );
+  const weakOk = q => side(q) >= Math.min(safe2(), Math.floor(g.candidates.length / 4));
+  return tryTier(strongOnes) || sp || tryTier(pref.filter(weakOk)) || tryTier(pref) || chosen;
 }

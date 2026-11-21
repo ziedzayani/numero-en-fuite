@@ -457,6 +457,22 @@ const STATES = {
     window.__netEvent(JSON.stringify({ type: 'room', code: '4763', name: 'Alexandrine' }));
     window.__netEvent(JSON.stringify({ type: 'room', code: '7678', name: 'Maximilien' }));
   },
+  'fin points égalité 1re place (Wi-Fi)': N => {
+    N.state.players = 3;
+    N.state.level = 'genius';
+    N.state.gameMode = 'score';
+    N.state.names = ['Alexandrine', 'Bartholomé', 'Maximilien', ''];
+    N.start(true);
+    N.state.scores = [12, 10, 4];
+    N.state.stars = [0, 2, 1];
+    N.state.captures = 3;
+    N.state.escaped = { n: 21 };
+    N.state.net = { role: 'host', seat: 0 };
+    N.state.netReady = [0, 2];
+    N.state.screen = 'end';
+    N.state.inGame = false;
+    N.state.modal = null;
+  },
   'échappe : miroir': N => {
     N.state.players = 2;
     N.state.level = 'genius';

@@ -102,6 +102,13 @@ const CH_WINS_TIERS = [5, 15, 30, 50];
 const CH_READ_PAUSE_MS = 5000;
 /** Fenêtres qui comptent comme « lecture » (pause limitée) en Défi chronométré ; les autres arrêtent le chrono. */
 const CH_READ_MODALS = ['notebook'];
+/**
+ * V9.26 : questions adaptées à la plage (1–9, 1–15, 1–30, 1–50, 1–100). Sur la plage entière, une
+ * question proposable doit laisser au moins QUESTION_MIN_SIDE × max numéros de CHAQUE côté (au moins 1) :
+ * « ajoute 3, dépasse-t-il 4 ? » (un seul NON possible sur 1–50) n'est plus proposée.
+ * Les anciennes questions restent connues (historique, carnet) : seule la proposition change.
+ */
+const QUESTION_MIN_SIDE = 0.12;
 /** V9.24 : historique du Défi du jour affiché (jours). */
 const DAILY_HISTORY_DAYS = 30;
 

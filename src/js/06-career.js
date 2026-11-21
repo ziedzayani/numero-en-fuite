@@ -248,18 +248,69 @@ function fnv1a(str) {
 const toB64 = s => btoa(unescape(encodeURIComponent(s)));
 const fromB64 = s => decodeURIComponent(escape(atob(s)));
 
-/** Code de sauvegarde des progrès actuels. */
+/**
+ * Code de sauvegarde des progrès actuels.
+ * V9.26 (format v2) : ajoute l'historique du Défi du jour (résultats officiels et nombre d'essais) et les
+ * statistiques « à plusieurs » de ce téléphone. Jamais la partie en cours ni une connexion Wi-Fi.
+ */
 function exportProgress() {
   const c = loadCareer(),
     p = careerProfile(c);
   const data = {
-    v: 1,
+    v: BACKUP_VERSION,
     career: { ...c, profiles: { [c.activeProfileId]: { ...p, processed: {} } } },
     records: records(),
+    daily: cleanDaily(loadDaily()),
+    versus: cleanVersus(loadVersus()),
     prefs: Object.fromEntries(BACKUP_PREFS.map(k => [k, g[k]]))
   };
   const b = toB64(JSON.stringify(data));
   return `${BACKUP_PREFIX}-${b}-${fnv1a(b)}`;
+}
+const BACKUP_VERSION = 2;
+const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
+const natOrNull = v => (Number.isInteger(v) && v >= 0 ? v : null);
+const natOr0 = v => (Number.isInteger(v) && v >= 0 ? v : 0);
+const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+/** Historique du Défi du jour vérifié champ par champ (dates valides seulement). */
+function cleanDaily(d) {
+  if (!isObj(d)) return {};
+  const out = {};
+  for (const [day, e] of Object.entries(d)) {
+    if (!DAY_KEY.test(day) || !isObj(e)) continue;
+    out[day] = {
+      won: !!e.won,
+      turns: natOrNull(e.turns),
+      secret: natOrNull(e.secret),
+      tries: Math.max(1, natOr0(e.tries)),
+      score: natOrNull(e.score),
+      ms: natOrNull(e.ms)
+    };
+  }
+  return out;
+}
+/** Statistiques « à plusieurs » vérifiées (prénoms, compteurs, face-à-face, parties déjà comptées). */
+function cleanVersus(d) {
+  const out = { players: {}, pairs: {}, processed: [] };
+  if (!isObj(d)) return out;
+  for (const [name, p] of Object.entries(isObj(d.players) ? d.players : {}))
+    if (name && name.length <= 20 && isObj(p))
+      out.players[name] = {
+        games: natOr0(p.games),
+        wins: Math.min(natOr0(p.wins), natOr0(p.games)),
+        captures: natOr0(p.captures),
+        streak: natOr0(p.streak),
+        best: natOr0(p.best)
+      };
+  for (const [key, pr] of Object.entries(isObj(d.pairs) ? d.pairs : {})) {
+    const names = key.split('|');
+    if (names.length !== 2 || !isObj(pr)) continue;
+    const w = {};
+    for (const n of names) if (isObj(pr.w) && natOr0(pr.w[n])) w[n] = natOr0(pr.w[n]);
+    out.pairs[key] = { games: natOr0(pr.games), w };
+  }
+  if (Array.isArray(d.processed)) out.processed = d.processed.filter(x => typeof x === 'string').slice(-60);
+  return out;
 }
 
 /**
@@ -280,9 +331,19 @@ function readBackup(code) {
   }
   const prof =
     data && data.career && data.career.profiles && data.career.profiles[data.career.activeProfileId];
-  if (!data || data.v !== 1 || !prof || typeof data.records !== 'object')
+  if (!data || ![1, 2].includes(data.v) || !prof || !isObj(data.records))
     return { ok: false, error: 'damaged' };
-  return { ok: true, data, summary: progressSummary(prof) };
+  // V9.26 : un code v2 contient aussi le Défi du jour et les statistiques à plusieurs (vérifiés)
+  if (
+    data.v === 2 &&
+    ((data.daily != null && !isObj(data.daily)) || (data.versus != null && !isObj(data.versus)))
+  )
+    return { ok: false, error: 'damaged' };
+  const summary = progressSummary(prof);
+  summary.full = data.v >= 2; // ancien code : Défi du jour et statistiques à plusieurs de ce téléphone gardés
+  summary.days = Object.keys(cleanDaily(data.daily)).length;
+  summary.players = Object.keys(cleanVersus(data.versus).players).length;
+  return { ok: true, data, summary };
 }
 
 /** Résumé lisible d'une carrière : rang, XP, victoires. */
@@ -292,14 +353,32 @@ const progressSummary = p => ({
   wins: p.totalWins || 0
 });
 
-/** Remplace les progrès par ceux du code (après confirmation). Renvoie true si c'est fait. */
+/**
+ * Remplace les progrès par ceux du code (après confirmation). Renvoie true si c'est fait.
+ * Jamais de récompense en double : le journal des parties déjà comptées de CE téléphone est gardé (une
+ * partie terminée ici ne redonne rien), un Défi du jour joué ici garde son résultat officiel, et les
+ * parties à plusieurs déjà comptées le restent.
+ */
 function importProgress(code) {
   const r = readBackup(code);
   if (!r.ok) return false;
+  const keepProcessed = careerProfile(loadCareer()).processed || {},
+    localDaily = cleanDaily(loadDaily()),
+    localVs = cleanVersus(loadVersus());
+  const career = r.data.career,
+    prof = career.profiles[career.activeProfileId];
+  prof.processed = { ...(isObj(prof.processed) ? prof.processed : {}), ...keepProcessed };
   try {
-    localStorage.setItem(CAREER_STORAGE, JSON.stringify(r.data.career));
+    localStorage.setItem(CAREER_STORAGE, JSON.stringify(career));
     forgetRank();
     localStorage.setItem(RECORDS_STORAGE, JSON.stringify(r.data.records));
+    if (r.data.v >= 2) {
+      // les jours du code remplacent ceux de ce téléphone ; un jour joué seulement ici reste joué
+      localStorage.setItem(DAILY_STORAGE, JSON.stringify({ ...localDaily, ...cleanDaily(r.data.daily) }));
+      const vs = cleanVersus(r.data.versus);
+      vs.processed = [...new Set([...vs.processed, ...localVs.processed])].slice(-60);
+      localStorage.setItem(VERSUS_STORAGE, JSON.stringify(vs));
+    }
   } catch (e) {
     return false;
   }

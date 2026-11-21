@@ -163,9 +163,17 @@ function missionStep(m, f) {
 const missionKey = m => m.k + (m.level ? ':' + m.level : '');
 const isChMission = m => m.k === 'chWin' || m.k === 'chTimed';
 
-/** Prochaine mission : la suivante du cycle qui n'est pas déjà en cours. */
+/**
+ * Prochaine mission : la suivante du cycle qui n'est pas déjà en cours.
+ * V9.26 : les 3 missions mélangent toujours les deux Solo — s'il manque une mission de Défi (ou du Solo
+ * classique) parmi celles en cours, la prochaine est prise dans ce mode-là. Une nouvelle carrière a donc
+ * une mission de Défi dès le départ ; les missions déjà commencées ne sont jamais retirées.
+ */
 function nextMission(p) {
-  const current = new Set((p.missions || []).map(missionKey));
+  const current = p.missions || [],
+    keys = new Set(current.map(missionKey)),
+    need = !current.some(isChMission) ? 'ch' : !current.some(m => !isChMission(m)) ? 'solo' : null;
+  const wanted = m => !need || (need === 'ch') === isChMission(m);
   for (let tries = 0; tries < MISSION_KINDS.length * 4; tries++) {
     const seq = p.missionSeq || 0;
     p.missionSeq = seq + 1;
@@ -176,9 +184,9 @@ function nextMission(p) {
       Math.floor(seq / MISSION_KINDS.length),
       min
     );
-    if (!current.has(missionKey(m))) return m;
+    if (!keys.has(missionKey(m)) && wanted(m)) return m;
   }
-  return makeMission('play', 0);
+  return makeMission(need === 'ch' ? 'chWin' : 'play', 0, 0);
 }
 /** Complète badges et missions d'un profil (ancienne sauvegarde, code importé, donnée abîmée). */
 function normalizeOffice(p) {

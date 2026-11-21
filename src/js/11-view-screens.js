@@ -789,6 +789,28 @@ function end() {
   if (g.players > 1 && !noCatch) return endPoints(tot, champions);
   return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${noCatch ? '' : shareButton()}<button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }
+/*
+ * V9.26 : écran de victoire commun à la Course et au mode Points (même structure, mêmes styles, mêmes
+ * boutons). Chaque mode fournit seulement ses textes et ses lignes de classement.
+ */
+const PODIUM_MEDALS = ['🥇', '🥈', '🥉', '🎖️'];
+const podiumMedal = place => PODIUM_MEDALS[Math.min(place, 4) - 1];
+/** Une ligne du podium : médaille de la place, puis le contenu propre au mode. */
+const podiumRow = (place, inner) =>
+  `<div class="finalscore pod-row place-${place}"><div class="medal">${podiumMedal(place)}</div>${inner}</div>`;
+/** « Le numéro se cachait sur le 47. » (avec le bouton du film quand il existe). */
+const caughtNote = (n, film = '') =>
+  `<div class="escaped-note race-caught"><span>${tHtml('escapedWas', { n: `<b class="big-n">${n}</b>` })}</span>${film}</div>`;
+/**
+ * Écran de victoire : décor, confettis, détective, trophée, bandeau vert, numéro caché, podium, prochaine
+ * partie (et « prêts » en Wi-Fi), Rejouer / Partager / Accueil.
+ * o = { mod (classe du mode, '' pour la Course), title, line (sous le titre), caught, rows }
+ */
+function victoryScreen({ mod = '', title, line, caught, rows }) {
+  const next = (g.starter + 1) % g.players,
+    decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
+  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero${mod ? ' ' + mod + '-hero' : ''}"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${title}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${line}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel${mod ? ' ' + mod + '-panel' : ''}"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
+}
 /**
  * V9.25 : fin du mode Points avec au moins une capture — structure, couleurs et boutons de l'écran de
  * victoire de la Course (référence) : détective, trophée, bandeau vert, numéro caché, podium, prochaine partie.
@@ -796,38 +818,44 @@ function end() {
  */
 function endPoints(tot, champions) {
   const order = tot
-      .map((v, i) => ({ v, i }))
-      .sort((a, b) => b.v - a.v)
-      .map(o => ({ ...o, place: 1 + tot.filter(x => x > o.v).length })),
-    medal = n => ['🥇', '🥈', '🥉', '🎖️'][Math.min(n, 4) - 1],
-    next = (g.starter + 1) % g.players;
+    .map((v, i) => ({ v, i }))
+    .sort((a, b) => b.v - a.v)
+    .map(o => ({ ...o, place: 1 + tot.filter(x => x > o.v).length })); // ex aequo : même place
   const rows = order
-    .map(
-      o =>
-        `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div class="pr-main"><div class="pr-top"><strong>${esc(pname(o.i))}${seriesBadge(o.i)}</strong><b class="pr-pts" dir="ltr" title="${esc(t('starsBonus'))}">${o.v} <small>${t('score')}</small></b></div><small class="pr-sub" title="${esc(t('subtotals', { c: g.scores[o.i], s: g.stars[o.i] || 0 }))}">${t('subtotals', { c: g.scores[o.i], s: g.stars[o.i] || 0 })}</small></div></div>`
-    )
+    .map(o => {
+      const sub = t('subtotals', { c: g.scores[o.i], s: g.stars[o.i] || 0 });
+      return podiumRow(
+        o.place,
+        `<div class="pr-main"><div class="pr-top"><strong>${esc(pname(o.i))}${seriesBadge(o.i)}</strong><b class="pr-pts" dir="ltr" title="${esc(t('starsBonus'))}">${o.v} <small>${t('score')}</small></b></div><small class="pr-sub" title="${esc(sub)}">${sub}</small></div>`
+      );
+    })
     .join('');
-  const decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
   const film = g.lastHunt
     ? `<button class="mini-btn rp-open rp-icon" id="openReplay" aria-label="${esc(t('rpButton'))}" title="${esc(t('rpButton'))}"><i class="ico ico-clap" aria-hidden="true"></i></button>`
     : '';
-  const caught = g.escaped
-    ? `<div class="escaped-note race-caught"><span>${tHtml('escapedWas', { n: `<b class="big-n">${g.escaped.n}</b>` })}</span>${film}</div>`
-    : '';
-  const title =
-    seriesTitle() ||
-    (champions.length === 1
-      ? t('endWinner', { player: champions[0] })
-      : t('endTie', { players: champions.join(', ') }));
-  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero points-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${title}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${t('capturesSummary', { count: g.captures, turns: g.limit })}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel points-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
+  return victoryScreen({
+    mod: 'points',
+    title:
+      seriesTitle() ||
+      (champions.length === 1
+        ? t('endWinner', { player: champions[0] })
+        : t('endTie', { players: champions.join(', ') })),
+    // le score du (des) gagnant(s) mis en valeur, puis le résultat de la partie
+    line: tHtml('pointsWinLine', {
+      n: `<b class="gold" dir="ltr">${order[0].v}</b>`,
+      count: g.captures,
+      turns: g.limit
+    }),
+    caught: g.escaped ? caughtNote(g.escaped.n, film) : '',
+    rows
+  });
 }
 /** Course : annonce, au joueur qui prend le téléphone, des captures faites depuis son dernier tour. */
 function raceNewsFor(i) {
   if (!isRace() || g.players < 2) return '';
   const news = raceNewsUnseen(i);
   if (!news.length) return '';
-  const medal = n => ['🥇', '🥈', '🥉', '🎖️'][Math.min(n, 4) - 1];
-  return `<div class="podium-note race-news">${news.map(p => t('raceNewsFound', { medal: medal(placeFor(p.round)), player: pname(p.player) })).join('<br>')}<small>${t('raceNewsNext', { n: placeFor(raceRound()) })}</small></div>`;
+  return `<div class="podium-note race-news">${news.map(p => t('raceNewsFound', { medal: podiumMedal(placeFor(p.round)), player: pname(p.player) })).join('<br>')}<small>${t('raceNewsNext', { n: placeFor(raceRound()) })}</small></div>`;
 }
 /** Course : après une capture, place obtenue et annonce du nouveau numéro pour les autres. */
 function racePodiumNote() {
@@ -857,8 +885,6 @@ function endRace() {
   // V9.8 : écran de victoire d'après la maquette (détective, trophée, bandeau vert, podium, prochaine partie)
   const { placed, others } = raceRanking(),
     winners = placed.filter(p => p.place === 1).map(p => pname(p.i)),
-    next = (g.starter + 1) % g.players,
-    medal = n => ['🥇', '🥈', '🥉', '🎖️'][Math.min(n, 4) - 1],
     caughtN = g.lastHunt && g.lastHunt.end && g.lastHunt.end.n;
   // V9.22 : en équipes, les deux membres de l'équipe gagnante partagent la 1re place
   const tw = isTeams() ? teamWinners() : [];
@@ -874,24 +900,38 @@ function endRace() {
               ? t('teamMateWin')
               : tHtml('podiumNotCaught', { n: `<b dir="ltr">${o ? o.v : 0}</b>` });
           const place = tw.includes(i) ? 1 : 2;
-          return `<div class="finalscore pod-row place-${place}"><div class="medal">${medal(place)}</div><div><strong>${teamDot(i)}${esc(pname(i))}${seriesBadge(i)}</strong><small>${line}.</small></div></div>`;
+          return podiumRow(
+            place,
+            `<div><strong>${teamDot(i)}${esc(pname(i))}${seriesBadge(i)}</strong><small>${line}.</small></div>`
+          );
         })
         .join('')
     : [
-        ...placed.map(
-          p =>
-            `<div class="finalscore pod-row place-${p.place}"><div class="medal">${medal(p.place)}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${tHtml('podiumCaught', { turn: `<b>${p.turn}</b>` })}.</small></div></div>`
+        ...placed.map(p =>
+          podiumRow(
+            p.place,
+            `<div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${tHtml('podiumCaught', { turn: `<b>${p.turn}</b>` })}.</small></div>`
+          )
         ),
-        ...others.map(
-          o =>
-            `<div class="finalscore pod-row place-${o.place}"><div class="medal">${medal(o.place)}</div><div><strong>${esc(pname(o.i))}${seriesBadge(o.i)}</strong><small>${tHtml('podiumNotCaught', { n: `<b dir="ltr">${o.v}</b>` })}.</small></div></div>`
+        ...others.map(o =>
+          podiumRow(
+            o.place,
+            `<div><strong>${esc(pname(o.i))}${seriesBadge(o.i)}</strong><small>${tHtml('podiumNotCaught', { n: `<b dir="ltr">${o.v}</b>` })}.</small></div>`
+          )
         )
       ].join('');
-  const decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
-  const caught = caughtN
-    ? `<div class="escaped-note race-caught"><span>${tHtml('escapedWas', { n: `<b class="big-n">${caughtN}</b>` })}</span></div>`
-    : escapedNote(true);
-  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${seriesTitle() || (isTeams() && placed.length ? t('teamWin', { team: teamName(teamOf(placed[0].i)) }) : winners.length > 1 ? t('raceWinTie', { players: winners.join(', ') }) : t('raceWin', { player: winners[0] }))}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${t('raceWinDesc', { turns: g.raceTurns })}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
+  return victoryScreen({
+    title:
+      seriesTitle() ||
+      (isTeams() && placed.length
+        ? t('teamWin', { team: teamName(teamOf(placed[0].i)) })
+        : winners.length > 1
+          ? t('raceWinTie', { players: winners.join(', ') })
+          : t('raceWin', { player: winners[0] })),
+    line: t('raceWinDesc', { turns: g.raceTurns }),
+    caught: caughtN ? caughtNote(caughtN) : escapedNote(true),
+    rows
+  });
 }
 /**
  * Fin de partie alors que le numéro courait encore : « il était sur le 23 » et le film de son évasion.
