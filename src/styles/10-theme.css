@@ -5623,3 +5623,40 @@ html[lang='ja'] .pause-card .pz-msg {
 .race-panel:has(.help-game-note) .help-game-note {
   margin-top: 0;
 }
+
+/* ===== V9.31 : Réglages et Langue — pictogrammes du projet (engrenage, globe, chrono, son, animations, sauvegarde) ===== */
+.set-ico {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 1.15em;
+  height: 1.15em;
+  margin-inline-end: 0.35em;
+  vertical-align: -0.2em;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.flag .set-ico {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  vertical-align: middle;
+}
+.set-gear {
+  background-image: url(img/set-gear.webp);
+}
+.set-globe {
+  background-image: url(img/set-globe.webp);
+}
+.set-timer {
+  background-image: url(img/set-timer.webp);
+}
+.set-sound {
+  background-image: url(img/set-sound.webp);
+}
+.set-motion {
+  background-image: url(img/set-motion.webp);
+}
+.set-save {
+  background-image: url(img/set-save.webp);
+}

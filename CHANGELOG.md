@@ -1,5 +1,11 @@
 # Historique des versions
 
+## V9.31 — Réglages et Langue : pictogrammes du projet
+
+- Écrans « Réglages » et « Langue du jeu » : l'engrenage, le globe, le chrono, le haut-parleur, le coureur et la
+  disquette du projet remplacent les emojis ⚙️ 🌍 ⏱ 🔊 💃 💾. Textes, ordre, langues, choix, états et fonctions
+  inchangés ; mêmes cartes et boutons, aucun fond ajouté autour des icônes. Le détective reste celui du logo.
+
 ## V9.30 — restauration « Mes progrès » sans écrasement ; parties avec l'aide non comptées
 
 - **Défi du jour** : un résultat officiel déjà présent sur le téléphone n'est plus jamais remplacé par celui du

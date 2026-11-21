@@ -326,12 +326,14 @@ function closeLang() {
   g.langFrom = null;
 }
 /** Fenêtre « Langue du jeu » : les 8 langues, chacune écrite dans sa propre langue. */
+/** V9.31 : pictogrammes des Réglages et de la Langue (PNG du projet). */
+const setIco = id => `<i class="set-ico set-${id}" aria-hidden="true"></i>`;
 function langView() {
   const items = LANGS.map(
     ([code, flag, label]) =>
       `<button class="lang-choice ${g.lang === code ? 'is-selected' : ''}" data-language="${code}" lang="${code}" dir="${code === 'ar' ? 'rtl' : 'ltr'}" aria-pressed="${g.lang === code}"><span class="flag">${flag}</span><strong>${label}</strong></button>`
   ).join('');
-  return `<h2>🌍 ${t('language')}</h2><div class="lang-list lang-grid">${items}</div><p class="sub small">${t('languageHint')}</p><button class="mini-btn" id="closeLang">${t('close')}</button>`;
+  return `<h2>${setIco('globe')}${t('language')}</h2><div class="lang-list lang-grid">${items}</div><p class="sub small">${t('languageHint')}</p><button class="mini-btn" id="closeLang">${t('close')}</button>`;
 }
 /** Réglages : langue, chronos, son, mouvements réduits, film. */
 function settings() {
@@ -340,7 +342,7 @@ function settings() {
     `<button class="toggle-row" id="${id}" role="switch" aria-checked="${on}"><span class="flag">${icon}</span><span class="tr-text"><strong>${label}</strong><small>${hint}</small></span><span class="switch ${on ? 'on' : ''}"></span></button>`;
   // 8 langues : une ligne « Langue » qui ouvre la liste complète (fenêtre 'lang', voir langView()).
   const cur = LANGS.find(l => l[0] === g.lang) || LANGS[1];
-  const langs = `<button class="toggle-row lang-row" id="openLang"><span class="flag">🌍</span><span class="tr-text"><strong>${t('language')}</strong><small lang="${cur[0]}">${cur[1]} ${cur[2]}</small></span><span class="chev">›</span></button>`;
+  const langs = `<button class="toggle-row lang-row" id="openLang"><span class="flag">${setIco('globe')}</span><span class="tr-text"><strong>${t('language')}</strong><small lang="${cur[0]}">${cur[1]} ${cur[2]}</small></span><span class="chev">›</span></button>`;
   const timers = [
     ['normal', 'timerNormal'],
     ['long', 'timerLong'],
@@ -351,7 +353,7 @@ function settings() {
         `<button class="mini-btn ${g.timerMode === m ? 'is-selected' : ''}" data-timer="${m}" aria-pressed="${g.timerMode === m}">${t(k)}</button>`
     )
     .join('');
-  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">⚙️ ${t('settings')}</h1>${langs}<div class="panel-title">⏱ ${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? '🔊' : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : '💃', t('motionReduce'), t('motionHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">💾</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
+  return `<header class="top">${brand()}<button class="mini-btn" id="closeSettings">${g.lang === 'ar' ? '›' : '‹'} ${t('back')}</button></header><section class="panel settings-panel compact-settings"><h1 class="settings-title">${setIco('gear')}${t('settings')}</h1>${langs}<div class="panel-title">${setIco('timer')}${t('timerTitle')}</div><div class="choice-row">${timers}</div><details class="timer-details"><summary>${t('timerDetails')}</summary><p class="sub small">${t('timerHint')}</p></details>${toggle('soundToggle', g.sound, g.sound ? setIco('sound') : '🔇', t('sound'), t('soundHint'))}${toggle('motionToggle', g.reduceMotion, g.reduceMotion ? '🐢' : setIco('motion'), t('motionReduce'), t('motionHint'))}<button class="toggle-row backup-row" id="openBackup"><span class="flag">${setIco('save')}</span><span class="tr-text"><strong>${t('backupTitle')}</strong><small>${t('backupHint')}</small></span><span class="chev">›</span></button><p class="app-version">${t('appVersion', { v: APP_VERSION })}</p></section>`;
 }
 /** Les trois onglets du tour : Indice, Calcul, Choisir un numéro (+ boutons de capture). */
 function questionView() {

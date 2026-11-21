@@ -23,8 +23,8 @@ android {
         minSdk 23
         targetSdk 35
         // Incrémenter les deux à chaque version publiée (versionName alimente aussi le cache de la PWA).
-        versionCode 68
-        versionName '9.30'
+        versionCode 69
+        versionName '9.31'
     }
 
     signingConfigs {
