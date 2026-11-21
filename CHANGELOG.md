@@ -1,5 +1,11 @@
 # Historique des versions
 
+## V9.29 — une seule icône pour le Bureau
+
+- Fin de Défi : le bouton Bureau prend l'illustration de la tuile « Mon bureau » de l'accueil (au lieu de 📚).
+- Titre de l'écran « Mon bureau » : même illustration (l'ancien dessin avec lampe et chaise est retiré).
+  Le Bureau a désormais la même icône partout : accueil, fin du Solo, fin de Défi, écran du Bureau.
+
 ## V9.28 — fin du Solo : boutons Bureau et Accueil ; carnet des derniers indices
 
 - Écran de fin du Solo classique : le bouton Bureau prend l'illustration du bureau de l'accueil (au lieu de 📚),

@@ -1514,7 +1514,8 @@ body.scr-home .start-panel .lvl-sub {
   background-image: url(img/ic-trophy.webp);
 }
 .ot-desk {
-  background-image: url(img/off-desk.webp);
+  /* V9.29 : même illustration que la tuile « Mon bureau » de l'accueil (partout dans l'application) */
+  background-image: url(img/home-office.webp);
   width: 58px;
   height: 52px;
   margin: -10px 6px -8px -6px;
