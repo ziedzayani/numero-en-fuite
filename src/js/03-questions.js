@@ -166,9 +166,12 @@ function coverChoices(chosen, ordered, pool) {
     return Math.min(yes, g.candidates.length - yes);
   };
   const every = [...ordered, ...shuffle(pool.filter(q => useful(q) && !ordered.includes(q)))].filter(useful);
+  // V9.30 : à force égale, d'abord les questions pas encore montrées (variété, surtout en 1–9)
+  const seen = q => g.shownIds.includes(q.id);
+  const freshFirst = list => [...list.filter(q => !seen(q)), ...list.filter(seen)];
   const pref = [
-    ...every.filter(q => side(q) >= 2 * netSize()),
-    ...every.filter(q => side(q) < 2 * netSize())
+    ...freshFirst(every.filter(q => side(q) >= 2 * netSize())),
+    ...freshFirst(every.filter(q => side(q) < 2 * netSize()))
   ];
   const fresh = q => !chosen.includes(q);
   const safe2 = () => 2 * netSize();
@@ -204,7 +207,8 @@ function coverChoices(chosen, ordered, pool) {
     const other = chosen.find(q => q.id !== best[0].id && q.id !== best[1].id);
     return other ? [best[0], best[1], other] : null;
   };
-  const split = () => splitIn(pool) || splitIn(full);
+  const unseen = list => list.filter(q => !seen(q));
+  const split = () => splitIn(unseen(pool)) || splitIn(pool) || splitIn(unseen(full)) || splitIn(full);
   // V9.26 : avant une question faible (presque toujours OUI, très révélatrice si NON), on préfère la paire
   // équilibrée « plus grand que k / plus petit que k+1 » ; une question faible ne sert qu'en fin d'enquête,
   // quand plus aucune ne coupe vraiment les possibles en deux.

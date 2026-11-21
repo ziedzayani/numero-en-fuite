@@ -1,5 +1,27 @@
 # Historique des versions
 
+## V9.30 — restauration « Mes progrès » sans écrasement ; parties avec l'aide non comptées
+
+- **Défi du jour** : un résultat officiel déjà présent sur le téléphone n'est plus jamais remplacé par celui du
+  code (avant : une défaite importée pouvait écraser une victoire locale). Les dates absentes du téléphone sont
+  restaurées depuis le code ; le nombre d'essais garde le plus grand des deux. Fusion déterministe : importer deux
+  fois le même code donne le même résultat.
+- **Records** : un import ne fait plus jamais baisser un record (le meilleur des deux est gardé).
+- **Statistiques à plusieurs** : fusion par prénom / face-à-face (la fiche la plus complète), sans addition ni perte.
+- **Validation** : dates impossibles ou futures écartées, structure du code vérifiée avant toute écriture.
+- **Tout ou rien** : la restauration prépare tout avant d'écrire ; si une écriture échoue, chaque sauvegarde
+  reprend sa valeur d'avant (plus d'état à moitié restauré).
+- Anciens codes (v1) toujours acceptés : Défi du jour et statistiques du téléphone conservés.
+- **Parties avec l'aide (numéros possibles) : non comptées.** Solo : ni XP, ni victoire / défaite, ni record (score
+  ou tours), ni badge, ni mission. Défi du jour : l'essai du jour est utilisé mais non compté (le numéro du jour ne
+  change pas, les essais suivants restent des entraînements) ; le Bureau affiche « 💡 Avec l'aide : non compté ».
+  À plusieurs : partie non comptée dans les statistiques à plusieurs si un joueur a utilisé l'aide.
+  Les écrans de fin le disent clairement (« Partie avec l'aide : non comptée (ni XP, ni record, ni statistiques, ni
+  badge, ni mission) », « Aide utilisée (prénoms) : partie non comptée… »). Les anciens compteurs « avec aide » et
+  records 💡 restent affichés tels quels.
+- Questions : pour garantir le « au moins un OUI », les questions pas encore montrées passent en premier (plus de
+  répétitions en 1–9 d'un tour à l'autre).
+
 ## V9.29 — une seule icône pour le Bureau
 
 - Fin de Défi : le bouton Bureau prend l'illustration de la tuile « Mon bureau » de l'accueil (au lieu de 📚).

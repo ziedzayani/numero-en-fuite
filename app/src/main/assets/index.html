@@ -12690,6 +12690,46 @@ html[lang='ja'] .pause-card .pz-msg {
   margin: 0 6px -0.3em 0;
 }
 
+/* ===== V9.30 : partie avec l'aide = non comptée (dit clairement) ===== */
+.dcal.helped {
+  background: linear-gradient(180deg, #fff6d6, #ffe08a);
+  border-color: #c99a1c;
+  color: #14205a;
+}
+.dd-res.helped {
+  background: #8a6a12;
+}
+.help-game-note {
+  margin: 2px 6px 0;
+  color: #ffe08a;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+}
+.help-game-note {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.help-game-note small {
+  font-weight: 700;
+  opacity: 0.85;
+}
+/* la note prend la place gagnée sur les marges du bas du podium */
+.race-panel:has(.help-game-note) .next-starter {
+  margin-block: 4px 0;
+}
+.race-panel:has(.help-game-note) .podium-band {
+  margin-bottom: 0;
+}
+.race-panel:has(.help-game-note):has(.pod-row:nth-of-type(3)) .podium-box .pod-row {
+  padding-block: 1px;
+}
+.race-panel:has(.help-game-note) .help-game-note {
+  margin-top: 0;
+}
+
     </style>
   </head>
   <body>
@@ -12813,7 +12853,7 @@ const QUESTION_MIN_SIDE = 0.12;
 const DAILY_HISTORY_DAYS = 30;
 
 /** Version affichée dans les Réglages : versionName de app/build.gradle, injecté par tools/build.mjs. */
-const APP_VERSION = "9.29";
+const APP_VERSION = "9.30";
 
 /* ---- 01-i18n.js ---- */
 /*
@@ -12972,6 +13012,7 @@ const dictionaries = {
   "dailyCompare": "Même numéro pour toute la famille aujourd’hui : comparez vos tours !",
   "dailyDoneLose": "Fait : il t’a échappé",
   "dailyDoneWin": "Fait : trouvé en {n} tours",
+  "dailyHelped": "💡 Avec l’aide : non compté",
   "dailyHistNote": "Seul le premier essai du jour compte ; les entraînements ne changent pas le résultat.",
   "dailyLost": "Perdu",
   "dailyNotPlayed": "Pas joué ce jour-là",
@@ -13023,12 +13064,14 @@ const dictionaries = {
   "helpAsk": "Sur demande",
   "helpAuto": "Automatique",
   "helpBoostHint": "💡 Aide = numéros possibles en vert · 🕸️+1 = un filet de plus (coup de pouce).",
+  "helpGameNote": "💡 Partie avec l’aide : non comptée",
   "helpHint": "Montre les numéros encore possibles. Désactivée par défaut : c’est au détective de déduire !",
-  "helpNoXp": "Avec l’aide : ni XP, ni badge, ni mission.",
+  "helpNoXp": "Partie avec l’aide : non comptée (ni XP, ni record, ni statistiques, ni badge, ni mission).",
   "helpOff": "Désactivée",
   "helpPlayer": "Aide",
   "helpPlayerHint": "💡 Aide = les numéros encore possibles en vert (désactivée par défaut).",
   "helpTitle": "Aide du carnet",
+  "helpedGame": "💡 Partie avec l’aide",
   "helpedWin": "💡 Gagné avec l’aide",
   "hero1": "Attrape-moi",
   "hero2": "si tu peux !",
@@ -13660,6 +13703,7 @@ const dictionaries = {
   "dailyCompare": "Same number for the whole family today: compare your turns!",
   "dailyDoneLose": "Done: it got away",
   "dailyDoneWin": "Done: found in {n} turns",
+  "dailyHelped": "💡 With help: not counted",
   "dailyHistNote": "Only the first try of the day counts; practice games don’t change the result.",
   "dailyLost": "Lost",
   "dailyNotPlayed": "Not played that day",
@@ -13711,12 +13755,14 @@ const dictionaries = {
   "helpAsk": "On request",
   "helpAuto": "Automatic",
   "helpBoostHint": "💡 Help = possible numbers in green · 🕸️+1 = one extra net (head start).",
+  "helpGameNote": "💡 Game with help: not counted",
   "helpHint": "Shows the numbers still possible. Off by default: the detective has to work it out!",
-  "helpNoXp": "With help: no XP, badges or missions.",
+  "helpNoXp": "Game with help: not counted (no XP, record, stats, badge or mission).",
   "helpOff": "Off",
   "helpPlayer": "Help",
   "helpPlayerHint": "💡 Help = possible numbers shown in green (off by default).",
   "helpTitle": "Notebook help",
+  "helpedGame": "💡 Game with help",
   "helpedWin": "💡 Won with help",
   "hero1": "Catch me",
   "hero2": "if you can!",
@@ -14348,6 +14394,7 @@ const dictionaries = {
   "dailyCompare": "الرقم نفسه للعائلة كلها اليوم: قارنوا أدواركم!",
   "dailyDoneLose": "تم: لقد هرب",
   "dailyDoneWin": "تم: وُجد في {n} أدوار",
+  "dailyHelped": "💡 مع المساعدة: لا يُحتسب",
   "dailyHistNote": "المحاولة الأولى فقط في اليوم تُحتسب؛ التدريبات لا تغيّر النتيجة.",
   "dailyLost": "خسارة",
   "dailyNotPlayed": "لم يُلعب في ذلك اليوم",
@@ -14399,12 +14446,14 @@ const dictionaries = {
   "helpAsk": "عند الطلب",
   "helpAuto": "تلقائي",
   "helpBoostHint": "💡 مساعدة = الأرقام الممكنة بالأخضر · 🕸️+1 = شبكة إضافية (دفعة).",
+  "helpGameNote": "💡 لعبة مع المساعدة: لا تُحتسب",
   "helpHint": "يعرض الأرقام التي ما زالت محتملة. متوقفة افتراضيًا: على المحقق أن يستنتج!",
-  "helpNoXp": "مع المساعدة: لا خبرة ولا أوسمة ولا مهام.",
+  "helpNoXp": "لعبة مع المساعدة: لا تُحتسب (لا نقاط خبرة ولا رقم قياسي ولا إحصاءات ولا شارة ولا مهمة).",
   "helpOff": "متوقفة",
   "helpPlayer": "مساعدة",
   "helpPlayerHint": "💡 المساعدة = الأرقام المحتملة باللون الأخضر (متوقفة افتراضيًا).",
   "helpTitle": "مساعدة الدفتر",
+  "helpedGame": "💡 لعبة مع المساعدة",
   "helpedWin": "💡 فوز بالمساعدة",
   "hero1": "أمسكني",
   "hero2": "إن استطعت!",
@@ -15036,6 +15085,7 @@ const dictionaries = {
   "dailyCompare": "El mismo número para toda la familia hoy: ¡comparad vuestros turnos!",
   "dailyDoneLose": "Hecho: se te escapó",
   "dailyDoneWin": "Hecho: encontrado en {n} turnos",
+  "dailyHelped": "💡 Con ayuda: no cuenta",
   "dailyHistNote": "Solo cuenta el primer intento del día; las prácticas no cambian el resultado.",
   "dailyLost": "Perdido",
   "dailyNotPlayed": "No jugado ese día",
@@ -15087,12 +15137,14 @@ const dictionaries = {
   "helpAsk": "A petición",
   "helpAuto": "Automática",
   "helpBoostHint": "💡 Ayuda = números posibles en verde · 🕸️+1 = una red más (empujón).",
+  "helpGameNote": "💡 Partida con ayuda: no cuenta",
   "helpHint": "Muestra los números aún posibles. Desactivada por defecto: ¡el detective tiene que deducirlo!",
-  "helpNoXp": "Con ayuda: sin XP, insignias ni misiones.",
+  "helpNoXp": "Partida con ayuda: no cuenta (ni XP, ni récord, ni estadísticas, ni insignia, ni misión).",
   "helpOff": "Desactivada",
   "helpPlayer": "Ayuda",
   "helpPlayerHint": "💡 Ayuda = números posibles en verde (desactivada por defecto).",
   "helpTitle": "Ayuda del cuaderno",
+  "helpedGame": "💡 Partida con ayuda",
   "helpedWin": "💡 Ganado con ayuda",
   "hero1": "Atrápame",
   "hero2": "¡si puedes!",
@@ -15724,6 +15776,7 @@ const dictionaries = {
   "dailyCompare": "Stesso numero per tutta la famiglia oggi: confrontate i turni!",
   "dailyDoneLose": "Fatto: ti è sfuggito",
   "dailyDoneWin": "Fatto: trovato in {n} turni",
+  "dailyHelped": "💡 Con l’aiuto: non conta",
   "dailyHistNote": "Conta solo il primo tentativo del giorno; gli allenamenti non cambiano il risultato.",
   "dailyLost": "Perso",
   "dailyNotPlayed": "Non giocato quel giorno",
@@ -15775,12 +15828,14 @@ const dictionaries = {
   "helpAsk": "Su richiesta",
   "helpAuto": "Automatico",
   "helpBoostHint": "💡 Aiuto = numeri possibili in verde · 🕸️+1 = una rete in più (spintarella).",
+  "helpGameNote": "💡 Partita con l’aiuto: non conta",
   "helpHint": "Mostra i numeri ancora possibili. Disattivato di base: il detective deve dedurlo!",
-  "helpNoXp": "Con l’aiuto: niente XP, distintivi o missioni.",
+  "helpNoXp": "Partita con l’aiuto: non conta (niente XP, record, statistiche, distintivi o missioni).",
   "helpOff": "Disattivato",
   "helpPlayer": "Aiuto",
   "helpPlayerHint": "💡 Aiuto = numeri possibili in verde (disattivato di base).",
   "helpTitle": "Aiuto del taccuino",
+  "helpedGame": "💡 Partita con l’aiuto",
   "helpedWin": "💡 Vinto con l’aiuto",
   "hero1": "Prendimi",
   "hero2": "se ci riesci!",
@@ -16412,6 +16467,7 @@ const dictionaries = {
   "dailyCompare": "Heute dieselbe Zahl für die ganze Familie: vergleicht eure Runden!",
   "dailyDoneLose": "Geschafft: sie ist entwischt",
   "dailyDoneWin": "Geschafft: in {n} Runden gefunden",
+  "dailyHelped": "💡 Mit Hilfe: zählt nicht",
   "dailyHistNote": "Nur der erste Versuch des Tages zählt; Übungsrunden ändern nichts am Ergebnis.",
   "dailyLost": "Verloren",
   "dailyNotPlayed": "An dem Tag nicht gespielt",
@@ -16463,12 +16519,14 @@ const dictionaries = {
   "helpAsk": "Auf Wunsch",
   "helpAuto": "Automatisch",
   "helpBoostHint": "💡 Hilfe = mögliche Zahlen in Grün · 🕸️+1 = ein Netz mehr (Starthilfe).",
+  "helpGameNote": "💡 Spiel mit Hilfe: zählt nicht",
   "helpHint": "Zeigt die noch möglichen Zahlen. Standardmäßig aus: Der Detektiv soll selbst kombinieren!",
-  "helpNoXp": "Mit Hilfe: keine XP, Abzeichen oder Missionen.",
+  "helpNoXp": "Spiel mit Hilfe: zählt nicht (keine XP, kein Rekord, keine Statistik, kein Abzeichen, keine Mission).",
   "helpOff": "Aus",
   "helpPlayer": "Hilfe",
   "helpPlayerHint": "💡 Hilfe = mögliche Zahlen in Grün (standardmäßig aus).",
   "helpTitle": "Notizbuch-Hilfe",
+  "helpedGame": "💡 Spiel mit Hilfe",
   "helpedWin": "💡 Mit Hilfe gewonnen",
   "hero1": "Fang mich,",
   "hero2": "wenn du kannst!",
@@ -17100,6 +17158,7 @@ const dictionaries = {
   "dailyCompare": "今天全家都是同一个数字：比比谁用的轮数少！",
   "dailyDoneLose": "已完成：它逃走了",
   "dailyDoneWin": "已完成：{n} 轮找到",
+  "dailyHelped": "💡 使用帮助：不计入",
   "dailyHistNote": "每天只算第一次；练习不会改变结果。",
   "dailyLost": "失败",
   "dailyNotPlayed": "那天没有玩",
@@ -17151,12 +17210,14 @@ const dictionaries = {
   "helpAsk": "按需",
   "helpAuto": "自动",
   "helpBoostHint": "💡 提示 = 可能的数字显示为绿色 · 🕸️+1 = 多一张网（助力）。",
+  "helpGameNote": "💡 使用了帮助：本局不计入",
   "helpHint": "显示仍有可能的数字。默认关闭：侦探要自己推理！",
-  "helpNoXp": "使用帮助：没有经验值、徽章或任务。",
+  "helpNoXp": "使用帮助的对局：不计入（无经验、纪录、统计、徽章或任务）。",
   "helpOff": "关闭",
   "helpPlayer": "帮助",
   "helpPlayerHint": "💡 帮助 = 用绿色显示可能的数字（默认关闭）。",
   "helpTitle": "笔记本帮助",
+  "helpedGame": "💡 使用了帮助",
   "helpedWin": "💡 使用帮助获胜",
   "hero1": "来抓我呀，",
   "hero2": "抓得到的话！",
@@ -17788,6 +17849,7 @@ const dictionaries = {
   "dailyCompare": "今日は家族みんな同じ数字：ターン数をくらべよう！",
   "dailyDoneLose": "クリア：にげられた",
   "dailyDoneWin": "クリア：{n} ターンで発見",
+  "dailyHelped": "💡 ヒントあり：記録なし",
   "dailyHistNote": "その日の最初の1回だけが記録になるよ。練習は結果を変えないよ。",
   "dailyLost": "失敗",
   "dailyNotPlayed": "この日はプレイなし",
@@ -17839,12 +17901,14 @@ const dictionaries = {
   "helpAsk": "必要なとき",
   "helpAuto": "自動",
   "helpBoostHint": "💡 ヒント＝ありえる数字が緑 · 🕸️+1＝あみが 1 つ多い（おまけ）。",
+  "helpGameNote": "💡 ヒントあり：記録されません",
   "helpHint": "まだありえる数字を表示。最初はオフ：探偵は自分で推理しよう！",
-  "helpNoXp": "ヘルプあり：XP・バッジ・ミッションなし。",
+  "helpNoXp": "ヒントありのゲーム：記録されません（XP・記録・統計・バッジ・ミッションなし）。",
   "helpOff": "オフ",
   "helpPlayer": "ヘルプ",
   "helpPlayerHint": "💡 ヘルプ = ありえる数字を緑で表示（最初はオフ）。",
   "helpTitle": "ノートのヘルプ",
+  "helpedGame": "💡 ヒントありのゲーム",
   "helpedWin": "💡 ヘルプありで勝利",
   "hero1": "つかまえてごらん、",
   "hero2": "できるならね！",
@@ -18843,9 +18907,12 @@ function coverChoices(chosen, ordered, pool) {
     return Math.min(yes, g.candidates.length - yes);
   };
   const every = [...ordered, ...shuffle(pool.filter(q => useful(q) && !ordered.includes(q)))].filter(useful);
+  // V9.30 : à force égale, d'abord les questions pas encore montrées (variété, surtout en 1–9)
+  const seen = q => g.shownIds.includes(q.id);
+  const freshFirst = list => [...list.filter(q => !seen(q)), ...list.filter(seen)];
   const pref = [
-    ...every.filter(q => side(q) >= 2 * netSize()),
-    ...every.filter(q => side(q) < 2 * netSize())
+    ...freshFirst(every.filter(q => side(q) >= 2 * netSize())),
+    ...freshFirst(every.filter(q => side(q) < 2 * netSize()))
   ];
   const fresh = q => !chosen.includes(q);
   const safe2 = () => 2 * netSize();
@@ -18881,7 +18948,8 @@ function coverChoices(chosen, ordered, pool) {
     const other = chosen.find(q => q.id !== best[0].id && q.id !== best[1].id);
     return other ? [best[0], best[1], other] : null;
   };
-  const split = () => splitIn(pool) || splitIn(full);
+  const unseen = list => list.filter(q => !seen(q));
+  const split = () => splitIn(unseen(pool)) || splitIn(pool) || splitIn(unseen(full)) || splitIn(full);
   // V9.26 : avant une question faible (presque toujours OUI, très révélatrice si NON), on préfère la paire
   // équilibrée « plus grand que k / plus petit que k+1 » ; une question faible ne sert qu'en fin d'enquête,
   // quand plus aucune ne coupe vraiment les possibles en deux.
@@ -19337,16 +19405,29 @@ function dailyRecord(won) {
     day.tries = (day.tries || 1) + 1;
     g.dailyOfficial = false;
   } else {
-    // V9.24 : score (le même que l'écran de fin) et durée de jeu, pour l'historique
-    d[g.daily] = {
-      won: !!won,
-      turns: won ? g.soloTurns : null,
-      secret: g.soloSecret || null,
-      tries: 1,
-      score: g.soloResult && Number.isFinite(g.soloResult.score) ? g.soloResult.score : null,
-      ms: g.dailyMs > 0 ? Math.round(g.dailyMs) : null
-    };
-    g.dailyOfficial = true;
+    // V9.24 : score (le même que l'écran de fin) et durée de jeu, pour l'historique.
+    // V9.30 : avec l'aide, l'essai du jour est utilisé mais NON COMPTÉ (ni victoire, ni score) ; le numéro du
+    // jour étant le même toute la journée, les essais suivants restent des entraînements.
+    const helped = !!(g.playerHelp && g.playerHelp[0]);
+    d[g.daily] = helped
+      ? {
+          won: false,
+          turns: null,
+          secret: g.soloSecret || null,
+          tries: 1,
+          score: null,
+          ms: null,
+          helped: true
+        }
+      : {
+          won: !!won,
+          turns: won ? g.soloTurns : null,
+          secret: g.soloSecret || null,
+          tries: 1,
+          score: g.soloResult && Number.isFinite(g.soloResult.score) ? g.soloResult.score : null,
+          ms: g.dailyMs > 0 ? Math.round(g.dailyMs) : null
+        };
+    g.dailyOfficial = !helped;
   }
   // on garde les 60 derniers jours
   const keep = Object.keys(d).sort().slice(-60);
@@ -19400,7 +19481,8 @@ function dailyHistory(today = new Date()) {
       res:
         e && typeof e === 'object'
           ? {
-              won: !!e.won,
+              won: !!e.won && !e.helped,
+              helped: !!e.helped,
               turns: num(e.turns),
               score: num(e.score),
               ms: num(e.ms),
@@ -19570,27 +19652,27 @@ function settleSolo(won) {
     }),
     stars = soloStars(won, turns),
     prevBest = lv.bestScore,
-    newRecord = won && (prevBest == null || score.total > prevBest), // strictement meilleur
-    helped = !!(g.playerHelp && g.playerHelp[0]), // aide activée : victoire notée « avec aide », sans récompense
+    // V9.30 : partie jouée avec l'aide = NON COMPTÉE (ni XP, ni record, ni statistiques, ni badge, ni mission)
+    helped = !!(g.playerHelp && g.playerHelp[0]),
+    newRecord = !helped && won && (prevBest == null || score.total > prevBest), // strictement meilleur
     sx = SOLO_XP[g.level] || SOLO_XP.junior,
     xp = helped ? 0 : won ? sx.win + (newRecord ? sx.recordBonus : 0) : sx.loss,
     rankBefore = rankOf(p.xpTotal).rank;
-  lv.gamesPlayed++;
-  if (won) {
-    lv.wins++;
-    lv.stars += stars;
-    p.totalWins++;
-    p.totalStars += stars;
-    if (helped) {
-      lv.helpWins = (lv.helpWins || 0) + 1;
-      p.totalHelpWins = (p.totalHelpWins || 0) + 1;
-    }
-    if (newRecord) {
-      lv.bestScore = score.total;
-      lv.bestHelped = helped;
-    }
-    if (lv.bestTurns == null || turns < lv.bestTurns) lv.bestTurns = turns;
-  } else p.totalLosses++;
+  // (les anciens compteurs « avec aide » et records 💡 restent affichés tels quels, sans plus augmenter)
+  if (!helped) {
+    lv.gamesPlayed++;
+    if (won) {
+      lv.wins++;
+      lv.stars += stars;
+      p.totalWins++;
+      p.totalStars += stars;
+      if (newRecord) {
+        lv.bestScore = score.total;
+        lv.bestHelped = false;
+      }
+      if (lv.bestTurns == null || turns < lv.bestTurns) lv.bestTurns = turns;
+    } else p.totalLosses++;
+  }
   p.xpTotal += xp;
   // badges et missions : seulement sans l'aide (V9.6)
   const rewards = helped
@@ -19686,19 +19768,30 @@ const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
 const natOrNull = v => (Number.isInteger(v) && v >= 0 ? v : null);
 const natOr0 = v => (Number.isInteger(v) && v >= 0 ? v : 0);
 const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+/**
+ * V9.30 : date « AAAA-MM-JJ » qui existe vraiment (pas de 31 février) et qui n'est pas dans le futur
+ * (aucun résultat officiel ne peut venir d'un jour pas encore joué).
+ */
+function isValidDay(day) {
+  if (typeof day !== 'string' || !DAY_KEY.test(day)) return false;
+  const [y, m, d] = day.split('-').map(Number),
+    dt = new Date(y, m - 1, d);
+  return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d && day <= todayKey();
+}
 /** Historique du Défi du jour vérifié champ par champ (dates valides seulement). */
 function cleanDaily(d) {
   if (!isObj(d)) return {};
   const out = {};
   for (const [day, e] of Object.entries(d)) {
-    if (!DAY_KEY.test(day) || !isObj(e)) continue;
+    if (!isValidDay(day) || !isObj(e)) continue;
     out[day] = {
       won: !!e.won,
       turns: natOrNull(e.turns),
       secret: natOrNull(e.secret),
       tries: Math.max(1, natOr0(e.tries)),
       score: natOrNull(e.score),
-      ms: natOrNull(e.ms)
+      ms: natOrNull(e.ms),
+      ...(e.helped ? { helped: true } : {})
     };
   }
   return out;
@@ -19744,8 +19837,10 @@ function readBackup(code) {
     return { ok: false, error: 'damaged' };
   }
   const prof =
-    data && data.career && data.career.profiles && data.career.profiles[data.career.activeProfileId];
-  if (!data || ![1, 2].includes(data.v) || !prof || !isObj(data.records))
+    isObj(data) && isObj(data.career) && isObj(data.career.profiles)
+      ? data.career.profiles[data.career.activeProfileId]
+      : null;
+  if (!isObj(data) || ![1, 2].includes(data.v) || !isObj(prof) || !isObj(data.records))
     return { ok: false, error: 'damaged' };
   // V9.26 : un code v2 contient aussi le Défi du jour et les statistiques à plusieurs (vérifiés)
   if (
@@ -19767,35 +19862,92 @@ const progressSummary = p => ({
   wins: p.totalWins || 0
 });
 
+/*
+ * V9.30 : fusion déterministe des données d'un code avec celles du téléphone (fonctions pures).
+ *   Défi du jour : un résultat officiel déjà présent sur le téléphone n'est JAMAIS remplacé ; une date que le
+ *     téléphone n'a pas est restaurée depuis le code ; le nombre d'essais garde le plus grand des deux.
+ *   Records : le meilleur des deux pour chaque record (un import ne fait jamais baisser un record).
+ *   Statistiques à plusieurs : pour chaque prénom / face-à-face, la fiche qui compte le plus de parties
+ *     (jamais d'addition, donc aucune partie comptée deux fois) ; journal des parties comptées réuni.
+ */
+function mergeDaily(local, imported) {
+  const out = { ...local };
+  for (const [day, e] of Object.entries(imported)) {
+    const mine = local[day];
+    out[day] = mine ? { ...mine, tries: Math.max(mine.tries || 1, e.tries || 1) } : e;
+  }
+  return out;
+}
+function mergeRecords(local, imported) {
+  const out = { ...local };
+  for (const [k, v] of Object.entries(imported))
+    if (typeof v === 'number' && Number.isFinite(v) && v >= 0 && !(out[k] >= v)) out[k] = v;
+  return out;
+}
+function mergeVersus(local, imported) {
+  const richer = (a, b) => {
+    const out = { ...a };
+    for (const [k, v] of Object.entries(b)) if (!out[k] || v.games > out[k].games) out[k] = v;
+    return out;
+  };
+  return {
+    players: richer(local.players, imported.players),
+    pairs: richer(local.pairs, imported.pairs),
+    processed: [...new Set([...imported.processed, ...local.processed])].slice(-60)
+  };
+}
 /**
- * Remplace les progrès par ceux du code (après confirmation). Renvoie true si c'est fait.
- * Jamais de récompense en double : le journal des parties déjà comptées de CE téléphone est gardé (une
- * partie terminée ici ne redonne rien), un Défi du jour joué ici garde son résultat officiel, et les
- * parties à plusieurs déjà comptées le restent.
+ * Prépare tout ce que l'import écrira (sans rien écrire) : { clé: texte JSON }.
+ * La carrière du code remplace celle du téléphone, mais garde le journal des parties déjà comptées ICI
+ * (une partie terminée sur ce téléphone ne redonne ni XP, ni badge, ni mission).
+ */
+function restorePlan(data) {
+  const career = JSON.parse(JSON.stringify(data.career)),
+    prof = career.profiles[career.activeProfileId],
+    keepProcessed = careerProfile(loadCareer()).processed || {};
+  prof.processed = { ...(isObj(prof.processed) ? prof.processed : {}), ...keepProcessed };
+  const plan = {
+    [CAREER_STORAGE]: career,
+    [RECORDS_STORAGE]: mergeRecords(records(), data.records)
+  };
+  // un code ancien (v1) n'a ni Défi du jour ni statistiques : ceux du téléphone restent tels quels
+  if (data.v >= 2) {
+    plan[DAILY_STORAGE] = mergeDaily(cleanDaily(loadDaily()), cleanDaily(data.daily));
+    plan[VERSUS_STORAGE] = mergeVersus(cleanVersus(loadVersus()), cleanVersus(data.versus));
+  }
+  return Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, JSON.stringify(v)]));
+}
+/** Écrit toutes les clés, ou aucune : en cas d'erreur, chaque clé reprend sa valeur d'avant. */
+function writeAllOrNothing(plan) {
+  const before = Object.fromEntries(Object.keys(plan).map(k => [k, localStorage.getItem(k)]));
+  try {
+    for (const [k, v] of Object.entries(plan)) localStorage.setItem(k, v);
+    return true;
+  } catch (e) {
+    for (const [k, v] of Object.entries(before))
+      try {
+        if (v == null) localStorage.removeItem(k);
+        else localStorage.setItem(k, v);
+      } catch (e2) {}
+    return false;
+  }
+}
+/**
+ * Restaure les progrès d'un code (après confirmation). Renvoie true si c'est fait.
+ * Le code est entièrement vérifié et la fusion entièrement préparée AVANT la moindre écriture ; l'écriture
+ * est « tout ou rien ». Importer deux fois le même code donne exactement le même résultat.
  */
 function importProgress(code) {
   const r = readBackup(code);
   if (!r.ok) return false;
-  const keepProcessed = careerProfile(loadCareer()).processed || {},
-    localDaily = cleanDaily(loadDaily()),
-    localVs = cleanVersus(loadVersus());
-  const career = r.data.career,
-    prof = career.profiles[career.activeProfileId];
-  prof.processed = { ...(isObj(prof.processed) ? prof.processed : {}), ...keepProcessed };
+  let plan;
   try {
-    localStorage.setItem(CAREER_STORAGE, JSON.stringify(career));
-    forgetRank();
-    localStorage.setItem(RECORDS_STORAGE, JSON.stringify(r.data.records));
-    if (r.data.v >= 2) {
-      // les jours du code remplacent ceux de ce téléphone ; un jour joué seulement ici reste joué
-      localStorage.setItem(DAILY_STORAGE, JSON.stringify({ ...localDaily, ...cleanDaily(r.data.daily) }));
-      const vs = cleanVersus(r.data.versus);
-      vs.processed = [...new Set([...vs.processed, ...localVs.processed])].slice(-60);
-      localStorage.setItem(VERSUS_STORAGE, JSON.stringify(vs));
-    }
+    plan = restorePlan(r.data);
   } catch (e) {
     return false;
   }
+  if (!writeAllOrNothing(plan)) return false;
+  forgetRank();
   loadCareer(); // complète un code ancien ou partiel champ par champ
   for (const k of BACKUP_PREFS) if (r.data.prefs && k in r.data.prefs) g[k] = r.data.prefs[k];
   return true;
@@ -19818,11 +19970,26 @@ function loadVersus() {
   }
   return { players: {}, pairs: {}, processed: [] };
 }
+/** V9.30 : un des joueurs de la partie a-t-il activé l'aide (numéros possibles) ? */
+const anyHelped = () =>
+  Array.from({ length: g.players || 1 }, (_, i) => !!(g.playerHelp && g.playerHelp[i])).some(Boolean);
+/** Prénoms des joueurs qui ont activé l'aide. */
+const helpedNames = () =>
+  Array.from({ length: g.players || 1 }, (_, i) => i)
+    .filter(i => g.playerHelp && g.playerHelp[i])
+    .map(pname);
 function versusRecord() {
   if (g.players < 2 || g.mode === 'challenge' || !g.gameId) return;
   const d = loadVersus();
   if (d.processed.includes(g.gameId)) return;
   d.processed = [...d.processed, g.gameId].slice(-60);
+  // V9.30 : partie où un joueur a utilisé l'aide : notée comme vue, mais non comptée
+  if (anyHelped()) {
+    try {
+      localStorage.setItem(VERSUS_STORAGE, JSON.stringify(d));
+    } catch (e) {}
+    return;
+  }
   const name = i => String((g.names || [])[i] || '').trim();
   const named = Array.from({ length: g.players }, (_, i) => i).filter(i => name(i) && !isAbsent(i));
   const win = roundWinners();
@@ -21219,7 +21386,8 @@ function nextTurn() {
         r = records(),
         prev = r[k];
       g.soloBest = prev || null;
-      g.soloNewRecord = !prev || g.soloTurns < prev;
+      // V9.30 : une partie avec l'aide n'est pas comptée, pas même le record de tours
+      g.soloNewRecord = !(g.playerHelp && g.playerHelp[0]) && (!prev || g.soloTurns < prev);
       if (g.soloNewRecord) {
         r[k] = g.soloTurns;
         try {
@@ -21778,7 +21946,7 @@ function officeChRecords(p) {
 /** V9.24 : historique du Défi du jour — 30 jours en calendrier, détail du jour choisi (résultats officiels). */
 function officeDaily() {
   const hist = dailyHistory(),
-    played = hist.filter(x => x.res),
+    played = hist.filter(x => x.res && !x.res.helped), // V9.30 : un jour joué avec l'aide n'est pas compté
     won = played.filter(x => x.res.won).length;
   const sel = hist.find(x => x.day === g.officeDay) || played[0] || hist[0];
   const dateOf = day => {
@@ -21789,21 +21957,24 @@ function officeDaily() {
     .slice()
     .reverse()
     .map(({ day, res }) => {
-      const st = res ? (res.won ? 'won' : 'lost') : 'none';
+      const st = res ? (res.helped ? 'helped' : res.won ? 'won' : 'lost') : 'none';
       return `<button class="dcal ${st} ${day === sel.day ? 'is-selected' : ''} ${day === hist[0].day ? 'today' : ''}" data-dday="${day}" aria-pressed="${day === sel.day}" aria-label="${esc(dateOf(day).toLocaleDateString(g.lang, { day: 'numeric', month: 'long' }))}"><b dir="ltr">${dateOf(day).getDate()}</b></button>`;
     })
     .join('');
   const r = sel.res,
     date = dateOf(sel.day).toLocaleDateString(g.lang, { weekday: 'long', day: 'numeric', month: 'long' });
-  const facts = r
-    ? [
-        `<b class="dd-res ${r.won ? 'won' : 'lost'}">${t(r.won ? 'dailyWon' : 'dailyLost')}</b>`,
-        r.score != null ? `<span dir="ltr">${r.score} ${t('pts')}</span>` : '',
-        r.won && r.turns != null ? `<span>${t('dailyTurns', { n: r.turns })}</span>` : '',
-        r.ms != null ? `<span dir="ltr">⏱ ${fmtTime(r.ms)}</span>` : '',
-        r.tries > 1 ? `<small>${t('dailyTries', { n: r.tries - 1 })}</small>` : ''
-      ].join('')
-    : `<span class="dd-none">${t('dailyNotPlayed')}</span>`;
+  const facts =
+    r && r.helped
+      ? `<b class="dd-res helped">${t('dailyHelped')}</b>${r.tries > 1 ? `<small>${t('dailyTries', { n: r.tries - 1 })}</small>` : ''}`
+      : r
+        ? [
+            `<b class="dd-res ${r.won ? 'won' : 'lost'}">${t(r.won ? 'dailyWon' : 'dailyLost')}</b>`,
+            r.score != null ? `<span dir="ltr">${r.score} ${t('pts')}</span>` : '',
+            r.won && r.turns != null ? `<span>${t('dailyTurns', { n: r.turns })}</span>` : '',
+            r.ms != null ? `<span dir="ltr">⏱ ${fmtTime(r.ms)}</span>` : '',
+            r.tries > 1 ? `<small>${t('dailyTries', { n: r.tries - 1 })}</small>` : ''
+          ].join('')
+        : `<span class="dd-none">${t('dailyNotPlayed')}</span>`;
   return `<p class="daily-sum">${t('dailySummary', { n: played.length, d: DAILY_HISTORY_DAYS, w: won })}</p><div class="daily-cal" dir="ltr">${cells}</div><div class="daily-detail"><b class="dd-date">${esc(date)}</b>${facts}</div><p class="sub small">${t('dailyHistNote')}</p>`;
 }
 /** V9.17 : « À plusieurs » — victoires, captures, meilleure série de victoires, face-à-face (ce téléphone). */
@@ -22369,7 +22540,7 @@ function end() {
   const noCatch = g.players > 1 && (isRace() || !g.captures);
   // V9.25 : victoire aux points (sur un téléphone ou en Wi-Fi) = même écran que la victoire de la Course
   if (g.players > 1 && !noCatch) return endPoints(tot, champions);
-  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${noCatch ? '' : shareButton()}<button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
+  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${g.players > 1 ? helpGameNote() : ''}${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${noCatch ? '' : shareButton()}<button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }
 /*
  * V9.26 : écran de victoire commun à la Course et au mode Points (même structure, mêmes styles, mêmes
@@ -22377,6 +22548,11 @@ function end() {
  */
 const PODIUM_MEDALS = ['🥇', '🥈', '🥉', '🎖️'];
 const podiumMedal = place => PODIUM_MEDALS[Math.min(place, 4) - 1];
+/** V9.30 : à plusieurs, partie où l'aide a servie : dit qu'elle n'est pas comptée dans les statistiques. */
+const helpGameNote = () =>
+  anyHelped()
+    ? `<p class="help-game-note" title="${esc(helpedNames().join(', ') + ' — ' + t('helpNoXp'))}">${t('helpGameNote')}</p>`
+    : '';
 /** Une ligne du podium : médaille de la place, puis le contenu propre au mode. */
 const podiumRow = (place, inner) =>
   `<div class="finalscore pod-row place-${place}"><div class="medal">${podiumMedal(place)}</div>${inner}</div>`;
@@ -22391,7 +22567,7 @@ const caughtNote = (n, film = '') =>
 function victoryScreen({ mod = '', title, line, caught, rows }) {
   const next = (g.starter + 1) % g.players,
     decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
-  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero${mod ? ' ' + mod + '-hero' : ''}"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${title}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${line}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel${mod ? ' ' + mod + '-panel' : ''}"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
+  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero${mod ? ' ' + mod + '-hero' : ''}"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${title}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${line}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel${mod ? ' ' + mod + '-panel' : ''}"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${helpGameNote()}${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
 }
 /**
  * V9.25 : fin du mode Points avec au moins une capture — structure, couleurs et boutons de l'écran de
@@ -22545,10 +22721,10 @@ function rewardLine(res, lead = '') {
       ? `<span class="reward-chip" title="${esc(done.map(missionText).join(' · '))}">${done.length === 1 ? t('rewardMission', { xp: MISSION_XP }) : t('rewardMissions', { n: done.length, xp: done.length * MISSION_XP })}</span>`
       : ''
   ].join('');
-  const help =
-    res.won && res.helped
-      ? `<span class="reward-chip help-chip" title="${esc(t('helpNoXp'))}">${t('helpedWin')} <small>${t('helpNoXp')}</small></span>`
-      : '';
+  // V9.30 : partie avec l'aide (gagnée ou perdue) = non comptée, dit clairement
+  const help = res.helped
+    ? `<span class="reward-chip help-chip" title="${esc(t('helpNoXp'))}">${t(res.won ? 'helpedWin' : 'helpedGame')} <small>${t('helpNoXp')}</small></span>`
+    : '';
   return chips || lead || help ? `<div class="reward-line">${lead}${help}${chips}</div>` : '';
 }
 /** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */

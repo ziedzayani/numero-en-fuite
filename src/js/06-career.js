@@ -156,27 +156,27 @@ function settleSolo(won) {
     }),
     stars = soloStars(won, turns),
     prevBest = lv.bestScore,
-    newRecord = won && (prevBest == null || score.total > prevBest), // strictement meilleur
-    helped = !!(g.playerHelp && g.playerHelp[0]), // aide activée : victoire notée « avec aide », sans récompense
+    // V9.30 : partie jouée avec l'aide = NON COMPTÉE (ni XP, ni record, ni statistiques, ni badge, ni mission)
+    helped = !!(g.playerHelp && g.playerHelp[0]),
+    newRecord = !helped && won && (prevBest == null || score.total > prevBest), // strictement meilleur
     sx = SOLO_XP[g.level] || SOLO_XP.junior,
     xp = helped ? 0 : won ? sx.win + (newRecord ? sx.recordBonus : 0) : sx.loss,
     rankBefore = rankOf(p.xpTotal).rank;
-  lv.gamesPlayed++;
-  if (won) {
-    lv.wins++;
-    lv.stars += stars;
-    p.totalWins++;
-    p.totalStars += stars;
-    if (helped) {
-      lv.helpWins = (lv.helpWins || 0) + 1;
-      p.totalHelpWins = (p.totalHelpWins || 0) + 1;
-    }
-    if (newRecord) {
-      lv.bestScore = score.total;
-      lv.bestHelped = helped;
-    }
-    if (lv.bestTurns == null || turns < lv.bestTurns) lv.bestTurns = turns;
-  } else p.totalLosses++;
+  // (les anciens compteurs « avec aide » et records 💡 restent affichés tels quels, sans plus augmenter)
+  if (!helped) {
+    lv.gamesPlayed++;
+    if (won) {
+      lv.wins++;
+      lv.stars += stars;
+      p.totalWins++;
+      p.totalStars += stars;
+      if (newRecord) {
+        lv.bestScore = score.total;
+        lv.bestHelped = false;
+      }
+      if (lv.bestTurns == null || turns < lv.bestTurns) lv.bestTurns = turns;
+    } else p.totalLosses++;
+  }
   p.xpTotal += xp;
   // badges et missions : seulement sans l'aide (V9.6)
   const rewards = helped
@@ -272,19 +272,30 @@ const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
 const natOrNull = v => (Number.isInteger(v) && v >= 0 ? v : null);
 const natOr0 = v => (Number.isInteger(v) && v >= 0 ? v : 0);
 const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+/**
+ * V9.30 : date « AAAA-MM-JJ » qui existe vraiment (pas de 31 février) et qui n'est pas dans le futur
+ * (aucun résultat officiel ne peut venir d'un jour pas encore joué).
+ */
+function isValidDay(day) {
+  if (typeof day !== 'string' || !DAY_KEY.test(day)) return false;
+  const [y, m, d] = day.split('-').map(Number),
+    dt = new Date(y, m - 1, d);
+  return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d && day <= todayKey();
+}
 /** Historique du Défi du jour vérifié champ par champ (dates valides seulement). */
 function cleanDaily(d) {
   if (!isObj(d)) return {};
   const out = {};
   for (const [day, e] of Object.entries(d)) {
-    if (!DAY_KEY.test(day) || !isObj(e)) continue;
+    if (!isValidDay(day) || !isObj(e)) continue;
     out[day] = {
       won: !!e.won,
       turns: natOrNull(e.turns),
       secret: natOrNull(e.secret),
       tries: Math.max(1, natOr0(e.tries)),
       score: natOrNull(e.score),
-      ms: natOrNull(e.ms)
+      ms: natOrNull(e.ms),
+      ...(e.helped ? { helped: true } : {})
     };
   }
   return out;
@@ -330,8 +341,10 @@ function readBackup(code) {
     return { ok: false, error: 'damaged' };
   }
   const prof =
-    data && data.career && data.career.profiles && data.career.profiles[data.career.activeProfileId];
-  if (!data || ![1, 2].includes(data.v) || !prof || !isObj(data.records))
+    isObj(data) && isObj(data.career) && isObj(data.career.profiles)
+      ? data.career.profiles[data.career.activeProfileId]
+      : null;
+  if (!isObj(data) || ![1, 2].includes(data.v) || !isObj(prof) || !isObj(data.records))
     return { ok: false, error: 'damaged' };
   // V9.26 : un code v2 contient aussi le Défi du jour et les statistiques à plusieurs (vérifiés)
   if (
@@ -353,35 +366,92 @@ const progressSummary = p => ({
   wins: p.totalWins || 0
 });
 
+/*
+ * V9.30 : fusion déterministe des données d'un code avec celles du téléphone (fonctions pures).
+ *   Défi du jour : un résultat officiel déjà présent sur le téléphone n'est JAMAIS remplacé ; une date que le
+ *     téléphone n'a pas est restaurée depuis le code ; le nombre d'essais garde le plus grand des deux.
+ *   Records : le meilleur des deux pour chaque record (un import ne fait jamais baisser un record).
+ *   Statistiques à plusieurs : pour chaque prénom / face-à-face, la fiche qui compte le plus de parties
+ *     (jamais d'addition, donc aucune partie comptée deux fois) ; journal des parties comptées réuni.
+ */
+function mergeDaily(local, imported) {
+  const out = { ...local };
+  for (const [day, e] of Object.entries(imported)) {
+    const mine = local[day];
+    out[day] = mine ? { ...mine, tries: Math.max(mine.tries || 1, e.tries || 1) } : e;
+  }
+  return out;
+}
+function mergeRecords(local, imported) {
+  const out = { ...local };
+  for (const [k, v] of Object.entries(imported))
+    if (typeof v === 'number' && Number.isFinite(v) && v >= 0 && !(out[k] >= v)) out[k] = v;
+  return out;
+}
+function mergeVersus(local, imported) {
+  const richer = (a, b) => {
+    const out = { ...a };
+    for (const [k, v] of Object.entries(b)) if (!out[k] || v.games > out[k].games) out[k] = v;
+    return out;
+  };
+  return {
+    players: richer(local.players, imported.players),
+    pairs: richer(local.pairs, imported.pairs),
+    processed: [...new Set([...imported.processed, ...local.processed])].slice(-60)
+  };
+}
 /**
- * Remplace les progrès par ceux du code (après confirmation). Renvoie true si c'est fait.
- * Jamais de récompense en double : le journal des parties déjà comptées de CE téléphone est gardé (une
- * partie terminée ici ne redonne rien), un Défi du jour joué ici garde son résultat officiel, et les
- * parties à plusieurs déjà comptées le restent.
+ * Prépare tout ce que l'import écrira (sans rien écrire) : { clé: texte JSON }.
+ * La carrière du code remplace celle du téléphone, mais garde le journal des parties déjà comptées ICI
+ * (une partie terminée sur ce téléphone ne redonne ni XP, ni badge, ni mission).
+ */
+function restorePlan(data) {
+  const career = JSON.parse(JSON.stringify(data.career)),
+    prof = career.profiles[career.activeProfileId],
+    keepProcessed = careerProfile(loadCareer()).processed || {};
+  prof.processed = { ...(isObj(prof.processed) ? prof.processed : {}), ...keepProcessed };
+  const plan = {
+    [CAREER_STORAGE]: career,
+    [RECORDS_STORAGE]: mergeRecords(records(), data.records)
+  };
+  // un code ancien (v1) n'a ni Défi du jour ni statistiques : ceux du téléphone restent tels quels
+  if (data.v >= 2) {
+    plan[DAILY_STORAGE] = mergeDaily(cleanDaily(loadDaily()), cleanDaily(data.daily));
+    plan[VERSUS_STORAGE] = mergeVersus(cleanVersus(loadVersus()), cleanVersus(data.versus));
+  }
+  return Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, JSON.stringify(v)]));
+}
+/** Écrit toutes les clés, ou aucune : en cas d'erreur, chaque clé reprend sa valeur d'avant. */
+function writeAllOrNothing(plan) {
+  const before = Object.fromEntries(Object.keys(plan).map(k => [k, localStorage.getItem(k)]));
+  try {
+    for (const [k, v] of Object.entries(plan)) localStorage.setItem(k, v);
+    return true;
+  } catch (e) {
+    for (const [k, v] of Object.entries(before))
+      try {
+        if (v == null) localStorage.removeItem(k);
+        else localStorage.setItem(k, v);
+      } catch (e2) {}
+    return false;
+  }
+}
+/**
+ * Restaure les progrès d'un code (après confirmation). Renvoie true si c'est fait.
+ * Le code est entièrement vérifié et la fusion entièrement préparée AVANT la moindre écriture ; l'écriture
+ * est « tout ou rien ». Importer deux fois le même code donne exactement le même résultat.
  */
 function importProgress(code) {
   const r = readBackup(code);
   if (!r.ok) return false;
-  const keepProcessed = careerProfile(loadCareer()).processed || {},
-    localDaily = cleanDaily(loadDaily()),
-    localVs = cleanVersus(loadVersus());
-  const career = r.data.career,
-    prof = career.profiles[career.activeProfileId];
-  prof.processed = { ...(isObj(prof.processed) ? prof.processed : {}), ...keepProcessed };
+  let plan;
   try {
-    localStorage.setItem(CAREER_STORAGE, JSON.stringify(career));
-    forgetRank();
-    localStorage.setItem(RECORDS_STORAGE, JSON.stringify(r.data.records));
-    if (r.data.v >= 2) {
-      // les jours du code remplacent ceux de ce téléphone ; un jour joué seulement ici reste joué
-      localStorage.setItem(DAILY_STORAGE, JSON.stringify({ ...localDaily, ...cleanDaily(r.data.daily) }));
-      const vs = cleanVersus(r.data.versus);
-      vs.processed = [...new Set([...vs.processed, ...localVs.processed])].slice(-60);
-      localStorage.setItem(VERSUS_STORAGE, JSON.stringify(vs));
-    }
+    plan = restorePlan(r.data);
   } catch (e) {
     return false;
   }
+  if (!writeAllOrNothing(plan)) return false;
+  forgetRank();
   loadCareer(); // complète un code ancien ou partiel champ par champ
   for (const k of BACKUP_PREFS) if (r.data.prefs && k in r.data.prefs) g[k] = r.data.prefs[k];
   return true;
@@ -404,11 +474,26 @@ function loadVersus() {
   }
   return { players: {}, pairs: {}, processed: [] };
 }
+/** V9.30 : un des joueurs de la partie a-t-il activé l'aide (numéros possibles) ? */
+const anyHelped = () =>
+  Array.from({ length: g.players || 1 }, (_, i) => !!(g.playerHelp && g.playerHelp[i])).some(Boolean);
+/** Prénoms des joueurs qui ont activé l'aide. */
+const helpedNames = () =>
+  Array.from({ length: g.players || 1 }, (_, i) => i)
+    .filter(i => g.playerHelp && g.playerHelp[i])
+    .map(pname);
 function versusRecord() {
   if (g.players < 2 || g.mode === 'challenge' || !g.gameId) return;
   const d = loadVersus();
   if (d.processed.includes(g.gameId)) return;
   d.processed = [...d.processed, g.gameId].slice(-60);
+  // V9.30 : partie où un joueur a utilisé l'aide : notée comme vue, mais non comptée
+  if (anyHelped()) {
+    try {
+      localStorage.setItem(VERSUS_STORAGE, JSON.stringify(d));
+    } catch (e) {}
+    return;
+  }
   const name = i => String((g.names || [])[i] || '').trim();
   const named = Array.from({ length: g.players }, (_, i) => i).filter(i => name(i) && !isAbsent(i));
   const win = roundWinners();

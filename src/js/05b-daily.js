@@ -58,16 +58,29 @@ function dailyRecord(won) {
     day.tries = (day.tries || 1) + 1;
     g.dailyOfficial = false;
   } else {
-    // V9.24 : score (le même que l'écran de fin) et durée de jeu, pour l'historique
-    d[g.daily] = {
-      won: !!won,
-      turns: won ? g.soloTurns : null,
-      secret: g.soloSecret || null,
-      tries: 1,
-      score: g.soloResult && Number.isFinite(g.soloResult.score) ? g.soloResult.score : null,
-      ms: g.dailyMs > 0 ? Math.round(g.dailyMs) : null
-    };
-    g.dailyOfficial = true;
+    // V9.24 : score (le même que l'écran de fin) et durée de jeu, pour l'historique.
+    // V9.30 : avec l'aide, l'essai du jour est utilisé mais NON COMPTÉ (ni victoire, ni score) ; le numéro du
+    // jour étant le même toute la journée, les essais suivants restent des entraînements.
+    const helped = !!(g.playerHelp && g.playerHelp[0]);
+    d[g.daily] = helped
+      ? {
+          won: false,
+          turns: null,
+          secret: g.soloSecret || null,
+          tries: 1,
+          score: null,
+          ms: null,
+          helped: true
+        }
+      : {
+          won: !!won,
+          turns: won ? g.soloTurns : null,
+          secret: g.soloSecret || null,
+          tries: 1,
+          score: g.soloResult && Number.isFinite(g.soloResult.score) ? g.soloResult.score : null,
+          ms: g.dailyMs > 0 ? Math.round(g.dailyMs) : null
+        };
+    g.dailyOfficial = !helped;
   }
   // on garde les 60 derniers jours
   const keep = Object.keys(d).sort().slice(-60);
@@ -121,7 +134,8 @@ function dailyHistory(today = new Date()) {
       res:
         e && typeof e === 'object'
           ? {
-              won: !!e.won,
+              won: !!e.won && !e.helped,
+              helped: !!e.helped,
               turns: num(e.turns),
               score: num(e.score),
               ms: num(e.ms),

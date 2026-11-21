@@ -473,6 +473,51 @@ const STATES = {
     N.state.inGame = false;
     N.state.modal = null;
   },
+  // V9.30 : parties avec l'aide (non comptées) — notes affichées
+  'fin points 4 joueurs avec aide (Wi-Fi)': N => {
+    N.state.players = 4;
+    N.state.level = 'genius';
+    N.state.gameMode = 'score';
+    N.state.names = ['Alexandrine', 'Bartholomé', 'Maximilien', 'Ahlem'];
+    N.start(true);
+    N.state.playerHelp = [true, false, true, true];
+    Object.assign(N.state, {
+      scores: [-10, -6, 12, 3],
+      stars: [0, 3, 2, 1],
+      captures: 2,
+      escaped: { n: 47 }
+    });
+    N.state.lastHunt = { steps: [], end: { n: 47 } };
+    N.state.net = { role: 'client', seat: 1 };
+    N.state.netReady = [1];
+    N.state.screen = 'end';
+    N.state.inGame = false;
+    N.state.modal = null;
+  },
+  'fin course 4 joueurs avec aide': N => {
+    N.state.players = 4;
+    N.state.gameMode = 'race';
+    N.state.names = ['Alexandrine', 'Bartholomé', 'Maximilien', 'Ahlem'];
+    N.start(true);
+    N.state.playerHelp = [true, true, true, true];
+    N.state.replayAsk = false;
+    N.state.modal = null;
+    N.guess(N.state.secret);
+    N.nextTurn();
+  },
+  'fin solo perdu avec aide': N => {
+    N.state.players = 1;
+    N.state.level = 'genius';
+    N.state.playerHelp = [true, false, false, false];
+    N.start(true);
+    N.state.playerHelp = [true, false, false, false];
+    N.state.replayAsk = false;
+    for (let i = 0; i < 40 && N.state.screen === 'game'; i++) {
+      N.state.modal = null;
+      N.guess(N.state.secret === 1 ? 2 : 1);
+      N.nextTurn();
+    }
+  },
   'échappe : miroir': N => {
     N.state.players = 2;
     N.state.level = 'genius';

@@ -197,7 +197,7 @@ function officeChRecords(p) {
 /** V9.24 : historique du Défi du jour — 30 jours en calendrier, détail du jour choisi (résultats officiels). */
 function officeDaily() {
   const hist = dailyHistory(),
-    played = hist.filter(x => x.res),
+    played = hist.filter(x => x.res && !x.res.helped), // V9.30 : un jour joué avec l'aide n'est pas compté
     won = played.filter(x => x.res.won).length;
   const sel = hist.find(x => x.day === g.officeDay) || played[0] || hist[0];
   const dateOf = day => {
@@ -208,21 +208,24 @@ function officeDaily() {
     .slice()
     .reverse()
     .map(({ day, res }) => {
-      const st = res ? (res.won ? 'won' : 'lost') : 'none';
+      const st = res ? (res.helped ? 'helped' : res.won ? 'won' : 'lost') : 'none';
       return `<button class="dcal ${st} ${day === sel.day ? 'is-selected' : ''} ${day === hist[0].day ? 'today' : ''}" data-dday="${day}" aria-pressed="${day === sel.day}" aria-label="${esc(dateOf(day).toLocaleDateString(g.lang, { day: 'numeric', month: 'long' }))}"><b dir="ltr">${dateOf(day).getDate()}</b></button>`;
     })
     .join('');
   const r = sel.res,
     date = dateOf(sel.day).toLocaleDateString(g.lang, { weekday: 'long', day: 'numeric', month: 'long' });
-  const facts = r
-    ? [
-        `<b class="dd-res ${r.won ? 'won' : 'lost'}">${t(r.won ? 'dailyWon' : 'dailyLost')}</b>`,
-        r.score != null ? `<span dir="ltr">${r.score} ${t('pts')}</span>` : '',
-        r.won && r.turns != null ? `<span>${t('dailyTurns', { n: r.turns })}</span>` : '',
-        r.ms != null ? `<span dir="ltr">⏱ ${fmtTime(r.ms)}</span>` : '',
-        r.tries > 1 ? `<small>${t('dailyTries', { n: r.tries - 1 })}</small>` : ''
-      ].join('')
-    : `<span class="dd-none">${t('dailyNotPlayed')}</span>`;
+  const facts =
+    r && r.helped
+      ? `<b class="dd-res helped">${t('dailyHelped')}</b>${r.tries > 1 ? `<small>${t('dailyTries', { n: r.tries - 1 })}</small>` : ''}`
+      : r
+        ? [
+            `<b class="dd-res ${r.won ? 'won' : 'lost'}">${t(r.won ? 'dailyWon' : 'dailyLost')}</b>`,
+            r.score != null ? `<span dir="ltr">${r.score} ${t('pts')}</span>` : '',
+            r.won && r.turns != null ? `<span>${t('dailyTurns', { n: r.turns })}</span>` : '',
+            r.ms != null ? `<span dir="ltr">⏱ ${fmtTime(r.ms)}</span>` : '',
+            r.tries > 1 ? `<small>${t('dailyTries', { n: r.tries - 1 })}</small>` : ''
+          ].join('')
+        : `<span class="dd-none">${t('dailyNotPlayed')}</span>`;
   return `<p class="daily-sum">${t('dailySummary', { n: played.length, d: DAILY_HISTORY_DAYS, w: won })}</p><div class="daily-cal" dir="ltr">${cells}</div><div class="daily-detail"><b class="dd-date">${esc(date)}</b>${facts}</div><p class="sub small">${t('dailyHistNote')}</p>`;
 }
 /** V9.17 : « À plusieurs » — victoires, captures, meilleure série de victoires, face-à-face (ce téléphone). */
@@ -788,7 +791,7 @@ function end() {
   const noCatch = g.players > 1 && (isRace() || !g.captures);
   // V9.25 : victoire aux points (sur un téléphone ou en Wi-Fi) = même écran que la victoire de la Course
   if (g.players > 1 && !noCatch) return endPoints(tot, champions);
-  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${noCatch ? '' : shareButton()}<button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
+  return `${g.reduceMotion || soloLost || noCatch ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero ${noCatch ? 'neutral' : g.players === 1 ? (soloLost ? 'lose' : 'win') : 'win'}"><div class="hero-mascot">${mascot(soloLost || noCatch ? 'cheer' : 'caught')}</div><h1>${g.players === 1 ? (soloLost ? '😅 ' + t('soloLose') : '🏆 ' + t('soloWin') + ' !') : noCatch ? '⏱ ' + t('raceNobody') : seriesTitle() || t('endTitle') + ' 🏆'}</h1><p class="intro">${noCatch ? t('raceNobodyDesc') + ' ' : ''}${g.players === 1 ? (soloLost ? t('soloLoseDesc', { n: g.soloSecret }) : t('soloWinDesc', { turns: g.soloTurns || g.turn + 1 })) : champions.length === 1 ? t('endWinner', { player: champions[0] }) : t('endTie', { players: champions.join(', ') })}</p>${seriesPill()}</section><section class="panel podium-panel">${escapedNote(true)}<div class="label centered">${t('results')}</div>${order.map((p, i) => `<div class="finalscore pod-row place-${i + 1}${noCatch ? ' no-win' : ''}"><div class="medal">${['🥇', '🥈', '🥉', '🎖️'][i]}</div><div><strong>${esc(pname(p.i))}${seriesBadge(p.i)}</strong><small>${t('subtotals', { c: g.scores[p.i], s: g.stars[p.i] || 0 })}</small></div><strong class="value">${p.v} <small>${t('score')}</small></strong></div>`).join('')}<div class="banner centered">${g.players === 1 ? '' : t('capturesSummary', { count: g.captures, turns: g.limit }) + '<br>'}<small>${t('starsBonus')}</small></div>${g.players > 1 ? helpGameNote() : ''}${netEndNote()}<div class="ec-actions two"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${noCatch ? '' : shareButton()}<button class="bigbtn light" id="menu" aria-label="${esc(t('menuBack'))}"><i class="ic ic-home" aria-hidden="true"></i></button></div></section>`;
 }
 /*
  * V9.26 : écran de victoire commun à la Course et au mode Points (même structure, mêmes styles, mêmes
@@ -796,6 +799,11 @@ function end() {
  */
 const PODIUM_MEDALS = ['🥇', '🥈', '🥉', '🎖️'];
 const podiumMedal = place => PODIUM_MEDALS[Math.min(place, 4) - 1];
+/** V9.30 : à plusieurs, partie où l'aide a servie : dit qu'elle n'est pas comptée dans les statistiques. */
+const helpGameNote = () =>
+  anyHelped()
+    ? `<p class="help-game-note" title="${esc(helpedNames().join(', ') + ' — ' + t('helpNoXp'))}">${t('helpGameNote')}</p>`
+    : '';
 /** Une ligne du podium : médaille de la place, puis le contenu propre au mode. */
 const podiumRow = (place, inner) =>
   `<div class="finalscore pod-row place-${place}"><div class="medal">${podiumMedal(place)}</div>${inner}</div>`;
@@ -810,7 +818,7 @@ const caughtNote = (n, film = '') =>
 function victoryScreen({ mod = '', title, line, caught, rows }) {
   const next = (g.starter + 1) % g.players,
     decor = `<div class="race-decor" aria-hidden="true">${'<i></i>'.repeat(10)}<span class="rd-glass"></span></div>`;
-  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero${mod ? ' ' + mod + '-hero' : ''}"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${title}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${line}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel${mod ? ' ' + mod + '-panel' : ''}"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
+  return `${decor}${g.reduceMotion ? '' : confettiRain()}<header class="top">${brand()}${settingsButton()}</header><section class="hero end-hero win race-hero${mod ? ' ' + mod + '-hero' : ''}"><div class="hero-mascot"><span class="win-det" aria-hidden="true"></span></div><div class="rh-side"><div class="rh-trophy" aria-hidden="true"></div><h1>${title}</h1>${g.series ? seriesPill() : `<p class="intro rh-line">${line}</p>`}</div></section>${caught}<section class="panel podium-panel race-panel${mod ? ' ' + mod + '-panel' : ''}"><div class="podium-band"><span>${t('podiumTitle')}</span></div><div class="podium-box">${rows}</div><p class="next-starter">${t('nextStarter', { player: pname(next) })}</p>${helpGameNote()}${netEndNote()}</section><div class="ec-actions two race-actions"><button class="bigbtn" id="again"><i class="ic ic-replay" aria-hidden="true"></i>${replayLabel()}</button>${shareButton()}<button class="home-btn tile-btn" id="menu" aria-label="${esc(t('menuBack'))}"></button></div>`;
 }
 /**
  * V9.25 : fin du mode Points avec au moins une capture — structure, couleurs et boutons de l'écran de
@@ -964,10 +972,10 @@ function rewardLine(res, lead = '') {
       ? `<span class="reward-chip" title="${esc(done.map(missionText).join(' · '))}">${done.length === 1 ? t('rewardMission', { xp: MISSION_XP }) : t('rewardMissions', { n: done.length, xp: done.length * MISSION_XP })}</span>`
       : ''
   ].join('');
-  const help =
-    res.won && res.helped
-      ? `<span class="reward-chip help-chip" title="${esc(t('helpNoXp'))}">${t('helpedWin')} <small>${t('helpNoXp')}</small></span>`
-      : '';
+  // V9.30 : partie avec l'aide (gagnée ou perdue) = non comptée, dit clairement
+  const help = res.helped
+    ? `<span class="reward-chip help-chip" title="${esc(t('helpNoXp'))}">${t(res.won ? 'helpedWin' : 'helpedGame')} <small>${t('helpNoXp')}</small></span>`
+    : '';
   return chips || lead || help ? `<div class="reward-line">${lead}${help}${chips}</div>` : '';
 }
 /** Fin de partie solo : nouvel écran (score, record, XP, conseil) si la partie a été clôturée par settleSolo(). */

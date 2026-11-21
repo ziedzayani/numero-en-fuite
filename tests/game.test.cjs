@@ -4019,9 +4019,9 @@ async function playFullGame(browser, players, level, lang = 'fr') {
         r.newBadges.length === 0 &&
         r.missionXp === 0 &&
         p.xpTotal === xp0 &&
-        p.totalWins === w0 + 1 &&
-        p.totalHelpWins === hw0 + 1,
-      'Avec l’aide : victoire comptée « avec aide », mais 0 XP, aucun badge, aucune mission'
+        p.totalWins === w0 && // V9.30 : partie avec l'aide non comptée
+        (p.totalHelpWins || 0) === hw0,
+      'Avec l’aide : partie non comptée (ni victoire, ni XP, ni badge, ni mission)'
     );
     check(
       p.missions.length === 3 &&
@@ -6480,6 +6480,374 @@ async function playFullGame(browser, players, level, lang = 'fr') {
     check(
       !page.errors.length,
       `Victoire aux points : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
+    );
+    await ctx.close();
+  }
+
+  // V9.30 : restauration « Mes progrès » — fusion du Défi du jour sans perte, tout ou rien, sans double récompense
+  {
+    const { ctx, page } = await fresh(browser);
+    const r = await page.evaluate(() => {
+      const N = window.__numero,
+        today = N.todayKey(),
+        day = n => {
+          const d = new Date();
+          return N.todayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() - n));
+        };
+      const fnv = s => {
+        let h = 0x811c9dc5;
+        for (let i = 0; i < s.length; i++) {
+          h ^= s.charCodeAt(i);
+          h = Math.imul(h, 0x01000193) >>> 0;
+        }
+        return h.toString(36);
+      };
+      const enc = obj => {
+        const b = btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+        return `NEF1-${b}-${fnv(b)}`;
+      };
+      const setDaily = d => localStorage.setItem('numeroEnFuiteDailyV1', JSON.stringify(d));
+      const career = () => N.loadCareer();
+      const codeWith = (daily, extra = {}) =>
+        enc({ v: 2, career: career(), records: {}, daily, versus: {}, prefs: {}, ...extra });
+      const out = {};
+      // Test 1 — conflit : victoire locale 1 222 points, défaite importée 0 point pour la même date
+      setDaily({ [today]: { won: true, turns: 3, secret: 7, tries: 1, score: 1222, ms: 50000 } });
+      const c1 = codeWith({ [today]: { won: false, turns: null, tries: 2, score: 0, ms: 90000 } });
+      out.t1ok = N.importProgress(c1);
+      out.t1 = N.loadDaily()[today];
+      N.state.screen = 'office';
+      N.state.officeTab = 'records';
+      N.state.officeRecSet = 'daily';
+      N.state.officeDay = today;
+      N.render();
+      out.t1office = document.querySelector('.daily-detail').textContent;
+      // Test 2 — nouveau téléphone : aucun historique local, plusieurs résultats dans le code
+      localStorage.removeItem('numeroEnFuiteDailyV1');
+      const many = {
+        [day(1)]: { won: true, turns: 4, tries: 1, score: 300, ms: 60000 },
+        [day(2)]: { won: false, turns: null, tries: 3, score: 0, ms: 70000 },
+        [day(5)]: { won: true, turns: 2, tries: 1, score: 480, ms: 30000 }
+      };
+      out.t2ok = N.importProgress(codeWith(many));
+      out.t2 = JSON.stringify(N.loadDaily()) === JSON.stringify(N.cleanDaily(many));
+      out.t2hist = N.dailyHistory().filter(x => x.res).length;
+      // Test 3 — dates communes et différentes : fusion sans perte ni doublon
+      setDaily({
+        [day(1)]: { won: false, turns: null, tries: 1, score: 0, ms: 10000 },
+        [day(3)]: { won: true, turns: 5, tries: 1, score: 200, ms: 20000 }
+      });
+      N.importProgress(codeWith(many));
+      const m3 = N.loadDaily();
+      out.t3 =
+        Object.keys(m3).sort().join() === [day(1), day(2), day(3), day(5)].sort().join() &&
+        m3[day(1)].won === false && // résultat local gardé
+        m3[day(3)].score === 200 && // date seulement locale gardée
+        m3[day(2)].tries === 3 && // date seulement importée restaurée
+        m3[day(5)].score === 480;
+      // Test 4 — import répété : mêmes données, aucune récompense en plus
+      const xp0 = career().profiles['local-default'].xpTotal,
+        snap = JSON.stringify([N.loadDaily(), N.records(), N.loadVersus()]);
+      const code4 = codeWith(many);
+      N.importProgress(code4);
+      const snap1 = JSON.stringify([N.loadDaily(), N.records(), N.loadVersus()]);
+      N.importProgress(code4);
+      out.t4 =
+        snap1 === JSON.stringify([N.loadDaily(), N.records(), N.loadVersus()]) &&
+        snap1 === snap &&
+        career().profiles['local-default'].xpTotal === xp0;
+      // une partie déjà comptée ici ne redonne rien après l'import (journal gardé)
+      N.state.players = 1;
+      N.state.level = 'junior';
+      N.start(true);
+      N.state.modal = null;
+      N.guess(N.state.secret);
+      N.nextTurn();
+      const id = N.state.gameId,
+        xpA = career().profiles['local-default'].xpTotal,
+        codeA = N.exportProgress();
+      N.importProgress(codeA);
+      N.importProgress(codeA);
+      N.state.gameId = id;
+      N.settleSolo(true);
+      const pA = career().profiles['local-default'];
+      out.t4b =
+        pA.xpTotal === xpA &&
+        Object.keys(pA.badges).length === Object.keys(career().profiles['local-default'].badges).length;
+      // records : un import ne fait jamais baisser un record ; versus : jamais perdus ni additionnés
+      localStorage.setItem(
+        'numeroEnFuiteRecords',
+        JSON.stringify({ 'timed-hard-v2': 950, 'endless-easy-v2': 100 })
+      );
+      localStorage.setItem(
+        'numeroEnFuiteVersusV1',
+        JSON.stringify({
+          players: { Zied: { games: 8, wins: 5, captures: 6, streak: 1, best: 3 } },
+          pairs: {},
+          processed: ['a']
+        })
+      );
+      N.importProgress(
+        codeWith(
+          {},
+          {
+            records: { 'timed-hard-v2': 700, 'endless-easy-v2': 400, 'timed-easy-v2': 300 },
+            versus: {
+              players: {
+                Zied: { games: 5, wins: 4, captures: 3, streak: 0, best: 2 },
+                Ahlem: { games: 2, wins: 1, captures: 1, streak: 1, best: 1 }
+              },
+              pairs: {},
+              processed: ['b']
+            }
+          }
+        )
+      );
+      const rec = N.records(),
+        vs = N.loadVersus();
+      out.t4c =
+        rec['timed-hard-v2'] === 950 && rec['endless-easy-v2'] === 400 && rec['timed-easy-v2'] === 300;
+      out.t4d = vs.players.Zied.games === 8 && vs.players.Ahlem.games === 2 && vs.processed.join() === 'b,a';
+      // Test 5 — ancien format (v1) : compatible, historique et statistiques du téléphone conservés
+      const dailyBefore = JSON.stringify(N.loadDaily()),
+        vsBefore = JSON.stringify(N.loadVersus());
+      out.t5 =
+        N.importProgress(
+          enc({ v: 1, career: career(), records: { 'timed-medium-v2': 610 }, prefs: { lang: 'fr' } })
+        ) &&
+        JSON.stringify(N.loadDaily()) === dailyBefore &&
+        JSON.stringify(N.loadVersus()) === vsBefore &&
+        N.records()['timed-medium-v2'] === 610;
+      // Test 6 — données incorrectes : refusées ou nettoyées, rien d'abîmé
+      const all = () =>
+        JSON.stringify(
+          [
+            'numeroEnFuiteCareerV1',
+            'numeroEnFuiteRecords',
+            'numeroEnFuiteDailyV1',
+            'numeroEnFuiteVersusV1'
+          ].map(k => localStorage.getItem(k))
+        );
+      const safe = all();
+      const refused = [
+        N.importProgress('n’importe quoi'),
+        N.importProgress('NEF1-AAAA-zzzz'),
+        N.importProgress(enc({ v: 2, career: { profiles: 'x' }, records: {} })),
+        N.importProgress(enc({ v: 3, career: career(), records: {} })),
+        N.importProgress(enc({ v: 2, career: career(), records: {}, daily: 'pas un objet' })),
+        N.importProgress(enc({ v: 2, career: career(), records: [] }))
+      ];
+      out.t6refused = refused.every(x => x === false) && all() === safe;
+      N.importProgress(
+        codeWith({
+          '2026-02-30': { won: true, score: 999 }, // date impossible
+          '2999-01-01': { won: true, score: 999 }, // date future
+          hier: { won: true },
+          [day(9)]: { won: 'oui', turns: -4, tries: 'x', score: 'abc', ms: -1 }, // champs abîmés
+          [day(10)]: 'pas un objet'
+        })
+      );
+      const d6 = N.loadDaily();
+      out.t6clean =
+        !('2026-02-30' in d6) &&
+        !('2999-01-01' in d6) &&
+        !('hier' in d6) &&
+        !(day(10) in d6) &&
+        JSON.stringify(d6[day(9)]) ===
+          '{"won":true,"turns":null,"secret":null,"tries":1,"score":null,"ms":null}';
+      // tout ou rien : une erreur d'écriture en cours de route remet tout comme avant
+      const before7 = all(),
+        setItem = Storage.prototype.setItem;
+      let n = 0;
+      Storage.prototype.setItem = function (k, v) {
+        if (k === 'numeroEnFuiteDailyV1') {
+          n++; // carrière et records déjà écrits à ce moment-là : ils doivent être remis comme avant
+          throw new Error('stockage plein');
+        }
+        return setItem.call(this, k, v);
+      };
+      const ok7 = N.importProgress(codeWith(many));
+      Storage.prototype.setItem = setItem;
+      out.t7 = ok7 === false && n >= 1 && all() === before7;
+      return out;
+    });
+    check(
+      r.t1ok &&
+        r.t1.won === true &&
+        r.t1.score === 1222 &&
+        r.t1.tries === 2 &&
+        /Gagné/.test(r.t1office) &&
+        /1222/.test(r.t1office),
+      `Test 1 — conflit : la victoire locale (1222 pts) reste, la défaite importée ne la remplace pas (${JSON.stringify(r.t1)})`
+    );
+    check(
+      r.t2ok && r.t2 && r.t2hist === 3,
+      'Test 2 — nouveau téléphone : l’historique du Défi du jour est restauré (3 jours)'
+    );
+    check(
+      r.t3,
+      'Test 3 — dates communes et différentes : fusion sans perte ni doublon, résultat local prioritaire'
+    );
+    check(r.t4 && r.t4b, 'Test 4 — import répété : données identiques, aucune XP, badge ou mission en plus');
+    check(r.t4c && r.t4d, 'Records jamais abaissés ; statistiques à plusieurs ni perdues ni additionnées');
+    check(r.t5, 'Test 5 — ancien code (v1) : accepté, historique et statistiques du téléphone conservés');
+    check(
+      r.t6refused,
+      'Test 6 — codes invalides, incomplets ou d’une autre version : refusés, rien n’est modifié'
+    );
+    check(r.t6clean, 'Test 6 — dates impossibles ou futures et résultats corrompus : écartés ou nettoyés');
+    check(r.t7, 'Restauration tout ou rien : une erreur d’écriture laisse les sauvegardes comme avant');
+    check(
+      !page.errors.length,
+      `Restauration V9.30 : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
+    );
+    await ctx.close();
+  }
+
+  // V9.30 : une partie jouée avec l'aide n'est pas comptée (et l'écran le dit clairement)
+  {
+    const { ctx, page } = await fresh(browser);
+    const r = await page.evaluate(() => {
+      const N = window.__numero,
+        prof = () => JSON.parse(JSON.stringify(N.loadCareer().profiles['local-default'])),
+        out = {};
+      const solo = (help, win) => {
+        N.state.players = 1;
+        N.state.level = 'malin';
+        N.state.playerHelp = [help, false, false, false];
+        N.start(true);
+        N.state.playerHelp = [help, false, false, false];
+        N.state.modal = null;
+        if (win) {
+          N.guess(N.state.secret);
+          N.nextTurn();
+        } else
+          for (let i = 0; i < 20 && N.state.screen === 'game'; i++) {
+            N.state.modal = null;
+            N.guess(N.state.secret === 1 ? 2 : 1);
+            N.nextTurn();
+          }
+        N.render();
+      };
+      // Solo : victoire puis défaite avec l'aide → rien ne bouge dans la carrière
+      const p0 = prof();
+      solo(true, true);
+      const chipWin = (document.querySelector('.help-chip') || {}).textContent || '';
+      const res = N.state.soloResult;
+      solo(true, false);
+      const chipLoss = (document.querySelector('.help-chip') || {}).textContent || '';
+      const p1 = prof();
+      const keys = p =>
+        [
+          p.xpTotal,
+          p.totalWins,
+          p.totalLosses,
+          p.totalStars,
+          JSON.stringify(p.levels.malin),
+          JSON.stringify(p.badges),
+          JSON.stringify(p.missions.map(m => m.progress))
+        ].join('|');
+      out.solo = keys(p0) === keys(p1) && res.helped && res.xp === 0 && !res.newRecord;
+      out.chips = [chipWin, chipLoss];
+      // sans l'aide, la partie compte comme avant
+      solo(false, true);
+      const p2 = prof();
+      out.normal =
+        p2.totalWins === p1.totalWins + 1 && p2.xpTotal > p1.xpTotal && p2.levels.malin.bestScore != null;
+      // Défi du jour avec l'aide : essai utilisé, non compté ; l'essai suivant reste un entraînement
+      Object.assign(N.state, { screen: 'home', modal: 'challenge', playerHelp: [true, false, false, false] });
+      N.render();
+      document.getElementById('dailyGo').click();
+      N.state.playerHelp = [true, false, false, false];
+      N.state.modal = null;
+      N.guess(N.state.secret);
+      N.nextTurn();
+      const day = N.loadDaily()[N.todayKey()];
+      out.daily1 =
+        day &&
+        day.helped === true &&
+        day.won === false &&
+        day.score === null &&
+        N.state.dailyOfficial === false;
+      Object.assign(N.state, {
+        screen: 'home',
+        modal: 'challenge',
+        playerHelp: [false, false, false, false]
+      });
+      N.render();
+      document.getElementById('dailyGo').click();
+      N.state.modal = null;
+      N.guess(N.state.secret);
+      N.nextTurn();
+      const day2 = N.loadDaily()[N.todayKey()];
+      out.daily2 = day2.helped === true && day2.tries === 2 && N.state.dailyOfficial === false;
+      Object.assign(N.state, {
+        screen: 'office',
+        officeTab: 'records',
+        officeRecSet: 'daily',
+        officeDay: N.todayKey()
+      });
+      N.render();
+      out.dailyView = [
+        document.querySelector('.daily-detail').textContent,
+        document.querySelector('.daily-sum').textContent,
+        !!document.querySelector('.dcal.helped')
+      ];
+      // À plusieurs : un joueur avec l'aide → statistiques à plusieurs inchangées, note affichée
+      const vs0 = JSON.stringify(N.loadVersus().players);
+      Object.assign(N.state, {
+        players: 2,
+        level: 'malin',
+        gameMode: 'race',
+        names: ['Zied', 'Ahlem', '', '']
+      });
+      N.start(true);
+      N.state.playerHelp = [false, true, false, false];
+      N.state.modal = null;
+      N.guess(N.state.secret);
+      N.nextTurn();
+      N.render();
+      out.vs =
+        JSON.stringify(N.loadVersus().players) === vs0 && N.loadVersus().processed.includes(N.state.gameId);
+      const note = document.querySelector('.help-game-note');
+      out.vsNote = note ? note.textContent + ' [' + note.title + ']' : '';
+      // même partie sans l'aide : comptée
+      N.start(true);
+      N.state.playerHelp = [false, false, false, false];
+      N.state.modal = null;
+      N.guess(N.state.secret);
+      N.nextTurn();
+      out.vsNormal =
+        (N.loadVersus().players.Zied || {}).games === 1 && !document.querySelector('.help-game-note');
+      return out;
+    });
+    check(
+      r.solo,
+      'Solo avec l’aide (gagné ou perdu) : ni XP, ni victoire, ni défaite, ni record, ni badge, ni mission comptés'
+    );
+    check(
+      r.chips.every(c => /non comptée/.test(c)) &&
+        /Gagné avec l’aide/.test(r.chips[0]) &&
+        /Partie avec l’aide/.test(r.chips[1]),
+      `Écran de fin : « non comptée » dit clairement (${r.chips.map(c => c.trim()).join(' | ')})`
+    );
+    check(r.normal, 'Solo sans l’aide : la partie compte comme avant');
+    check(
+      r.daily1 && r.daily2,
+      'Défi du jour avec l’aide : essai utilisé mais non compté, l’essai suivant reste un entraînement'
+    );
+    check(
+      /non compté/.test(r.dailyView[0]) && /^0\//.test(r.dailyView[1].trim()) && r.dailyView[2],
+      `Bureau › Du jour : « Avec l’aide : non compté », jour absent du total (${r.dailyView[1].trim()})`
+    );
+    check(
+      r.vs && /Ahlem/.test(r.vsNote) && /non comptée/.test(r.vsNote),
+      `À plusieurs avec l’aide : statistiques inchangées, note « ${r.vsNote.trim()} »`
+    );
+    check(r.vsNormal, 'À plusieurs sans l’aide : partie comptée comme avant');
+    check(
+      !page.errors.length,
+      `Parties avec l’aide : aucune erreur JavaScript (${page.errors.slice(0, 2).join(' | ')})`
     );
     await ctx.close();
   }

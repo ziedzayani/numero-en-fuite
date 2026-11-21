@@ -489,7 +489,8 @@ function nextTurn() {
         r = records(),
         prev = r[k];
       g.soloBest = prev || null;
-      g.soloNewRecord = !prev || g.soloTurns < prev;
+      // V9.30 : une partie avec l'aide n'est pas comptée, pas même le record de tours
+      g.soloNewRecord = !(g.playerHelp && g.playerHelp[0]) && (!prev || g.soloTurns < prev);
       if (g.soloNewRecord) {
         r[k] = g.soloTurns;
         try {

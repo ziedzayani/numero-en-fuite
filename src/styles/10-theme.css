@@ -5583,3 +5583,43 @@ html[lang='ja'] .pause-card .pz-msg {
   height: 1.35em;
   margin: 0 6px -0.3em 0;
 }
+
+/* ===== V9.30 : partie avec l'aide = non comptée (dit clairement) ===== */
+.dcal.helped {
+  background: linear-gradient(180deg, #fff6d6, #ffe08a);
+  border-color: #c99a1c;
+  color: #14205a;
+}
+.dd-res.helped {
+  background: #8a6a12;
+}
+.help-game-note {
+  margin: 2px 6px 0;
+  color: #ffe08a;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+}
+.help-game-note {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.help-game-note small {
+  font-weight: 700;
+  opacity: 0.85;
+}
+/* la note prend la place gagnée sur les marges du bas du podium */
+.race-panel:has(.help-game-note) .next-starter {
+  margin-block: 4px 0;
+}
+.race-panel:has(.help-game-note) .podium-band {
+  margin-bottom: 0;
+}
+.race-panel:has(.help-game-note):has(.pod-row:nth-of-type(3)) .podium-box .pod-row {
+  padding-block: 1px;
+}
+.race-panel:has(.help-game-note) .help-game-note {
+  margin-top: 0;
+}
