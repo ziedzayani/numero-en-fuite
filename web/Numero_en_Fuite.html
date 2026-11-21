@@ -13067,6 +13067,7 @@ const dictionaries = {
   "helpGameNote": "💡 Partie avec l’aide : non comptée",
   "helpHint": "Montre les numéros encore possibles. Désactivée par défaut : c’est au détective de déduire !",
   "helpNoXp": "Partie avec l’aide : non comptée (ni XP, ni record, ni statistiques, ni badge, ni mission).",
+  "helpNotCounted": "Non comptée : ni XP, ni record, ni statistiques, ni badge, ni mission.",
   "helpOff": "Désactivée",
   "helpPlayer": "Aide",
   "helpPlayerHint": "💡 Aide = les numéros encore possibles en vert (désactivée par défaut).",
@@ -13758,6 +13759,7 @@ const dictionaries = {
   "helpGameNote": "💡 Game with help: not counted",
   "helpHint": "Shows the numbers still possible. Off by default: the detective has to work it out!",
   "helpNoXp": "Game with help: not counted (no XP, record, stats, badge or mission).",
+  "helpNotCounted": "Not counted: no XP, record, stats, badge or mission.",
   "helpOff": "Off",
   "helpPlayer": "Help",
   "helpPlayerHint": "💡 Help = possible numbers shown in green (off by default).",
@@ -14449,6 +14451,7 @@ const dictionaries = {
   "helpGameNote": "💡 لعبة مع المساعدة: لا تُحتسب",
   "helpHint": "يعرض الأرقام التي ما زالت محتملة. متوقفة افتراضيًا: على المحقق أن يستنتج!",
   "helpNoXp": "لعبة مع المساعدة: لا تُحتسب (لا نقاط خبرة ولا رقم قياسي ولا إحصاءات ولا شارة ولا مهمة).",
+  "helpNotCounted": "لا تُحتسب: لا نقاط خبرة ولا رقم قياسي ولا إحصاءات ولا شارة ولا مهمة.",
   "helpOff": "متوقفة",
   "helpPlayer": "مساعدة",
   "helpPlayerHint": "💡 المساعدة = الأرقام المحتملة باللون الأخضر (متوقفة افتراضيًا).",
@@ -15140,6 +15143,7 @@ const dictionaries = {
   "helpGameNote": "💡 Partida con ayuda: no cuenta",
   "helpHint": "Muestra los números aún posibles. Desactivada por defecto: ¡el detective tiene que deducirlo!",
   "helpNoXp": "Partida con ayuda: no cuenta (ni XP, ni récord, ni estadísticas, ni insignia, ni misión).",
+  "helpNotCounted": "No cuenta: ni XP, ni récord, ni estadísticas, ni insignia, ni misión.",
   "helpOff": "Desactivada",
   "helpPlayer": "Ayuda",
   "helpPlayerHint": "💡 Ayuda = números posibles en verde (desactivada por defecto).",
@@ -15831,6 +15835,7 @@ const dictionaries = {
   "helpGameNote": "💡 Partita con l’aiuto: non conta",
   "helpHint": "Mostra i numeri ancora possibili. Disattivato di base: il detective deve dedurlo!",
   "helpNoXp": "Partita con l’aiuto: non conta (niente XP, record, statistiche, distintivi o missioni).",
+  "helpNotCounted": "Non conta: niente XP, record, statistiche, distintivi o missioni.",
   "helpOff": "Disattivato",
   "helpPlayer": "Aiuto",
   "helpPlayerHint": "💡 Aiuto = numeri possibili in verde (disattivato di base).",
@@ -16522,6 +16527,7 @@ const dictionaries = {
   "helpGameNote": "💡 Spiel mit Hilfe: zählt nicht",
   "helpHint": "Zeigt die noch möglichen Zahlen. Standardmäßig aus: Der Detektiv soll selbst kombinieren!",
   "helpNoXp": "Spiel mit Hilfe: zählt nicht (keine XP, kein Rekord, keine Statistik, kein Abzeichen, keine Mission).",
+  "helpNotCounted": "Zählt nicht: keine XP, kein Rekord, keine Statistik, kein Abzeichen, keine Mission.",
   "helpOff": "Aus",
   "helpPlayer": "Hilfe",
   "helpPlayerHint": "💡 Hilfe = mögliche Zahlen in Grün (standardmäßig aus).",
@@ -17213,6 +17219,7 @@ const dictionaries = {
   "helpGameNote": "💡 使用了帮助：本局不计入",
   "helpHint": "显示仍有可能的数字。默认关闭：侦探要自己推理！",
   "helpNoXp": "使用帮助的对局：不计入（无经验、纪录、统计、徽章或任务）。",
+  "helpNotCounted": "不计入：无经验、纪录、统计、徽章或任务。",
   "helpOff": "关闭",
   "helpPlayer": "帮助",
   "helpPlayerHint": "💡 帮助 = 用绿色显示可能的数字（默认关闭）。",
@@ -17904,6 +17911,7 @@ const dictionaries = {
   "helpGameNote": "💡 ヒントあり：記録されません",
   "helpHint": "まだありえる数字を表示。最初はオフ：探偵は自分で推理しよう！",
   "helpNoXp": "ヒントありのゲーム：記録されません（XP・記録・統計・バッジ・ミッションなし）。",
+  "helpNotCounted": "記録されません：XP・記録・統計・バッジ・ミッションなし。",
   "helpOff": "オフ",
   "helpPlayer": "ヘルプ",
   "helpPlayerHint": "💡 ヘルプ = ありえる数字を緑で表示（最初はオフ）。",
@@ -22723,7 +22731,7 @@ function rewardLine(res, lead = '') {
   ].join('');
   // V9.30 : partie avec l'aide (gagnée ou perdue) = non comptée, dit clairement
   const help = res.helped
-    ? `<span class="reward-chip help-chip" title="${esc(t('helpNoXp'))}">${t(res.won ? 'helpedWin' : 'helpedGame')} <small>${t('helpNoXp')}</small></span>`
+    ? `<span class="reward-chip help-chip" title="${esc(t('helpNoXp'))}">${t(res.won ? 'helpedWin' : 'helpedGame')} <small>${t('helpNotCounted')}</small></span>`
     : '';
   return chips || lead || help ? `<div class="reward-line">${lead}${help}${chips}</div>` : '';
 }

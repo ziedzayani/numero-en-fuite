@@ -201,6 +201,7 @@
   "helpGameNote": "💡 Partida con ayuda: no cuenta",
   "helpHint": "Muestra los números aún posibles. Desactivada por defecto: ¡el detective tiene que deducirlo!",
   "helpNoXp": "Partida con ayuda: no cuenta (ni XP, ni récord, ni estadísticas, ni insignia, ni misión).",
+  "helpNotCounted": "No cuenta: ni XP, ni récord, ni estadísticas, ni insignia, ni misión.",
   "helpOff": "Desactivada",
   "helpPlayer": "Ayuda",
   "helpPlayerHint": "💡 Ayuda = números posibles en verde (desactivada por defecto).",

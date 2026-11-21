@@ -201,6 +201,7 @@
   "helpGameNote": "💡 Partita con l’aiuto: non conta",
   "helpHint": "Mostra i numeri ancora possibili. Disattivato di base: il detective deve dedurlo!",
   "helpNoXp": "Partita con l’aiuto: non conta (niente XP, record, statistiche, distintivi o missioni).",
+  "helpNotCounted": "Non conta: niente XP, record, statistiche, distintivi o missioni.",
   "helpOff": "Disattivato",
   "helpPlayer": "Aiuto",
   "helpPlayerHint": "💡 Aiuto = numeri possibili in verde (disattivato di base).",

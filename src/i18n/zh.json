@@ -201,6 +201,7 @@
   "helpGameNote": "💡 使用了帮助：本局不计入",
   "helpHint": "显示仍有可能的数字。默认关闭：侦探要自己推理！",
   "helpNoXp": "使用帮助的对局：不计入（无经验、纪录、统计、徽章或任务）。",
+  "helpNotCounted": "不计入：无经验、纪录、统计、徽章或任务。",
   "helpOff": "关闭",
   "helpPlayer": "帮助",
   "helpPlayerHint": "💡 帮助 = 用绿色显示可能的数字（默认关闭）。",

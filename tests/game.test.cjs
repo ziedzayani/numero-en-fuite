@@ -6826,7 +6826,7 @@ async function playFullGame(browser, players, level, lang = 'fr') {
       'Solo avec l’aide (gagné ou perdu) : ni XP, ni victoire, ni défaite, ni record, ni badge, ni mission comptés'
     );
     check(
-      r.chips.every(c => /non comptée/.test(c)) &&
+      r.chips.every(c => /Non comptée/.test(c) && (c.match(/avec l’aide/g) || []).length === 1) &&
         /Gagné avec l’aide/.test(r.chips[0]) &&
         /Partie avec l’aide/.test(r.chips[1]),
       `Écran de fin : « non comptée » dit clairement (${r.chips.map(c => c.trim()).join(' | ')})`

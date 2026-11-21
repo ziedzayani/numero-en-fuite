@@ -201,6 +201,7 @@
   "helpGameNote": "💡 Spiel mit Hilfe: zählt nicht",
   "helpHint": "Zeigt die noch möglichen Zahlen. Standardmäßig aus: Der Detektiv soll selbst kombinieren!",
   "helpNoXp": "Spiel mit Hilfe: zählt nicht (keine XP, kein Rekord, keine Statistik, kein Abzeichen, keine Mission).",
+  "helpNotCounted": "Zählt nicht: keine XP, kein Rekord, keine Statistik, kein Abzeichen, keine Mission.",
   "helpOff": "Aus",
   "helpPlayer": "Hilfe",
   "helpPlayerHint": "💡 Hilfe = mögliche Zahlen in Grün (standardmäßig aus).",

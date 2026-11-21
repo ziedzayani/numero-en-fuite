@@ -974,7 +974,7 @@ function rewardLine(res, lead = '') {
   ].join('');
   // V9.30 : partie avec l'aide (gagnée ou perdue) = non comptée, dit clairement
   const help = res.helped
-    ? `<span class="reward-chip help-chip" title="${esc(t('helpNoXp'))}">${t(res.won ? 'helpedWin' : 'helpedGame')} <small>${t('helpNoXp')}</small></span>`
+    ? `<span class="reward-chip help-chip" title="${esc(t('helpNoXp'))}">${t(res.won ? 'helpedWin' : 'helpedGame')} <small>${t('helpNotCounted')}</small></span>`
     : '';
   return chips || lead || help ? `<div class="reward-line">${lead}${help}${chips}</div>` : '';
 }

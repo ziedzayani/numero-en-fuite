@@ -201,6 +201,7 @@
   "helpGameNote": "💡 Partie avec l’aide : non comptée",
   "helpHint": "Montre les numéros encore possibles. Désactivée par défaut : c’est au détective de déduire !",
   "helpNoXp": "Partie avec l’aide : non comptée (ni XP, ni record, ni statistiques, ni badge, ni mission).",
+  "helpNotCounted": "Non comptée : ni XP, ni record, ni statistiques, ni badge, ni mission.",
   "helpOff": "Désactivée",
   "helpPlayer": "Aide",
   "helpPlayerHint": "💡 Aide = les numéros encore possibles en vert (désactivée par défaut).",

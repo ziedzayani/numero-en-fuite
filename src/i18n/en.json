@@ -201,6 +201,7 @@
   "helpGameNote": "💡 Game with help: not counted",
   "helpHint": "Shows the numbers still possible. Off by default: the detective has to work it out!",
   "helpNoXp": "Game with help: not counted (no XP, record, stats, badge or mission).",
+  "helpNotCounted": "Not counted: no XP, record, stats, badge or mission.",
   "helpOff": "Off",
   "helpPlayer": "Help",
   "helpPlayerHint": "💡 Help = possible numbers shown in green (off by default).",
